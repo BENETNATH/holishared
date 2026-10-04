@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ _("Invitations") }} — {{ event.title }}</h1>
+
+<div class="invite-box">
+  <label for="invite-url">{{ _("Lien d'invitation") }} :</label>
+  <input type="text" id="invite-url" value="{{ invite_url }}" readonly onclick="this.select()">
+  <button onclick="navigator.clipboard.writeText('{{ invite_url }}')">{{ _("Copier") }}</button>
+</div>
+
+<p>{{ event.guest_count }} / {{ max_guests }} {{ _("invités") }}</p>
+{% endblock %}

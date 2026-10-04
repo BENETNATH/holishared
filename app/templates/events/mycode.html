@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ _("Votre code") }} — {{ event.title }}</h1>
+<p>{{ _("Saisissez votre code personnel pour accéder à l'événement.") }}</p>
+
+<form method="post" action="{{ url_for('events.my_code', code=event.code) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <label for="guest_code">{{ _("Code personnel") }} *</label>
+  <input type="text" id="guest_code" name="guest_code" required minlength="8" maxlength="8"
+         pattern="[a-z0-9]+" autocomplete="off">
+
+  <button type="submit">{{ _("Accéder") }}</button>
+</form>
+{% endblock %}

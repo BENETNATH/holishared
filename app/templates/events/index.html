@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ _("Mes événements") }}</h1>
+
+{% if events %}
+<ul class="event-list">
+  {% for e in events %}
+  <li>
+    <a href="{{ url_for('events.dashboard', code=e.code) }}">{{ e.title }}</a>
+    <span class="meta">{{ e.start_date }} → {{ e.end_date }} · {{ e.guest_count }} {{ _("invités") }}</span>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>{{ _("Aucun événement. Créez-en un !") }}</p>
+{% endif %}
+
+<a href="{{ url_for('events.create') }}" class="btn btn-primary">{{ _("Nouvel événement") }}</a>
+{% endblock %}

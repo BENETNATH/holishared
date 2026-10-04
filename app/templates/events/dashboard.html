@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ event.title }}</h1>
+<p class="meta">{{ event.start_date }} → {{ event.end_date }}{% if event.location %} · 📍 {{ event.location }}{% endif %}</p>
+{% if event.description %}<p>{{ event.description }}</p>{% endif %}
+
+<nav class="event-nav">
+  {% if "planning" in enabled_modules %}
+    <a href="{{ url_for('planning.index', code=event.code) }}">{{ _("Planning") }}</a>
+  {% endif %}
+  {% if "media" in enabled_modules %}
+    <a href="{{ url_for('media.gallery', code=event.code) }}">{{ _("Media") }}</a>
+  {% endif %}
+  <a href="{{ url_for('events.invite', code=event.code) }}">{{ _("Inviter") }}</a>
+  <a href="{{ url_for('events.log', code=event.code) }}">{{ _("Journal") }}</a>
+</nav>
+
+{% if guest %}
+<p class="guest-info">{{ _("Connecté en tant que") }} : {{ guest.display_name }} ({{ guest.code }})</p>
+{% endif %}
+{% endblock %}

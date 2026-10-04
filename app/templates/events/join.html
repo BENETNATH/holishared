@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ _("Rejoindre") }} : {{ event.title }}</h1>
+<p>{{ event.start_date }} → {{ event.end_date }}{% if event.location %} · 📍 {{ event.location }}{% endif %}</p>
+
+<form method="post" action="{{ url_for('events.guest_access', code=event.code) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <label for="display_name">{{ _("Votre nom d'affichage") }} *</label>
+  <input type="text" id="display_name" name="display_name" required minlength="2" maxlength="50"
+         placeholder="{{ _('Ex : Alice, Bob…') }}">
+
+  <button type="submit">{{ _("Rejoindre") }}</button>
+</form>
+{% endblock %}

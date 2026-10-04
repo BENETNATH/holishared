@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ _("Journal") }} — {{ event.title }}</h1>
+
+{% if logs %}
+<table class="log-table">
+  <thead>
+    <tr>
+      <th>{{ _("Quand") }}</th>
+      <th>{{ _("Qui") }}</th>
+      <th>{{ _("Action") }}</th>
+      <th>{{ _("Cible") }}</th>
+      <th>{{ _("Détails") }}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for log in logs %}
+    <tr>
+      <td>{{ log.created_at.strftime("%d/%m %H:%M") }}</td>
+      <td>{{ log.actor_name }}</td>
+      <td><code>{{ log.action }}</code></td>
+      <td>{{ log.target or "" }}</td>
+      <td>{{ log.details or "" }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>{{ _("Aucune action enregistrée.") }}</p>
+{% endif %}
+{% endblock %}

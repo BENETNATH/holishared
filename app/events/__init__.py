@@ -5,7 +5,7 @@ from flask import (Blueprint, render_template, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from datetime import date, datetime
 from app.extensions import db
-from app.models import Event, Guest, Creator, generate_event_code, generate_guest_code
+from app.models import Event, Guest, Creator, Activity, generate_event_code, generate_guest_code
 from app.freemium import can_create_event, can_add_guest, max_duration_days
 from app.auth import is_disposable_email
 import secrets
@@ -239,3 +239,19 @@ def verify(code, token):
     else:
         flash("Lien de validation invalide ou expiré.", "danger")
     return redirect(url_for("events.dashboard", code=code))
+
+
+@events_bp.route("/<code>/log")
+def log(code):
+    """Activity log for an event (traceability)."""
+    from app.models import ActivityLog
+    event = Event.query.filter_by(code=code, is_active=True).first()
+    if not event:
+        return "Not found", 404
+
+    guest = _get_current_guest(event)
+    if not guest and not (current_user.is_authenticated and current_user.id == event.creator_id):
+        return redirect(url_for("events.guest_access", code=code))
+
+    logs = ActivityLog.query.filter_by(event_id=event.id).order_by(ActivityLog.created_at.desc()).limit(100).all()
+    return render_template("events/log.html", event=event, logs=logs)
