@@ -92,6 +92,18 @@ def create_app():
 
     babel.init_app(app, locale_selector=get_locale)
 
+    # Flask-Babel caches the resolved locale in g._flask_babel.babel_locale
+    # for the duration of the request.  When the user clicks the FR/EN
+    # toggle (?lang=fr / ?lang=en) we must invalidate that cache so the
+    # selector is re-invoked with the new argument.
+    @app.before_request
+    def _reset_locale_on_switch():
+        if request.args.get("lang"):
+            from flask import g as _g
+            fb = getattr(_g, "_flask_babel", None)
+            if fb is not None and hasattr(fb, "babel_locale"):
+                fb.babel_locale = None
+
     # Date formatting for templates
     from flask_babel import format_date as babel_format_date
 
@@ -133,10 +145,12 @@ def create_app():
     # Context processor
     @app.context_processor
     def inject_globals():
+        from flask_babel import get_locale as _get_locale
+        loc = _get_locale()
         return {
             "app_name": "holishared",
             "enabled_modules": app.config["ENABLED_MODULES"],
-            "current_lang": g.lang if hasattr(g, "lang") else None,
+            "current_lang": loc.language if loc else None,
         }
 
     # Error handlers
