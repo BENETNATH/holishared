@@ -66,13 +66,8 @@ def access_by_code() -> str | Response:
 
 @events_bp.route("/new", methods=["GET", "POST"])
 @limiter.limit("10 per hour")
-@login_required  # type: ignore[untyped-decorator]
 def create() -> str | Response:
-    """Create a new event."""
-    if not can_create_event(current_user):
-        flash("Limite d'événements atteinte.", "warning")
-        return redirect(url_for("events.index"))
-
+    """Create a new event (no login required — email + personal code)."""
     if request.method == "POST":
         title = request.form.get("title", "").strip()
         description = request.form.get("description", "").strip()
@@ -99,15 +94,13 @@ def create() -> str | Response:
                 elif (ed - sd).days + 1 > max_duration_days():
                     errors.append(f"Durée max : {max_duration_days()} jours.")
         if not email:
-            errors.append("Email requis pour validation.")
+            errors.append("Email requis.")
         elif not _valid_email(email):
             errors.append("Format d'email invalide.")
         elif is_disposable_email(email):
             errors.append("Domaine email non accepté (jetable).")
 
         if errors:
-            # Re-render the form with the entered values and field-level
-            # errors (no redirect, so the input is not lost).
             return render_template(
                 "events/create.html",
                 errors=errors,
@@ -121,24 +114,37 @@ def create() -> str | Response:
                 },
             )
 
-        # The event belongs to the logged-in creator. The entered email is
-        # the event's creator identity (creator_email), not a separate
-        # account: any email can create an event.
+        # Auto-create or reuse Creator from email (no password — personal code is identity).
+        creator = Creator.query.filter_by(email=email).first()
+        if not creator:
+            creator = Creator(
+                email=email,
+                display_name=email.split("@")[0].title(),
+                personal_code=generate_guest_code(),
+            )
+            db.session.add(creator)
+            db.session.flush()
+
+        # Check event limit
+        existing_count = Event.query.filter_by(creator_id=creator.id, is_active=True).count()
+        if existing_count >= int(current_app.config["MAX_EVENTS_PER_CREATOR"]):
+            flash(f"Limite d'événements atteinte ({existing_count}).", "warning")
+            return redirect(url_for("events.create"))
+
         event = Event(
             title=title,
             description=description,
             start_date=datetime.strptime(cast("str", start_date), "%Y-%m-%d").date(),
             end_date=datetime.strptime(cast("str", end_date), "%Y-%m-%d").date(),
             location=location,
-            creator_id=current_user.id,
+            creator_id=creator.id,
             creator_email=email,
         )
         db.session.add(event)
         db.session.commit()
 
-        # Send a confirmation email to the creator (if SMTP configured).
-        if current_app.config["SMTP_HOST"]:
-            _send_verification_email(current_user, event)
+        # Store creator in session so they can access their events without login.
+        session["creator_id"] = creator.id
 
         flash(f"Événement créé : {event.code}", "success")
         return redirect(url_for("events.dashboard", code=event.code))
