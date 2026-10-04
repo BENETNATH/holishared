@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - SaaS{% endblock %}
+{% block content %}
+<h1 style="margin-bottom: 1.5rem;">Dashboard</h1>
+
+<div class="card">
+    <h2 style="font-size: 1.125rem; margin-bottom: 0.5rem;">Bienvenue</h2>
+    <p style="color: var(--text-muted);">
+        Le SaaS est opérationnel. Ajoutez vos features ici.
+    </p>
+</div>
+
+<div class="card" x-data="{ loaded: false }" x-init="loaded = true">
+    <h2 style="font-size: 1.125rem; margin-bottom: 0.5rem;">Statut</h2>
+    <p x-show="loaded" style="color: var(--success);">
+        ✓ Flask + HTMX + Alpine.js opérationnels
+    </p>
+</div>
+{% endblock %}

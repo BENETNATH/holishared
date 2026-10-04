@@ -1,0 +1,26 @@
+[Unit]
+Description=SaaS Application (Waitress)
+After=network.target
+
+[Service]
+Type=simple
+User=petitdadm
+Group=petitdadm
+WorkingDirectory=/opt/saas
+EnvironmentFile=/opt/saas/.env
+ExecStart=/opt/saas/.venv/bin/python -m waitress --listen 127.0.0.1:${APP_PORT} --threads ${APP_THREADS} --call app:create_app()
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=saas
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/saas
+
+[Install]
+WantedBy=multi-user.target

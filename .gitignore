@@ -1,0 +1,57 @@
+# holishared — .gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# SQLite
+instance/*.db
+instance/*.db-journal
+instance/*.db-wal
+instance/*.db-shm
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# PIDs
+*.pid
+
+# Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Node (if any)
+node_modules/
+
+# Deploy artifacts
+deploy/
