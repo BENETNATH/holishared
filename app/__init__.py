@@ -3,6 +3,7 @@
 import os
 import shutil
 import time
+from datetime import date
 from pathlib import Path
 from typing import cast
 
@@ -120,6 +121,25 @@ def create_app() -> Flask:
                 cursor.execute("PRAGMA busy_timeout=5000")
                 cursor.close()
         db.create_all()
+
+    # Auto-purge: delete events ended more than 30 days ago.
+    from datetime import timedelta
+    from app.models import Event as _Event
+
+    def _purge_expired_events() -> None:
+        cutoff = date.today() - timedelta(days=30)
+        expired = _Event.query.filter(
+            _Event.end_date.isnot(None),
+            _Event.end_date < cutoff,
+            _Event.is_active == True,  # noqa: E712
+        ).all()
+        for ev in expired:
+            db.session.delete(ev)
+        if expired:
+            db.session.commit()
+
+    with app.app_context():
+        _purge_expired_events()
 
     # Language selector. A ?lang= switch is persisted in the session so the
     # preference survives navigation; otherwise fall back to the browser

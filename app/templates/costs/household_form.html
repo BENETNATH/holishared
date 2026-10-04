@@ -3,7 +3,7 @@
 {% block content %}
 <div class="page-head">
     <div>
-        <h1>{{ _("Nouveau foyer") }}</h1>
+        <h1>{{ _("Nouveau groupe") }}</h1>
         <p class="page-sub">{{ event.title }}</p>
     </div>
 </div>
@@ -12,9 +12,9 @@
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
   <div class="form-group">
-    <label for="name">{{ _("Nom du foyer") }} *</label>
+    <label for="name">{{ _("Nom du groupe") }} *</label>
     <input type="text" id="name" name="name" required minlength="2" maxlength="100"
-           placeholder="{{ _('Ex : Famille Dupont') }}">
+           placeholder="{{ _('Ex : Famille Dupont, Alice + Bob') }}">
   </div>
 
   <div class="form-grid form-grid-compact">
@@ -31,7 +31,7 @@
   <p class="hint">{{ _("Le ratio adulte/enfant se définit sur la page des frais.") }}</p>
 
   <div class="form-actions">
-    <button type="submit" class="btn btn-primary">{{ _("Ajouter le foyer") }}</button>
+    <button type="submit" class="btn btn-primary">{{ _("Ajouter le groupe") }}</button>
   </div>
 </form>
 {% endblock %}

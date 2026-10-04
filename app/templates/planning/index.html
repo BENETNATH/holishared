@@ -117,7 +117,8 @@
    The full form (planning.create) stays available for advanced fields. #}
 {% set default_date = today if event.start_date <= today <= event.end_date else event.start_date %}
 <div class="quick-act" id="quick-activity">
-  <h2>{{ _("Ajout rapide") }}</h2>
+  <h2>{{ _("Ajouter une activité") }}</h2>
+  <p class="hint">{{ _("Randonnée, piscine, sortie… (les repas se saisissent dans la grille ci-dessus)") }}</p>
   <form method="post" action="{{ url_for('planning.create', code=event.code) }}" class="quick-act-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <input type="hidden" name="min_headcount" value="1">
@@ -129,16 +130,19 @@
     <input type="time" name="start_time" aria-label="{{ _('Heure') }}">
     <button type="submit" class="btn btn-primary">{{ _("Ajouter") }}</button>
   </form>
-  <p class="hint"><a href="{{ url_for('planning.create', code=event.code) }}">{{ _("Besoin de plus d'options ? Créer une activité détaillée →") }}</a></p>
+  <p class="hint"><a href="{{ url_for('planning.create', code=event.code) }}">{{ _("Plus d'options (description, lieu, effectif…) →") }}</a></p>
 </div>
 
 {# RSVP section for guests #}
 {% if guest and activities %}
 <div class="rsvp-section">
-  <h2>{{ _("Vos participations") }}</h2>
+  <h2>{{ _("Indiquez votre participation") }}</h2>
   {% for act in activities %}
     <div class="card rsvp-card">
-      <span class="time">{% if act.start_time %}{{ act.start_time.strftime("%H:%M") }}{% endif %}</span>
+      <div class="rsvp-meta">
+        <span class="rsvp-date">{{ act.date | format_date('full') }}</span>
+        {% if act.start_time %}<span class="time">{{ act.start_time.strftime("%H:%M") }}</span>{% endif %}
+      </div>
       <h3>{{ act.title }}</h3>
       <form method="post" action="{{ url_for('planning.rsvp', code=event.code, activity_id=act.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

@@ -3519,3 +3519,17 @@ details.form-options .form-group {
   color: var(--text-muted);
   margin-right: var(--sp-1);
 }
+
+/* --- RSVP cards --- */
+.rsvp-meta {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+  margin-bottom: var(--sp-1);
+}
+
+.rsvp-date {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+}
