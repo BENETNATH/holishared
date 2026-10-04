@@ -81,23 +81,83 @@ Si un check échoue → corriger avant de committer. Jamais de commit rouge.
 
 ---
 
-## Workflow d'un lot
+## Pipeline de codage (7 étapes, non négociable)
 
 ```
-1. Lire TASKS.md → identifier le lot à faire
-2. Créer une branche : lot/B00X-nom-du-lot
-3. Pour chaque tâche du lot :
-   a. Écrire le code
-   b. Écrire/mettre à jour les tests
-   c. Ruff + mypy + pytest
-   d. Commit atomique
-4. Quand le lot est complet :
-   a. Mettre à jour CHANGELOG.md
-   b. Mettre à jour TASKS.md (statut ✅)
-   c. Mettre à jour DEV_LOG.md (section journal)
-   d. Commit final : chore: close lot B00X
-5. Merge en main (squash ou merge commit)
-6. Supprimer la branche
+┌─────────────────────────────────────────────────────────────────────┐
+│  1. PLAN + SPECS                                                    │
+│     - Analyse complète du lot (modèles, routes, templates, tests)   │
+│     - Spec écrite dans specs/B00X-slug.md                          │
+│     - Chaque route, champ, comportement est spécifié                │
+│     - Pas d'ambiguïté : si un dev ne peut pas coder sans poser     │
+│       de question, la spec est incomplète                          │
+├─────────────────────────────────────────────────────────────────────┤
+│  2. AUDIT DES SPECS                                                 │
+│     - Agent d'audit relit la spec                                   │
+│     - Vérifie : complétude, cohérence, cas limites, sécurité        │
+│     - Si problème → corriger la spec → re-audit                    │
+│     - Gate : spec approuvée                                        │
+├─────────────────────────────────────────────────────────────────────┤
+│  3. TESTS (avant le code)                                           │
+│     - Écrire les tests D'ABORD (TDD)                               │
+│     - Tests déterministes, pas de "vibe testing"                   │
+│     - Chaque test = un comportement précis, un assert précis        │
+│     - Pas de test qui passe "parce que c'est flou"                 │
+│     - Les tests DOIVENT échouer (code pas encore écrit)            │
+├─────────────────────────────────────────────────────────────────────┤
+│  4. CODAGE (agent au contexte propre)                               │
+│     - Agent reçoit : spec + tests + AGENTS.md                      │
+│     - Agent lit la spec, lit les tests, code                       │
+│     - Agent ne devine rien : tout est dans la spec                 │
+│     - Commits atomiques pendant le codage                          │
+├─────────────────────────────────────────────────────────────────────┤
+│  5. EXÉCUTION DES TESTS                                             │
+│     - pytest (tous les tests du lot + régression)                  │
+│     - Si échec → retour étape 4 (fix)                              │
+│     - Gate : tous les tests verts                                 │
+├─────────────────────────────────────────────────────────────────────┤
+│  6. AUDIT DU CODE                                                   │
+│     - Agent d'audit relit le code livré                            │
+│     - Vérifie : conformité spec, sécurité, accessibilité,          │
+│       i18n, pas de code mort, pas de TODO                          │
+│     - Si problème → retour étape 4 (fix)                           │
+│     - Gate : code approuvé                                         │
+├─────────────────────────────────────────────────────────────────────┤
+│  7. GATE + COMMIT                                                   │
+│     - ruff check . && ruff format --check .                        │
+│     - mypy app/                                                    │
+│     - pytest (full suite)                                          │
+│     - Si tout vert :                                               │
+│       a. Mettre à jour CHANGELOG.md                                │
+│       b. Mettre à jour TASKS.md (statut ✅)                        │
+│       c. Mettre à jour DEV_LOG.md (journal)                        │
+│       d. Commit final : chore: close lot B00X                      │
+│       e. Merge en main                                             │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### Règles du pipeline
+
+- **Jamais de codage sans spec approuvée** (étape 2 gate).
+- **Jamais de commit sans tests verts** (étape 5 gate).
+- **Jamais de merge sans audit code** (étape 6 gate).
+- **L'agent de codage ne voit que** : spec + tests + AGENTS.md. Pas de contexte
+  conversationnel, pas de "rappelle-toi qu'on a dit…".
+- **L'agent d'audit ne voit que** : spec + code livré. Il compare.
+- **Si un gate échoue 2 fois** → escalade à l'utilisateur, pas de retry infini.
+
+---
+
+## Workflow d'un lot (résumé)
+
+```
+1. specs/B00X-slug.md écrit
+2. Audit spec → approuvé
+3. tests/test_B00X.py écrits (doivent échouer)
+4. Agent code (contexte propre : spec + tests + AGENTS.md)
+5. pytest → verts
+6. Agent audit code → approuvé
+7. ruff + mypy + pytest → verts → commit + merge
 ```
 
 ---
