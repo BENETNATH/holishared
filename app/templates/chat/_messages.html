@@ -1,0 +1,24 @@
+{# Partial HTMX — fragment des messages (polling toutes les 5s). #}
+{% if not messages %}
+  <p class="empty">{{ _("Aucun message. Lancez la conversation !") }}</p>
+{% else %}
+  <ul class="chat-list">
+    {% for msg in messages %}
+      <li class="chat-msg{% if msg.author_type == 'creator' %} creator{% endif %}">
+        <span class="avatar" aria-hidden="true">{{ msg.author_name[:1] | upper }}</span>
+        <div class="chat-body">
+          <span class="chat-author">{{ msg.author_name }}</span>
+          <time datetime="{{ msg.created_at.isoformat() }}">{{ msg.created_at.strftime("%H:%M") }}</time>
+          <p class="chat-content">{{ msg.content }}</p>
+          {% if can_delete(msg) %}
+            <form method="post" action="{{ url_for('chat.delete', code=event.code, msg_id=msg.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="chat-delete"
+                      aria-label="{{ _('Supprimer le message de') }} {{ msg.author_name }}">{{ _("Supprimer") }}</button>
+            </form>
+          {% endif %}
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}

@@ -61,7 +61,9 @@ def _actor_name(guest: Guest | None, is_creator: bool) -> tuple[str, str]:
 
 def _poll_results(poll: Poll) -> tuple[list[dict[str, object]], int]:
     """Real-time results: per-option count and percentage, plus total votes."""
-    options = poll.options.order_by(PollOption.order.asc()).all()
+    options = (
+        PollOption.query.filter_by(poll_id=poll.id).order_by(PollOption.order.asc()).all()
+    )
     results: list[dict[str, object]] = []
     total = 0
     for option in options:

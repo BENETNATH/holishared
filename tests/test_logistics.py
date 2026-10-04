@@ -71,7 +71,11 @@ class TestLogisticsIndex:
                     title="Item Access", content="c", category="access", order=0, event_id=event.id
                 ),
                 LogisticsItem(
-                    title="Item Address", content="c", category="address", order=0, event_id=event.id
+                    title="Item Address",
+                    content="c",
+                    category="address",
+                    order=0,
+                    event_id=event.id,
                 ),
             ]
         )

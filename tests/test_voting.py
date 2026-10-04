@@ -8,7 +8,6 @@ import pytest
 
 from app.models import ActivityLog, Poll, PollOption, PollVote
 
-
 # === Fixtures locales (complètent conftest.py) ===
 
 
@@ -154,9 +153,7 @@ class TestVote:
     def test_vote_success(self, client, event, guest, poll, db):
         _login_guest(client, event, guest)
         option = _options(poll)[0]
-        resp = client.post(
-            f"/e/{event.code}/voting/{poll.id}/vote", data={"option_id": option.id}
-        )
+        resp = client.post(f"/e/{event.code}/voting/{poll.id}/vote", data={"option_id": option.id})
         assert resp.status_code == 302
         vote = PollVote.query.filter_by(guest_id=guest.id, option_id=option.id).first()
         assert vote is not None
@@ -173,24 +170,18 @@ class TestVote:
     def test_vote_forbidden_for_creator(self, client, creator, event, poll):
         _login_creator(client, creator)
         option = _options(poll)[0]
-        resp = client.post(
-            f"/e/{event.code}/voting/{poll.id}/vote", data={"option_id": option.id}
-        )
+        resp = client.post(f"/e/{event.code}/voting/{poll.id}/vote", data={"option_id": option.id})
         assert resp.status_code == 403
         assert PollVote.query.count() == 0
 
     def test_vote_404_invalid_poll(self, client, event, guest):
         _login_guest(client, event, guest)
-        resp = client.post(
-            f"/e/{event.code}/voting/invalid_id/vote", data={"option_id": "x" * 32}
-        )
+        resp = client.post(f"/e/{event.code}/voting/invalid_id/vote", data={"option_id": "x" * 32})
         assert resp.status_code == 404
 
     def test_vote_404_invalid_option(self, client, event, guest, poll):
         _login_guest(client, event, guest)
-        resp = client.post(
-            f"/e/{event.code}/voting/{poll.id}/vote", data={"option_id": "y" * 32}
-        )
+        resp = client.post(f"/e/{event.code}/voting/{poll.id}/vote", data={"option_id": "y" * 32})
         assert resp.status_code == 404
         assert PollVote.query.count() == 0
 

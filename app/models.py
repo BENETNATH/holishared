@@ -67,6 +67,9 @@ class Event(db.Model):
     logistics_items = db.relationship(
         "LogisticsItem", backref="event", lazy="dynamic", cascade="all, delete-orphan"
     )
+    chat_messages = db.relationship(
+        "ChatMessage", backref="event", lazy="dynamic", cascade="all, delete-orphan"
+    )
 
     @property
     def duration_days(self):
@@ -290,6 +293,21 @@ class MediaItem(db.Model):
     @property
     def display_date(self):
         return self.taken_at or self.uploaded_at
+
+
+class ChatMessage(db.Model):
+    """A chat message on an event (B008)."""
+
+    __tablename__ = "chat_messages"
+
+    id = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    guest_id = db.Column(db.String(32), db.ForeignKey("guests.id"), nullable=True)
+    author_name = db.Column(db.String(100), nullable=False)
+    author_type = db.Column(db.String(20), nullable=False)  # creator, guest
+
+    event_id = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False, index=True)
 
 
 class MediaQuota(db.Model):

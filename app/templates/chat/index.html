@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Chat") }} — {{ event.title }}{% endblock %}
+{% block head %}
+<style>
+    .chat-messages {
+        max-height: 60vh;
+        overflow-y: auto;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .chat-list { list-style: none; }
+    .chat-msg { display: flex; gap: 0.75rem; margin-bottom: 1rem; }
+    .chat-msg:last-child { margin-bottom: 0; }
+    .chat-msg .avatar {
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 50%;
+        background: var(--primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+    .chat-msg.creator .avatar { background: var(--success); }
+    .chat-author { font-weight: 600; margin-right: 0.5rem; }
+    .chat-msg time { color: var(--text-muted); font-size: 0.75rem; }
+    .chat-content { white-space: pre-wrap; word-break: break-word; }
+    .chat-delete {
+        background: none;
+        border: none;
+        color: var(--danger);
+        cursor: pointer;
+        font-size: 0.75rem;
+        padding: 0;
+    }
+    .chat-delete:focus { outline: 2px solid var(--primary); outline-offset: 2px; }
+    .chat-form { display: flex; flex-direction: column; gap: 0.5rem; }
+</style>
+{% endblock %}
+{% block content %}
+<h1>{{ _("Chat") }} — {{ event.title }}</h1>
+
+<div id="messages"
+     class="chat-messages"
+     role="log"
+     aria-live="polite"
+     hx-get="{{ url_for('chat.index', code=event.code) }}"
+     hx-trigger="load, every 5s"
+     hx-swap="innerHTML">
+  {% include "chat/_messages.html" %}
+</div>
+
+<form method="post" action="{{ url_for('chat.send', code=event.code) }}" class="chat-form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="form-group">
+    <label for="chat-content">{{ _("Votre message") }}</label>
+    <textarea id="chat-content" name="content" rows="2" maxlength="2000" required></textarea>
+  </div>
+  <button type="submit" class="btn btn-primary">{{ _("Envoyer") }}</button>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var box = document.getElementById("messages");
+    if (box) { box.scrollTop = box.scrollHeight; }
+  });
+</script>
+{% endblock %}

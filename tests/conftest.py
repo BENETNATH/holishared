@@ -1,6 +1,7 @@
 """Test fixtures for holishared."""
 
 import pytest
+
 from app import create_app
 from app.extensions import db as _db
 from app.models import Creator, Event, Guest, generate_event_code, generate_guest_code
@@ -57,6 +58,7 @@ def creator(db):
 def event(db, creator):
     """An active event."""
     from datetime import date
+
     e = Event(
         code=generate_event_code(),
         title="Test Vacation",

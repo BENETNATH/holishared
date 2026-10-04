@@ -86,6 +86,7 @@ def create_app():
 
     # Blueprints
     from app.auth import auth_bp
+    from app.chat import chat_bp
     from app.events import events_bp
     from app.lists import lists_bp
     from app.logistics import logistics_bp
@@ -100,6 +101,7 @@ def create_app():
     app.register_blueprint(logistics_bp)
     app.register_blueprint(media_bp)
     app.register_blueprint(voting_bp)
+    app.register_blueprint(chat_bp)
 
     # Context processor
     @app.context_processor
