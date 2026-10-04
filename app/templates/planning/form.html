@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{% if activity %}{{ _("Modifier") }}{% else %}{{ _("Nouvelle activité") }}{% endif %}{% endblock %}
+{% block content %}
+<h1>{% if activity %}{{ _("Modifier") }}{% else %}{{ _("Nouvelle activité") }}{% endif %}</h1>
+
+{% if errors %}
+<ul class="errors" aria-live="assertive">
+  {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+</ul>
+{% endif %}
+
+<form method="post" action="{{ action_url }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <div class="form-group">
+    <label for="title">{{ _("Titre") }} *</label>
+    <input type="text" id="title" name="title" required minlength="2" maxlength="200"
+           value="{{ form_data.get('title', '') }}">
+  </div>
+
+  <div class="form-group">
+    <label for="description">{{ _("Description") }}</label>
+    <textarea id="description" name="description" rows="3" maxlength="2000">{{ form_data.get('description', '') }}</textarea>
+  </div>
+
+  <div class="form-group">
+    <label for="date">{{ _("Date") }} *</label>
+    <input type="date" id="date" name="date" required
+           min="{{ event.start_date.isoformat() }}" max="{{ event.end_date.isoformat() }}"
+           value="{{ form_data.get('date', '') }}">
+  </div>
+
+  <div class="form-group">
+    <label for="start_time">{{ _("Heure de début") }}</label>
+    <input type="time" id="start_time" name="start_time" value="{{ form_data.get('start_time', '') }}">
+  </div>
+
+  <div class="form-group">
+    <label for="end_time">{{ _("Heure de fin") }}</label>
+    <input type="time" id="end_time" name="end_time" value="{{ form_data.get('end_time', '') }}">
+  </div>
+
+  <div class="form-group">
+    <label for="location">{{ _("Lieu") }}</label>
+    <input type="text" id="location" name="location" maxlength="300" value="{{ form_data.get('location', '') }}">
+  </div>
+
+  <div class="form-group">
+    <label for="min_headcount">{{ _("Nombre minimum de participants") }}</label>
+    <input type="number" id="min_headcount" name="min_headcount" min="1" max="50" value="{{ form_data.get('min_headcount', 1) }}">
+  </div>
+
+  <div class="form-group">
+    <label for="bring_items">{{ _("Apporter") }}</label>
+    <input type="text" id="bring_items" name="bring_items" maxlength="500"
+           placeholder="{{ _('Ex : 2 chaises, 1 nappe') }}" value="{{ form_data.get('bring_items', '') }}">
+  </div>
+
+  <button type="submit">{% if activity %}{{ _("Modifier") }}{% else %}{{ _("Créer") }}{% endif %}</button>
+</form>
+{% endblock %}

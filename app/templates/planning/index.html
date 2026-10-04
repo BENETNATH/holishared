@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Planning") }} — {{ event.title }}{% endblock %}
+{% block content %}
+<h1>{{ _("Planning") }} — {{ event.title }}</h1>
+
+<a href="{{ url_for('planning.create', code=event.code) }}" class="btn btn-primary">
+  {{ _("Nouvelle activité") }}
+</a>
+
+{% if not activities %}
+  <p class="empty">{{ _("Aucune activité planifiée. Ajoutez-en une !") }}</p>
+{% else %}
+  {% set grouped = activities | groupby("date") %}
+  {% for day, acts in grouped %}
+    <h2 class="day-header{% if day == today %} today{% endif %}">
+      {{ day | format_date('full') }}
+    </h2>
+    {% for act in acts %}
+      <div class="card activity-card">
+        {% if act.start_time %}
+          <span class="time">
+            {{ act.start_time.strftime("%H:%M") }}
+            {% if act.end_time %} – {{ act.end_time.strftime("%H:%M") }}{% endif %}
+          </span>
+        {% elif act.end_time %}
+          <span class="time">{{ _("jusqu'à") }} {{ act.end_time.strftime("%H:%M") }}</span>
+        {% endif %}
+        <h3>{{ act.title }}</h3>
+        {% if act.description %}<p>{{ act.description }}</p>{% endif %}
+        {% if act.location %}<p class="location">📍 {{ act.location }}</p>{% endif %}
+        {% if act.bring_items %}<p class="bring">{{ _("Apporter") }} : {{ act.bring_items }}</p>{% endif %}
+
+        <span class="badge-headcount {% if act.confirmed_count >= act.min_headcount %}ok{% else %}insufficient{% endif %}"
+              aria-label="{{ act.confirmed_count }} {{ _('confirmés sur') }} {{ act.min_headcount }} {{ _('requis') }}">
+          {{ act.confirmed_count }}/{{ act.min_headcount }}
+          {% if act.confirmed_count < act.min_headcount %}
+            <span class="sr-only">{{ _("— insuffisant") }}</span>
+          {% endif %}
+        </span>
+
+        {% if guest %}
+          <form method="post" action="{{ url_for('planning.rsvp', code=event.code, activity_id=act.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" name="status" value="yes" aria-pressed="{{ 'true' if guest_rsvps.get(act.id) == 'yes' else 'false' }}">{{ _("Oui") }}</button>
+            <button type="submit" name="status" value="no" aria-pressed="{{ 'true' if guest_rsvps.get(act.id) == 'no' else 'false' }}">{{ _("Non") }}</button>
+            <button type="submit" name="status" value="maybe" aria-pressed="{{ 'true' if guest_rsvps.get(act.id) == 'maybe' else 'false' }}">{{ _("Peut-être") }}</button>
+          </form>
+        {% endif %}
+
+        {% if can_modify(act) %}
+          <a href="{{ url_for('planning.edit', code=event.code, activity_id=act.id) }}">{{ _("Modifier") }}</a>
+          <form method="post" action="{{ url_for('planning.delete', code=event.code, activity_id=act.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-danger">{{ _("Supprimer") }}</button>
+          </form>
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% endfor %}
+{% endif %}
+{% endblock %}
