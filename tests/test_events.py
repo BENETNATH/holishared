@@ -42,14 +42,14 @@ class TestGuestAccess:
         """The guest chooses their own personal code (no flash)."""
         resp = client.post(f"/e/{event.code}/join", data={
             "display_name": "Alice",
-            "code": "alice42",
+            "code": "alice42x",
         }, follow_redirects=True)
         assert resp.status_code == 200
         from app.models import Guest
-        g = Guest.query.filter_by(event_id=event.id, code="alice42").first()
+        g = Guest.query.filter_by(event_id=event.id, code="alice42x").first()
         assert g is not None
         # The code is shown on the dashboard, not flashed.
-        assert b"alice42" in resp.data
+        assert b"alice42x" in resp.data
 
     def test_join_missing_code(self, client, event):
         resp = client.post(f"/e/{event.code}/join", data={
@@ -77,12 +77,12 @@ class TestGuestAccess:
             "display_name": "Bob",
             "code": guest.code,
         }, follow_redirects=True)
-        assert b"d\xc3\xa9j\xc3\xa0 pris" in resp.data
+        assert b"d\xc3\xa9j\xc3\xa0 utilis" in resp.data
 
     def test_join_too_short_name(self, client, event):
         resp = client.post(f"/e/{event.code}/join", data={
             "display_name": "A",
-            "code": "alice42",
+            "code": "alice42x",
         }, follow_redirects=True)
         assert b"requis" in resp.data.lower() or b"2 caract" in resp.data
 

@@ -14,7 +14,7 @@ from flask_babel import _
 from flask_login import current_user
 from werkzeug.wrappers import Response
 
-from app.extensions import db
+from app.extensions import db, limiter
 from app.models import ChatMessage, Event, Guest
 from app.utils import log_action
 
@@ -103,6 +103,7 @@ def index(code: str) -> Response | str:
 
 
 @chat_bp.route("/e/<code>/chat/send", methods=["POST"])
+@limiter.limit("30 per minute")
 def send(code: str) -> Response | str:
     """Send a chat message (content 1-2000 chars, stripped)."""
     event = _get_event_or_404(code)

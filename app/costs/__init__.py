@@ -1,11 +1,14 @@
 """Costs blueprint - cost sharing by household with weighted settlement."""
 
-from datetime import datetime
+from datetime import date, datetime
+from typing import cast
 
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from flask_login import current_user
+from werkzeug.wrappers import Response
 
-from app.extensions import db
-from app.models import Event, Expense, Household, PaymentRequest, Transfer
+from app.extensions import db, limiter
+from app.models import Event, Expense, Guest, Household, PaymentRequest, Transfer
 from app.utils import log_action
 
 costs_bp = Blueprint("costs", __name__)
@@ -13,22 +16,25 @@ costs_bp = Blueprint("costs", __name__)
 CURRENCIES = ["EUR", "USD", "GBP", "CHF", "CAD", "AUD", "JPY"]
 
 
-def _get_event_or_404(code):
-    event = Event.query.filter_by(code=code, is_active=True).first()
+def _get_event_or_404(code: str) -> Event | None:
+    event = cast("Event | None", Event.query.filter_by(code=code, is_active=True).first())
     if not event:
         return None
     return event
 
 
-def _resolve_actor(event):
+def _household_in_event(household_id: str, event: Event) -> bool:
+    """Check that a household belongs to the given event (prevents cross-tenant refs)."""
+    if not household_id:
+        return False
+    return Household.query.filter_by(id=household_id, event_id=event.id).first() is not None
+
+
+def _resolve_actor(event: Event) -> tuple[Guest | None, bool, Response | None]:
     """Return (guest, is_creator, denied_redirect_or_None)."""
-    from flask_login import current_user
-
-    from app.models import Guest
-
     is_creator = (current_user.is_authenticated and current_user.id == event.creator_id)
     guest_id = session.get(f"guest_{event.code}")
-    guest = None
+    guest: Guest | None = None
     if guest_id:
         guest = Guest.query.filter_by(id=guest_id, event_id=event.id, is_active=True).first()
     if not guest and not is_creator:
@@ -36,25 +42,26 @@ def _resolve_actor(event):
     return guest, is_creator, None
 
 
-def _actor(event, guest):
+def _actor(event: Event, guest: Guest | None) -> tuple[str, str]:
     return (guest.display_name if guest else "Créateur", "guest" if guest else "creator")
 
 
-def _base_cents(amount_cents, exchange_rate):
+def _base_cents(amount_cents: int, exchange_rate: float | None) -> int:
     """Amount converted to base currency, in cents (int)."""
     return round(amount_cents * (exchange_rate or 1.0))
 
 
-def _per_expense_shares(households, expenses):
+def _per_expense_shares(households: list[Household], expenses: list[Expense]) -> tuple[dict[str, int], dict[str, int]]:
     """Return ({household_id: share_cents}, {household_id: paid_cents})."""
     ids = {h.id for h in households}
-    paid = {h.id: 0 for h in households}
-    shares = {h.id: 0 for h in households}
+    paid: dict[str, int] = {h.id: 0 for h in households}
+    shares: dict[str, int] = {h.id: 0 for h in households}
     for exp in expenses:
-        if exp.paid_by_household_id not in ids:
+        payer_id = exp.paid_by_household_id
+        if payer_id is None or payer_id not in ids:
             continue
         base = _base_cents(exp.amount_cents, exp.exchange_rate)
-        paid[exp.paid_by_household_id] += base
+        paid[payer_id] += base
         weights = exp.get_split_weights(households)
         total_w = sum(weights.get(h.id, 0) for h in households)
         if total_w > 0:
@@ -63,7 +70,7 @@ def _per_expense_shares(households, expenses):
     # Rounding fix: shares must sum to the total base amount.
     total_base = sum(
         _base_cents(e.amount_cents, e.exchange_rate)
-        for e in expenses if e.paid_by_household_id in ids
+        for e in expenses if e.paid_by_household_id is not None and e.paid_by_household_id in ids
     )
     diff = total_base - sum(shares.values())
     if diff != 0 and households:
@@ -71,7 +78,7 @@ def _per_expense_shares(households, expenses):
     return shares, paid
 
 
-def _settlement(households, expenses, transfers):
+def _settlement(households: list[Household], expenses: list[Expense], transfers: list[Transfer]) -> list[tuple[str, str, int]]:
     """Compute who pays whom, in base currency cents.
 
     Accounts for per-expense custom splits, exchange rates, and transfers
@@ -81,10 +88,11 @@ def _settlement(households, expenses, transfers):
     if not households:
         return []
     shares, paid = _per_expense_shares(households, expenses)
-    balances = {h.id: paid[h.id] - shares[h.id] for h in households}
+    balances: dict[str, int] = {h.id: paid[h.id] - shares[h.id] for h in households}
     ids = {h.id for h in households}
     for t in transfers:
-        if t.from_household_id not in ids or t.to_household_id not in ids:
+        if (t.from_household_id is None or t.to_household_id is None
+                or t.from_household_id not in ids or t.to_household_id not in ids):
             continue
         base = _base_cents(t.amount_cents, t.exchange_rate)
         balances[t.from_household_id] += base
@@ -93,7 +101,7 @@ def _settlement(households, expenses, transfers):
     debtors = sorted([(hid, b) for hid, b in balances.items() if b < 0], key=lambda x: x[1])
     creditors = sorted([(hid, b) for hid, b in balances.items() if b > 0],
                        key=lambda x: x[1], reverse=True)
-    settlements = []
+    settlements: list[tuple[str, str, int]] = []
     di = ci = 0
     while di < len(debtors) and ci < len(creditors):
         d_id, d_bal = debtors[di]
@@ -110,9 +118,9 @@ def _settlement(households, expenses, transfers):
     return settlements
 
 
-def _category_breakdown(expenses):
+def _category_breakdown(expenses: list[Expense]) -> list[tuple[str, int]]:
     """Return {category: base_cents} sorted by amount desc."""
-    totals = {}
+    totals: dict[str, int] = {}
     for exp in expenses:
         base = _base_cents(exp.amount_cents, exp.exchange_rate)
         cat = exp.category or "general"
@@ -123,7 +131,7 @@ def _category_breakdown(expenses):
 # === Routes ===
 
 @costs_bp.route("/e/<code>/costs")
-def index(code):
+def index(code: str) -> str | Response | tuple[str, int]:
     """Cost sharing dashboard."""
     event = _get_event_or_404(code)
     if not event:
@@ -175,7 +183,7 @@ def index(code):
 
 
 @costs_bp.route("/e/<code>/costs/households/new", methods=["GET", "POST"])
-def add_household(code):
+def add_household(code: str) -> str | Response | tuple[str, int]:
     """Add a household."""
     event = _get_event_or_404(code)
     if not event:
@@ -187,28 +195,32 @@ def add_household(code):
 
     if request.method == "POST":
         name = request.form.get("name", "").strip()
-        num_adults = request.form.get("num_adults", "1")
-        num_children = request.form.get("num_children", "0")
-        adult_weight = request.form.get("adult_weight", "1.0")
-        child_weight = request.form.get("child_weight", "0.5")
+        num_adults_raw = request.form.get("num_adults", "1")
+        num_children_raw = request.form.get("num_children", "0")
+        adult_weight_raw = request.form.get("adult_weight", "1.0")
+        child_weight_raw = request.form.get("child_weight", "0.5")
 
-        errors = []
+        errors: list[str] = []
         if not name or len(name) < 2:
             errors.append("Nom du foyer requis (min 2 caractères).")
+        num_adults = 0
+        num_children = 0
+        adult_weight = 0.0
+        child_weight = 0.0
         try:
-            num_adults = int(num_adults)
-            num_children = int(num_children)
-            adult_weight = float(adult_weight)
-            child_weight = float(child_weight)
+            num_adults = int(num_adults_raw)
+            num_children = int(num_children_raw)
+            adult_weight = float(adult_weight_raw)
+            child_weight = float(child_weight_raw)
         except (ValueError, TypeError):
             errors.append("Valeurs numériques invalides.")
         if not errors:
-            if num_adults < 1:
-                errors.append("Au moins 1 adulte requis.")
-            if num_children < 0:
-                errors.append("Nombre d'enfants invalide.")
-            if adult_weight <= 0 or child_weight < 0:
-                errors.append("Poids invalides.")
+            if num_adults < 1 or num_adults > 50:
+                errors.append("Adultes : entre 1 et 50.")
+            if num_children < 0 or num_children > 50:
+                errors.append("Enfants : entre 0 et 50.")
+            if adult_weight <= 0 or adult_weight > 10 or child_weight < 0 or child_weight > 10:
+                errors.append("Poids invalides (0 < adulte ≤ 10, 0 ≤ enfant ≤ 10).")
 
         if errors:
             for e in errors:
@@ -234,7 +246,8 @@ def add_household(code):
 
 
 @costs_bp.route("/e/<code>/costs/expenses/new", methods=["POST"])
-def add_expense(code):
+@limiter.limit("20 per hour")
+def add_expense(code: str) -> Response | tuple[str, int]:
     """Add an expense."""
     event = _get_event_or_404(code)
     if not event:
@@ -252,9 +265,10 @@ def add_expense(code):
     currency = request.form.get("currency", "EUR").strip().upper() or "EUR"
     rate_str = request.form.get("exchange_rate", "1.0").strip()
 
-    errors = []
+    errors: list[str] = []
     if not description:
         errors.append("Description requise.")
+    amount_cents = 0
     try:
         amount_cents = round(float(amount_str) * 100)
         if amount_cents <= 0:
@@ -263,12 +277,14 @@ def add_expense(code):
         errors.append("Montant invalide.")
     if not household_id:
         errors.append("Foyer payeur requis.")
+    elif not _household_in_event(household_id, event):
+        errors.append("Foyer payeur invalide.")
     try:
         exchange_rate = float(rate_str) if rate_str else 1.0
-        if exchange_rate <= 0:
+        if exchange_rate <= 0 or exchange_rate > 10000:
             raise ValueError
     except (ValueError, TypeError):
-        errors.append("Taux de change invalide.")
+        errors.append("Taux de change invalide (0 < taux ≤ 10000).")
         exchange_rate = 1.0
 
     if errors:
@@ -276,7 +292,7 @@ def add_expense(code):
             flash(e, "danger")
         return redirect(url_for("costs.index", code=code))
 
-    d = None
+    d: date | None = None
     if exp_date:
         try:
             d = datetime.strptime(exp_date, "%Y-%m-%d").date()
@@ -305,7 +321,7 @@ def add_expense(code):
 
 
 @costs_bp.route("/e/<code>/costs/expenses/<exp_id>/delete", methods=["POST"])
-def delete_expense(code, exp_id):
+def delete_expense(code: str, exp_id: str) -> Response | tuple[str, int]:
     """Delete an expense (creator only)."""
     event = _get_event_or_404(code)
     if not event:
@@ -333,7 +349,7 @@ def delete_expense(code, exp_id):
 
 
 @costs_bp.route("/e/<code>/costs/households/<h_id>/delete", methods=["POST"])
-def delete_household(code, h_id):
+def delete_household(code: str, h_id: str) -> Response | tuple[str, int]:
     """Delete a household (creator only)."""
     event = _get_event_or_404(code)
     if not event:
@@ -361,7 +377,8 @@ def delete_household(code, h_id):
 
 
 @costs_bp.route("/e/<code>/costs/transfers/new", methods=["POST"])
-def add_transfer(code):
+@limiter.limit("20 per hour")
+def add_transfer(code: str) -> Response | tuple[str, int]:
     """Record a transfer/repayment between two households."""
     event = _get_event_or_404(code)
     if not event:
@@ -377,11 +394,14 @@ def add_transfer(code):
     note = request.form.get("note", "").strip()
     t_date = request.form.get("date", "")
 
-    errors = []
+    errors: list[str] = []
     if not from_id or not to_id:
         errors.append("Foyers d'origine et de destination requis.")
     elif from_id == to_id:
         errors.append("Le foyer d'origine et de destination doivent différer.")
+    elif not _household_in_event(from_id, event) or not _household_in_event(to_id, event):
+        errors.append("Foyer invalide pour cet événement.")
+    amount_cents = 0
     try:
         amount_cents = round(float(amount_str) * 100)
         if amount_cents <= 0:
@@ -394,7 +414,7 @@ def add_transfer(code):
             flash(e, "danger")
         return redirect(url_for("costs.index", code=code))
 
-    d = None
+    d: date | None = None
     if t_date:
         try:
             d = datetime.strptime(t_date, "%Y-%m-%d").date()
@@ -419,7 +439,7 @@ def add_transfer(code):
 
 
 @costs_bp.route("/e/<code>/costs/transfers/<t_id>/delete", methods=["POST"])
-def delete_transfer(code, t_id):
+def delete_transfer(code: str, t_id: str) -> Response | tuple[str, int]:
     """Delete a transfer (creator only)."""
     event = _get_event_or_404(code)
     if not event:
@@ -445,7 +465,8 @@ def delete_transfer(code, t_id):
 
 
 @costs_bp.route("/e/<code>/costs/payment-requests/new", methods=["POST"])
-def add_payment_request(code):
+@limiter.limit("20 per hour")
+def add_payment_request(code: str) -> Response | tuple[str, int]:
     """Create a payment request (reminder) from one household to another."""
     event = _get_event_or_404(code)
     if not event:
@@ -460,11 +481,14 @@ def add_payment_request(code):
     amount_str = request.form.get("amount", "").strip()
     message = request.form.get("message", "").strip()
 
-    errors = []
+    errors: list[str] = []
     if not from_id or not to_id:
         errors.append("Foyers requis.")
     elif from_id == to_id:
         errors.append("Les foyers doivent différer.")
+    elif not _household_in_event(from_id, event) or not _household_in_event(to_id, event):
+        errors.append("Foyer invalide pour cet événement.")
+    amount_cents = 0
     try:
         amount_cents = round(float(amount_str) * 100)
         if amount_cents <= 0:
@@ -494,7 +518,7 @@ def add_payment_request(code):
 
 
 @costs_bp.route("/e/<code>/costs/payment-requests/<pr_id>/resolve", methods=["POST"])
-def resolve_payment_request(code, pr_id):
+def resolve_payment_request(code: str, pr_id: str) -> Response | tuple[str, int]:
     """Mark a payment request as resolved."""
     event = _get_event_or_404(code)
     if not event:
@@ -519,7 +543,7 @@ def resolve_payment_request(code, pr_id):
 
 
 @costs_bp.route("/e/<code>/costs/payment-requests/<pr_id>/delete", methods=["POST"])
-def delete_payment_request(code, pr_id):
+def delete_payment_request(code: str, pr_id: str) -> Response | tuple[str, int]:
     """Delete a payment request (creator only)."""
     event = _get_event_or_404(code)
     if not event:

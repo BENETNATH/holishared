@@ -7,6 +7,6 @@ main_bp = Blueprint("main", __name__)
 
 
 @main_bp.route("/")
-@login_required
-def dashboard():
+@login_required  # type: ignore[untyped-decorator]
+def dashboard() -> str:
     return render_template("main/dashboard.html")

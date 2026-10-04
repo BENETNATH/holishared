@@ -2,7 +2,9 @@
 
 import os
 import uuid
+from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 from flask import (
     Blueprint,
@@ -16,8 +18,10 @@ from flask import (
     url_for,
 )
 from flask_login import current_user
+from werkzeug.datastructures import FileStorage
+from werkzeug.wrappers import Response
 
-from app.extensions import db
+from app.extensions import db, limiter
 from app.freemium import can_upload_media, consume_media_quota, release_media_quota
 from app.models import Event, Guest, MediaItem
 
@@ -29,15 +33,52 @@ ALLOWED_MIME = {
 }
 MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MB per file
 
+# Magic byte signatures for content validation
+_MAGIC_BYTES = {
+    "image/jpeg": b"\xff\xd8\xff",
+    "image/png": b"\x89PNG\r\n\x1a\n",
+    "image/webp": b"RIFF",
+    "video/mp4": b"\x00\x00\x00",  # checked at offset 4: 'ftyp'
+    "video/webm": b"\x1a\x45\xdf\xa3",
+}
 
-def _media_dir(event_code):
+
+def _validate_magic_bytes(file: FileStorage, mime: str) -> bool:
+    """Verify the file's actual content matches the claimed MIME type."""
+    header = file.read(12)
+    file.seek(0)
+    if mime == "image/jpeg":
+        return header.startswith(b"\xff\xd8\xff")
+    if mime == "image/png":
+        return header.startswith(b"\x89PNG\r\n\x1a\n")
+    if mime == "image/webp":
+        return header[:4] == b"RIFF" and header[8:12] == b"WEBP"
+    if mime == "video/mp4":
+        return header[4:8] == b"ftyp"
+    if mime == "video/webm":
+        return header.startswith(b"\x1a\x45\xdf\xa3")
+    return False
+
+
+# Extension derived from verified MIME (not from user-supplied filename)
+_MIME_EXT = {
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "image/webp": ".webp",
+    "image/heic": ".heic",
+    "video/mp4": ".mp4",
+    "video/webm": ".webm",
+}
+
+
+def _media_dir(event_code: str) -> Path:
     """Get or create the media storage directory for an event."""
     base = Path(current_app.instance_path) / "media" / event_code
     base.mkdir(parents=True, exist_ok=True)
     return base
 
 
-def _resolve_actor(event, code):
+def _resolve_actor(event: Event, code: str) -> tuple[Guest | None, bool, Response | None]:
     """Return (guest, is_creator, denied_redirect_or_None)."""
     if current_user.is_authenticated and current_user.id == event.creator_id:
         return None, True, None
@@ -49,7 +90,7 @@ def _resolve_actor(event, code):
     return None, False, redirect(url_for("events.guest_access", code=code))
 
 
-def _extract_exif(file_storage):
+def _extract_exif(file_storage: FileStorage) -> tuple[float | None, float | None, datetime | None]:
     """Extract GPS and date from EXIF data. Returns (lat, lng, taken_at)."""
     try:
         import io
@@ -59,19 +100,19 @@ def _extract_exif(file_storage):
         file_storage.seek(0)
         img = Image.open(io.BytesIO(file_storage.read()))
         file_storage.seek(0)
-        exif = img._getexif() or {}
-        lat = lng = None
-        taken_at = None
+        exif = img._getexif() or {}  # type: ignore[attr-defined]
+        lat: float | None = None
+        lng: float | None = None
+        taken_at: datetime | None = None
 
         # Date
         if 306 in exif:  # DateTimeOriginal
-            from datetime import datetime
             taken_at = datetime.strptime(exif[306], "%Y:%m:%d %H:%M:%S")
 
         # GPS
         gps_info = exif.get(34853, {})  # GPSInfo tag
         if gps_info:
-            def _dms(value):
+            def _dms(value: tuple[Any, Any, Any]) -> float:
                 d = int(value[0])
                 m = int(value[1])
                 s = int(value[2])
@@ -90,7 +131,7 @@ def _extract_exif(file_storage):
 
 
 @media_bp.route("/e/<code>/media/<item_id>/file")
-def file(code, item_id):
+def file(code: str, item_id: str) -> Response:
     """Serve a stored media file (creator or guest only)."""
     event = Event.query.filter_by(code=code, is_active=True).first_or_404()
     _guest, _is_creator, denied = _resolve_actor(event, code)
@@ -101,7 +142,7 @@ def file(code, item_id):
 
 
 @media_bp.route("/e/<code>/media", methods=["GET"])
-def gallery(code):
+def gallery(code: str) -> str | Response:
     """Media gallery for an event (creator or guest only)."""
     event = Event.query.filter_by(code=code, is_active=True).first_or_404()
     guest, is_creator, denied = _resolve_actor(event, code)
@@ -114,7 +155,8 @@ def gallery(code):
 
 
 @media_bp.route("/e/<code>/media/upload", methods=["POST"])
-def upload(code):
+@limiter.limit("10 per hour")
+def upload(code: str) -> Response:
     """Upload a media file (creator or guest only)."""
     event = Event.query.filter_by(code=code, is_active=True).first_or_404()
     guest, _is_creator, denied = _resolve_actor(event, code)
@@ -134,6 +176,11 @@ def upload(code):
         flash("Format non supporté.", "danger")
         return redirect(url_for("media.gallery", code=code))
 
+    # Validate magic bytes (content must match claimed MIME)
+    if not _validate_magic_bytes(file, file.content_type):
+        flash("Fichier invalide (contenu ne correspond pas au format déclaré).", "danger")
+        return redirect(url_for("media.gallery", code=code))
+
     # Check size
     file.seek(0, os.SEEK_END)
     size = file.tell()
@@ -151,8 +198,8 @@ def upload(code):
     # Extract EXIF
     lat, lng, taken_at = _extract_exif(file)
 
-    # Save file
-    ext = os.path.splitext(file.filename)[1] or ".bin"
+    # Save file (extension derived from verified MIME, not user filename)
+    ext = _MIME_EXT.get(file.content_type, ".bin")
     stored_name = f"{uuid.uuid4().hex}{ext}"
     file.save(str(_media_dir(code) / stored_name))
 
@@ -193,7 +240,7 @@ def upload(code):
 
 
 @media_bp.route("/e/<code>/media/<item_id>")
-def detail(code, item_id):
+def detail(code: str, item_id: str) -> str | Response:
     """Single media detail (creator or guest only)."""
     event = Event.query.filter_by(code=code, is_active=True).first_or_404()
     guest, is_creator, denied = _resolve_actor(event, code)
@@ -206,7 +253,7 @@ def detail(code, item_id):
 
 
 @media_bp.route("/e/<code>/media/<item_id>/delete", methods=["POST"])
-def delete(code, item_id):
+def delete(code: str, item_id: str) -> Response:
     """Delete a media item (uploader or creator)."""
     event = Event.query.filter_by(code=code, is_active=True).first_or_404()
     guest, is_creator, denied = _resolve_actor(event, code)

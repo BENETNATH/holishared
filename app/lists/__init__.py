@@ -1,5 +1,7 @@
 """Lists blueprint — listes partagées (B004)."""
 
+from typing import Any, cast
+
 from flask import (
     Blueprint,
     abort,
@@ -14,7 +16,7 @@ from flask_babel import _
 from flask_login import current_user
 from werkzeug.wrappers import Response
 
-from app.extensions import db
+from app.extensions import db, limiter
 from app.models import Event, Guest, ListItem, SharedList
 from app.utils import log_action
 
@@ -59,7 +61,7 @@ def _actor_name(guest: Guest | None, is_creator: bool) -> tuple[str, str]:
 
 def _get_list_or_404(event: Event, list_id: str) -> SharedList:
     """Load a shared list belonging to the event or abort with 404."""
-    shared_list = SharedList.query.filter_by(id=list_id, event_id=event.id).first()
+    shared_list = cast("SharedList | None", SharedList.query.filter_by(id=list_id, event_id=event.id).first())
     if shared_list is None:
         abort(404)
     return shared_list
@@ -67,14 +69,14 @@ def _get_list_or_404(event: Event, list_id: str) -> SharedList:
 
 def _get_item_or_404(shared_list: SharedList, item_id: str) -> ListItem:
     """Load a list item belonging to the list or abort with 404."""
-    item = ListItem.query.filter_by(id=item_id, list_id=shared_list.id).first()
+    item = cast("ListItem | None", ListItem.query.filter_by(id=item_id, list_id=shared_list.id).first())
     if item is None:
         abort(404)
     return item
 
 
 def _list_items(shared_list: SharedList) -> list[ListItem]:
-    return shared_list.items.order_by(ListItem.created_at.asc()).all()
+    return cast("list[ListItem]", cast("Any", shared_list.items).order_by(ListItem.created_at.asc()).all())
 
 
 @lists_bp.route("/e/<code>/lists")
@@ -162,6 +164,7 @@ def detail(code: str, list_id: str) -> Response | tuple[str, int] | str:
 
 
 @lists_bp.route("/e/<code>/lists/<list_id>/items", methods=["POST"])
+@limiter.limit("20 per hour")
 def add_item(code: str, list_id: str) -> Response | tuple[str, int] | str:
     """Add an item to a shared list."""
     event = _get_event_or_404(code)
@@ -293,7 +296,9 @@ def claim_item(code: str, list_id: str, item_id: str) -> Response | tuple[str, i
         return denied
 
     actor_name, actor_type = _actor_name(guest, is_creator)
+    actor_id = guest.id if guest else (current_user.id if is_creator else "")
     item.assigned_to = actor_name
+    item.assigned_to_id = actor_id
     log_action(
         db.session, event.id, actor_name, actor_type,
         "list_item.claimed", target=item.name, details=shared_list.title,
@@ -315,10 +320,12 @@ def unclaim_item(code: str, list_id: str, item_id: str) -> Response | tuple[str,
         return denied
 
     actor_name, actor_type = _actor_name(guest, is_creator)
-    if not is_creator and item.assigned_to != actor_name:
+    actor_id = guest.id if guest else (current_user.id if is_creator else "")
+    if not is_creator and item.assigned_to_id != actor_id:
         return _("Pas autorisé."), 403
 
     item.assigned_to = ""
+    item.assigned_to_id = None
     log_action(
         db.session, event.id, actor_name, actor_type,
         "list_item.unclaimed", target=item.name, details=shared_list.title,

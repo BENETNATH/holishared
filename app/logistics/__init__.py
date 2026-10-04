@@ -14,7 +14,7 @@ from flask_babel import _
 from flask_login import current_user
 from werkzeug.wrappers import Response
 
-from app.extensions import db
+from app.extensions import db, limiter
 from app.models import Event, Guest, LogisticsItem
 from app.utils import log_action
 
@@ -140,6 +140,7 @@ def index(code: str) -> Response | str:
 
 
 @logistics_bp.route("/e/<code>/logistics/new", methods=["GET", "POST"])
+@limiter.limit("20 per hour")
 def create(code: str) -> Response | str:
     """Create a new practical info item."""
     event = _get_event_or_404(code)

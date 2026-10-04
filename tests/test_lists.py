@@ -275,7 +275,7 @@ class TestClaim:
         assert log.actor_type == "guest"
 
     def test_assignee_can_unclaim(self, client, event, guest, shared_list, db):
-        item = ListItem(name="Tâche", assigned_to=guest.display_name, list_id=shared_list.id)
+        item = ListItem(name="Tâche", assigned_to=guest.display_name, assigned_to_id=guest.id, list_id=shared_list.id)
         db.session.add(item)
         db.session.commit()
         _login_guest(client, event, guest)

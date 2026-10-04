@@ -84,6 +84,9 @@ module = [
     "flask_babel.*",
     "flask_login.*",
     "flask_sqlalchemy.*",
+    "flask_wtf.*",
+    "flask_limiter.*",
+    "qrcode.*",
 ]
 ignore_missing_imports = true
 

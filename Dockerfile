@@ -17,10 +17,9 @@ COPY translations/ translations/
 COPY manage.py .
 
 # Create instance directory for SQLite DB
-RUN mkdir -p /app/instance /app/logs
-
-# Non-root user
-RUN useradd -m -u 1000 appuser
+RUN useradd -m -u 1000 appuser \
+    && mkdir -p /app/instance /app/logs \
+    && chown -R appuser:appuser /app/instance /app/logs
 USER appuser
 
 EXPOSE 8400
@@ -28,4 +27,4 @@ EXPOSE 8400
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8400/health')" || exit 1
 
-CMD ["waitress", "--listen", "0.0.0.0:8400", "--threads", "4", "--call", "app:create_app"]
+CMD ["python", "-m", "waitress", "--listen", "0.0.0.0:8400", "--threads", "4", "--call", "app:create_app"]

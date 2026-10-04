@@ -291,11 +291,10 @@ with app.app_context():
 
 
 def cmd_run():
-    """Run dev server (Flask debug mode)."""
+    """Run dev server (no debug, localhost only)."""
     load_env()
-    os.environ["FLASK_DEBUG"] = "1"
     run([str(venv_python()), "-m", "flask", "--app", "app", "run",
-         "-h", os.environ.get("APP_HOST", "127.0.0.1"),
+         "-h", "127.0.0.1",
          "-p", os.environ.get("APP_PORT", "8400")])
 
 
@@ -367,7 +366,7 @@ with app.app_context():
 def cmd_db_shell():
     """Open SQLite shell."""
     load_env()
-    db_path = ROOT / "saas.db"
+    db_path = ROOT / "instance" / "holishared.db"
     run(["sqlite3", str(db_path)])
 
 

@@ -1,6 +1,7 @@
 """Flask extensions."""
 
 import os
+from typing import Any
 
 from flask_babel import Babel
 from flask_limiter import Limiter
@@ -18,17 +19,13 @@ babel = Babel()
 def _create_limiter() -> Limiter:
     """Create the rate limiter with Redis storage if available."""
     redis_url = os.environ.get("REDIS_URL", "")
+    kwargs: dict[str, Any] = {
+        "key_func": get_remote_address,
+        "default_limits": ["100 per hour"],
+    }
     if redis_url:
-        from flask_limiter.storage import RedisStorage
-
-        storage = RedisStorage(redis_url)
-        return Limiter(
-            key_func=get_remote_address,
-            default_limits=["100 per hour"],
-            storage_uri=redis_url,
-        )
-    # Fallback: in-memory (single worker only)
-    return Limiter(key_func=get_remote_address, default_limits=["100 per hour"])
+        kwargs["storage_uri"] = redis_url
+    return Limiter(**kwargs)
 
 
 limiter = _create_limiter()

@@ -4,28 +4,39 @@ import os
 import shutil
 import time
 from pathlib import Path
+from typing import cast
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request, session
+from werkzeug.wrappers import Response
 
 BASE_DIR = Path(__file__).parent.parent
-load_dotenv(BASE_DIR / ".env", override=True)
+load_dotenv(BASE_DIR / ".env", override=False)
 
 
-def create_app():
+def create_app() -> Flask:
     app = Flask(__name__)
 
     # Core config
-    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev")
-    app.config["SESSION_COOKIE_SECURE"] = os.environ.get("SESSION_COOKIE_SECURE", "false") == "true"
+    secret_key = os.environ.get("SECRET_KEY", "")
+    if not secret_key or secret_key == "dev":
+        raise RuntimeError(
+            "SECRET_KEY must be set to a strong random value (>= 32 chars). "
+            "Generate one with: python -c 'import secrets; print(secrets.token_hex(32))'"
+        )
+    app.config["SECRET_KEY"] = secret_key
+    app.config["SESSION_COOKIE_SECURE"] = os.environ.get("SESSION_COOKIE_SECURE", "true") == "true"
     app.config["SESSION_COOKIE_HTTPONLY"] = True
+    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
     app.config["PERMANENT_SESSION_LIFETIME"] = int(
         os.environ.get("PERMANENT_SESSION_LIFETIME", "86400")
     )
     # Resolve relative SQLite paths against the project root so the DB
     # file always lands in <project>/instance/ regardless of cwd.
     db_uri = os.environ.get("DATABASE_URL", "sqlite:///instance/holishared.db")
-    if db_uri.startswith("sqlite:///") and not db_uri.startswith("sqlite:////"):
+    if db_uri == "sqlite:///:memory:":
+        pass  # in-memory DB, no path resolution needed
+    elif db_uri.startswith("sqlite:///") and not db_uri.startswith("sqlite:////"):
         rel_path = db_uri[len("sqlite:///"):]
         abs_path = BASE_DIR / rel_path
         db_uri = f"sqlite:///{abs_path}"
@@ -71,28 +82,48 @@ def create_app():
 
     # Extensions
     from flask_wtf import CSRFProtect
+    from werkzeug.middleware.proxy_fix import ProxyFix
 
     from app.extensions import babel, db, limiter, login_manager
+
+    # Behind a reverse proxy (nginx, Caddy, etc.): trust the first hop so
+    # request.remote_addr reflects the real client IP (X-Forwarded-For).
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
     db.init_app(app)
     login_manager.init_app(app)
     CSRFProtect(app)
     limiter.init_app(app)
 
+    # Ensure database tables exist (idempotent; no-op if already created).
+    # SQLite: enable WAL mode + busy timeout for concurrent access.
+    with app.app_context():
+        if db_uri.startswith("sqlite"):
+            from sqlalchemy import event as sa_event
+
+            @sa_event.listens_for(db.engine, "connect")
+            def _set_sqlite_pragma(dbapi_conn, _record):
+                cursor = dbapi_conn.cursor()
+                cursor.execute("PRAGMA journal_mode=WAL")
+                cursor.execute("PRAGMA busy_timeout=5000")
+                cursor.close()
+        db.create_all()
+
     # Language selector. A ?lang= switch is persisted in the session so the
     # preference survives navigation; otherwise fall back to the browser
     # Accept-Language, then the default.
-    def get_locale():
+    def get_locale() -> str:
         supported = app.config["BABEL_SUPPORTED_LOCALES"]
         chosen = request.args.get("lang")
-        if chosen in supported:
+        if chosen is not None and chosen in supported:
             session["lang"] = chosen
             return chosen
-        if session.get("lang") in supported:
-            return session["lang"]
+        lang = session.get("lang")
+        if lang in supported:
+            return cast("str", lang)
         return (
             request.accept_languages.best_match(supported)
-            or app.config["BABEL_DEFAULT_LOCALE"]
+            or cast("str", app.config["BABEL_DEFAULT_LOCALE"])
         )
 
     babel.init_app(app, locale_selector=get_locale)
@@ -102,7 +133,7 @@ def create_app():
     # toggle (?lang=fr / ?lang=en) we must invalidate that cache so the
     # selector is re-invoked with the new argument.
     @app.before_request
-    def _reset_locale_on_switch():
+    def _reset_locale_on_switch() -> None:
         if request.args.get("lang"):
             from flask import g as _g
             fb = getattr(_g, "_flask_babel", None)
@@ -114,12 +145,12 @@ def create_app():
     from flask_babel import format_datetime as babel_format_datetime
 
     @app.template_filter("format_date")
-    def format_date_filter(value, fmt="medium"):
-        return babel_format_date(value, format=fmt)
+    def format_date_filter(value: object, fmt: str = "medium") -> str:
+        return cast("str", babel_format_date(value, format=fmt))
 
     @app.template_filter("format_datetime")
-    def format_datetime_filter(value, fmt="medium"):
-        return babel_format_datetime(value, format=fmt)
+    def format_datetime_filter(value: object, fmt: str = "medium") -> str:
+        return cast("str", babel_format_datetime(value, format=fmt))
 
     # Core blueprints (always registered)
     from app.auth import auth_bp
@@ -156,7 +187,7 @@ def create_app():
 
     # Context processor
     @app.context_processor
-    def inject_globals():
+    def inject_globals() -> dict[str, object]:
         from flask_babel import get_locale as _get_locale
         loc = _get_locale()
         return {
@@ -167,20 +198,20 @@ def create_app():
 
     # Error handlers
     @app.errorhandler(404)
-    def not_found(e):
+    def not_found(e: Exception) -> tuple[str, int]:
         from flask import render_template
 
         return render_template("errors/404.html"), 404
 
     @app.errorhandler(403)
-    def forbidden(e):
+    def forbidden(e: Exception) -> tuple[str, int]:
         from flask import render_template
 
         return render_template("errors/403.html"), 403
 
     # Security headers (B015) — applied to every response
     @app.after_request
-    def security_headers(response):
+    def security_headers(response: Response) -> Response:
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
@@ -199,7 +230,7 @@ def create_app():
     started_at = time.monotonic()
 
     @app.route("/health")
-    def health():
+    def health() -> tuple[Response, int]:
         db_ok = True
         try:
             db.session.execute(db.text("SELECT 1"))

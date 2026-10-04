@@ -48,5 +48,5 @@
 </div>
 {% endif %}
 
-<p>{{ event.guest_count }} / {{ event.max_guests }} {{ _("invités") }}</p>
+<p>{{ event.guest_count }} / {{ config.MAX_GUESTS_PER_EVENT }} {{ _("invités") }}</p>
 {% endblock %}
