@@ -26,6 +26,13 @@ def load_env():
     if not env_file.exists():
         print(f"[ERROR] {env_file} not found. Run 'python manage.py init' first.")
         sys.exit(1)
+    
+    # Warn if .env has insecure permissions
+    import stat
+    mode = env_file.stat().st_mode
+    if mode & (stat.S_IRGRP | stat.S_IROTH | stat.S_IWGRP | stat.S_IWOTH):
+        print(f"[WARN] {env_file} has insecure permissions. Run: chmod 600 {env_file}")
+    
     for line in env_file.read_text().splitlines():
         line = line.strip()
         if line and not line.startswith("#") and "=" in line:
@@ -246,7 +253,8 @@ LOG_LEVEL=INFO
 LOG_FILE=logs/app.log
 """
     env_file.write_text(env_content)
-    print(f"  [OK] .env created: {env_file}")
+    env_file.chmod(0o600)  # owner read/write only
+    print(f"  [OK] .env created: {env_file} (chmod 600)")
 
 
 def cmd_init():
