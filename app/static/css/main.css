@@ -74,7 +74,7 @@
 
 /* ---------- Dark mode ---------- */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #171512;
     --surface: #211e1a;
     --surface-2: #26231e;
@@ -107,6 +107,37 @@
     --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.55);
     --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
   }
+}
+
+/* Manual dark override (data-theme="dark") */
+:root[data-theme="dark"] {
+  --bg: #171512;
+  --surface: #211e1a;
+  --surface-2: #26231e;
+  --surface-hover: #2e2a24;
+  --border: #3a352d;
+  --border-strong: #4a443a;
+  --text: #f0ede8;
+  --text-2: #c9c3b8;
+  --text-muted: #9a938a;
+  --primary: #2dd4bf;
+  --primary-hover: #5eead4;
+  --primary-active: #99f6e4;
+  --primary-soft: rgba(45, 212, 191, 0.14);
+  --primary-light: rgba(45, 212, 191, 0.22);
+  --on-primary: #04211d;
+  --success: #4ade80;
+  --success-soft: rgba(74, 222, 128, 0.14);
+  --warning: #fbbf24;
+  --warning-soft: rgba(251, 191, 36, 0.14);
+  --danger: #f87171;
+  --danger-soft: rgba(248, 113, 113, 0.14);
+  --info: #38bdf8;
+  --info-soft: rgba(56, 189, 248, 0.14);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
 }
 
 /* ---------- Reset ---------- */
@@ -341,6 +372,24 @@ main.container {
 
 .lang-toggle:hover {
   background: var(--surface-hover);
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.theme-toggle:hover {
+  background: var(--surface-hover);
+  color: var(--text);
 }
 
 .lang-dropdown {
@@ -2224,232 +2273,6 @@ tfoot td {
 .status-ok {
   color: var(--success);
   font-weight: 500;
-}
-
-/* ============================================================
-    Flash: dismissible
-    ============================================================ */
-.flash {
-  position: relative;
-}
-
-.flash-close {
-  position: absolute;
-  top: var(--sp-2);
-  right: var(--sp-2);
-  background: none;
-  border: none;
-  color: inherit;
-  opacity: 0.6;
-  cursor: pointer;
-  font-size: var(--text-sm);
-  line-height: 1;
-  padding: var(--sp-1);
-  border-radius: var(--radius-sm);
-}
-
-.flash-close:hover {
-  opacity: 1;
-  background: rgba(0, 0, 0, 0.06);
-}
-
-/* ============================================================
-    Tables → cards on narrow screens
-    (requires data-label on each <td>)
-    ============================================================ */
-@media (max-width: 640px) {
-  .table-wrap {
-    border: none;
-    background: transparent;
-    box-shadow: none;
-    overflow: visible;
-  }
-
-  .table-wrap table,
-  .table-wrap tbody,
-  .table-wrap tr,
-  .table-wrap td {
-    display: block;
-    width: 100%;
-  }
-
-  .table-wrap thead {
-    display: none;
-  }
-
-  .table-wrap tr {
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--surface);
-    box-shadow: var(--shadow-sm);
-    margin-bottom: var(--sp-3);
-    overflow: hidden;
-  }
-
-  .table-wrap td {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--sp-3);
-    border-bottom: 1px solid var(--border);
-    text-align: right;
-  }
-
-  .table-wrap td:last-child {
-    border-bottom: none;
-  }
-
-  .table-wrap td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    color: var(--text-muted);
-    font-size: var(--text-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    text-align: left;
-    flex-shrink: 0;
-  }
-
-  .table-wrap tfoot {
-    display: none;
-  }
-}
-
-/* ============================================================
-   Auth & code entry (centered cards)
-   ============================================================ */
-.auth-wrap,
-.code-entry {
-  display: flex;
-  justify-content: center;
-  padding: var(--sp-7) 0;
-}
-
-.auth-card,
-.code-entry-card {
-  width: 100%;
-  max-width: 26rem;
-  padding: var(--sp-6);
-}
-
-.auth-brand {
-  display: flex;
-  justify-content: center;
-  margin-bottom: var(--sp-4);
-}
-
-.auth-brand .brand-mark {
-  width: 3rem;
-  height: 3rem;
-  border-radius: var(--radius-lg);
-}
-
-.auth-brand .brand-mark svg {
-  width: 1.75rem;
-  height: 1.75rem;
-}
-
-.auth-sub {
-  color: var(--text-muted);
-  font-size: var(--text-sm);
-  margin-bottom: var(--sp-5);
-}
-
-.auth-submit,
-.code-submit {
-  width: 100%;
-  margin-top: var(--sp-2);
-}
-
-.code-input {
-  font-family: var(--font-mono);
-  font-size: var(--text-2xl);
-  letter-spacing: 0.15em;
-  text-align: center;
-  font-weight: 700;
-}
-
-.code-entry-hint {
-  margin-top: var(--sp-4);
-  text-align: center;
-}
-
-/* ============================================================
-   Form actions row
-   ============================================================ */
-.form-actions {
-  display: flex;
-  gap: var(--sp-2);
-  flex-wrap: wrap;
-  margin-top: var(--sp-1);
-}
-
-/* ============================================================
-   Back link
-   ============================================================ */
-.back-link {
-  margin-bottom: var(--sp-3);
-}
-
-.back-link a {
-  font-size: var(--text-sm);
-  color: var(--text-muted);
-}
-
-.back-link a:hover {
-  color: var(--primary);
-}
-
-/* ============================================================
-   List items
-   ============================================================ */
-.item-name {
-  font-weight: 500;
-}
-
-.add-item-card {
-  margin-bottom: var(--sp-4);
-}
-
-.add-item-card h2 {
-  font-size: var(--text-lg);
-  margin-bottom: var(--sp-3);
-}
-
-/* ============================================================
-   Danger zone
-   ============================================================ */
-.danger-zone {
-  margin-top: var(--sp-5);
-  padding-top: var(--sp-4);
-  border-top: 1px solid var(--border);
-}
-
-/* ============================================================
-   Card actions
-   ============================================================ */
-.card-actions {
-  display: flex;
-  gap: var(--sp-2);
-  flex-wrap: wrap;
-  margin-top: var(--sp-2);
-}
-
-/* ============================================================
-   Upload card
-   ============================================================ */
-.upload-card {
-  margin-bottom: var(--sp-4);
-}
-
-/* ============================================================
-   Error page actions
-   ============================================================ */
-.error-actions {
-  display: flex;
-  gap: var(--sp-2);
-  flex-wrap: wrap;
-  justify-content: center;
 }
 
 /* ============================================================
