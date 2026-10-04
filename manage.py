@@ -272,8 +272,9 @@ def cmd_init():
     print("[3/5] Installing dependencies...")
     run([str(venv_pip()), "install", "-q", "-r", str(ROOT / "requirements.txt")])
 
-    print("[4/5] Creating logs directory...")
+    print("[4/5] Creating directories...")
     LOG_DIR.mkdir(exist_ok=True)
+    (ROOT / "instance").mkdir(exist_ok=True)
 
     print("[5/5] Initializing database...")
     run([str(venv_python()), "-c", """
