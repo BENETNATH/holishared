@@ -5,7 +5,6 @@
 <p><a href="{{ url_for('lists.index', code=event.code) }}">&larr; {{ _("Listes") }}</a></p>
 <h1>{{ shared_list.title }}</h1>
 {% if shared_list.list_type %}<span class="tag">{{ _(shared_list.list_type) }}</span>{% endif %}
-{% include "_event_nav.html" %}
 
 {% if errors %}
 <ul class="errors" aria-live="assertive">

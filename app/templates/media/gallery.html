@@ -2,7 +2,6 @@
 {% block title %}{{ _("Media") }} — {{ event.title }}{% endblock %}
 {% block content %}
 <h1>{{ _("Media") }} — {{ event.title }}</h1>
-{% include "_event_nav.html" %}
 
 <form method="post" action="{{ url_for('media.upload', code=event.code) }}" enctype="multipart/form-data" class="expense-form">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

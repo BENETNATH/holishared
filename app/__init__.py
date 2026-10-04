@@ -202,10 +202,18 @@ def create_app() -> Flask:
     def inject_globals() -> dict[str, object]:
         from flask_babel import get_locale as _get_locale
         loc = _get_locale()
+        # Detect current event from URL for navbar integration
+        current_event = None
+        if request.path.startswith("/e/"):
+            from app.models import Event as _Event
+            parts = request.path.split("/")
+            if len(parts) >= 3 and parts[2]:
+                current_event = _Event.query.filter_by(code=parts[2], is_active=True).first()
         return {
             "app_name": "holishared",
             "enabled_modules": app.config["ENABLED_MODULES"],
             "current_lang": loc.language if loc else None,
+            "current_event": current_event,
         }
 
     # Error handlers

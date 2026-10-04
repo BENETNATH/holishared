@@ -2,7 +2,6 @@
 {% block title %}{{ _("Infos pratiques") }} — {{ event.title }}{% endblock %}
 {% block content %}
 <h1>{{ _("Infos pratiques") }} — {{ event.title }}</h1>
-{% include "_event_nav.html" %}
 
 <a href="{{ url_for('logistics.create', code=event.code) }}" class="btn btn-primary">
   {{ _("Ajouter une info") }}

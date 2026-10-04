@@ -3,7 +3,6 @@
 {% block content %}
 <p><a href="{{ url_for('media.gallery', code=event.code) }}">&larr; {{ _("Galerie") }}</a></p>
 <h1>{{ item.caption or item.original_name }}</h1>
-{% include "_event_nav.html" %}
 
 <figure class="media-detail">
   {% if item.mime_type.startswith("video/") %}
