@@ -22,9 +22,14 @@ def create_app():
     app.config["PERMANENT_SESSION_LIFETIME"] = int(
         os.environ.get("PERMANENT_SESSION_LIFETIME", "86400")
     )
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
-        "DATABASE_URL", "sqlite:///holishared.db"
-    )
+    # Resolve relative SQLite paths against the project root so the DB
+    # file always lands in <project>/instance/ regardless of cwd.
+    db_uri = os.environ.get("DATABASE_URL", "sqlite:///instance/holishared.db")
+    if db_uri.startswith("sqlite:///") and not db_uri.startswith("sqlite:////"):
+        rel_path = db_uri[len("sqlite:///"):]
+        abs_path = BASE_DIR / rel_path
+        db_uri = f"sqlite:///{abs_path}"
+    app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     # App identity
