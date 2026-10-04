@@ -8,11 +8,12 @@
     </div>
 </div>
 
-{% if errors %}
-<ul class="errors" aria-live="assertive">
-  {% for e in errors %}<li>{{ e }}</li>{% endfor %}
-</ul>
-{% endif %}
+{# Map backend error strings to fields for inline validation display. #}
+{% set fe = {'title': [], 'general': []} %}
+{% for e in errors %}
+  {% if 'Titre' in e %}{% set _ = fe['title'].append(e) %}
+  {% else %}{% set _ = fe['general'].append(e) %}{% endif %}
+{% endfor %}
 
 <form method="post" action="{{ url_for('lists.create', code=event.code) }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -20,7 +21,9 @@
   <div class="form-group">
     <label for="title">{{ _("Titre") }} *</label>
     <input type="text" id="title" name="title" required minlength="2" maxlength="200"
-           value="{{ form_data.get('title', '') }}" placeholder="{{ _('Ex : Courses du samedi') }}">
+           value="{{ form_data.get('title', '') }}" placeholder="{{ _('Ex : Courses du samedi') }}"
+           {% if fe['title'] %}aria-invalid="true" aria-describedby="err-title"{% endif %}>
+    {% for e in fe['title'] %}<p class="field-error" id="err-title">{{ e }}</p>{% endfor %}
   </div>
 
   <div class="form-group">
@@ -36,4 +39,10 @@
     <button type="submit" class="btn btn-primary">{{ _("Créer la liste") }}</button>
   </div>
 </form>
+
+{% if fe['general'] %}
+<ul class="errors" aria-live="assertive">
+  {% for e in fe['general'] %}<li>{{ e }}</li>{% endfor %}
+</ul>
+{% endif %}
 {% endblock %}

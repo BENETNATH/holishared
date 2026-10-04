@@ -21,13 +21,21 @@
 {% else %}
   <ul class="lists" aria-label="{{ _('Listes de l\'événement') }}">
     {% for lst in lists %}
-      <li class="card list-card">
-        <a href="{{ url_for('lists.detail', code=event.code, list_id=lst.id) }}">
-          <h3>{{ lst.title }}</h3>
-        </a>
-        <span class="badge list-type">{{ lst.list_type }}</span>
-        <span class="item-count">{{ lst.items.count() }} {{ _("articles") }}</span>
-      </li>
+    {% set total = lst.items.count() %}
+    {% set done = lst.items.filter_by(is_done=True).count() %}
+    <li class="card list-card">
+      <a href="{{ url_for('lists.detail', code=event.code, list_id=lst.id) }}">
+        <h3>{{ lst.title }}</h3>
+      </a>
+      <span class="badge list-type">{{ _(lst.list_type) }}</span>
+      <div class="list-progress">
+        <div class="progress" role="progressbar" aria-valuenow="{{ done }}" aria-valuemin="0" aria-valuemax="{{ total }}"
+             aria-label="{{ _('Progression') }} {{ done }}/{{ total }}">
+          <div class="progress-fill" style="width: {{ (done * 100 // total) if total else 0 }}%"></div>
+        </div>
+        <span class="item-count">{{ done }}/{{ total }}</span>
+      </div>
+    </li>
     {% endfor %}
   </ul>
 {% endif %}

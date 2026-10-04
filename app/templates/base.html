@@ -37,7 +37,16 @@
             <nav aria-label="{{ _('Navigation principale') }}">
                 <ul class="nav-links">
                     {% if current_event %}
-                    <li class="nav-event"><a href="{{ url_for('events.dashboard', code=current_event.code) }}" class="{% if request.endpoint and request.endpoint.startswith('events.dashboard') %}active{% endif %}">{{ current_event.title[:18] }}{% if current_event.title|length > 18 %}…{% endif %}</a></li>
+                    {# Event name as a location indicator (breadcrumb feel),
+                       pinned on mobile while the module links scroll. #}
+                    <li class="nav-event">
+                        <a href="{{ url_for('events.dashboard', code=current_event.code) }}"
+                           class="nav-event-pill{% if request.endpoint and request.endpoint.startswith('events.dashboard') %} active{% endif %}"
+                           {% if request.endpoint and request.endpoint.startswith('events.dashboard') %}aria-current="page"{% endif %}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1z"/></svg>
+                            <span>{{ current_event.title[:18] }}{% if current_event.title|length > 18 %}…{% endif %}</span>
+                        </a>
+                    </li>
                     {% if "planning" in enabled_modules %}
                     <li><a href="{{ url_for('planning.index', code=current_event.code) }}" class="{% if request.endpoint and request.endpoint.startswith('planning') %}active{% endif %}">{{ _("Planning") }}</a></li>
                     {% endif %}
@@ -136,6 +145,42 @@
                 a.addEventListener('click', function() {
                     dd.hidden = true;
                     btn.setAttribute('aria-expanded', 'false');
+                });
+            });
+        })();
+
+        // Flash messages: auto-dismiss after 5 seconds
+        (function() {
+            document.querySelectorAll('.flash').forEach(function(f) {
+                setTimeout(function() {
+                    f.classList.add('flash-out');
+                    setTimeout(function() { f.remove(); }, 450);
+                }, 5000);
+            });
+        })();
+
+        // Copy-code buttons (guest codes): copy + inline confirmation
+        (function() {
+            document.querySelectorAll('.copy-code[data-code]').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var code = btn.getAttribute('data-code');
+                    var original = btn.innerHTML;
+                    function done(ok) {
+                        btn.innerHTML = ok ? '✓' : '✕';
+                        setTimeout(function() { btn.innerHTML = original; }, 1500);
+                    }
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(code).then(function() { done(true); }, function() { done(false); });
+                    } else {
+                        var ta = document.createElement('textarea');
+                        ta.value = code;
+                        document.body.appendChild(ta);
+                        ta.select();
+                        var ok = false;
+                        try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+                        document.body.removeChild(ta);
+                        done(ok);
+                    }
                 });
             });
         })();

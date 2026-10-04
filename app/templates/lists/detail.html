@@ -41,7 +41,17 @@
     {% if item.quantity and item.quantity != "1" %}<span class="qty">{{ item.quantity }}</span>{% endif %}
     {% if item.section %}<span class="item-section">{{ item.section }}</span>{% endif %}
     {% if item.assigned_to %}
+      {% if is_creator or item.assigned_to == actor_name %}
+      {# Clicking the assigned badge releases the item (one tap, no extra button). #}
+      <form method="post" action="{{ url_for('lists.unclaim_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}" class="assigned-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="assigned assigned-btn" title="{{ _('Cliquer pour libérer') }}">
+          {{ item.assigned_to }} <span class="unclaim-x" aria-hidden="true">✕</span>
+        </button>
+      </form>
+      {% else %}
       <span class="assigned">{{ item.assigned_to }}</span>
+      {% endif %}
     {% endif %}
     <span class="item-actions">
       {% if not item.assigned_to %}
@@ -49,13 +59,8 @@
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button type="submit" class="icon-btn" title="{{ _('Je m\'occupe de ça') }}">✋</button>
       </form>
-      {% elif is_creator or item.assigned_to == actor_name %}
-      <form method="post" action="{{ url_for('lists.unclaim_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="icon-btn" title="{{ _('Libérer') }}">✋</button>
-      </form>
       {% endif %}
-      <form method="post" action="{{ url_for('lists.delete_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}">
+      <form method="post" action="{{ url_for('lists.delete_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}" class="item-delete">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button type="submit" class="icon-btn icon-btn-danger" title="{{ _('Supprimer') }}">×</button>
       </form>

@@ -67,7 +67,7 @@
 </div>
 
 {% if not activities %}
-<p class="empty-hint">{{ _("Aucune activité planifiée. Utilisez la grille ci-dessus pour ajouter des repas, ou le bouton « Nouvelle activité ».") }}</p>
+<p class="empty-hint">{{ _("Aucune activité planifiée. Ajoutez un repas dans la grille ci-dessus, ou une activité avec l'ajout rapide ci-dessous.") }}</p>
 {% endif %}
 
 {# Other activities (non-meal) #}
@@ -113,6 +113,25 @@
   {% endfor %}
 </div>
 {% endif %}
+
+{# Quick-add: simple activity in one row (title + date + time).
+   The full form (planning.create) stays available for advanced fields. #}
+{% set default_date = today if event.start_date <= today <= event.end_date else event.start_date %}
+<div class="quick-act" id="quick-activity">
+  <h2>{{ _("Ajout rapide") }}</h2>
+  <form method="post" action="{{ url_for('planning.create', code=event.code) }}" class="quick-act-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="min_headcount" value="1">
+    <input type="text" name="title" required minlength="2" maxlength="200"
+           placeholder="{{ _('Ex : Randonnée, piscine, resto…') }}" aria-label="{{ _('Titre') }}">
+    <input type="date" name="date" required
+           min="{{ event.start_date.isoformat() }}" max="{{ event.end_date.isoformat() }}"
+           value="{{ default_date.isoformat() }}" aria-label="{{ _('Date') }}">
+    <input type="time" name="start_time" aria-label="{{ _('Heure') }}">
+    <button type="submit" class="btn btn-primary">{{ _("Ajouter") }}</button>
+  </form>
+  <p class="hint"><a href="{{ url_for('planning.create', code=event.code) }}">{{ _("Besoin de plus d'options ? Créer une activité détaillée →") }}</a></p>
+</div>
 
 {# RSVP section for guests #}
 {% if guest and activities %}

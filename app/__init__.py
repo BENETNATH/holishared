@@ -166,17 +166,17 @@ def create_app() -> Flask:
 
     @app.template_filter("add_days")
     def add_days_filter(value: object, days: int) -> object:
-        from datetime import timedelta
         from datetime import date as _date
+        from datetime import timedelta
         if isinstance(value, _date):
             return value + timedelta(days=days)
         return value
 
     @app.context_processor
     def inject_event_days():
-        from flask import g as _g
         from datetime import timedelta
-        from datetime import date as _date
+
+        from flask import g as _g
         ev = getattr(_g, "current_event", None)
         if ev and ev.start_date and ev.end_date:
             days = []

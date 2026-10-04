@@ -1,6 +1,15 @@
 {% extends "base.html" %}
 {% block title %}{{ event.title }} — holishared{% endblock %}
 {% block content %}
+{% set is_creator = current_user.is_authenticated and current_user.id == event.creator_id %}
+{# Unclaimed items across all lists (template-side count, no backend change). #}
+{% set unclaimed = [] %}
+{% for lst in lists %}
+  {% for item in lst.items %}
+    {% if not item.assigned_to %}{% set _ = unclaimed.append(item) %}{% endif %}
+  {% endfor %}
+{% endfor %}
+
 <div class="page-head">
     <div>
         <h1>{{ event.title }}</h1>
@@ -20,6 +29,103 @@
   <button type="button" class="btn btn-small copy-code" data-code="{{ guest.code }}">{{ _("Copier") }}</button>
 </div>
 {% endif %}
+
+{# Quick actions: the most common next steps, one tap each #}
+<div class="quick-actions" role="group" aria-label="{{ _('Actions rapides') }}">
+  {% if "planning" in enabled_modules %}
+  <a href="{{ url_for('planning.index', code=event.code) }}" class="btn btn-secondary quick-action">🍽 {{ _("Ajouter un repas") }}</a>
+  <a href="{{ url_for('planning.create', code=event.code) }}" class="btn btn-secondary quick-action">＋ {{ _("Ajouter une activité") }}</a>
+  {% endif %}
+  {% if is_creator %}
+  <a href="{{ url_for('events.invite', code=event.code) }}" class="btn btn-secondary quick-action">✉ {{ _("Inviter") }}</a>
+  {% endif %}
+  <button type="button" class="btn btn-secondary quick-action" id="share-btn"
+          data-url="{{ request.host_url }}{{ url_for('events.dashboard', code=event.code) }}"
+          data-copied="{{ _('Lien copié !') }}">🔗 {{ _("Partager") }}</button>
+</div>
+
+{# Scannable status cards: label + count + one-tap navigation #}
+<div class="dash-cards">
+  <section class="card dash-card" aria-labelledby="h-today">
+    <div class="dash-card-head">
+      <h2 id="h-today">{{ _("Aujourd'hui") }}</h2>
+      {% if activities %}<span class="count-badge">{{ activities|length }}</span>{% endif %}
+    </div>
+    {% if activities %}
+    <ul class="dash-mini-list">
+      {% for act in activities %}
+      <li>
+        {% if act.start_time %}<span class="time">{{ act.start_time.strftime("%H:%M") }}</span>{% endif %}
+        {% if "planning" in enabled_modules %}
+        <a href="{{ url_for('planning.index', code=event.code) }}">{{ act.title }}</a>
+        {% else %}<span>{{ act.title }}</span>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="dash-empty">{{ _("Rien prévu aujourd'hui.") }}</p>
+    {% endif %}
+    {% if "planning" in enabled_modules %}
+    <a href="{{ url_for('planning.index', code=event.code) }}" class="dash-card-link">{{ _("Voir le planning") }} →</a>
+    {% endif %}
+  </section>
+
+  <section class="card dash-card" aria-labelledby="h-polls">
+    <div class="dash-card-head">
+      <h2 id="h-polls">{{ _("Sondages ouverts") }}</h2>
+      {% if polls %}<span class="count-badge">{{ polls|length }}</span>{% endif %}
+    </div>
+    {% if polls %}
+    <ul class="dash-mini-list">
+      {% for poll in polls[:3] %}
+      <li>
+        {% if "voting" in enabled_modules %}
+        <a href="{{ url_for('voting.detail', code=event.code, poll_id=poll.id) }}">{{ poll.question }}</a>
+        {% else %}<span>{{ poll.question }}</span>{% endif %}
+      </li>
+      {% endfor %}
+      {% if polls|length > 3 %}<li class="muted">+{{ polls|length - 3 }} {{ _("autres") }}</li>{% endif %}
+    </ul>
+    {% else %}
+    <p class="dash-empty">{{ _("Aucun sondage ouvert.") }}</p>
+    {% endif %}
+    {% if "voting" in enabled_modules %}
+    <a href="{{ url_for('voting.index', code=event.code) }}" class="dash-card-link">{{ _("Voir les sondages") }} →</a>
+    {% endif %}
+  </section>
+
+  <section class="card dash-card" aria-labelledby="h-unclaimed">
+    <div class="dash-card-head">
+      <h2 id="h-unclaimed">{{ _("À répartir") }}</h2>
+      {% if unclaimed %}<span class="count-badge">{{ unclaimed|length }}</span>{% endif %}
+    </div>
+    {% if unclaimed %}
+    <p class="dash-empty">{{ unclaimed|length }} {{ _("articles sans responsable dans vos listes.") }}</p>
+    {% else %}
+    <p class="dash-empty">{{ _("Tout est réparti. 👌") }}</p>
+    {% endif %}
+    {% if "lists" in enabled_modules %}
+    <a href="{{ url_for('lists.index', code=event.code) }}" class="dash-card-link">{{ _("Voir les listes") }} →</a>
+    {% endif %}
+  </section>
+
+  {% if "chat" in enabled_modules %}
+  <section class="card dash-card" aria-labelledby="h-chat">
+    <div class="dash-card-head">
+      <h2 id="h-chat">{{ _("Chat") }}</h2>
+    </div>
+    {# Last messages loaded via HTMX (chat index returns a partial);
+       CSS keeps only the 3 most recent visible. #}
+    <div class="dash-chat"
+         hx-get="{{ url_for('chat.index', code=event.code) }}"
+         hx-trigger="load"
+         hx-swap="innerHTML">
+      <p class="dash-empty">{{ _("Chargement…") }}</p>
+    </div>
+    <a href="{{ url_for('chat.index', code=event.code) }}" class="dash-card-link">{{ _("Ouvrir le chat") }} →</a>
+  </section>
+  {% endif %}
+</div>
 
 <!-- Important info (collaborative) -->
 <section aria-labelledby="h-info" class="section">
@@ -54,75 +160,44 @@
   {% endif %}
 </section>
 
-{% if activities %}
-<section aria-labelledby="h-today" class="section">
-  <div class="section-head">
-    <h2 id="h-today">{{ _("Aujourd'hui") }}</h2>
-    {% if "planning" in enabled_modules %}
-    <a href="{{ url_for('planning.index', code=event.code) }}" class="btn btn-small btn-ghost">{{ _("Voir le planning") }} →</a>
-    {% endif %}
-  </div>
-  {% for act in activities %}
-  <div class="card activity-card">
-    {% if act.start_time %}<span class="time">{{ act.start_time.strftime("%H:%M") }}</span>{% endif %}
-    <h3>
-      {% if "planning" in enabled_modules %}
-      <a href="{{ url_for('planning.index', code=event.code) }}">{{ act.title }}</a>
-      {% else %}{{ act.title }}{% endif %}
-    </h3>
-    {% if act.location %}<p class="location">📍 {{ act.location }}</p>{% endif %}
-  </div>
-  {% endfor %}
-</section>
-{% endif %}
-
-{% if polls %}
-<section aria-labelledby="h-polls" class="section">
-  <div class="section-head">
-    <h2 id="h-polls">{{ _("Sondages ouverts") }}</h2>
-    {% if "voting" in enabled_modules %}
-    <a href="{{ url_for('voting.index', code=event.code) }}" class="btn btn-small btn-ghost">{{ _("Tous les sondages") }} →</a>
-    {% endif %}
-  </div>
-  <ul class="lists">
-    {% for poll in polls %}
-    <li class="card list-card">
-      {% if "voting" in enabled_modules %}
-      <a href="{{ url_for('voting.detail', code=event.code, poll_id=poll.id) }}">{{ poll.question }}</a>
-      {% else %}<span>{{ poll.question }}</span>{% endif %}
-      <span class="tag">{{ _("À voter") }}</span>
-    </li>
-    {% endfor %}
-  </ul>
-</section>
-{% endif %}
-
-{% if lists %}
-<section aria-labelledby="h-lists" class="section">
-  <div class="section-head">
-    <h2 id="h-lists">{{ _("Listes & to-do") }}</h2>
-    {% if "lists" in enabled_modules %}
-    <a href="{{ url_for('lists.index', code=event.code) }}" class="btn btn-small btn-ghost">{{ _("Toutes les listes") }} →</a>
-    {% endif %}
-  </div>
-  <ul class="lists">
-    {% for lst in lists %}
-    <li class="card list-card">
-      {% if "lists" in enabled_modules %}
-      <a href="{{ url_for('lists.detail', code=event.code, list_id=lst.id) }}">{{ lst.title }}</a>
-      {% else %}<span>{{ lst.title }}</span>{% endif %}
-      <span class="item-count">{{ lst.items.count() }} {{ _("articles") }}</span>
-    </li>
-    {% endfor %}
-  </ul>
-</section>
-{% endif %}
-
 {% if not activities and not polls and not lists and not logistics_items %}
 <div class="empty-state">
   <span class="empty-icon" aria-hidden="true">🧭</span>
   <h3>{{ _("Rien à afficher pour l'instant") }}</h3>
-  <p>{{ _("Utilisez la navigation ci-dessus pour planifier, lister, voter, partager les frais…") }}</p>
+  <p>{{ _("Commencez par ajouter une activité ou une info pratique.") }}</p>
+  {% if "planning" in enabled_modules %}
+  <a href="{{ url_for('planning.create', code=event.code) }}" class="btn btn-primary">{{ _("Ajouter une activité") }}</a>
+  {% endif %}
 </div>
 {% endif %}
+{% endblock %}
+{% block scripts %}
+<script>
+    // Share button: copy the event link, confirm inline (no page reload)
+    (function() {
+        var btn = document.getElementById('share-btn');
+        if (!btn) return;
+        btn.addEventListener('click', function() {
+            var url = btn.getAttribute('data-url');
+            var copied = btn.getAttribute('data-copied');
+            var original = btn.innerHTML;
+            function done(ok) {
+                btn.innerHTML = ok ? '✓ ' + copied : '✕';
+                setTimeout(function() { btn.innerHTML = original; }, 2000);
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(function() { done(true); }, function() { done(false); });
+            } else {
+                var ta = document.createElement('textarea');
+                ta.value = url;
+                document.body.appendChild(ta);
+                ta.select();
+                var ok = false;
+                try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+                document.body.removeChild(ta);
+                done(ok);
+            }
+        });
+    })();
+</script>
 {% endblock %}

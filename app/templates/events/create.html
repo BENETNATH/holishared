@@ -1,6 +1,15 @@
 {% extends "base.html" %}
 {% block title %}{{ _("Nouvel événement") }} — holishared{% endblock %}
 {% block content %}
+{# Map backend error strings to the fields they concern, so validation
+   errors appear next to the field instead of in a block at the top. #}
+{% set field_errors = {'title': [], 'dates': [], 'email': [], 'general': []} %}
+{% for e in errors %}
+  {% if 'Titre' in e %}{% set _ = field_errors['title'].append(e) %}
+  {% elif 'email' in e.lower() %}{% set _ = field_errors['email'].append(e) %}
+  {% elif 'date' in e.lower() or 'Durée' in e %}{% set _ = field_errors['dates'].append(e) %}
+  {% else %}{% set _ = field_errors['general'].append(e) %}{% endif %}
+{% endfor %}
 <div class="page-head">
     <div>
         <h1>{{ _("Nouvel événement") }}</h1>
@@ -8,55 +17,68 @@
     </div>
 </div>
 
-{% if errors %}
-<ul class="errors" aria-live="assertive">
-  {% for e in errors %}<li>{{ e }}</li>{% endfor %}
-</ul>
-{% endif %}
-
 <form method="post" action="{{ url_for('events.create') }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {# The user is already logged in with a verified email: pre-fill it as a
+     hidden field (the backend still requires it in the form data). #}
+  <input type="hidden" name="email" value="{{ current_user.email }}">
 
-  <div class="form-group">
-    <label for="title">{{ _("Titre") }} *</label>
-    <input type="text" id="title" name="title" required maxlength="200"
-           value="{{ form.title if form else '' }}" placeholder="{{ _('Ex : Anniversaire de Léa') }}">
-  </div>
+  <fieldset class="form-section">
+    <legend>{{ _("Basiques") }}</legend>
 
-  <div class="form-group">
-    <label for="description">{{ _("Description") }}</label>
-    <textarea id="description" name="description" rows="3" maxlength="2000"
-              placeholder="{{ _('Quelques mots pour situer le contexte…') }}">{{ form.description if form else '' }}</textarea>
-  </div>
-
-  <div class="form-grid">
     <div class="form-group">
-      <label for="start_date">{{ _("Date de début") }} *</label>
-      <input type="date" id="start_date" name="start_date" required
-             value="{{ form.start_date if form else '' }}">
+      <label for="title">{{ _("Titre") }} *</label>
+      <input type="text" id="title" name="title" required maxlength="200"
+             value="{{ form.title if form else '' }}" placeholder="{{ _('Ex : Anniversaire de Léa') }}"
+             {% if field_errors['title'] %}aria-invalid="true" aria-describedby="err-title"{% endif %}>
+      {% for e in field_errors['title'] %}<p class="field-error" id="err-title">{{ e }}</p>{% endfor %}
     </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="start_date">{{ _("Date de début") }} *</label>
+        <input type="date" id="start_date" name="start_date" required
+               value="{{ form.start_date if form else '' }}"
+               {% if field_errors['dates'] %}aria-invalid="true" aria-describedby="err-dates"{% endif %}>
+        {% for e in field_errors['dates'] %}<p class="field-error" id="err-dates">{{ e }}</p>{% endfor %}
+      </div>
+      <div class="form-group">
+        <label for="end_date">{{ _("Date de fin") }} *</label>
+        <input type="date" id="end_date" name="end_date" required
+               value="{{ form.end_date if form else '' }}">
+      </div>
+    </div>
+
     <div class="form-group">
-      <label for="end_date">{{ _("Date de fin") }} *</label>
-      <input type="date" id="end_date" name="end_date" required
-             value="{{ form.end_date if form else '' }}">
+      <label for="location">{{ _("Lieu") }}</label>
+      <input type="text" id="location" name="location" maxlength="300"
+             value="{{ form.location if form else '' }}" placeholder="{{ _('Ex : Gîte de la Vallée, Annecy') }}">
     </div>
-  </div>
+  </fieldset>
 
-  <div class="form-group">
-    <label for="location">{{ _("Lieu") }}</label>
-    <input type="text" id="location" name="location" maxlength="300"
-           value="{{ form.location if form else '' }}" placeholder="{{ _('Ex : Gîte de la Vallée, Annecy') }}">
-  </div>
+  <details class="form-options">
+    <summary>{{ _("Options") }} <span class="optional">({{ _("description") }})</span></summary>
+    <div class="form-group">
+      <label for="description">{{ _("Description") }}</label>
+      <textarea id="description" name="description" rows="3" maxlength="2000"
+                placeholder="{{ _('Quelques mots pour situer le contexte…') }}">{{ form.description if form else '' }}</textarea>
+    </div>
+  </details>
 
-  <div class="form-group">
-    <label for="email">{{ _("Votre email") }} *</label>
-    <input type="email" id="email" name="email" required
-           value="{{ form.email if form else '' }}" autocomplete="email">
-    <p class="hint">{{ _("Sert à retrouver votre événement et à gérer les invitations.") }}</p>
-  </div>
+  <p class="hint">
+    {{ _("Votre email") }} : <strong>{{ current_user.email }}</strong> —
+    {{ _("sert à retrouver votre événement et à gérer les invitations.") }}
+    {% for e in field_errors['email'] %}<span class="field-error">{{ e }}</span>{% endfor %}
+  </p>
 
   <div class="form-actions">
-    <button type="submit" class="btn btn-primary">{{ _("Créer l'événement") }}</button>
+    <button type="submit" class="btn btn-primary btn-lg">{{ _("Créer l'événement") }}</button>
   </div>
 </form>
+
+{% if field_errors['general'] %}
+<ul class="errors" aria-live="assertive">
+  {% for e in field_errors['general'] %}<li>{{ e }}</li>{% endfor %}
+</ul>
+{% endif %}
 {% endblock %}
