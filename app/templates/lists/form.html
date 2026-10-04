@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Nouvelle liste") }} — {{ event.title }}{% endblock %}
+{% block content %}
+<h1>{{ _("Nouvelle liste") }}</h1>
+
+{% if errors %}
+<ul class="errors" aria-live="assertive">
+  {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+</ul>
+{% endif %}
+
+<form method="post" action="{{ url_for('lists.create', code=event.code) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <div class="form-group">
+    <label for="title">{{ _("Titre") }} *</label>
+    <input type="text" id="title" name="title" required minlength="2" maxlength="200"
+           value="{{ form_data.get('title', '') }}">
+  </div>
+
+  <div class="form-group">
+    <label for="list_type">{{ _("Type de liste") }}</label>
+    <select id="list_type" name="list_type">
+      {% for t in list_types %}
+      <option value="{{ t }}" {% if form_data.get('list_type', 'general') == t %}selected{% endif %}>{{ _(t) }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <button type="submit" class="btn btn-primary">{{ _("Créer") }}</button>
+</form>
+{% endblock %}

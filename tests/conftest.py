@@ -7,12 +7,19 @@ from app.models import Creator, Event, Guest, generate_event_code, generate_gues
 
 
 @pytest.fixture
-def app():
-    """Create a test app with in-memory SQLite."""
+def app(monkeypatch):
+    """Create a test app with in-memory SQLite.
+
+    Flask-SQLAlchemy 3.1 crée le moteur dans ``init_app()`` (appelé par
+    ``create_app``), donc la URI doit être fixée via l'env AVANT la
+    création de l'app. ``load_dotenv`` est désactivé pour que le ``.env``
+    de dev (override=True) n'écrase pas ``DATABASE_URL``.
+    """
+    monkeypatch.setattr("app.load_dotenv", lambda *args, **kwargs: True)
+    monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
     app = create_app()
     app.config["TESTING"] = True
     app.config["WTF_CSRF_ENABLED"] = False
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
     app.config["SUPERADMIN_EMAIL"] = "admin@test.com"
     app.config["SUPERADMIN_PASSWORD"] = "testpass"
     app.config["SMTP_HOST"] = ""  # No email in tests

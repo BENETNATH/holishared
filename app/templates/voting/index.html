@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Sondages") }} — {{ event.title }}{% endblock %}
+{% block content %}
+<h1>{{ _("Sondages") }} — {{ event.title }}</h1>
+
+<a href="{{ url_for('voting.create', code=event.code) }}" class="btn btn-primary">
+  {{ _("Nouveau sondage") }}
+</a>
+
+{% if not open_polls and not closed_polls %}
+  <p class="empty">{{ _("Aucun sondage. Créez-en un !") }}</p>
+{% endif %}
+
+{% for poll in open_polls %}
+  {% set res, total = results(poll) %}
+  <div class="card poll-card">
+    <h3>
+      <a href="{{ url_for('voting.detail', code=event.code, poll_id=poll.id) }}">{{ poll.question }}</a>
+    </h3>
+    <ul class="poll-results" aria-label="{{ _('Résultats du sondage') }}">
+      {% for r in res %}
+        <li class="poll-option">
+          <span class="poll-option-label">{{ r.option.label }} — {{ r.count }} {{ _("vote(s)") }}</span>
+          <div class="poll-bar" role="progressbar"
+               aria-valuenow="{{ r.percent }}" aria-valuemin="0" aria-valuemax="100"
+               aria-label="{{ r.option.label }} : {{ r.percent }}%">
+            <div class="poll-bar-fill" style="width: {{ r.percent }}%"></div>
+          </div>
+          <span class="poll-percent">{{ r.percent }}%</span>
+        </li>
+      {% endfor %}
+    </ul>
+    <p class="poll-total">{{ total }} {{ _("vote(s) au total") }}</p>
+
+    {% if guest %}
+      <form method="post" action="{{ url_for('voting.vote', code=event.code, poll_id=poll.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <fieldset>
+          <legend class="sr-only">{{ _("Votre vote") }}</legend>
+          {% for r in res %}
+            <label>
+              <input type="radio" name="option_id" value="{{ r.option.id }}"
+                     {% if guest_votes.get(poll.id) == r.option.id %}checked{% endif %}>
+              {{ r.option.label }}
+            </label>
+          {% endfor %}
+        </fieldset>
+        <button type="submit" class="btn btn-primary">{{ _("Voter") }}</button>
+      </form>
+    {% endif %}
+  </div>
+{% endfor %}
+
+{% for poll in closed_polls %}
+  {% set res, total = results(poll) %}
+  <div class="card poll-card closed">
+    <h3>
+      <a href="{{ url_for('voting.detail', code=event.code, poll_id=poll.id) }}">{{ poll.question }}</a>
+    </h3>
+    <p class="badge-closed">{{ _("Sondage fermé") }}</p>
+    <ul class="poll-results" aria-label="{{ _('Résultats du sondage') }}">
+      {% for r in res %}
+        <li class="poll-option">
+          <span class="poll-option-label">{{ r.option.label }} — {{ r.count }} {{ _("vote(s)") }}</span>
+          <div class="poll-bar" role="progressbar"
+               aria-valuenow="{{ r.percent }}" aria-valuemin="0" aria-valuemax="100"
+               aria-label="{{ r.option.label }} : {{ r.percent }}%">
+            <div class="poll-bar-fill" style="width: {{ r.percent }}%"></div>
+          </div>
+          <span class="poll-percent">{{ r.percent }}%</span>
+        </li>
+      {% endfor %}
+    </ul>
+    <p class="poll-total">{{ total }} {{ _("vote(s) au total") }}</p>
+  </div>
+{% endfor %}
+{% endblock %}

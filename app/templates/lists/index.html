@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Listes") }} — {{ event.title }}{% endblock %}
+{% block content %}
+<h1>{{ _("Listes") }} — {{ event.title }}</h1>
+
+<a href="{{ url_for('lists.create', code=event.code) }}" class="btn btn-primary">
+  {{ _("Nouvelle liste") }}
+</a>
+
+{% if not lists %}
+  <p class="empty">{{ _("Aucune liste. Créez-en une !") }}</p>
+{% else %}
+  <ul class="lists" aria-label="{{ _('Listes de l\'événement') }}">
+    {% for lst in lists %}
+      <li class="card list-card">
+        <a href="{{ url_for('lists.detail', code=event.code, list_id=lst.id) }}">
+          <h3>{{ lst.title }}</h3>
+        </a>
+        <span class="badge list-type">{{ lst.list_type }}</span>
+        <span class="item-count">{{ lst.items.count() }} {{ _("articles") }}</span>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+{% endblock %}

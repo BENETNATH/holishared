@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Infos pratiques") }} — {{ event.title }}{% endblock %}
+{% block content %}
+<h1>{{ _("Infos pratiques") }} — {{ event.title }}</h1>
+
+<a href="{{ url_for('logistics.create', code=event.code) }}" class="btn btn-primary">
+  {{ _("Ajouter une info") }}
+</a>
+
+{% if not items %}
+  <p class="empty">{{ _("Aucune info pratique. Ajoutez l'adresse, l'accès, les horaires…") }}</p>
+{% else %}
+  {% for category, cat_items in items | groupby("category") %}
+    <section aria-labelledby="cat-{{ category }}">
+      <h2 id="cat-{{ category }}">{{ category_labels.get(category, category) }}</h2>
+      {% for item in cat_items %}
+        <div class="card logistics-card">
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.content }}</p>
+          {% if is_creator %}
+            <a href="{{ url_for('logistics.edit', code=event.code, item_id=item.id) }}">{{ _("Modifier") }}</a>
+            <form method="post" action="{{ url_for('logistics.delete', code=event.code, item_id=item.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-danger">{{ _("Supprimer") }}</button>
+            </form>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </section>
+  {% endfor %}
+{% endif %}
+{% endblock %}

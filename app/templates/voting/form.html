@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Nouveau sondage") }}{% endblock %}
+{% block content %}
+<h1>{{ _("Nouveau sondage") }}</h1>
+
+{% if errors %}
+<ul class="errors" aria-live="assertive">
+  {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+</ul>
+{% endif %}
+
+<form method="post" action="{{ url_for('voting.create', code=event.code) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <div class="form-group">
+    <label for="question">{{ _("Question") }} *</label>
+    <input type="text" id="question" name="question" required minlength="2" maxlength="300"
+           value="{{ form_data.get('question', '') }}">
+  </div>
+
+  <div class="form-group">
+    <label for="options">{{ _("Options") }} *
+      <span class="hint">{{ _("Une option par ligne (2 à 10).") }}</span>
+    </label>
+    <textarea id="options" name="options" rows="5" required>{{ form_data.get('options', '') }}</textarea>
+  </div>
+
+  <button type="submit" class="btn btn-primary">{{ _("Créer le sondage") }}</button>
+</form>
+{% endblock %}

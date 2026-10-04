@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}{{ shared_list.title }} — {{ event.title }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('lists.index', code=event.code) }}">&larr; {{ _("Listes") }}</a></p>
+<h1>{{ shared_list.title }}</h1>
+
+{% if errors %}
+<ul class="errors" aria-live="assertive">
+  {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+</ul>
+{% endif %}
+
+<ul class="items" aria-label="{{ _('Articles de la liste') }}">
+  {% for item in items %}
+    <li class="card item{% if item.is_done %} done{% endif %}">
+      <form method="post" action="{{ url_for('lists.toggle_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="done-{{ item.id }}">
+          <input type="checkbox" id="done-{{ item.id }}" name="is_done"
+                 {% if item.is_done %}checked{% endif %}
+                 onchange="this.form.submit()"
+                 aria-label="{{ _('Marquer comme fait') }}: {{ item.name }}">
+          {{ item.name }}
+        </label>
+      </form>
+      {% if item.quantity and item.quantity != "1" %}<span class="qty">{{ item.quantity }}</span>{% endif %}
+      {% if item.section %}<span class="section">{{ item.section }}</span>{% endif %}
+      {% if item.assigned_to %}<span class="assigned">{{ _("À") }} : {{ item.assigned_to }}</span>{% endif %}
+      <form method="post" action="{{ url_for('lists.delete_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-danger"
+                aria-label="{{ _('Supprimer') }}: {{ item.name }}">{{ _("Supprimer") }}</button>
+      </form>
+    </li>
+  {% else %}
+    <li class="empty">{{ _("Aucun article dans cette liste.") }}</li>
+  {% endfor %}
+</ul>
+
+<h2>{{ _("Ajouter un article") }}</h2>
+<form method="post" action="{{ url_for('lists.add_item', code=event.code, list_id=shared_list.id) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <div class="form-group">
+    <label for="name">{{ _("Nom") }} *</label>
+    <input type="text" id="name" name="name" required maxlength="300"
+           value="{{ form_data.get('name', '') }}">
+  </div>
+
+  <div class="form-group">
+    <label for="quantity">{{ _("Quantité") }}</label>
+    <input type="text" id="quantity" name="quantity" maxlength="50"
+           value="{{ form_data.get('quantity', '1') }}">
+  </div>
+
+  <div class="form-group">
+    <label for="section">{{ _("Section") }}</label>
+    <input type="text" id="section" name="section" maxlength="100"
+           value="{{ form_data.get('section', '') }}">
+  </div>
+
+  <div class="form-group">
+    <label for="assigned_to">{{ _("Assigné à") }}</label>
+    <input type="text" id="assigned_to" name="assigned_to" maxlength="50"
+           value="{{ form_data.get('assigned_to', '') }}">
+  </div>
+
+  <button type="submit" class="btn btn-primary">{{ _("Ajouter") }}</button>
+</form>
+
+{% if is_creator %}
+<form method="post" action="{{ url_for('lists.delete_list', code=event.code, list_id=shared_list.id) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button type="submit" class="btn btn-danger">{{ _("Supprimer la liste") }}</button>
+</form>
+{% endif %}
+{% endblock %}

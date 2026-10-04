@@ -87,13 +87,19 @@ def create_app():
     # Blueprints
     from app.auth import auth_bp
     from app.events import events_bp
+    from app.lists import lists_bp
+    from app.logistics import logistics_bp
     from app.media import media_bp
     from app.planning import planning_bp
+    from app.voting import voting_bp
 
     app.register_blueprint(auth_bp, url_prefix="/admin")
     app.register_blueprint(events_bp, url_prefix="/e")
     app.register_blueprint(planning_bp)
+    app.register_blueprint(lists_bp)
+    app.register_blueprint(logistics_bp)
     app.register_blueprint(media_bp)
+    app.register_blueprint(voting_bp)
 
     # Context processor
     @app.context_processor
