@@ -2,9 +2,11 @@
 
 import secrets
 import string
-from datetime import datetime, date
+from datetime import datetime
+
 from flask_login import UserMixin
-from app.extensions import db, login_manager
+
+from app.extensions import db
 
 
 def generate_event_code(length=6):
@@ -21,6 +23,7 @@ def generate_guest_code(length=8):
 
 class Creator(UserMixin, db.Model):
     """Event creator (validated by email)."""
+
     __tablename__ = "creators"
 
     id = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
@@ -38,6 +41,7 @@ class Creator(UserMixin, db.Model):
 
 class Event(db.Model):
     """A shared event (vacation, weekend, project)."""
+
     __tablename__ = "events"
 
     id = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
@@ -53,10 +57,16 @@ class Event(db.Model):
     creator_id = db.Column(db.String(32), db.ForeignKey("creators.id"), nullable=False)
 
     guests = db.relationship("Guest", backref="event", lazy="dynamic")
-    activities = db.relationship("Activity", backref="event", lazy="dynamic", cascade="all, delete-orphan")
-    lists = db.relationship("SharedList", backref="event", lazy="dynamic", cascade="all, delete-orphan")
+    activities = db.relationship(
+        "Activity", backref="event", lazy="dynamic", cascade="all, delete-orphan"
+    )
+    lists = db.relationship(
+        "SharedList", backref="event", lazy="dynamic", cascade="all, delete-orphan"
+    )
     polls = db.relationship("Poll", backref="event", lazy="dynamic", cascade="all, delete-orphan")
-    logistics_items = db.relationship("LogisticsItem", backref="event", lazy="dynamic", cascade="all, delete-orphan")
+    logistics_items = db.relationship(
+        "LogisticsItem", backref="event", lazy="dynamic", cascade="all, delete-orphan"
+    )
 
     @property
     def duration_days(self):
@@ -69,6 +79,7 @@ class Event(db.Model):
 
 class Guest(db.Model):
     """A guest with a personal code (no personal data stored)."""
+
     __tablename__ = "guests"
 
     id = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
@@ -80,9 +91,7 @@ class Guest(db.Model):
     event_id = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False)
 
     # Unique constraint: one code per event
-    __table_args__ = (
-        db.UniqueConstraint("event_id", "code", name="uq_guest_event_code"),
-    )
+    __table_args__ = (db.UniqueConstraint("event_id", "code", name="uq_guest_event_code"),)
 
     activity_rsvps = db.relationship("ActivityRSVP", backref="guest", lazy="dynamic")
     poll_votes = db.relationship("PollVote", backref="guest", lazy="dynamic")
@@ -90,6 +99,7 @@ class Guest(db.Model):
 
 class Activity(db.Model):
     """A planned activity."""
+
     __tablename__ = "activities"
 
     id = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
@@ -106,7 +116,9 @@ class Activity(db.Model):
 
     event_id = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False)
 
-    rsvps = db.relationship("ActivityRSVP", backref="activity", lazy="dynamic", cascade="all, delete-orphan")
+    rsvps = db.relationship(
+        "ActivityRSVP", backref="activity", lazy="dynamic", cascade="all, delete-orphan"
+    )
 
     @property
     def confirmed_count(self):
@@ -115,6 +127,7 @@ class Activity(db.Model):
 
 class ActivityRSVP(db.Model):
     """RSVP for an activity."""
+
     __tablename__ = "activity_rsvps"
 
     id = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
@@ -129,8 +142,25 @@ class ActivityRSVP(db.Model):
     )
 
 
+class ActivityLog(db.Model):
+    """Audit trail of actions on an event (B002)."""
+
+    __tablename__ = "activity_logs"
+
+    id = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    actor_name = db.Column(db.String(100), nullable=False)
+    actor_type = db.Column(db.String(20), nullable=False)  # creator, guest, system
+    action = db.Column(db.String(50), nullable=False)
+    target = db.Column(db.String(200), default=None)
+    details = db.Column(db.Text, default=None)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+
+    event_id = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False, index=True)
+
+
 class SharedList(db.Model):
     """A shared list (shopping, packing, etc.)."""
+
     __tablename__ = "shared_lists"
 
     id = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
@@ -140,11 +170,14 @@ class SharedList(db.Model):
 
     event_id = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False)
 
-    items = db.relationship("ListItem", backref="parent_list", lazy="dynamic", cascade="all, delete-orphan")
+    items = db.relationship(
+        "ListItem", backref="parent_list", lazy="dynamic", cascade="all, delete-orphan"
+    )
 
 
 class ListItem(db.Model):
     """An item in a shared list."""
+
     __tablename__ = "list_items"
 
     id = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
@@ -160,6 +193,7 @@ class ListItem(db.Model):
 
 class Poll(db.Model):
     """A poll/vote."""
+
     __tablename__ = "polls"
 
     id = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
@@ -169,11 +203,14 @@ class Poll(db.Model):
 
     event_id = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False)
 
-    options = db.relationship("PollOption", backref="poll", lazy="dynamic", cascade="all, delete-orphan")
+    options = db.relationship(
+        "PollOption", backref="poll", lazy="dynamic", cascade="all, delete-orphan"
+    )
 
 
 class PollOption(db.Model):
     """An option in a poll."""
+
     __tablename__ = "poll_options"
 
     id = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
@@ -187,6 +224,7 @@ class PollOption(db.Model):
 
 class PollVote(db.Model):
     """A vote on a poll option."""
+
     __tablename__ = "poll_votes"
 
     id = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
@@ -195,13 +233,12 @@ class PollVote(db.Model):
     option_id = db.Column(db.String(32), db.ForeignKey("poll_options.id"), nullable=False)
     guest_id = db.Column(db.String(32), db.ForeignKey("guests.id"), nullable=False)
 
-    __table_args__ = (
-        db.UniqueConstraint("option_id", "guest_id", name="uq_vote_option_guest"),
-    )
+    __table_args__ = (db.UniqueConstraint("option_id", "guest_id", name="uq_vote_option_guest"),)
 
 
 class LogisticsItem(db.Model):
     """A logistics/practical info item."""
+
     __tablename__ = "logistics_items"
 
     id = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
@@ -216,6 +253,7 @@ class LogisticsItem(db.Model):
 
 class MediaItem(db.Model):
     """Shared media (photo/video) with geolocation and dating."""
+
     __tablename__ = "media_items"
 
     id = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
@@ -240,7 +278,9 @@ class MediaItem(db.Model):
 
     event_id = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False, index=True)
 
-    event = db.relationship("Event", backref=db.backref("media", lazy="dynamic", cascade="all, delete-orphan"))
+    event = db.relationship(
+        "Event", backref=db.backref("media", lazy="dynamic", cascade="all, delete-orphan")
+    )
     uploader = db.relationship("Guest", foreign_keys=[uploaded_by])
 
     @property
@@ -254,6 +294,7 @@ class MediaItem(db.Model):
 
 class MediaQuota(db.Model):
     """Per-creator media storage quota (freemium tier based)."""
+
     __tablename__ = "media_quotas"
 
     id = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
