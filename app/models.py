@@ -34,6 +34,7 @@ class Creator(UserMixin, db.Model):  # type: ignore[misc,name-defined]
     verification_token: Mapped[str] = db.Column(db.String(64), default=lambda: secrets.token_hex(32))
     verification_sent_at: Mapped[datetime | None] = db.Column(db.DateTime, nullable=True)
     display_name: Mapped[str] = db.Column(db.String(100), default="")
+    personal_code: Mapped[str] = db.Column(db.String(8), unique=True, nullable=True, default=None)
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
 
     events = db.relationship("Event", backref="creator", lazy="dynamic")

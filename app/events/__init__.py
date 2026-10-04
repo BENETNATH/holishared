@@ -45,6 +45,25 @@ def index() -> str:
     return render_template("events/index.html", events=events)
 
 
+@events_bp.route("/access", methods=["GET", "POST"])
+@limiter.limit("10 per hour")
+def access_by_code() -> str | Response:
+    """Access events by personal code (no login required)."""
+    from app.models import Creator
+    if request.method == "POST":
+        code = request.form.get("code", "").strip().lower()
+        if len(code) != 8:
+            flash("Code invalide (8 caractères).", "danger")
+            return redirect(url_for("main.index"))
+        creator = Creator.query.filter_by(personal_code=code).first()
+        if creator is None:
+            flash("Code non reconnu.", "danger")
+            return redirect(url_for("main.index"))
+        login_user(creator)
+        return redirect(url_for("events.index"))
+    return redirect(url_for("main.index"))
+
+
 @events_bp.route("/new", methods=["GET", "POST"])
 @limiter.limit("10 per hour")
 @login_required  # type: ignore[untyped-decorator]
