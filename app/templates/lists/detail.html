@@ -9,6 +9,13 @@
         <h1>{{ shared_list.title }}</h1>
         {% if shared_list.list_type %}<span class="tag">{{ _(shared_list.list_type) }}</span>{% endif %}
     </div>
+    {% if meal_acts %}
+    <div class="head-actions">
+      <button type="button" class="btn btn-small btn-secondary" id="toggle-meals" aria-expanded="false">
+        🍽️ {{ _("Repas") }}
+      </button>
+    </div>
+    {% endif %}
 </div>
 
 {% if errors %}
@@ -17,72 +24,121 @@
 </ul>
 {% endif %}
 
-{# Quick-add: single input, Enter to submit #}
-<form method="post" action="{{ url_for('lists.add_item', code=event.code, list_id=shared_list.id) }}" class="quick-add">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  <input type="text" name="name" required maxlength="300" placeholder="{{ _('Ajouter un article… (Enter)') }}"
-         class="quick-add-input" autofocus>
-  <button type="submit" class="btn btn-primary quick-add-btn" aria-label="{{ _('Ajouter') }}">+</button>
-</form>
-
-<ul class="items items-compact" aria-label="{{ _('Articles de la liste') }}">
-  {% for item in items %}
-  <li class="item-row{% if item.is_done %} done{% endif %}{% if item.assigned_to == actor_name %} mine{% endif %}">
-    {# State 1: unclaimed → claim button #}
-    {% if not item.assigned_to %}
-      <span class="item-status item-status-open" aria-hidden="true">○</span>
-      <span class="item-name">{{ item.name }}</span>
-      {% if item.quantity and item.quantity != "1" %}<span class="qty">{{ item.quantity }}</span>{% endif %}
-      {% if item.section %}<span class="item-section">{{ item.section }}</span>{% endif %}
-      <form method="post" action="{{ url_for('lists.claim_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}" class="item-claim-form">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="btn btn-small btn-primary btn-claim">{{ _("Je m'occupe") }}</button>
-      </form>
-    {# State 2: claimed by me → done checkbox + release #}
-    {% elif item.assigned_to == actor_name %}
-      <form method="post" action="{{ url_for('lists.toggle_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}" class="item-toggle-form">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="hidden" name="is_done" value="{{ '0' if item.is_done else '1' }}">
-        <label class="item-check-label" for="toggle-{{ item.id }}">
-          <input type="checkbox" id="toggle-{{ item.id }}" class="item-check-input" onchange="this.form.submit()"
-                 {% if item.is_done %}checked{% endif %}>
-          <span class="item-check item-check-done" aria-hidden="true">{% if item.is_done %}✓{% else %}&nbsp;{% endif %}</span>
-        </label>
-      </form>
-      <span class="item-name">{{ item.name }}</span>
-      {% if item.quantity and item.quantity != "1" %}<span class="qty">{{ item.quantity }}</span>{% endif %}
-      <span class="assigned assigned-me">{{ item.assigned_to }}</span>
-      <form method="post" action="{{ url_for('lists.unclaim_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}" class="item-release-form">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="btn btn-small btn-ghost btn-release" title="{{ _('Libérer') }}">{{ _("Libérer") }}</button>
-      </form>
-    {# State 3: claimed by someone else → read-only, show who #}
-    {% else %}
-      <span class="item-status item-status-taken" aria-hidden="true">{% if item.is_done %}✓{% else %}●{% endif %}</span>
-      <span class="item-name">{{ item.name }}</span>
-      {% if item.quantity and item.quantity != "1" %}<span class="qty">{{ item.quantity }}</span>{% endif %}
-      {% if item.section %}<span class="item-section">{{ item.section }}</span>{% endif %}
-      <span class="assigned">{{ item.assigned_to }}</span>
-    {% endif %}
-    {# Delete (creator only) #}
-    {% if is_creator %}
-    <form method="post" action="{{ url_for('lists.delete_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}" class="item-delete-form">
+<div class="list-layout">
+  {# === Left: list items === #}
+  <div class="list-main">
+    {# Quick-add #}
+    <form method="post" action="{{ url_for('lists.add_item', code=event.code, list_id=shared_list.id) }}" class="quick-add">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button type="submit" class="icon-btn icon-btn-danger" title="{{ _('Supprimer') }}">×</button>
+      <input type="text" name="name" required maxlength="300" placeholder="{{ _('Ajouter un article… (Enter)') }}"
+             class="quick-add-input" autofocus>
+      <button type="submit" class="btn btn-primary quick-add-btn" aria-label="{{ _('Ajouter') }}">+</button>
     </form>
-    {% endif %}
-  </li>
-  {% else %}
-  <li class="empty">{{ _("Aucun article. Tapez ci-dessus et appuyez sur Enter.") }}</li>
-  {% endfor %}
-</ul>
 
-{% if is_creator %}
-<div class="danger-zone">
-  <form method="post" action="{{ url_for('lists.delete_list', code=event.code, list_id=shared_list.id) }}">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <button type="submit" class="btn btn-danger-solid">{{ _("Supprimer la liste") }}</button>
-  </form>
+    <ul class="items items-compact" aria-label="{{ _('Articles de la liste') }}">
+      {% for item in items %}
+      <li class="item-row{% if item.is_done %} done{% endif %}{% if item.assigned_to == actor_name %} mine{% endif %}">
+        {% if not item.assigned_to %}
+          <span class="item-status item-status-open" aria-hidden="true">○</span>
+          <span class="item-name">{{ item.name }}</span>
+          {% if item.quantity and item.quantity != "1" %}<span class="qty">{{ item.quantity }}</span>{% endif %}
+          {% if item.section %}<span class="item-section">{{ item.section }}</span>{% endif %}
+          <form method="post" action="{{ url_for('lists.claim_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}" class="item-claim-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-small btn-primary btn-claim">{{ _("Je m'occupe") }}</button>
+          </form>
+        {% elif item.assigned_to == actor_name %}
+          <form method="post" action="{{ url_for('lists.toggle_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}" class="item-toggle-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="is_done" value="{{ '0' if item.is_done else '1' }}">
+            <label class="item-check-label" for="toggle-{{ item.id }}">
+              <input type="checkbox" id="toggle-{{ item.id }}" class="item-check-input" onchange="this.form.submit()"
+                     {% if item.is_done %}checked{% endif %}>
+              <span class="item-check item-check-done" aria-hidden="true">{% if item.is_done %}✓{% else %}&nbsp;{% endif %}</span>
+            </label>
+          </form>
+          <span class="item-name">{{ item.name }}</span>
+          {% if item.quantity and item.quantity != "1" %}<span class="qty">{{ item.quantity }}</span>{% endif %}
+          <span class="assigned assigned-me">{{ item.assigned_to }}</span>
+          <form method="post" action="{{ url_for('lists.unclaim_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}" class="item-release-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-small btn-ghost btn-release" title="{{ _('Libérer') }}">{{ _("Libérer") }}</button>
+          </form>
+        {% else %}
+          <span class="item-status item-status-taken" aria-hidden="true">{% if item.is_done %}✓{% else %}●{% endif %}</span>
+          <span class="item-name">{{ item.name }}</span>
+          {% if item.quantity and item.quantity != "1" %}<span class="qty">{{ item.quantity }}</span>{% endif %}
+          {% if item.section %}<span class="item-section">{{ item.section }}</span>{% endif %}
+          <span class="assigned">{{ item.assigned_to }}</span>
+        {% endif %}
+        {% if is_creator %}
+        <form method="post" action="{{ url_for('lists.delete_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}" class="item-delete-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="icon-btn icon-btn-danger" title="{{ _('Supprimer') }}">×</button>
+        </form>
+        {% endif %}
+      </li>
+      {% else %}
+      <li class="empty">{{ _("Aucun article. Tapez ci-dessus et appuyez sur Enter.") }}</li>
+      {% endfor %}
+    </ul>
+
+    {% if is_creator %}
+    <div class="danger-zone">
+      <form method="post" action="{{ url_for('lists.delete_list', code=event.code, list_id=shared_list.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-danger-solid">{{ _("Supprimer la liste") }}</button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+
+  {# === Right: meal plan panel (hidden by default) === #}
+  {% if meal_acts %}
+  <aside class="list-sidebar list-sidebar-hidden" id="meal-panel" aria-label="{{ _('Repas planifiés') }}">
+    <h2 class="sidebar-title">{{ _("Repas") }}</h2>
+    <p class="sidebar-hint">{{ _("Cochez les repas dont vous avez noté les ingrédients.") }}</p>
+    {% set covered = shared_list.covered_meals or [] %}
+    {% for day, day_meals in meal_acts | groupby("date") %}
+    <div class="meal-group">
+      <h3 class="meal-group-day">{{ day | format_date('full') }}</h3>
+      <ul class="meal-check-list">
+        {% for act in day_meals %}
+        <li class="meal-check-item{% if act.id in covered %} covered{% endif %}">
+          <form method="post" action="{{ url_for('lists.toggle_meal', code=event.code, list_id=shared_list.id, activity_id=act.id) }}" class="meal-check-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label class="meal-check-label" for="meal-{{ act.id }}">
+              <input type="checkbox" id="meal-{{ act.id }}" class="meal-check-input"
+                     onchange="this.form.submit()" {% if act.id in covered %}checked{% endif %}>
+              <span class="meal-check-box" aria-hidden="true">{% if act.id in covered %}✓{% else %}&nbsp;{% endif %}</span>
+            </label>
+            <span class="meal-check-name">
+              {% if act.start_time %}<span class="meal-check-time">{{ act.start_time.strftime("%H:%M") }}</span>{% endif %}
+              {{ act.title }}
+            </span>
+          </form>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endfor %}
+  </aside>
+  {% endif %}
 </div>
+{% endblock %}
+{% block scripts %}
+{% if meal_acts %}
+<script>
+(function() {
+  var btn = document.getElementById('toggle-meals');
+  var panel = document.getElementById('meal-panel');
+  if (btn && panel) {
+    btn.addEventListener('click', function() {
+      var hidden = panel.classList.toggle('list-sidebar-hidden');
+      btn.setAttribute('aria-expanded', String(!hidden));
+    });
+  }
+})();
+</script>
 {% endif %}
 {% endblock %}

@@ -179,6 +179,7 @@ class SharedList(db.Model):  # type: ignore[misc,name-defined]
     id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
     title: Mapped[str] = db.Column(db.String(200), nullable=False)
     list_type: Mapped[str] = db.Column(db.String(50), default="general")  # shopping, packing, materials, buffet
+    covered_meals: Mapped[list] = db.Column(db.JSON, default=list)  # activity IDs checked off
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
 
     event_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False)

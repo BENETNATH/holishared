@@ -144,12 +144,29 @@ def create(code: str) -> Response | tuple[str, int] | str:
 
 @lists_bp.route("/e/<code>/lists/<list_id>")
 def detail(code: str, list_id: str) -> Response | tuple[str, int] | str:
-    """Show a shared list with its items."""
+    """Show a shared list with its items + meal plan side panel."""
     event = _get_event_or_404(code)
     shared_list = _get_list_or_404(event, list_id)
     guest, is_creator, denied = _resolve_actor(event, code)
     if denied is not None:
         return denied
+
+    # Meal plan (lunch + dinner activities) for the side panel
+    from app.models import Activity
+    meals = (
+        Activity.query.filter(
+            Activity.event_id == event.id,
+            Activity.date >= event.start_date,
+            Activity.date <= event.end_date,
+        ).order_by(Activity.date.asc(), Activity.start_time.asc()).all()
+    )
+    # Filter to meal-time slots only (lunch 11-15h, dinner 18h+)
+    meal_acts = []
+    for act in meals:
+        if act.start_time:
+            h = act.start_time.hour
+            if (11 <= h < 15) or (h >= 18):
+                meal_acts.append(act)
 
     return render_template(
         "lists/detail.html",
@@ -160,6 +177,7 @@ def detail(code: str, list_id: str) -> Response | tuple[str, int] | str:
         is_creator=is_creator,
         errors=[],
         form_data={},
+        meal_acts=meal_acts,
     )
 
 
@@ -355,3 +373,22 @@ def delete_list(code: str, list_id: str) -> Response | tuple[str, int] | str:
 
     flash(_("Liste supprimée."))
     return redirect(url_for("lists.index", code=code))
+
+
+@lists_bp.route("/e/<code>/lists/<list_id>/meals/<activity_id>/toggle", methods=["POST"])
+def toggle_meal(code: str, list_id: str, activity_id: str) -> Response:
+    """Toggle a meal as covered by this list."""
+    event = _get_event_or_404(code)
+    shared_list = _get_list_or_404(event, list_id)
+    guest, _is_creator, denied = _resolve_actor(event, code)
+    if denied is not None:
+        return denied
+
+    covered = shared_list.covered_meals or []
+    if activity_id in covered:
+        covered.remove(activity_id)
+    else:
+        covered.append(activity_id)
+    shared_list.covered_meals = covered
+    db.session.commit()
+    return redirect(request.referrer or url_for("lists.detail", code=code, list_id=list_id))

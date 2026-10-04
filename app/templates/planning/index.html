@@ -17,21 +17,19 @@
   <div class="meal-grid">
     <div class="meal-grid-header">
       <span class="meal-grid-corner"></span>
-      <span>{{ _("Petit-déj") }}</span>
-      <span>{{ _("Déjeuner") }}</span>
-      <span>{{ _("Dîner") }}</span>
+      <span>{{ _("Midi") }}</span>
+      <span>{{ _("Soir") }}</span>
     </div>
     {% set num_days = (event.end_date - event.start_date).days + 1 %}
     {% for i in range(num_days) %}
     {% set day = event.start_date | add_days(i) %}
     <div class="meal-grid-row">
       <span class="meal-grid-day">{{ day.strftime("%a") }}<br><strong>{{ day.strftime("%d/%m") }}</strong></span>
-      {% for meal_type, default_time in [('breakfast', '08:00'), ('lunch', '12:00'), ('dinner', '19:00')] %}
+      {% for meal_type, default_time in [('lunch', '12:00'), ('dinner', '19:00')] %}
         {% set cell_acts = [] %}
         {% for act in activities %}
           {% if act.date == day and act.start_time %}
             {% set h = act.start_time.hour %}
-            {% if meal_type == 'breakfast' and h >= 6 and h < 11 %}{% set _ = cell_acts.append(act) %}{% endif %}
             {% if meal_type == 'lunch' and h >= 11 and h < 15 %}{% set _ = cell_acts.append(act) %}{% endif %}
             {% if meal_type == 'dinner' and h >= 18 %}{% set _ = cell_acts.append(act) %}{% endif %}
           {% endif %}
