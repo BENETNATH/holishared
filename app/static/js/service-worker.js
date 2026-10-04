@@ -1,6 +1,6 @@
 /* holishared Service Worker — App Shell Cache */
 
-const CACHE_NAME = 'holishared-v1';
+const CACHE_NAME = 'holishared-v2';
 const APP_SHELL = [
   '/static/css/main.css',
   '/static/js/htmx.min.js',
