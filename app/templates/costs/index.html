@@ -98,8 +98,11 @@
 {# === 4. Households table === #}
 <section class="section" aria-labelledby="h-hh">
   <div class="section-head">
-    <h2 id="h-hh" class="section-title">{{ _("Groupes") }}</h2>
-    <a href="{{ url_for('costs.add_household', code=event.code) }}" class="btn btn-small btn-secondary">{{ _("+ Ajouter un groupe") }}</a>
+    <div>
+      <h2 id="h-hh" class="section-title">{{ _("Groupes") }}</h2>
+      <p class="hint">{{ _("Un groupe = un foyer ou une personne qui partage les frais. Créé automatiquement à l'inscription.") }}</p>
+    </div>
+    <a href="{{ url_for('costs.add_household', code=event.code) }}" class="btn btn-small btn-secondary">{{ _("+ Ajouter") }}</a>
   </div>
   {% if households %}
   <div class="table-wrap">
