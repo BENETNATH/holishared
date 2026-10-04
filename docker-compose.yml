@@ -1,0 +1,69 @@
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: holishared-nginx
+    ports:
+      - "${NGINX_PORT:-8080}:80"
+    volumes:
+      - ./nginx/saas.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    restart: unless-stopped
+    networks:
+      - saas_net
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  app:
+    build: .
+    container_name: holishared-app
+    expose:
+      - "8400"
+    environment:
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8400
+      - APP_THREADS=${APP_THREADS:-4}
+      - SECRET_KEY=${SECRET_KEY}
+      - DATABASE_URL=sqlite:////app/instance/holishared.db
+      - SUPERADMIN_EMAIL=${SUPERADMIN_EMAIL:-admin@example.com}
+      - SUPERADMIN_PASSWORD=${SUPERADMIN_PASSWORD}
+      - APP_DOMAIN=${APP_DOMAIN:-localhost}
+      - APP_URL=${APP_URL:-http://localhost:${NGINX_PORT:-8080}}
+      - MAX_GUESTS_PER_EVENT=${MAX_GUESTS_PER_EVENT:-10}
+      - MAX_DURATION_DAYS=${MAX_DURATION_DAYS:-30}
+      - MAX_EVENTS_PER_CREATOR=${MAX_EVENTS_PER_CREATOR:-3}
+      - ENABLED_MODULES=${ENABLED_MODULES:-planning,lists,logistics,voting,media,chat,costs}
+      - RATE_LIMIT_CREATE=${RATE_LIMIT_CREATE:-5/hour}
+      - BLOCKED_EMAIL_DOMAINS=${BLOCKED_EMAIL_DOMAINS:-mailinator.com,temp-mail.com,10minutemail.com,guerrillamail.com,yopmail.com,throwaway.email}
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+      - SMTP_FROM=${SMTP_FROM:-holishared@localhost}
+      - DEFAULT_LANGUAGE=${DEFAULT_LANGUAGE:-fr}
+      - SUPPORTED_LANGUAGES=${SUPPORTED_LANGUAGES:-fr,en}
+      - SESSION_COOKIE_SECURE=${SESSION_COOKIE_SECURE:-false}
+    volumes:
+      - saas_data:/app/instance
+      - saas_logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - saas_net
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  saas_net:
+    driver: bridge
+
+volumes:
+  saas_data:
+    name: holishared_data
+  saas_logs:
+    name: holishared_logs

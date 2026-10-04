@@ -1,0 +1,59 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# Test
+tests/
+.pytest_cache/
+
+# Dev files
+*.md
+adr/
+specs/
+DEV_LOG.md
+TASKS.md
+CHANGELOG.md
+
+# Environment
+.env
+.env.*
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# Logs
+logs/
+*.log
+
+# Instance (SQLite DB)
+instance/
+*.db
+
+# Scripts (not needed in container)
+scripts/
+
+# Nginx (mounted separately)
+nginx/
+
+# Systemd
+systemd/
+
+# Pre-commit
+.pre-commit-config.yaml
