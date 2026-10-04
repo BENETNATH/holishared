@@ -263,6 +263,8 @@ def add_expense(code: str) -> Response | tuple[str, int]:
     exp_date = request.form.get("date", "")
     category = request.form.get("category", "general").strip() or "general"
     currency = request.form.get("currency", "EUR").strip().upper() or "EUR"
+    if currency not in CURRENCIES:
+        currency = "EUR"
     rate_str = request.form.get("exchange_rate", "1.0").strip()
 
     errors: list[str] = []

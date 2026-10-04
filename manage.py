@@ -485,7 +485,7 @@ def is_running():
 
 COMMANDS = {
     "init": (cmd_init, "Initialize project (venv, deps, DB)"),
-    "run": (cmd_run, "Run dev server (Flask debug)"),
+    "run": (cmd_run, "Run dev server (localhost, no debug)"),
     "start": (cmd_start, "Start production server (Waitress)"),
     "stop": (cmd_stop, "Stop the server"),
     "status": (cmd_status, "Show server status"),

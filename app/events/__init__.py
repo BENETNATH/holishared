@@ -217,6 +217,8 @@ def invite_email(code: str) -> Response:
 
     if not email:
         flash("Email requis.", "danger")
+    elif not _valid_email(email):
+        flash("Format d'email invalide.", "danger")
     elif is_disposable_email(email):
         flash("Domaine email non accepté (jetable).", "danger")
     elif not can_add_guest(event):

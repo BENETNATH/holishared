@@ -57,6 +57,9 @@ def _validate_magic_bytes(file: FileStorage, mime: str) -> bool:
         return header[4:8] == b"ftyp"
     if mime == "video/webm":
         return header.startswith(b"\x1a\x45\xdf\xa3")
+    if mime == "image/heic":
+        # HEIF: 'ftyp' at offset 4, brand at offset 8 (heic/heix/mif1/hevc)
+        return header[4:8] == b"ftyp" and header[8:12] in (b"heic", b"heix", b"mif1", b"hevc")
     return False
 
 

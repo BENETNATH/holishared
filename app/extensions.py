@@ -17,11 +17,14 @@ babel = Babel()
 
 
 def _create_limiter() -> Limiter:
-    """Create the rate limiter with Redis storage if available."""
+    """Create the rate limiter with Redis storage if available.
+
+    No app-level default_limits: nginx limit_req (10 r/s burst 20 per IP)
+    provides the coarse guard. Per-endpoint limits are set explicitly.
+    """
     redis_url = os.environ.get("REDIS_URL", "")
     kwargs: dict[str, Any] = {
         "key_func": get_remote_address,
-        "default_limits": ["100 per hour"],
     }
     if redis_url:
         kwargs["storage_uri"] = redis_url

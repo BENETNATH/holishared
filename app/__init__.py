@@ -49,7 +49,13 @@ def create_app() -> Flask:
 
     # Superadmin
     app.config["SUPERADMIN_EMAIL"] = os.environ.get("SUPERADMIN_EMAIL", "admin@example.com")
-    app.config["SUPERADMIN_PASSWORD"] = os.environ.get("SUPERADMIN_PASSWORD", "change")
+    superadmin_pw = os.environ.get("SUPERADMIN_PASSWORD", "")
+    if not superadmin_pw or superadmin_pw == "change":
+        raise RuntimeError(
+            "SUPERADMIN_PASSWORD must be set to a strong value. "
+            "Generate one with: python -c 'import secrets; print(secrets.token_urlsafe(16))'"
+        )
+    app.config["SUPERADMIN_PASSWORD"] = superadmin_pw
 
     # Freemium limits
     app.config["MAX_GUESTS_PER_EVENT"] = int(os.environ.get("MAX_GUESTS_PER_EVENT", "10"))
@@ -88,6 +94,10 @@ def create_app() -> Flask:
 
     # Behind a reverse proxy (nginx, Caddy, etc.): trust the first hop so
     # request.remote_addr reflects the real client IP (X-Forwarded-For).
+    # NOTE: ProxyFix trusts XFF unconditionally. This is safe because:
+    #   - Docker: app port is only `expose`d (not published), unreachable externally
+    #   - Dev: manage.py run binds 127.0.0.1 only
+    # If the app is ever directly reachable, add a trusted-proxy filter.
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
     db.init_app(app)
