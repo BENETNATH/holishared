@@ -1,14 +1,10 @@
 """Tests for models."""
 
 from app.models import (
+    ActivityLog,
     generate_event_code,
     generate_guest_code,
-    Event,
-    Guest,
-    Activity,
-    ActivityLog,
 )
-from datetime import date
 
 
 class TestCodeGeneration:

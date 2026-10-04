@@ -47,8 +47,8 @@ MEDIA_TIERS = {
 
 def get_media_quota(creator):
     """Get or create the media quota for a creator."""
-    from app.models import MediaQuota
     from app.extensions import db
+    from app.models import MediaQuota
 
     quota = creator.media_quota
     if not quota:

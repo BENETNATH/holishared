@@ -1,11 +1,11 @@
 """Auth blueprint - superadmin + creator validation."""
 
-from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
-from flask_login import login_user, logout_user, login_required, current_user
-from app.extensions import login_manager
+
+from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_required, login_user, logout_user
+
+from app.extensions import db, login_manager
 from app.models import Creator
-from app.extensions import db
-import re
 
 auth_bp = Blueprint("auth", __name__)
 

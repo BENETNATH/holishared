@@ -5,10 +5,10 @@ Usage: python manage.py <command>
 """
 
 import os
-import sys
-import subprocess
-import shutil
+import secrets
 import signal
+import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -26,13 +26,13 @@ def load_env():
     if not env_file.exists():
         print(f"[ERROR] {env_file} not found. Run 'python manage.py init' first.")
         sys.exit(1)
-    
+
     # Warn if .env has insecure permissions
     import stat
     mode = env_file.stat().st_mode
     if mode & (stat.S_IRGRP | stat.S_IROTH | stat.S_IWGRP | stat.S_IWOTH):
         print(f"[WARN] {env_file} has insecure permissions. Run: chmod 600 {env_file}")
-    
+
     for line in env_file.read_text().splitlines():
         line = line.strip()
         if line and not line.startswith("#") and "=" in line:
@@ -65,12 +65,13 @@ def run(cmd, cwd=ROOT, shell=False, **kwargs):
 
 def _generate_vapid_keys():
     """Generate VAPID key pair for Web Push notifications."""
-    from cryptography.hazmat.primitives.asymmetric import ec
-    from cryptography.hazmat.primitives import serialization
     import base64
 
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric import ec
+
     private_key = ec.generate_private_key(ec.SECP256R1())
-    
+
     # Private key: PKCS8 DER, base64url
     priv_der = private_key.private_bytes(
         encoding=serialization.Encoding.DER,
@@ -99,7 +100,7 @@ def _test_smtp(host, port, user, password):
         else:
             server = smtplib.SMTP(host, port, timeout=10)
             server.starttls()
-        
+
         if user:
             server.login(user, password)
         server.quit()
@@ -173,15 +174,15 @@ def _interactive_env():
     # SMTP
     print()
     smtp_enabled = input("  Configure SMTP email? [y/N]: ").strip().lower()
-    smtp_host = smtp_port = smtp_user = smtp_pass = ""
+    smtp_host = smtp_user = smtp_pass = ""
     smtp_port_str = "587"
-    
+
     if smtp_enabled in ("y", "yes"):
         smtp_host = input("  SMTP host [smtp.gmail.com]: ").strip() or "smtp.gmail.com"
         smtp_port_str = input("  SMTP port [587]: ").strip() or "587"
         smtp_user = input("  SMTP user (email): ").strip()
         smtp_pass = input("  SMTP password/app password: ").strip()
-        
+
         # Test connection
         print("  Testing SMTP connection...")
         ok, err = _test_smtp(smtp_host, int(smtp_port_str), smtp_user, smtp_pass)
@@ -507,7 +508,6 @@ def main():
 
     cmd = sys.argv[1]
     if cmd in ("help", "--help", "-h"):
-        main.__defaults__  # trigger above
         sys.exit(0)
 
     if cmd not in COMMANDS:

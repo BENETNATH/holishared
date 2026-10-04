@@ -5,12 +5,11 @@ Ces tests DOIVENT échouer avant le codage (TDD).
 """
 
 from datetime import date, time
-from app.models import Activity, ActivityRSVP, ActivityLog, Guest, generate_guest_code
-
 
 # === Fixtures locales (complètent conftest.py) ===
-
 import pytest
+
+from app.models import Activity, ActivityLog, ActivityRSVP, Guest, generate_guest_code
 
 
 @pytest.fixture

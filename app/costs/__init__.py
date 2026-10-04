@@ -1,13 +1,11 @@
 """Costs blueprint - cost sharing by household with weighted settlement."""
 
-import json
-
-from flask import (Blueprint, render_template, redirect, url_for, flash,
-                   request, session)
 from datetime import datetime
 
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+
 from app.extensions import db
-from app.models import Event, Household, Expense, Transfer, PaymentRequest
+from app.models import Event, Expense, Household, PaymentRequest, Transfer
 from app.utils import log_action
 
 costs_bp = Blueprint("costs", __name__)
@@ -25,6 +23,7 @@ def _get_event_or_404(code):
 def _resolve_actor(event):
     """Return (guest, is_creator, denied_redirect_or_None)."""
     from flask_login import current_user
+
     from app.models import Guest
 
     is_creator = (current_user.is_authenticated and current_user.id == event.creator_id)
@@ -43,7 +42,7 @@ def _actor(event, guest):
 
 def _base_cents(amount_cents, exchange_rate):
     """Amount converted to base currency, in cents (int)."""
-    return int(round(amount_cents * (exchange_rate or 1.0)))
+    return round(amount_cents * (exchange_rate or 1.0))
 
 
 def _per_expense_shares(households, expenses):
@@ -60,7 +59,7 @@ def _per_expense_shares(households, expenses):
         total_w = sum(weights.get(h.id, 0) for h in households)
         if total_w > 0:
             for h in households:
-                shares[h.id] += int(round(base * weights.get(h.id, 0) / total_w))
+                shares[h.id] += round(base * weights.get(h.id, 0) / total_w)
     # Rounding fix: shares must sum to the total base amount.
     total_base = sum(
         _base_cents(e.amount_cents, e.exchange_rate)
@@ -113,7 +112,6 @@ def _settlement(households, expenses, transfers):
 
 def _category_breakdown(expenses):
     """Return {category: base_cents} sorted by amount desc."""
-    ids = set()
     totals = {}
     for exp in expenses:
         base = _base_cents(exp.amount_cents, exp.exchange_rate)
@@ -183,7 +181,7 @@ def add_household(code):
     if not event:
         return "Not found", 404
 
-    guest, is_creator, denied = _resolve_actor(event)
+    guest, _is_creator, denied = _resolve_actor(event)
     if denied:
         return denied
 
@@ -242,7 +240,7 @@ def add_expense(code):
     if not event:
         return "Not found", 404
 
-    guest, is_creator, denied = _resolve_actor(event)
+    guest, _is_creator, denied = _resolve_actor(event)
     if denied:
         return denied
 
@@ -258,7 +256,7 @@ def add_expense(code):
     if not description:
         errors.append("Description requise.")
     try:
-        amount_cents = int(round(float(amount_str) * 100))
+        amount_cents = round(float(amount_str) * 100)
         if amount_cents <= 0:
             errors.append("Montant invalide.")
     except (ValueError, TypeError):
@@ -369,7 +367,7 @@ def add_transfer(code):
     if not event:
         return "Not found", 404
 
-    guest, is_creator, denied = _resolve_actor(event)
+    guest, _is_creator, denied = _resolve_actor(event)
     if denied:
         return denied
 
@@ -385,7 +383,7 @@ def add_transfer(code):
     elif from_id == to_id:
         errors.append("Le foyer d'origine et de destination doivent différer.")
     try:
-        amount_cents = int(round(float(amount_str) * 100))
+        amount_cents = round(float(amount_str) * 100)
         if amount_cents <= 0:
             errors.append("Montant invalide.")
     except (ValueError, TypeError):
@@ -453,7 +451,7 @@ def add_payment_request(code):
     if not event:
         return "Not found", 404
 
-    guest, is_creator, denied = _resolve_actor(event)
+    guest, _is_creator, denied = _resolve_actor(event)
     if denied:
         return denied
 
@@ -468,7 +466,7 @@ def add_payment_request(code):
     elif from_id == to_id:
         errors.append("Les foyers doivent différer.")
     try:
-        amount_cents = int(round(float(amount_str) * 100))
+        amount_cents = round(float(amount_str) * 100)
         if amount_cents <= 0:
             errors.append("Montant invalide.")
     except (ValueError, TypeError):
@@ -502,7 +500,7 @@ def resolve_payment_request(code, pr_id):
     if not event:
         return "Not found", 404
 
-    guest, is_creator, denied = _resolve_actor(event)
+    guest, _is_creator, denied = _resolve_actor(event)
     if denied:
         return denied
 
@@ -511,7 +509,8 @@ def resolve_payment_request(code, pr_id):
         return "Not found", 404
 
     pr.is_resolved = True
-    pr.resolved_at = datetime.utcnow()
+    from datetime import UTC
+    pr.resolved_at = datetime.now(UTC)
     actor_name, actor_type = _actor(event, guest)
     log_action(db.session, event.id, actor_name, actor_type, "payment_request.resolved")
     db.session.commit()

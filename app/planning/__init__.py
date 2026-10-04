@@ -15,12 +15,10 @@ from flask import (
 )
 from flask_babel import _
 from flask_login import current_user
-
-from app.extensions import limiter
 from sqlalchemy.exc import IntegrityError
 from werkzeug.wrappers import Response
 
-from app.extensions import db
+from app.extensions import db, limiter
 from app.models import Activity, ActivityRSVP, Event, Guest
 from app.utils import log_action
 

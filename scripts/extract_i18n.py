@@ -5,7 +5,6 @@ template ``_("...")`` / ``_('...')`` calls with a regex and merge them
 into the Babel-generated .pot (which already has the Python strings).
 """
 import re
-import sys
 from pathlib import Path
 
 APP = Path("app")

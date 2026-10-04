@@ -53,6 +53,8 @@ select = [
     "RUF",    # ruff-specific
 ]
 ignore = [
+    "E501",   # line too long (style, not a bug)
+    "S603",   # subprocess with shell=False is fine
     "S105",   # hardcoded password string (we use env vars)
     "S106",   # hardcoded password func arg
     "DTZ005", # datetime.now() in tests is fine

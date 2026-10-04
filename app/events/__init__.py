@@ -1,15 +1,24 @@
 """Events blueprint - creation, invites, guest access."""
 
-from flask import (Blueprint, render_template, redirect, url_for, flash,
-                   request, current_app, session, g)
-from flask_login import login_required, current_user
-from datetime import date, datetime
-from app.extensions import db, limiter
-from app.models import Event, Guest, Creator, Activity, generate_event_code, generate_guest_code
-from app.freemium import can_create_event, can_add_guest, max_duration_days
-from app.auth import is_disposable_email
 import re
-import secrets
+from datetime import date, datetime
+
+from flask import (
+    Blueprint,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
+from flask_login import current_user, login_required
+
+from app.auth import is_disposable_email
+from app.extensions import db, limiter
+from app.freemium import can_add_guest, can_create_event, max_duration_days
+from app.models import Creator, Event, Guest
 
 events_bp = Blueprint("events", __name__)
 
@@ -120,6 +129,7 @@ def dashboard(code):
     polls = event.polls.filter_by(is_closed=False).all()
 
     from flask_babel import _ as _tr
+
     from app.logistics import CATEGORY_LABELS
     from app.models import LogisticsItem
 
@@ -163,7 +173,7 @@ def invite_qr(code: str):
 
     import qrcode
 
-    event = Event.query.filter_by(code=code).first_or_404()
+    Event.query.filter_by(code=code).first_or_404()
     invite_url = request.url_root.rstrip("/") + url_for("events.guest_access", code=code)
     qr = qrcode.QRCode(
         error_correction=qrcode.constants.ERROR_CORRECT_M,
@@ -192,6 +202,8 @@ def invite_email(code):
         flash("Domaine email non accepté (jetable).", "danger")
     elif not can_add_guest(event):
         flash("Limite d'invités atteinte.", "warning")
+    elif not current_app.config["SMTP_HOST"]:
+        flash("Email non configuré (SMTP_HOST vide).", "warning")
     else:
         _send_guest_invite_email(event, email)
         flash(f"Invitation envoyée à {email}.", "success")

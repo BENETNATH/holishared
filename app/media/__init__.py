@@ -4,12 +4,22 @@ import os
 import uuid
 from pathlib import Path
 
-from flask import (Blueprint, render_template, redirect, url_for, flash,
-                   request, current_app, session, send_from_directory)
+from flask import (
+    Blueprint,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+    send_from_directory,
+    session,
+    url_for,
+)
 from flask_login import current_user
+
 from app.extensions import db
-from app.models import Event, MediaItem, Guest
 from app.freemium import can_upload_media, consume_media_quota, release_media_quota
+from app.models import Event, Guest, MediaItem
 
 media_bp = Blueprint("media", __name__)
 
@@ -42,8 +52,9 @@ def _resolve_actor(event, code):
 def _extract_exif(file_storage):
     """Extract GPS and date from EXIF data. Returns (lat, lng, taken_at)."""
     try:
-        from PIL import Image
         import io
+
+        from PIL import Image
 
         file_storage.seek(0)
         img = Image.open(io.BytesIO(file_storage.read()))
@@ -82,7 +93,7 @@ def _extract_exif(file_storage):
 def file(code, item_id):
     """Serve a stored media file (creator or guest only)."""
     event = Event.query.filter_by(code=code, is_active=True).first_or_404()
-    guest, is_creator, denied = _resolve_actor(event, code)
+    _guest, _is_creator, denied = _resolve_actor(event, code)
     if denied is not None:
         return denied
     item = MediaItem.query.filter_by(id=item_id, event_id=event.id).first_or_404()
@@ -106,7 +117,7 @@ def gallery(code):
 def upload(code):
     """Upload a media file (creator or guest only)."""
     event = Event.query.filter_by(code=code, is_active=True).first_or_404()
-    guest, is_creator, denied = _resolve_actor(event, code)
+    guest, _is_creator, denied = _resolve_actor(event, code)
     if denied is not None:
         return denied
 

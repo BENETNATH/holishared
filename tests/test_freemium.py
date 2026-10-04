@@ -1,7 +1,8 @@
 """Tests for freemium limits."""
 
-from app.models import Event, Guest, generate_event_code, generate_guest_code
 from datetime import date
+
+from app.models import Event, Guest, generate_event_code, generate_guest_code
 
 
 class TestGuestLimit:

@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 
 from dotenv import load_dotenv
-from flask import Flask, g, jsonify, request, session
+from flask import Flask, jsonify, request, session
 
 BASE_DIR = Path(__file__).parent.parent
 load_dotenv(BASE_DIR / ".env", override=True)
@@ -106,10 +106,15 @@ def create_app():
 
     # Date formatting for templates
     from flask_babel import format_date as babel_format_date
+    from flask_babel import format_datetime as babel_format_datetime
 
     @app.template_filter("format_date")
     def format_date_filter(value, fmt="medium"):
         return babel_format_date(value, format=fmt)
+
+    @app.template_filter("format_datetime")
+    def format_datetime_filter(value, fmt="medium"):
+        return babel_format_datetime(value, format=fmt)
 
     # Core blueprints (always registered)
     from app.auth import auth_bp

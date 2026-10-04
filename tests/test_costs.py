@@ -1,7 +1,6 @@
 """Tests for costs blueprint — cost sharing by household."""
 
-from datetime import date
-from app.models import Household, Expense, ActivityLog
+from app.models import ActivityLog, Expense, Household
 
 
 def _login_creator(client, creator):
@@ -182,7 +181,7 @@ class TestSettlement:
         """Two households, equal weight, one expense → 50/50 split."""
         _login_creator(client, creator)
         h1 = _make_household(db, event, "A", adults=2, children=0)
-        h2 = _make_household(db, event, "B", adults=2, children=0)
+        _make_household(db, event, "B", adults=2, children=0)
         _make_expense(db, event, h1, "Total", 10000)  # 100€ paid by A
 
         resp = client.get(f"/e/{event.code}/costs")
@@ -194,7 +193,7 @@ class TestSettlement:
         """Household A (2 adults) vs B (1 adult + 1 child @ 0.5) → 2:1.5 ratio."""
         _login_creator(client, creator)
         h1 = _make_household(db, event, "A", adults=2, children=0, aw=1.0, cw=0.5)
-        h2 = _make_household(db, event, "B", adults=1, children=1, aw=1.0, cw=0.5)
+        _make_household(db, event, "B", adults=1, children=1, aw=1.0, cw=0.5)
         # Total weight: A=2.0, B=1.5, total=3.5
         # Expense: 70€ paid by A
         _make_expense(db, event, h1, "Total", 7000)
@@ -261,7 +260,8 @@ class TestTransfers:
         h2 = _make_household(db, event, "B")
         t = Transfer(from_household_id=h1.id, to_household_id=h2.id,
                      amount_cents=1000, event_id=event.id)
-        db.session.add(t); db.session.commit()
+        db.session.add(t)
+        db.session.commit()
         resp = client.post(f"/e/{event.code}/costs/transfers/{t.id}/delete")
         assert resp.status_code == 302
         assert Transfer.query.get(t.id) is None
@@ -276,7 +276,8 @@ class TestTransfers:
         # B owes A 50. Transfer B->A of 50 settles it.
         t = Transfer(from_household_id=h2.id, to_household_id=h1.id,
                      amount_cents=5000, event_id=event.id)
-        db.session.add(t); db.session.commit()
+        db.session.add(t)
+        db.session.commit()
         resp = client.get(f"/e/{event.code}/costs")
         assert resp.status_code == 200
         # No outstanding settlement (the transfer covered it)
@@ -306,7 +307,8 @@ class TestPaymentRequests:
         h2 = _make_household(db, event, "B")
         pr = PaymentRequest(from_household_id=h1.id, to_household_id=h2.id,
                             amount_cents=1000, event_id=event.id)
-        db.session.add(pr); db.session.commit()
+        db.session.add(pr)
+        db.session.commit()
         resp = client.post(f"/e/{event.code}/costs/payment-requests/{pr.id}/resolve")
         assert resp.status_code == 302
         db.session.refresh(pr)
@@ -319,6 +321,7 @@ class TestPaymentRequests:
         h2 = _make_household(db, event, "B")
         pr = PaymentRequest(from_household_id=h1.id, to_household_id=h2.id,
                             amount_cents=1000, event_id=event.id)
-        db.session.add(pr); db.session.commit()
+        db.session.add(pr)
+        db.session.commit()
         resp = client.post(f"/e/{event.code}/costs/payment-requests/{pr.id}/delete")
         assert resp.status_code == 403

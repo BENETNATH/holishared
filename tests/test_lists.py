@@ -5,8 +5,8 @@ Ces tests DOIVENT échouer avant le codage (TDD).
 """
 
 import pytest
-from app.models import ActivityLog, ListItem, SharedList
 
+from app.models import ActivityLog, ListItem, SharedList
 
 # === Fixtures locales (complètent conftest.py) ===
 

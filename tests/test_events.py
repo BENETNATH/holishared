@@ -62,7 +62,8 @@ class TestGuestAccess:
             "display_name": "Alice",
             "code": "ab",
         }, follow_redirects=True)
-        assert b"4" in resp.data and b"8" in resp.data
+        assert b"4" in resp.data
+        assert b"8" in resp.data
 
     def test_join_code_bad_chars(self, client, event):
         resp = client.post(f"/e/{event.code}/join", data={
@@ -125,6 +126,8 @@ class TestInviteEmail:
 
     def test_invite_email_sends(self, client, event, creator, monkeypatch):
         self._login(client, creator)
+        from flask import current_app
+        monkeypatch.setitem(current_app.config, "SMTP_HOST", "smtp.test.com")
         sent = {}
 
         def fake_send(ev, email, display_name=None):

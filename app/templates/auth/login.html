@@ -5,6 +5,7 @@
     <div class="card">
         <h1 style="margin-bottom: 1.5rem; font-size: 1.5rem;">Connexion</h1>
         <form method="POST" action="{{ url_for('auth.login', next=request.args.get('next', '')) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-group">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" required autofocus

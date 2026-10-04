@@ -2,10 +2,12 @@
 
 const CACHE_NAME = 'holishared-v1';
 const APP_SHELL = [
-  '/',
   '/static/css/main.css',
-  '/static/js/main.js',
-  '/manifest.json',
+  '/static/js/htmx.min.js',
+  '/static/js/alpine.min.js',
+  '/static/manifest.json',
+  '/static/icons/icon-192.png',
+  '/static/icons/icon-512.png',
 ];
 
 // Install: pré-cache l'app shell
