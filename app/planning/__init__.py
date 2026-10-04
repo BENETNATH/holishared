@@ -15,6 +15,8 @@ from flask import (
 )
 from flask_babel import _
 from flask_login import current_user
+
+from app.extensions import limiter
 from sqlalchemy.exc import IntegrityError
 from werkzeug.wrappers import Response
 
@@ -205,6 +207,7 @@ def index(code: str) -> Response | tuple[str, int] | str:
 
 
 @planning_bp.route("/e/<code>/planning/new", methods=["GET", "POST"])
+@limiter.limit("20 per hour")
 def create(code: str) -> Response | tuple[str, int] | str:
     """Create a new activity."""
     event = _get_event_or_404(code)

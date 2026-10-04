@@ -4,7 +4,7 @@ from flask import (Blueprint, render_template, redirect, url_for, flash,
                    request, current_app, session, g)
 from flask_login import login_required, current_user
 from datetime import date, datetime
-from app.extensions import db
+from app.extensions import db, limiter
 from app.models import Event, Guest, Creator, Activity, generate_event_code, generate_guest_code
 from app.freemium import can_create_event, can_add_guest, max_duration_days
 from app.auth import is_disposable_email
@@ -24,6 +24,7 @@ def index():
 
 
 @events_bp.route("/new", methods=["GET", "POST"])
+@limiter.limit("10 per hour")
 @login_required
 def create():
     """Create a new event."""

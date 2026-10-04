@@ -4,7 +4,7 @@
 Ces tests DOIVENT échouer avant le codage (TDD).
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -171,7 +171,7 @@ class TestChatDelete:
 class TestChatHistory:
     def test_history_shows_50_max(self, client, creator, event, db):
         _login_creator(client, creator)
-        base = datetime(2026, 12, 1, 12, 0, 0, tzinfo=timezone.utc)
+        base = datetime(2026, 12, 1, 12, 0, 0, tzinfo=UTC)
         for i in range(60):
             db.session.add(
                 ChatMessage(

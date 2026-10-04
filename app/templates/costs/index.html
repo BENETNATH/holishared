@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Partage de frais") }} — {{ event.title }}{% endblock %}
+{% block content %}
+<h1>{{ _("Partage de frais") }} — {{ event.title }}</h1>
+
+<!-- Households -->
+<section aria-labelledby="h-hh">
+  <h2 id="h-hh">{{ _("Foyers") }}</h2>
+  {% if households %}
+  <table>
+    <thead>
+      <tr>
+        <th>{{ _("Foyer") }}</th>
+        <th>{{ _("Adultes") }}</th>
+        <th>{{ _("Enfants") }}</th>
+        <th>{{ _("Poids adulte") }}</th>
+        <th>{{ _("Poids enfant") }}</th>
+        <th>{{ _("Total poids") }}</th>
+        <th>{{ _("Part") }}</th>
+        <th>{{ _("Payé") }}</th>
+        <th>{{ _("Solde") }}</th>
+        {% if is_creator %}<th></th>{% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in h_summary %}
+      <tr>
+        <td>{{ s.household.name }}</td>
+        <td>{{ s.household.num_adults }}</td>
+        <td>{{ s.household.num_children }}</td>
+        <td>{{ s.household.adult_weight }}</td>
+        <td>{{ s.household.child_weight }}</td>
+        <td>{{ s.household.total_weight }}</td>
+        <td>{{ "%.2f"|format(s.share) }} €</td>
+        <td>{{ "%.2f"|format(s.paid) }} €</td>
+        <td class="{% if s.balance > 0 %}credit{% elif s.balance < 0 %}debit{% endif %}">
+          {{ "%.2f"|format(s.balance) }} €
+        </td>
+        {% if is_creator %}
+        <td>
+          <form method="post" action="{{ url_for('costs.delete_household', code=event.code, h_id=s.household.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn-danger" aria-label="{{ _('Supprimer') }} {{ s.household.name }}">✕</button>
+          </form>
+        </td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">{{ _("Aucun foyer. Ajoutez des foyers pour partager les frais.") }}</p>
+  {% endif %}
+
+  <a href="{{ url_for('costs.add_household', code=event.code) }}" class="btn">{{ _("+ Foyer") }}</a>
+</section>
+
+<!-- Expenses -->
+<section aria-labelledby="h-exp" style="margin-top: 2rem;">
+  <h2 id="h-exp">{{ _("Frais") }}</h2>
+  {% if expenses %}
+  <table>
+    <thead>
+      <tr>
+        <th>{{ _("Date") }}</th>
+        <th>{{ _("Description") }}</th>
+        <th>{{ _("Montant") }}</th>
+        <th>{{ _("Payé par") }}</th>
+        {% if is_creator %}<th></th>{% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for exp in expenses %}
+      <tr>
+        <td>{{ exp.date or "" }}</td>
+        <td>{{ exp.description }}</td>
+        <td>{{ "%.2f"|format(exp.amount) }} €</td>
+        <td>{{ exp.paid_by.name if exp.paid_by else "" }}</td>
+        {% if is_creator %}
+        <td>
+          <form method="post" action="{{ url_for('costs.delete_expense', code=event.code, exp_id=exp.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn-danger" aria-label="{{ _('Supprimer') }} {{ exp.description }}">✕</button>
+          </form>
+        </td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr><td colspan="2"><strong>{{ _("Total") }}</strong></td><td colspan="2"><strong>{{ "%.2f"|format(total_expenses) }} €</strong></td></tr>
+    </tfoot>
+  </table>
+  {% else %}
+  <p class="empty">{{ _("Aucun frais enregistré.") }}</p>
+  {% endif %}
+
+  {% if households %}
+  <form method="post" action="{{ url_for('costs.add_expense', code=event.code) }}" style="margin-top: 1rem;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: flex-end;">
+      <div>
+        <label for="exp-desc">{{ _("Description") }}</label>
+        <input type="text" id="exp-desc" name="description" required maxlength="300">
+      </div>
+      <div>
+        <label for="exp-amount">{{ _("Montant (€)") }}</label>
+        <input type="number" id="exp-amount" name="amount" required min="0.01" step="0.01">
+      </div>
+      <div>
+        <label for="exp-hh">{{ _("Payé par") }}</label>
+        <select id="exp-hh" name="household_id" required>
+          {% for h in households %}
+          <option value="{{ h.id }}">{{ h.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="exp-date">{{ _("Date") }}</label>
+        <input type="date" id="exp-date" name="date">
+      </div>
+      <button type="submit">{{ _("Ajouter") }}</button>
+    </div>
+  </form>
+  {% endif %}
+</section>
+
+<!-- Settlement -->
+{% if settlements %}
+<section aria-labelledby="h-settle" style="margin-top: 2rem;">
+  <h2 id="h-settle">{{ _("Règlement") }}</h2>
+  <ul class="settlement-list">
+    {% for s in settlements %}
+    <li>
+      <strong>{{ s.from.name }}</strong> → <strong>{{ s.to.name }}</strong> :
+      {{ "%.2f"|format(s.amount) }} €
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}

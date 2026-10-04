@@ -1,10 +1,12 @@
 """Holishared - App factory."""
 
 import os
+import shutil
+import time
 from pathlib import Path
 
 from dotenv import load_dotenv
-from flask import Flask, g, request
+from flask import Flask, g, jsonify, request
 
 BASE_DIR = Path(__file__).parent.parent
 load_dotenv(BASE_DIR / ".env", override=True)
@@ -61,11 +63,12 @@ def create_app():
     # Extensions
     from flask_wtf import CSRFProtect
 
-    from app.extensions import babel, db, login_manager
+    from app.extensions import babel, db, limiter, login_manager
 
     db.init_app(app)
     login_manager.init_app(app)
     CSRFProtect(app)
+    limiter.init_app(app)
 
     # Language selector
     def get_locale():
@@ -87,6 +90,7 @@ def create_app():
     # Blueprints
     from app.auth import auth_bp
     from app.chat import chat_bp
+    from app.costs import costs_bp
     from app.events import events_bp
     from app.lists import lists_bp
     from app.logistics import logistics_bp
@@ -102,6 +106,7 @@ def create_app():
     app.register_blueprint(media_bp)
     app.register_blueprint(voting_bp)
     app.register_blueprint(chat_bp)
+    app.register_blueprint(costs_bp)
 
     # Context processor
     @app.context_processor
@@ -124,5 +129,47 @@ def create_app():
         from flask import render_template
 
         return render_template("errors/403.html"), 403
+
+    # Security headers (B015) — applied to every response
+    @app.after_request
+    def security_headers(response):
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline'; "  # Alpine.js inline
+            "style-src 'self' 'unsafe-inline'; "
+            "img-src 'self' data: blob:; "
+            "connect-src 'self'; "
+            "font-src 'self';"
+        )
+        return response
+
+    # Health check (B015) — no auth, 503 on failure
+    started_at = time.monotonic()
+
+    @app.route("/health")
+    def health():
+        db_ok = True
+        try:
+            db.session.execute(db.text("SELECT 1"))
+        except Exception:
+            db_ok = False
+        disk = shutil.disk_usage(app.instance_path)
+        disk_ok = disk.used / disk.total < 0.9
+        healthy = db_ok and disk_ok
+        return (
+            jsonify(
+                {
+                    "status": "ok" if healthy else "error",
+                    "db": db_ok,
+                    "disk": disk_ok,
+                    "uptime_s": int(time.monotonic() - started_at),
+                }
+            ),
+            200 if healthy else 503,
+        )
 
     return app

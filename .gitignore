@@ -16,6 +16,7 @@ env/
 
 # SQLite
 instance/*.db
+backups/
 instance/*.db-journal
 instance/*.db-wal
 instance/*.db-shm

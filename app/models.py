@@ -334,3 +334,123 @@ class MediaQuota(db.Model):
 
     def can_upload(self, size_bytes):
         return self.used_bytes + size_bytes <= self.max_bytes
+
+
+class Household(db.Model):
+    """A household (foyer) for cost sharing, with weighted shares."""
+
+    __tablename__ = "households"
+
+    id = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    name = db.Column(db.String(100), nullable=False)  # "Famille Dupont"
+    num_adults = db.Column(db.Integer, nullable=False, default=1)
+    num_children = db.Column(db.Integer, nullable=False, default=0)
+    adult_weight = db.Column(db.Float, nullable=False, default=1.0)  # parts per adult
+    child_weight = db.Column(db.Float, nullable=False, default=0.5)  # parts per child
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    event_id = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False, index=True)
+
+    event = db.relationship("Event", backref=db.backref("households", lazy="dynamic", cascade="all, delete-orphan"))
+
+    @property
+    def total_weight(self):
+        """Total weighted share for this household."""
+        return self.num_adults * self.adult_weight + self.num_children * self.child_weight
+
+    @property
+    def total_people(self):
+        return self.num_adults + self.num_children
+
+
+class Expense(db.Model):
+    """An expense (frais) shared among households."""
+
+    __tablename__ = "expenses"
+
+    id = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    description = db.Column(db.String(300), nullable=False)
+    amount_cents = db.Column(db.Integer, nullable=False)  # in cents to avoid float issues
+    currency = db.Column(db.String(3), default="EUR")  # ISO 4217
+    exchange_rate = db.Column(db.Float, default=1.0)  # rate to base currency
+    paid_by_household_id = db.Column(db.String(32), db.ForeignKey("households.id"), nullable=False)
+    date = db.Column(db.Date, nullable=True)
+    category = db.Column(db.String(50), default="general")  # food, transport, lodging, activities, other
+    receipt_media_id = db.Column(db.String(32), db.ForeignKey("media_items.id"), nullable=True)
+    # Custom split override: JSON {household_id: weight, ...}
+    custom_split = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    event_id = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False, index=True)
+
+    event = db.relationship("Event", backref=db.backref("expenses", lazy="dynamic", cascade="all, delete-orphan"))
+    paid_by = db.relationship("Household", foreign_keys=[paid_by_household_id])
+    receipt = db.relationship("MediaItem", foreign_keys=[receipt_media_id])
+
+    @property
+    def amount(self):
+        """Amount in base currency (float for display)."""
+        return self.amount_cents / 100.0 * self.exchange_rate
+
+    @property
+    def amount_original(self):
+        """Amount in original currency."""
+        return self.amount_cents / 100.0
+
+    def get_split_weights(self, households):
+        """Return {household_id: weight} for this expense.
+        Uses custom_split if set, otherwise household total_weight."""
+        import json
+        if self.custom_split:
+            try:
+                return json.loads(self.custom_split)
+            except (json.JSONDecodeError, TypeError):
+                pass
+        return {h.id: h.total_weight for h in households}
+
+
+class Transfer(db.Model):
+    """A transfer/repayment between households (not an expense)."""
+
+    __tablename__ = "transfers"
+
+    id = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    from_household_id = db.Column(db.String(32), db.ForeignKey("households.id"), nullable=False)
+    to_household_id = db.Column(db.String(32), db.ForeignKey("households.id"), nullable=False)
+    amount_cents = db.Column(db.Integer, nullable=False)
+    currency = db.Column(db.String(3), default="EUR")
+    exchange_rate = db.Column(db.Float, default=1.0)
+    note = db.Column(db.String(300), default="")
+    date = db.Column(db.Date, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    event_id = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False, index=True)
+
+    event = db.relationship("Event", backref=db.backref("transfers", lazy="dynamic", cascade="all, delete-orphan"))
+    from_household = db.relationship("Household", foreign_keys=[from_household_id])
+    to_household = db.relationship("Household", foreign_keys=[to_household_id])
+
+    @property
+    def amount(self):
+        return self.amount_cents / 100.0 * self.exchange_rate
+
+
+class PaymentRequest(db.Model):
+    """A payment request (reminder) from one household to another."""
+
+    __tablename__ = "payment_requests"
+
+    id = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    from_household_id = db.Column(db.String(32), db.ForeignKey("households.id"), nullable=False)
+    to_household_id = db.Column(db.String(32), db.ForeignKey("households.id"), nullable=False)
+    amount_cents = db.Column(db.Integer, nullable=False)
+    message = db.Column(db.String(500), default="")
+    is_resolved = db.Column(db.Boolean, default=False)
+    resolved_at = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    event_id = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False, index=True)
+
+    event = db.relationship("Event", backref=db.backref("payment_requests", lazy="dynamic", cascade="all, delete-orphan"))
+    from_household = db.relationship("Household", foreign_keys=[from_household_id])
+    to_household = db.relationship("Household", foreign_keys=[to_household_id])
