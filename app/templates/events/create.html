@@ -2,27 +2,50 @@
 {% block content %}
 <h1>{{ _("Nouvel événement") }}</h1>
 
+{% if errors %}
+<ul class="errors">
+  {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+</ul>
+{% endif %}
+
 <form method="post" action="{{ url_for('events.create') }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-  <label for="title">{{ _("Titre") }} *</label>
-  <input type="text" id="title" name="title" required maxlength="200">
+  <div class="form-group">
+    <label for="title">{{ _("Titre") }} *</label>
+    <input type="text" id="title" name="title" required maxlength="200"
+           value="{{ form.title if form else '' }}">
+  </div>
 
-  <label for="description">{{ _("Description") }}</label>
-  <textarea id="description" name="description" rows="3" maxlength="2000"></textarea>
+  <div class="form-group">
+    <label for="description">{{ _("Description") }}</label>
+    <textarea id="description" name="description" rows="3" maxlength="2000">{{ form.description if form else '' }}</textarea>
+  </div>
 
-  <label for="start_date">{{ _("Date de début") }} *</label>
-  <input type="date" id="start_date" name="start_date" required>
+  <div class="form-group">
+    <label for="start_date">{{ _("Date de début") }} *</label>
+    <input type="date" id="start_date" name="start_date" required
+           value="{{ form.start_date if form else '' }}">
+  </div>
 
-  <label for="end_date">{{ _("Date de fin") }} *</label>
-  <input type="date" id="end_date" name="end_date" required>
+  <div class="form-group">
+    <label for="end_date">{{ _("Date de fin") }} *</label>
+    <input type="date" id="end_date" name="end_date" required
+           value="{{ form.end_date if form else '' }}">
+  </div>
 
-  <label for="location">{{ _("Lieu") }}</label>
-  <input type="text" id="location" name="location" maxlength="300">
+  <div class="form-group">
+    <label for="location">{{ _("Lieu") }}</label>
+    <input type="text" id="location" name="location" maxlength="300"
+           value="{{ form.location if form else '' }}">
+  </div>
 
-  <label for="email">{{ _("Votre email") }} *</label>
-  <input type="email" id="email" name="email" required>
+  <div class="form-group">
+    <label for="email">{{ _("Votre email") }} *</label>
+    <input type="email" id="email" name="email" required
+           value="{{ form.email if form else '' }}">
+  </div>
 
-  <button type="submit">{{ _("Créer") }}</button>
+  <button type="submit" class="btn btn-primary">{{ _("Créer") }}</button>
 </form>
 {% endblock %}

@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 
 from dotenv import load_dotenv
-from flask import Flask, g, jsonify, request
+from flask import Flask, g, jsonify, request, session
 
 BASE_DIR = Path(__file__).parent.parent
 load_dotenv(BASE_DIR / ".env", override=True)
@@ -59,6 +59,10 @@ def create_app():
     app.config["BABEL_SUPPORTED_LOCALES"] = os.environ.get("SUPPORTED_LANGUAGES", "fr,en").split(
         ","
     )
+    # Compiled catalogs live in <project>/translations/<locale>/LC_MESSAGES.
+    app.config["BABEL_TRANSLATION_DIRECTORIES"] = os.path.join(
+        BASE_DIR, "translations"
+    )
 
     # Extensions
     from flask_wtf import CSRFProtect
@@ -70,11 +74,19 @@ def create_app():
     CSRFProtect(app)
     limiter.init_app(app)
 
-    # Language selector
+    # Language selector. A ?lang= switch is persisted in the session so the
+    # preference survives navigation; otherwise fall back to the browser
+    # Accept-Language, then the default.
     def get_locale():
+        supported = app.config["BABEL_SUPPORTED_LOCALES"]
+        chosen = request.args.get("lang")
+        if chosen in supported:
+            session["lang"] = chosen
+            return chosen
+        if session.get("lang") in supported:
+            return session["lang"]
         return (
-            request.args.get("lang")
-            or request.accept_languages.best_match(app.config["BABEL_SUPPORTED_LOCALES"])
+            request.accept_languages.best_match(supported)
             or app.config["BABEL_DEFAULT_LOCALE"]
         )
 

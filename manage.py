@@ -165,6 +165,38 @@ def cmd_db_shell():
     run(["sqlite3", str(db_path)])
 
 
+def cmd_migrate():
+    """Apply lightweight schema migrations to an existing SQLite DB.
+
+    ``db.create_all()`` only creates missing tables; it does not add new
+    columns to existing ones. This command adds the columns introduced
+    after the initial schema, idempotently.
+    """
+    load_env()
+    run([str(venv_python()), "-c", """
+import sys; sys.path.insert(0, '.')
+from app import create_app
+app = create_app()
+with app.app_context():
+    from app.extensions import db
+    from sqlalchemy import text, inspect
+    insp = inspect(db.engine)
+
+    def add_col(table, col, decl):
+        cols = {c["name"] for c in insp.get_columns(table)}
+        if col not in cols:
+            db.session.execute(text(f"ALTER TABLE {table} ADD COLUMN {col} {decl}"))
+            db.session.commit()
+            print(f"[OK] {table}.{col} added")
+        else:
+            print(f"[skip] {table}.{col} exists")
+
+    add_col("guests", "email", "VARCHAR(255)")
+    add_col("events", "creator_email", "VARCHAR(255)")
+    print("[OK] Migrations applied")
+"""])
+
+
 def cmd_deploy():
     """Deploy: nginx + systemd (requires root)."""
     load_env()
@@ -253,6 +285,7 @@ COMMANDS = {
     "stop": (cmd_stop, "Stop the server"),
     "status": (cmd_status, "Show server status"),
     "db-init": (cmd_db_init, "Create database tables"),
+    "migrate": (cmd_migrate, "Apply schema migrations to existing DB"),
     "db-shell": (cmd_db_shell, "Open SQLite shell"),
     "deploy": (cmd_deploy, "Deploy nginx + systemd"),
     "logs": (cmd_logs, "Tail server logs"),

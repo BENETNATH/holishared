@@ -6,10 +6,17 @@
 <form method="post" action="{{ url_for('events.my_code', code=event.code) }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-  <label for="guest_code">{{ _("Code personnel") }} *</label>
-  <input type="text" id="guest_code" name="guest_code" required minlength="8" maxlength="8"
-         pattern="[a-z0-9]+" autocomplete="off">
+  <div class="form-group">
+    <label for="guest_code">{{ _("Code personnel") }} *</label>
+    <input type="text" id="guest_code" name="guest_code" required minlength="4" maxlength="8"
+           pattern="[a-z0-9]{4,8}" autocomplete="off" spellcheck="false">
+  </div>
 
-  <button type="submit">{{ _("Accéder") }}</button>
+  <button type="submit" class="btn btn-primary">{{ _("Accéder") }}</button>
 </form>
+
+<p class="hint">
+  {{ _("Vous n'avez pas encore de code ?") }}
+  <a href="{{ url_for('events.guest_access', code=event.code) }}">{{ _("Créez votre code personnel") }}</a>
+</p>
 {% endblock %}

@@ -16,7 +16,7 @@
   <tbody>
     {% for log in logs %}
     <tr>
-      <td>{{ log.created_at.strftime("%d/%m %H:%M") }}</td>
+      <td>{{ log.created_at | format_datetime('short') }}</td>
       <td>{{ log.actor_name }}</td>
       <td><code>{{ log.action }}</code></td>
       <td>{{ log.target or "" }}</td>

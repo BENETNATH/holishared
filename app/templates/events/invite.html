@@ -5,8 +5,48 @@
 <div class="invite-box">
   <label for="invite-url">{{ _("Lien d'invitation") }} :</label>
   <input type="text" id="invite-url" value="{{ invite_url }}" readonly onclick="this.select()">
-  <button onclick="navigator.clipboard.writeText('{{ invite_url }}')">{{ _("Copier") }}</button>
+  <button class="btn btn-small" onclick="navigator.clipboard.writeText('{{ invite_url }}')">{{ _("Copier") }}</button>
+
+  <div class="invite-qr">
+    <img src="{{ url_for('events.invite_qr', code=event.code) }}" alt="{{ _("QR code d'invitation") }}" width="220" height="220">
+    <p class="hint">{{ _("Scannez pour rejoindre l'événement et créer votre code personnel") }}</p>
+  </div>
 </div>
 
-<p>{{ event.guest_count }} / {{ max_guests }} {{ _("invités") }}</p>
+<div class="invite-box">
+  <h2>{{ _("Inviter par email") }}</h2>
+  <p class="hint">{{ _("La personne reçoit un lien pour créer son code personnel.") }}</p>
+  <form method="post" action="{{ url_for('events.invite_email', code=event.code) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-group">
+      <label for="invite-email">{{ _("Adresse email de l'invité") }}</label>
+      <input type="email" id="invite-email" name="email" required>
+    </div>
+    <button type="submit" class="btn btn-primary">{{ _("Envoyer l'invitation") }}</button>
+  </form>
+</div>
+
+{% if guests %}
+<div class="invite-box">
+  <h2>{{ _("Invités") }} ({{ guests|length }})</h2>
+  <ul class="guest-list">
+    {% for g in guests %}
+    <li class="guest-row">
+      <span class="guest-name">{{ g.display_name }}</span>
+      <code class="guest-code-small">{{ g.code }}</code>
+      {% if g.email %}
+      <form method="post" action="{{ url_for('events.invite_resend', code=event.code, guest_id=g.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-small">{{ _("Renvoyer") }}</button>
+      </form>
+      {% else %}
+      <span class="hint">{{ _("pas d'email") }}</span>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<p>{{ event.guest_count }} / {{ event.max_guests }} {{ _("invités") }}</p>
 {% endblock %}

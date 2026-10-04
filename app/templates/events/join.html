@@ -1,15 +1,45 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>{{ _("Rejoindre") }} : {{ event.title }}</h1>
-<p>{{ event.start_date }} → {{ event.end_date }}{% if event.location %} · 📍 {{ event.location }}{% endif %}</p>
+<p>{{ event.start_date | format_date('medium') }} → {{ event.end_date | format_date('medium') }}{% if event.location %} · 📍 {{ event.location }}{% endif %}</p>
 
 <form method="post" action="{{ url_for('events.guest_access', code=event.code) }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-  <label for="display_name">{{ _("Votre nom d'affichage") }} *</label>
-  <input type="text" id="display_name" name="display_name" required minlength="2" maxlength="50"
-         placeholder="{{ _('Ex : Alice, Bob…') }}">
+  <div class="form-group">
+    <label for="display_name">{{ _("Votre nom d'affichage") }} *</label>
+    <input type="text" id="display_name" name="display_name" required minlength="2" maxlength="50"
+           value="{{ display_name or '' }}" placeholder="{{ _('Ex : Alice, Bob…') }}">
+  </div>
 
-  <button type="submit">{{ _("Rejoindre") }}</button>
+  <div class="form-group">
+    <label for="code">{{ _("Votre code personnel") }} *</label>
+    <div class="code-input-row">
+      <input type="text" id="code" name="code" required minlength="4" maxlength="8"
+             pattern="[a-z0-9]{4,8}" autocomplete="off" spellcheck="false"
+             value="{{ code or '' }}" placeholder="{{ _('Ex : alice42') }}">
+      <button type="button" class="btn btn-small" id="gen-code">{{ _("Générer") }}</button>
+    </div>
+    <p class="hint">{{ _("Choisissez un code que vous retiendrez : il vous servira à vous reconnecter sur un autre appareil. 4 à 8 lettres minuscules ou chiffres.") }}</p>
+  </div>
+
+  <div class="form-group">
+    <label for="email">{{ _("Votre email (optionnel, pour recevoir les invitations)") }}</label>
+    <input type="email" id="email" name="email" value="{{ email or '' }}">
+  </div>
+
+  <button type="submit" class="btn btn-primary">{{ _("Rejoindre") }}</button>
 </form>
+{% endblock %}
+{% block scripts %}
+<script>
+  document.getElementById("gen-code").addEventListener("click", function () {
+    var alphabet = "abcdefghijkmnpqrstuvwxyz23456789";
+    var out = "";
+    for (var i = 0; i < 8; i++) {
+      out += alphabet[Math.floor(Math.random() * alphabet.length)];
+    }
+    document.getElementById("code").value = out;
+  });
+</script>
 {% endblock %}

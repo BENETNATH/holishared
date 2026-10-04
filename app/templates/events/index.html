@@ -7,7 +7,7 @@
   {% for e in events %}
   <li>
     <a href="{{ url_for('events.dashboard', code=e.code) }}">{{ e.title }}</a>
-    <span class="meta">{{ e.start_date }} → {{ e.end_date }} · {{ e.guest_count }} {{ _("invités") }}</span>
+    <span class="meta">{{ e.start_date | format_date('medium') }} → {{ e.end_date | format_date('medium') }} · {{ e.guest_count }} {{ _("invités") }}</span>
   </li>
   {% endfor %}
 </ul>

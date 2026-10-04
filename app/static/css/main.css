@@ -12,6 +12,7 @@
   --text-muted: #94a3b8;
   --primary: #3b82f6;
   --primary-hover: #2563eb;
+  --primary-light: rgba(59, 130, 246, 0.15);
   --success: #22c55e;
   --warning: #f59e0b;
   --danger: #ef4444;
@@ -780,4 +781,228 @@ th {
 .insight-amount {
   font-weight: 600;
   font-size: 0.875rem;
+}
+
+/* === Guest code box === */
+.code-box {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+.code-label { font-size: 0.9rem; color: var(--text-muted); }
+.guest-code {
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  background: var(--primary-light);
+  color: var(--primary);
+  padding: 0.25rem 0.6rem;
+  border-radius: 0.375rem;
+}
+.copy-code { cursor: pointer; }
+
+/* === Invite QR code === */
+.invite-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+.invite-qr img {
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  background: #fff;
+}
+
+/* === Explicit primary button (works even without .btn) === */
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--primary-hover); }
+
+/* === Form groups === */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+/* === Hint text === */
+.hint {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin: 0.25rem 0 0;
+}
+
+/* === Code input row (input + generate button) === */
+.code-input-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+.code-input-row input { flex: 1; }
+
+/* === Planning: day header === */
+.day-header {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.75rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 2px solid var(--border);
+}
+.day-header.today {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+/* === Planning: activity meta === */
+.location,
+.bring {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin: 0.25rem 0;
+}
+
+/* === Planning: headcount badge === */
+.badge-headcount {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--surface-hover);
+  color: var(--text-muted);
+}
+.badge-headcount.ok {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--success);
+}
+.badge-headcount.insufficient {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--warning);
+}
+
+/* === Voting: poll results === */
+.poll-card { margin-bottom: 1rem; }
+.poll-results {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.poll-option {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.25rem 0.75rem;
+  align-items: center;
+}
+.poll-option-label { font-size: 0.9375rem; font-weight: 500; }
+.poll-bar {
+  grid-column: 1 / -1;
+  height: 10px;
+  background: var(--surface-hover);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+.poll-bar-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 9999px;
+  transition: width 0.3s;
+}
+.poll-percent {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.poll-total {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-top: 0.75rem;
+}
+
+/* === Voting: closed badge === */
+.badge-closed {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background: var(--surface-hover);
+  color: var(--text-muted);
+}
+
+/* === Logistics: card === */
+.logistics-card { margin-bottom: 0.75rem; }
+
+/* === Invite box === */
+.invite-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.invite-box input { font-family: "SFMono-Regular", Consolas, monospace; }
+
+/* === Event list (creator dashboard) === */
+.event-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.event-list li {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+}
+.event-list .meta {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* === Invite: guest list === */
+.guest-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.guest-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.guest-name { font-weight: 500; flex: 1; }
+.guest-code-small {
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 0.875rem;
+  background: var(--primary-light);
+  color: var(--primary);
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.375rem;
 }

@@ -67,9 +67,14 @@
 {% endblock %}
 {% block scripts %}
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
+  function scrollChat() {
     var box = document.getElementById("messages");
     if (box) { box.scrollTop = box.scrollHeight; }
+  }
+  // Initial scroll + scroll after every HTMX poll swap (new messages).
+  document.addEventListener("DOMContentLoaded", scrollChat);
+  document.body.addEventListener("htmx:afterSwap", function (e) {
+    if (e.target && e.target.id === "messages") { scrollChat(); }
   });
 </script>
 {% endblock %}

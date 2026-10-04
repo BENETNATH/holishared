@@ -11,7 +11,11 @@
 {% include "_event_nav.html" %}
 
 {% if guest %}
-<p class="guest-info">{{ _("Connecté en tant que") }} : {{ guest.display_name }}</p>
+<div class="code-box">
+  <span class="code-label">{{ _("Ton code personnel") }} :</span>
+  <code class="guest-code">{{ guest.code }}</code>
+  <button type="button" class="btn btn-small copy-code" data-code="{{ guest.code }}">{{ _("Copier") }}</button>
+</div>
 {% endif %}
 
 <!-- Important info (collaborative) -->

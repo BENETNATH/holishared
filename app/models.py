@@ -55,6 +55,9 @@ class Event(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     creator_id = db.Column(db.String(32), db.ForeignKey("creators.id"), nullable=False)
+    # The email that created the event. The event is tied to this email, not
+    # to a separate "account": any email can create an event.
+    creator_email = db.Column(db.String(255), nullable=True)
 
     guests = db.relationship("Guest", backref="event", lazy="dynamic")
     activities = db.relationship(
@@ -88,6 +91,9 @@ class Guest(db.Model):
     id = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
     code = db.Column(db.String(8), nullable=False)
     display_name = db.Column(db.String(50), nullable=False)
+    # Optional contact email, used only so the creator can re-send the
+    # "create your code" invitation. Not required to join.
+    email = db.Column(db.String(255), nullable=True)
     is_active = db.Column(db.Boolean, default=True)
     joined_at = db.Column(db.DateTime, default=datetime.utcnow)
 

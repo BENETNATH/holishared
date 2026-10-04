@@ -8,6 +8,7 @@ from app.extensions import db, limiter
 from app.models import Event, Guest, Creator, Activity, generate_event_code, generate_guest_code
 from app.freemium import can_create_event, can_add_guest, max_duration_days
 from app.auth import is_disposable_email
+import re
 import secrets
 
 events_bp = Blueprint("events", __name__)
@@ -59,41 +60,42 @@ def create():
             errors.append("Domaine email non accepté (jetable).")
 
         if errors:
-            for e in errors:
-                flash(e, "danger")
-        else:
-            # Create or get creator
-            creator = current_user
-            if creator.email != email:
-                # New creator account for this email
-                creator = Creator.query.filter_by(email=email).first()
-                if not creator:
-                    creator = Creator(email=email, email_verified=False)
-                    db.session.add(creator)
-
-            # Create event
-            event = Event(
-                title=title,
-                description=description,
-                start_date=datetime.strptime(start_date, "%Y-%m-%d").date(),
-                end_date=datetime.strptime(end_date, "%Y-%m-%d").date(),
-                location=location,
-                creator_id=creator.id,
+            # Re-render the form with the entered values and field-level
+            # errors (no redirect, so the input is not lost).
+            return render_template(
+                "events/create.html",
+                errors=errors,
+                form={
+                    "title": title,
+                    "description": description,
+                    "start_date": start_date,
+                    "end_date": end_date,
+                    "location": location,
+                    "email": email,
+                },
             )
-            db.session.add(event)
-            db.session.commit()
 
-            # Send verification email (if SMTP configured)
-            if current_app.config["SMTP_HOST"]:
-                _send_verification_email(creator, event)
-            else:
-                # Dev mode: auto-verify
-                creator.email_verified = True
-                db.session.commit()
-                flash("Mode dev : compte auto-validé.", "info")
+        # The event belongs to the logged-in creator. The entered email is
+        # the event's creator identity (creator_email), not a separate
+        # account: any email can create an event.
+        event = Event(
+            title=title,
+            description=description,
+            start_date=datetime.strptime(start_date, "%Y-%m-%d").date(),
+            end_date=datetime.strptime(end_date, "%Y-%m-%d").date(),
+            location=location,
+            creator_id=current_user.id,
+            creator_email=email,
+        )
+        db.session.add(event)
+        db.session.commit()
 
-            flash(f"Événement créé : {event.code}", "success")
-            return redirect(url_for("events.dashboard", code=event.code))
+        # Send a confirmation email to the creator (if SMTP configured).
+        if current_app.config["SMTP_HOST"]:
+            _send_verification_email(current_user, event)
+
+        flash(f"Événement créé : {event.code}", "success")
+        return redirect(url_for("events.dashboard", code=event.code))
 
     return render_template("events/create.html")
 
@@ -106,10 +108,11 @@ def dashboard(code):
         flash("Événement introuvable.", "danger")
         return redirect(url_for("events.index"))
 
-    # Check access: creator or guest
+    # Check access: creator or guest. Returning guests re-enter their own
+    # personal code (my_code); new guests arrive via the invite link/QR (join).
     guest = _get_current_guest(event)
     if not guest and not (current_user.is_authenticated and current_user.id == event.creator_id):
-        return redirect(url_for("events.guest_access", code=code))
+        return redirect(url_for("events.my_code", code=code))
 
     # Load data
     activities = event.activities.filter_by(date=date.today()).all()
@@ -144,7 +147,72 @@ def invite(code):
         return redirect(url_for("events.dashboard", code=code))
 
     invite_url = f"{current_app.config['APP_URL']}/e/{code}/join"
-    return render_template("events/invite.html", event=event, invite_url=invite_url)
+    guests = Guest.query.filter_by(event_id=event.id, is_active=True)\
+        .order_by(Guest.display_name.asc()).all()
+    return render_template("events/invite.html", event=event, invite_url=invite_url, guests=guests)
+
+
+@events_bp.route("/<code>/invite/qr")
+def invite_qr(code: str):
+    """Serve a QR code (PNG) of the event invite URL, generated server-side.
+
+    Server-side generation keeps the CSP intact (no external QR image or
+    script is needed).
+    """
+    import io
+
+    import qrcode
+
+    event = Event.query.filter_by(code=code).first_or_404()
+    invite_url = request.url_root.rstrip("/") + url_for("events.guest_access", code=code)
+    qr = qrcode.QRCode(
+        error_correction=qrcode.constants.ERROR_CORRECT_M,
+        box_size=6,
+        border=2,
+    )
+    qr.add_data(invite_url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    buf.seek(0)
+    return buf.getvalue(), 200, {"Content-Type": "image/png"}
+
+
+@events_bp.route("/<code>/invite/email", methods=["POST"])
+@login_required
+def invite_email(code):
+    """Creator invites a person by email to create their personal code."""
+    event = Event.query.filter_by(code=code, creator_id=current_user.id).first_or_404()
+    email = request.form.get("email", "").strip().lower()
+
+    if not email:
+        flash("Email requis.", "danger")
+    elif is_disposable_email(email):
+        flash("Domaine email non accepté (jetable).", "danger")
+    elif not can_add_guest(event):
+        flash("Limite d'invités atteinte.", "warning")
+    else:
+        _send_guest_invite_email(event, email)
+        flash(f"Invitation envoyée à {email}.", "success")
+
+    return redirect(url_for("events.invite", code=code))
+
+
+@events_bp.route("/<code>/invite/resend/<guest_id>", methods=["POST"])
+@login_required
+def invite_resend(code, guest_id):
+    """Creator re-sends the code-creation invitation to an existing member."""
+    event = Event.query.filter_by(code=code, creator_id=current_user.id).first_or_404()
+    guest = Guest.query.filter_by(id=guest_id, event_id=event.id, is_active=True).first_or_404()
+
+    if guest.email:
+        _send_guest_invite_email(event, guest.email, guest.display_name)
+        flash(f"Invitation renvoyée à {guest.display_name}.", "success")
+    else:
+        flash("Aucun email enregistré pour cet invité.", "warning")
+
+    return redirect(url_for("events.invite", code=code))
 
 
 # === Guest Access ===
@@ -159,28 +227,45 @@ def guest_access(code):
 
     if request.method == "POST":
         display_name = request.form.get("display_name", "").strip()
+        guest_code = request.form.get("code", "").strip().lower()
+        email = request.form.get("email", "").strip().lower() or None
+
+        # Field-level validation (the guest chooses their own personal code).
+        errors = []
         if not display_name or len(display_name) < 2:
-            flash("Nom d'affichage requis (min 2 caractères).", "danger")
-            return render_template("events/join.html", event=event)
-
+            errors.append("Nom d'affichage requis (min 2 caractères).")
+        if not guest_code or len(guest_code) < 4 or len(guest_code) > 8:
+            errors.append("Code perso requis (4 à 8 caractères).")
+        elif not re.fullmatch(r"[a-z0-9]+", guest_code):
+            errors.append("Code : lettres minuscules et chiffres uniquement.")
+        else:
+            if Guest.query.filter_by(event_id=event.id, code=guest_code).first():
+                errors.append("Ce code est déjà pris par un autre invité.")
+        if email and is_disposable_email(email):
+            errors.append("Domaine email non accepté (jetable).")
         if not can_add_guest(event):
-            flash("Événement complet.", "danger")
-            return render_template("events/join.html", event=event)
+            errors.append("Événement complet.")
 
-        # Create guest
-        guest_code = generate_guest_code()
+        if errors:
+            for e in errors:
+                flash(e, "danger")
+            return render_template(
+                "events/join.html", event=event,
+                display_name=display_name, code=guest_code, email=email,
+            )
+
         guest = Guest(
             code=guest_code,
             display_name=display_name,
+            email=email,
             event_id=event.id,
         )
         db.session.add(guest)
         db.session.commit()
 
-        # Store in session
+        # Store in session. The code is NOT flashed: it is the guest's own
+        # choice and stays visible on the dashboard ("Ton code personnel").
         session[f"guest_{code}"] = guest.id
-
-        flash(f"Ton code perso : {guest_code}", "success")
         return redirect(url_for("events.dashboard", code=code))
 
     return render_template("events/join.html", event=event)
@@ -215,16 +300,52 @@ def _get_current_guest(event):
     return None
 
 
+def _send_guest_invite_email(event, email, display_name=None):
+    """Send a guest the invitation to create their personal code.
+
+    The guest chooses their own code (no code is generated or flashed); the
+    email only carries a link to the join page.
+    """
+    import smtplib
+    from email.mime.text import MIMEText
+
+    url = f"{current_app.config['APP_URL']}/e/{event.code}/join"
+    name = f" {display_name}" if display_name else ""
+    msg = MIMEText(f"""Bonjour{name},
+
+Tu es invité(e) à l'événement "{event.title}" sur holishared
+({event.start_date:%d/%m/%Y} → {event.end_date:%d/%m/%Y}).
+
+Pour rejoindre, crée ton code personnel (4 à 8 lettres/chiffres que tu
+retiendras) en suivant ce lien :
+
+{url}
+
+Ton code te servira à te reconnecter sur un autre appareil.
+
+— holishared
+""")
+    msg["Subject"] = f"Invitation : {event.title} - holishared"
+    msg["From"] = current_app.config["SMTP_FROM"]
+    msg["To"] = email
+
+    with smtplib.SMTP(current_app.config["SMTP_HOST"], current_app.config["SMTP_PORT"]) as s:
+        s.starttls()
+        s.login(current_app.config["SMTP_USER"], current_app.config["SMTP_PASSWORD"])
+        s.send_message(msg)
+
+
 def _send_verification_email(creator, event):
-    """Send verification email to creator."""
+    """Send a confirmation email to the event's creator email."""
     import smtplib
     from email.mime.text import MIMEText
 
     url = f"{current_app.config['APP_URL']}/e/{event.code}/verify/{creator.verification_token}"
+    to_addr = event.creator_email or creator.email
     msg = MIMEText(f"""Bonjour,
 
 Tu as créé l'événement "{event.title}" sur holishared.
-Valide ton compte pour activer l'événement :
+Valide l'événement en suivant ce lien :
 
 {url}
 
@@ -232,7 +353,7 @@ Valide ton compte pour activer l'événement :
 """)
     msg["Subject"] = "Valide ton événement - holishared"
     msg["From"] = current_app.config["SMTP_FROM"]
-    msg["To"] = creator.email
+    msg["To"] = to_addr
 
     with smtplib.SMTP(current_app.config["SMTP_HOST"], current_app.config["SMTP_PORT"]) as s:
         s.starttls()

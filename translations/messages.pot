@@ -1,0 +1,749 @@
+# Translations template for holishared.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the holishared project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: holishared 1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-04 11:18+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: app/templates/events/dashboard.html:26
+msgid "+ Ajouter une info"
+msgstr ""
+
+#: app/templates/costs/index.html:88
+msgid "+ Foyer"
+msgstr ""
+
+#: app/templates/_event_nav.html:6
+msgid "Accueil"
+msgstr ""
+
+#: app/templates/events/mycode.html:15
+msgid "Accéder"
+msgstr ""
+
+#: app/templates/events/log.html:11
+msgid "Action"
+msgstr ""
+
+#: app/templates/costs/index.html:55
+#: app/templates/costs/index.html:105
+#: app/templates/costs/index.html:202
+msgid "Actions"
+msgstr ""
+
+#: app/templates/costs/index.html:175
+msgid "Activités"
+msgstr ""
+
+#: app/templates/costs/index.html:50
+msgid "Adultes"
+msgstr ""
+
+#: app/templates/lists/detail.html:86
+msgid "Ajouter"
+msgstr ""
+
+#: app/templates/costs/household_form.html:25
+msgid "Ajouter le foyer"
+msgstr ""
+
+#: app/templates/costs/index.html:183
+msgid "Ajouter le frais"
+msgstr ""
+
+#: app/templates/lists/detail.html:58
+msgid "Ajouter un article"
+msgstr ""
+
+#: app/templates/logistics/form.html:2
+#: app/templates/logistics/form.html:4
+#: app/templates/logistics/index.html:8
+msgid "Ajouter une info"
+msgstr ""
+
+#: app/templates/planning/form.html:54
+#: app/templates/planning/index.html:32
+msgid "Apporter"
+msgstr ""
+
+#: app/templates/lists/detail.html:16
+msgid "Articles de la liste"
+msgstr ""
+
+#: app/templates/lists/detail.html:81
+msgid "Assigné à"
+msgstr ""
+
+#: app/templates/lists/detail.html:54
+msgid "Aucun article dans cette liste."
+msgstr ""
+
+#: app/templates/costs/index.html:85
+msgid "Aucun foyer. Ajoutez des foyers pour partager les frais."
+msgstr ""
+
+#: app/templates/costs/index.html:133
+msgid "Aucun frais enregistré."
+msgstr ""
+
+#: app/templates/media/gallery.html:38
+msgid "Aucun media. Partagez les photos et vidéos du séjour."
+msgstr ""
+
+#: app/templates/chat/_messages.html:3
+msgid "Aucun message. Lancez la conversation !"
+msgstr ""
+
+#: app/templates/voting/index.html:12
+msgid "Aucun sondage. Créez-en un !"
+msgstr ""
+
+#: app/templates/costs/index.html:227
+msgid "Aucun transfert enregistré. Enregistrez les remboursements déjà faits pour ajuster le solde."
+msgstr ""
+
+#: app/templates/events/index.html:15
+msgid "Aucun événement. Créez-en un !"
+msgstr ""
+
+#: app/templates/events/log.html:29
+msgid "Aucune action enregistrée."
+msgstr ""
+
+#: app/templates/planning/index.html:12
+msgid "Aucune activité planifiée. Ajoutez-en une !"
+msgstr ""
+
+#: app/templates/costs/index.html:298
+msgid "Aucune demande de paiement."
+msgstr ""
+
+#: app/templates/lists/index.html:12
+msgid "Aucune liste. Créez-en une !"
+msgstr ""
+
+#: app/templates/costs/index.html:102
+#: app/templates/costs/index.html:169
+#: app/templates/logistics/form.html:27
+msgid "Catégorie"
+msgstr ""
+
+#: app/templates/_event_nav.html:26
+#: app/templates/chat/index.html:2
+#: app/templates/chat/index.html:46
+msgid "Chat"
+msgstr ""
+
+#: app/templates/events/join.html:23
+msgid "Choisissez un code que vous retiendrez : il vous servira à vous reconnecter sur un autre appareil. 4 à 8 lettres minuscules ou chiffres."
+msgstr ""
+
+#: app/templates/events/log.html:12
+msgid "Cible"
+msgstr ""
+
+#: app/templates/events/mycode.html:10
+msgid "Code personnel"
+msgstr ""
+
+#: app/templates/logistics/form.html:22
+msgid "Contenu"
+msgstr ""
+
+#: app/templates/events/dashboard.html:17
+#: app/templates/events/invite.html:8
+msgid "Copier"
+msgstr ""
+
+#: app/templates/events/create.html:26
+#: app/templates/lists/form.html:30
+#: app/templates/logistics/form.html:40
+#: app/templates/planning/form.html:59
+msgid "Créer"
+msgstr ""
+
+#: app/templates/costs/index.html:326
+msgid "Créer la demande"
+msgstr ""
+
+#: app/templates/voting/form.html:28
+msgid "Créer le sondage"
+msgstr ""
+
+#: app/templates/base.html:27
+msgid "Créer un événement"
+msgstr ""
+
+#: app/templates/events/mycode.html:20
+msgid "Créez votre code personnel"
+msgstr ""
+
+#: app/templates/costs/index.html:100
+#: app/templates/costs/index.html:179
+#: app/templates/costs/index.html:201
+#: app/templates/costs/index.html:255
+#: app/templates/planning/form.html:27
+msgid "Date"
+msgstr ""
+
+#: app/templates/events/create.html:14
+msgid "Date de début"
+msgstr ""
+
+#: app/templates/events/create.html:17
+msgid "Date de fin"
+msgstr ""
+
+#: app/templates/costs/index.html:197
+#: app/templates/costs/index.html:235
+#: app/templates/costs/index.html:306
+msgid "De"
+msgstr ""
+
+#: app/templates/costs/index.html:266
+msgid "Demandes de paiement"
+msgstr ""
+
+#: app/templates/costs/index.html:101
+#: app/templates/costs/index.html:141
+#: app/templates/events/create.html:11
+#: app/templates/planning/form.html:22
+msgid "Description"
+msgstr ""
+
+#: app/templates/costs/index.html:149
+msgid "Devise"
+msgstr ""
+
+#: app/templates/base.html:25
+msgid "Déconnexion"
+msgstr ""
+
+#: app/templates/events/log.html:13
+msgid "Détails"
+msgstr ""
+
+#: app/templates/costs/index.html:51
+msgid "Enfants"
+msgstr ""
+
+#: app/templates/costs/index.html:259
+msgid "Enregistrer le transfert"
+msgstr ""
+
+#: app/templates/chat/index.html:65
+msgid "Envoyer"
+msgstr ""
+
+#: app/templates/planning/form.html:56
+msgid "Ex : 2 chaises, 1 nappe"
+msgstr ""
+
+#: app/templates/events/join.html:12
+msgid "Ex : Alice, Bob…"
+msgstr ""
+
+#: app/templates/costs/household_form.html:11
+msgid "Ex : Famille Dupont"
+msgstr ""
+
+#: app/templates/events/join.html:20
+msgid "Ex : alice42"
+msgstr ""
+
+#: app/templates/costs/index.html:49
+msgid "Foyer"
+msgstr ""
+
+#: app/templates/costs/index.html:14
+#: app/templates/costs/index.html:42
+msgid "Foyers"
+msgstr ""
+
+#: app/templates/_event_nav.html:20
+#: app/templates/costs/index.html:18
+#: app/templates/costs/index.html:93
+msgid "Frais"
+msgstr ""
+
+#: app/templates/media/detail.html:4
+#: app/templates/media/gallery.html:23
+msgid "Galerie"
+msgstr ""
+
+#: app/templates/costs/index.html:171
+msgid "Général"
+msgstr ""
+
+#: app/templates/events/join.html:21
+msgid "Générer"
+msgstr ""
+
+#: app/templates/planning/form.html:34
+msgid "Heure de début"
+msgstr ""
+
+#: app/templates/planning/form.html:39
+msgid "Heure de fin"
+msgstr ""
+
+#: app/templates/costs/index.html:174
+msgid "Hébergement"
+msgstr ""
+
+#: app/templates/events/dashboard.html:24
+msgid "Infos importantes"
+msgstr ""
+
+#: app/templates/_event_nav.html:14
+#: app/templates/logistics/index.html:2
+#: app/templates/logistics/index.html:4
+msgid "Infos pratiques"
+msgstr ""
+
+#: app/templates/events/invite.html:3
+msgid "Invitations"
+msgstr ""
+
+#: app/templates/_event_nav.html:29
+msgid "Inviter"
+msgstr ""
+
+#: app/templates/events/invite.html:17
+msgid "Inviter par email"
+msgstr ""
+
+#: app/templates/events/invite.html:31
+msgid "Invités"
+msgstr ""
+
+#: app/templates/_event_nav.html:31
+#: app/templates/events/log.html:3
+msgid "Journal"
+msgstr ""
+
+#: app/templates/events/invite.html:18
+msgid "La personne reçoit un lien pour créer son code personnel."
+msgstr ""
+
+#: app/templates/lists/detail.html:37
+msgid "Libérer"
+msgstr ""
+
+#: app/templates/events/create.html:20
+#: app/templates/planning/form.html:44
+msgid "Lieu"
+msgstr ""
+
+#: app/templates/costs/index.html:97
+msgid "Liste des frais"
+msgstr ""
+
+#: app/templates/costs/index.html:194
+msgid "Liste des transferts"
+msgstr ""
+
+#: app/templates/_event_nav.html:11
+#: app/templates/lists/detail.html:5
+#: app/templates/lists/index.html:2
+#: app/templates/lists/index.html:4
+msgid "Listes"
+msgstr ""
+
+#: app/templates/events/dashboard.html:81
+msgid "Listes & to-do"
+msgstr ""
+
+#: app/templates/media/gallery.html:15
+msgid "Légende"
+msgstr ""
+
+#: app/templates/lists/detail.html:25
+msgid "Marquer comme fait"
+msgstr ""
+
+#: app/templates/costs/index.html:282
+msgid "Marquer réglé"
+msgstr ""
+
+#: app/templates/_event_nav.html:23
+#: app/templates/media/gallery.html:2
+#: app/templates/media/gallery.html:4
+msgid "Media"
+msgstr ""
+
+#: app/templates/base.html:24
+#: app/templates/events/index.html:3
+msgid "Mes événements"
+msgstr ""
+
+#: app/templates/costs/index.html:322
+msgid "Message"
+msgstr ""
+
+#: app/templates/events/dashboard.html:37
+#: app/templates/logistics/form.html:2
+#: app/templates/logistics/form.html:4
+#: app/templates/logistics/form.html:40
+#: app/templates/logistics/index.html:21
+#: app/templates/planning/form.html:2
+#: app/templates/planning/form.html:4
+#: app/templates/planning/form.html:59
+#: app/templates/planning/index.html:52
+msgid "Modifier"
+msgstr ""
+
+#: app/templates/costs/index.html:103
+#: app/templates/costs/index.html:145
+#: app/templates/costs/index.html:199
+#: app/templates/costs/index.html:247
+#: app/templates/costs/index.html:318
+msgid "Montant"
+msgstr ""
+
+#: app/templates/lists/detail.html:63
+msgid "Nom"
+msgstr ""
+
+#: app/templates/costs/household_form.html:9
+msgid "Nom du foyer"
+msgstr ""
+
+#: app/templates/planning/form.html:49
+msgid "Nombre minimum de participants"
+msgstr ""
+
+#: app/templates/planning/index.html:46
+msgid "Non"
+msgstr ""
+
+#: app/templates/costs/index.html:200
+#: app/templates/costs/index.html:251
+msgid "Note"
+msgstr ""
+
+#: app/templates/costs/index.html:172
+msgid "Nourriture"
+msgstr ""
+
+#: app/templates/costs/household_form.html:2
+#: app/templates/costs/household_form.html:4
+msgid "Nouveau foyer"
+msgstr ""
+
+#: app/templates/voting/form.html:2
+#: app/templates/voting/form.html:4
+#: app/templates/voting/index.html:8
+msgid "Nouveau sondage"
+msgstr ""
+
+#: app/templates/events/create.html:3
+#: app/templates/events/index.html:18
+msgid "Nouvel événement"
+msgstr ""
+
+#: app/templates/planning/form.html:2
+#: app/templates/planning/form.html:4
+#: app/templates/planning/index.html:8
+msgid "Nouvelle activité"
+msgstr ""
+
+#: app/templates/lists/form.html:2
+#: app/templates/lists/form.html:4
+#: app/templates/lists/index.html:8
+msgid "Nouvelle liste"
+msgstr ""
+
+#: app/templates/voting/form.html:22
+msgid "Options"
+msgstr ""
+
+#: app/templates/planning/index.html:45
+msgid "Oui"
+msgstr ""
+
+#: app/templates/errors/404.html:5
+msgid "Page introuvable."
+msgstr ""
+
+#: app/templates/costs/index.html:52
+msgid "Part"
+msgstr ""
+
+#: app/templates/costs/index.html:2
+#: app/templates/costs/index.html:4
+msgid "Partage de frais"
+msgstr ""
+
+#: app/templates/costs/household_form.html:19
+msgid "Parts par adulte"
+msgstr ""
+
+#: app/templates/costs/household_form.html:22
+msgid "Parts par enfant"
+msgstr ""
+
+#: app/templates/costs/index.html:53
+msgid "Payé"
+msgstr ""
+
+#: app/templates/costs/index.html:104
+#: app/templates/costs/index.html:161
+msgid "Payé par"
+msgstr ""
+
+#: app/templates/planning/index.html:47
+msgid "Peut-être"
+msgstr ""
+
+#: app/templates/media/gallery.html:11
+msgid "Photo ou vidéo"
+msgstr ""
+
+#: app/templates/base.html:51
+msgid "Planification de vacances en groupe"
+msgstr ""
+
+#: app/templates/_event_nav.html:8
+#: app/templates/planning/index.html:2
+#: app/templates/planning/index.html:4
+msgid "Planning"
+msgstr ""
+
+#: app/templates/media/detail.html:15
+msgid "Pris le"
+msgstr ""
+
+#: app/templates/events/log.html:9
+msgid "Quand"
+msgstr ""
+
+#: app/templates/lists/detail.html:69
+msgid "Quantité"
+msgstr ""
+
+#: app/templates/voting/form.html:16
+msgid "Question"
+msgstr ""
+
+#: app/templates/events/log.html:10
+msgid "Qui"
+msgstr ""
+
+#: app/templates/costs/index.html:26
+msgid "Qui rembourse qui"
+msgstr ""
+
+#: app/templates/events/join.html:3
+#: app/templates/events/join.html:31
+msgid "Rejoindre"
+msgstr ""
+
+#: app/templates/events/invite.html:40
+msgid "Renvoyer"
+msgstr ""
+
+#: app/templates/voting/detail.html:4
+msgid "Retour aux sondages"
+msgstr ""
+
+#: app/templates/costs/index.html:285
+msgid "Réglé"
+msgstr ""
+
+#: app/templates/costs/index.html:334
+msgid "Répartition par catégorie"
+msgstr ""
+
+#: app/templates/costs/index.html:46
+msgid "Répartition par foyer"
+msgstr ""
+
+#: app/templates/voting/detail.html:11
+#: app/templates/voting/index.html:21
+#: app/templates/voting/index.html:62
+msgid "Résultats du sondage"
+msgstr ""
+
+#: app/templates/costs/index.html:8
+msgid "Résumé"
+msgstr ""
+
+#: app/templates/lists/detail.html:75
+msgid "Section"
+msgstr ""
+
+#: app/templates/costs/index.html:54
+msgid "Solde"
+msgstr ""
+
+#: app/templates/voting/detail.html:8
+#: app/templates/voting/index.html:61
+msgid "Sondage fermé"
+msgstr ""
+
+#: app/templates/_event_nav.html:17
+#: app/templates/voting/index.html:2
+#: app/templates/voting/index.html:4
+msgid "Sondages"
+msgstr ""
+
+#: app/templates/events/dashboard.html:66
+msgid "Sondages ouverts"
+msgstr ""
+
+#: app/templates/chat/_messages.html:17
+#: app/templates/costs/index.html:75
+#: app/templates/costs/index.html:120
+#: app/templates/costs/index.html:217
+#: app/templates/costs/index.html:290
+#: app/templates/lists/detail.html:50
+#: app/templates/lists/detail.html:50
+#: app/templates/logistics/index.html:25
+#: app/templates/media/detail.html:24
+#: app/templates/planning/index.html:55
+msgid "Supprimer"
+msgstr ""
+
+#: app/templates/lists/detail.html:92
+msgid "Supprimer la liste"
+msgstr ""
+
+#: app/templates/chat/_messages.html:17
+msgid "Supprimer le message de"
+msgstr ""
+
+#: app/templates/costs/index.html:157
+msgid "Taux (→ €)"
+msgstr ""
+
+#: app/templates/events/create.html:8
+#: app/templates/lists/form.html:16
+#: app/templates/logistics/form.html:16
+#: app/templates/planning/form.html:16
+msgid "Titre"
+msgstr ""
+
+#: app/templates/events/dashboard.html:15
+msgid "Ton code personnel"
+msgstr ""
+
+#: app/templates/costs/index.html:128
+msgid "Total"
+msgstr ""
+
+#: app/templates/costs/index.html:10
+msgid "Total des frais"
+msgstr ""
+
+#: app/templates/costs/index.html:190
+msgid "Transferts déjà effectués"
+msgstr ""
+
+#: app/templates/costs/index.html:173
+msgid "Transport"
+msgstr ""
+
+#: app/templates/lists/form.html:22
+msgid "Type de liste"
+msgstr ""
+
+#: app/templates/media/gallery.html:19
+msgid "Téléverser"
+msgstr ""
+
+#: app/templates/voting/form.html:23
+msgid "Une option par ligne (2 à 10)."
+msgstr ""
+
+#: app/templates/voting/detail.html:39
+#: app/templates/voting/index.html:49
+msgid "Voter"
+msgstr ""
+
+#: app/templates/events/mycode.html:3
+msgid "Votre code"
+msgstr ""
+
+#: app/templates/events/join.html:16
+msgid "Votre code personnel"
+msgstr ""
+
+#: app/templates/events/create.html:23
+msgid "Votre email"
+msgstr ""
+
+#: app/templates/events/join.html:27
+msgid "Votre email (optionnel, pour recevoir les invitations)"
+msgstr ""
+
+#: app/templates/chat/index.html:62
+msgid "Votre message"
+msgstr ""
+
+#: app/templates/voting/detail.html:30
+#: app/templates/voting/index.html:40
+msgid "Votre vote"
+msgstr ""
+
+#: app/templates/events/dashboard.html:88
+#: app/templates/lists/index.html:21
+msgid "articles"
+msgstr ""
+
+#: app/templates/planning/index.html:35
+msgid "confirmés sur"
+msgstr ""
+
+#: app/templates/costs/index.html:290
+msgid "demande de paiement"
+msgstr ""
+
+#: app/templates/events/index.html:10
+#: app/templates/events/invite.html:51
+msgid "invités"
+msgstr ""
+
+#: app/templates/planning/index.html:35
+msgid "requis"
+msgstr ""
+
+#: app/templates/costs/index.html:217
+msgid "transfert"
+msgstr ""
+
+#: app/templates/voting/detail.html:14
+#: app/templates/voting/index.html:24
+#: app/templates/voting/index.html:65
+msgid "vote(s)"
+msgstr ""
+
+#: app/templates/voting/detail.html:24
+#: app/templates/voting/index.html:34
+#: app/templates/voting/index.html:75
+msgid "vote(s) au total"
+msgstr ""
+
+#: app/templates/costs/index.html:198
+#: app/templates/costs/index.html:241
+#: app/templates/costs/index.html:312
+#: app/templates/lists/detail.html:33
+msgid "À"
+msgstr ""
+
+#: app/templates/planning/index.html:38
+msgid "— insuffisant"
+msgstr ""
+
