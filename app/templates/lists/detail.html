@@ -27,13 +27,16 @@
 
 <ul class="items items-compact" aria-label="{{ _('Articles de la liste') }}">
   {% for item in items %}
-  <li class="item-row{% if item.is_done %} done{% endif %}"
-      hx-post="{{ url_for('lists.toggle_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}"
-      hx-headers='{"X-CSRFToken": "{{ csrf_token() }}"}'
-      hx-target="closest .item-row"
-      hx-swap="outerHTML">
-    <input type="hidden" name="is_done" value="{{ '0' if item.is_done else '1' }}">
-    <span class="item-check" aria-hidden="true">{% if item.is_done %}✓{% else %}&nbsp;{% endif %}</span>
+  <li class="item-row{% if item.is_done %} done{% endif %}">
+    <form method="post" action="{{ url_for('lists.toggle_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}" class="item-toggle-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="is_done" value="{{ '0' if item.is_done else '1' }}">
+      <label class="item-check-label" for="toggle-{{ item.id }}">
+        <input type="checkbox" id="toggle-{{ item.id }}" class="item-check-input" onchange="this.form.submit()"
+               {% if item.is_done %}checked{% endif %}>
+        <span class="item-check" aria-hidden="true">{% if item.is_done %}✓{% else %}&nbsp;{% endif %}</span>
+      </label>
+    </form>
     <span class="item-name">{{ item.name }}</span>
     {% if item.quantity and item.quantity != "1" %}<span class="qty">{{ item.quantity }}</span>{% endif %}
     {% if item.section %}<span class="item-section">{{ item.section }}</span>{% endif %}
@@ -42,20 +45,20 @@
     {% endif %}
     <span class="item-actions">
       {% if not item.assigned_to %}
-      <button type="button" class="icon-btn" title="{{ _('Je m\'occupe de ça') }}"
-              hx-post="{{ url_for('lists.claim_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}"
-              hx-headers='{"X-CSRFToken": "{{ csrf_token() }}"}'
-              hx-target="closest .item-row" hx-swap="outerHTML">✋</button>
+      <form method="post" action="{{ url_for('lists.claim_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="icon-btn" title="{{ _('Je m\'occupe de ça') }}">✋</button>
+      </form>
       {% elif is_creator or item.assigned_to == actor_name %}
-      <button type="button" class="icon-btn" title="{{ _('Libérer') }}"
-              hx-post="{{ url_for('lists.unclaim_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}"
-              hx-headers='{"X-CSRFToken": "{{ csrf_token() }}"}'
-              hx-target="closest .item-row" hx-swap="outerHTML">✋</button>
+      <form method="post" action="{{ url_for('lists.unclaim_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="icon-btn" title="{{ _('Libérer') }}">✋</button>
+      </form>
       {% endif %}
-      <button type="button" class="icon-btn icon-btn-danger" title="{{ _('Supprimer') }}"
-              hx-post="{{ url_for('lists.delete_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}"
-              hx-headers='{"X-CSRFToken": "{{ csrf_token() }}"}'
-              hx-target="closest .item-row" hx-swap="outerHTML">×</button>
+      <form method="post" action="{{ url_for('lists.delete_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="icon-btn icon-btn-danger" title="{{ _('Supprimer') }}">×</button>
+      </form>
     </span>
   </li>
   {% else %}

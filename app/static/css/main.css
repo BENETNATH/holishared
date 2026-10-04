@@ -2569,3 +2569,24 @@ tfoot td {
     grid-template-columns: 4rem repeat(3, 1fr);
   }
 }
+
+/* List item forms (invisible wrappers) */
+.item-toggle-form {
+  display: contents;
+}
+
+.item-check-label {
+  display: inline-flex;
+  cursor: pointer;
+}
+
+.item-check-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.item-actions form {
+  display: contents;
+}
