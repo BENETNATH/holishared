@@ -57,6 +57,8 @@ class Event(db.Model):  # type: ignore[misc,name-defined]
     location: Mapped[str] = db.Column(db.String(300), default="")
     is_active: Mapped[bool] = db.Column(db.Boolean, default=True)
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
+    verification_token: Mapped[str | None] = db.Column(db.String(64), nullable=True, unique=True)
+    verified_at: Mapped[datetime | None] = db.Column(db.DateTime, nullable=True)
 
     creator_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("creators.id"), nullable=False)
     # The email that created the event. The event is tied to this email, not

@@ -380,7 +380,7 @@ def toggle_meal(code: str, list_id: str, activity_id: str) -> Response:
     """Toggle a meal as covered by this list."""
     event = _get_event_or_404(code)
     shared_list = _get_list_or_404(event, list_id)
-    guest, _is_creator, denied = _resolve_actor(event, code)
+    _guest, _is_creator, denied = _resolve_actor(event, code)
     if denied is not None:
         return denied
 

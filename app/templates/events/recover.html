@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Récupérer mon code") }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>{{ _("Récupérer mon code") }}</h1>
+        <p class="page-sub">{{ _("Si tu avais coché « conserver mon email » à la création, ton code sera renvoyé par email.") }}</p>
+    </div>
+</div>
+
+<form method="post" action="{{ url_for('events.recover_code') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="form-group">
+    <label for="email">{{ _("Ton email") }} *</label>
+    <input type="email" id="email" name="email" required autocomplete="email"
+           placeholder="{{ _('Ex : alice@mail.com') }}">
+  </div>
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">{{ _("Récupérer mon code") }}</button>
+  </div>
+</form>
+
+<p class="hint">{{ _("Si tu n'avais pas conservé ton email, le code est définitivement perdu. Il faudra créer un nouvel événement.") }}</p>
+{% endblock %}

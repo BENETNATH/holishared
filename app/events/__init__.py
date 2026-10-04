@@ -6,6 +6,7 @@ from typing import cast
 
 from flask import (
     Blueprint,
+    abort,
     current_app,
     flash,
     redirect,
@@ -14,12 +15,12 @@ from flask import (
     session,
     url_for,
 )
-from flask_login import current_user, login_required
+from flask_login import current_user, login_required, login_user
 from werkzeug.wrappers import Response
 
 from app.auth import is_disposable_email
 from app.extensions import db, limiter
-from app.freemium import can_add_guest, can_create_event, max_duration_days
+from app.freemium import can_add_guest, max_duration_days
 from app.models import Creator, Event, Guest, Household, generate_guest_code
 
 
@@ -67,7 +68,7 @@ def access_by_code() -> str | Response:
 @events_bp.route("/new", methods=["GET", "POST"])
 @limiter.limit("10 per hour")
 def create() -> str | Response:
-    """Create a new event (no login required — email + personal code)."""
+    """Create a new event (no login — email verification required)."""
     if request.method == "POST":
         title = request.form.get("title", "").strip()
         description = request.form.get("description", "").strip()
@@ -76,7 +77,6 @@ def create() -> str | Response:
         location = request.form.get("location", "").strip()
         email = request.form.get("email", "").strip().lower()
 
-        # Validation
         errors = []
         if not title:
             errors.append("Titre requis.")
@@ -104,17 +104,12 @@ def create() -> str | Response:
             return render_template(
                 "events/create.html",
                 errors=errors,
-                form={
-                    "title": title,
-                    "description": description,
-                    "start_date": start_date,
-                    "end_date": end_date,
-                    "location": location,
-                    "email": email,
-                },
+                form={"title": title, "description": description,
+                      "start_date": start_date, "end_date": end_date,
+                      "location": location, "email": email},
             )
 
-        # Auto-create or reuse Creator from email (no password — personal code is identity).
+        # Auto-create or reuse Creator from email.
         creator = Creator.query.filter_by(email=email).first()
         if not creator:
             creator = Creator(
@@ -131,6 +126,9 @@ def create() -> str | Response:
             flash(f"Limite d'événements atteinte ({existing_count}).", "warning")
             return redirect(url_for("events.create"))
 
+        # Create event with verification token (unverified until link clicked).
+        import secrets as _secrets
+        token = _secrets.token_urlsafe(32)
         event = Event(
             title=title,
             description=description,
@@ -139,17 +137,89 @@ def create() -> str | Response:
             location=location,
             creator_id=creator.id,
             creator_email=email,
+            verification_token=token,
         )
         db.session.add(event)
         db.session.commit()
 
-        # Store creator in session so they can access their events without login.
-        session["creator_id"] = creator.id
+        # Send verification email (if SMTP configured).
+        if current_app.config["SMTP_HOST"]:
+            _send_verification_email(creator, event, token)
 
-        flash(f"Événement créé : {event.code}", "success")
-        return redirect(url_for("events.dashboard", code=event.code))
+        session["creator_id"] = creator.id
+        flash("Un email de vérification a été envoyé.", "success")
+        return redirect(url_for("events.verify_sent", code=event.code))
 
     return render_template("events/create.html")
+
+
+@events_bp.route("/new/sent/<code>")
+def verify_sent(code: str) -> str | Response:
+    """Page shown after event creation: 'check your email'."""
+    event = Event.query.filter_by(code=code, is_active=True).first()
+    if not event:
+        abort(404)
+    return render_template("events/verify_sent.html", event=event)
+
+
+@events_bp.route("/verify/<token>", methods=["GET", "POST"])
+def verify(token: str) -> str | Response:
+    """Creator clicks the verification link: set code + nickname + invite."""
+    event = Event.query.filter_by(verification_token=token, is_active=True).first()
+    if not event:
+        flash("Lien invalide ou expiré.", "danger")
+        return redirect(url_for("main.landing"))
+    if event.verified_at is not None:
+        # Already verified — go to dashboard.
+        session["creator_id"] = event.creator_id
+        return redirect(url_for("events.dashboard", code=event.code))
+
+    if request.method == "POST":
+        display_name = request.form.get("display_name", "").strip()
+        personal_code = request.form.get("personal_code", "").strip().lower()
+        invite_emails_raw = request.form.get("invite_emails", "").strip()
+        store_creator_email = request.form.get("store_creator_email", "") == "1"
+
+        errors = []
+        if not display_name or len(display_name) < 2:
+            errors.append("Pseudo requis (min 2 caractères).")
+        if not personal_code or len(personal_code) < 4 or len(personal_code) > 8:
+            errors.append("Code perso requis (4 à 8 caractères).")
+        elif not re.fullmatch(r"[a-z0-9]+", personal_code):
+            errors.append("Code : lettres minuscules et chiffres uniquement.")
+
+        if errors:
+            return render_template("events/verify.html", event=event, token=token, errors=errors,
+                                   form_data={"display_name": display_name,
+                                              "personal_code": personal_code,
+                                              "invite_emails": invite_emails_raw})
+
+        # Update creator
+        creator = Creator.query.get(event.creator_id)
+        if creator:
+            creator.display_name = display_name
+            creator.personal_code = personal_code
+            # Creator email: only kept if user explicitly opts in (code recovery).
+            if not store_creator_email:
+                creator.email = None  # erase — code recovery not possible
+
+        # Verify the event
+        event.verified_at = datetime.utcnow()
+        event.verification_token = None  # single-use
+        db.session.commit()
+
+        # Send invite emails (NOT stored unless requested)
+        if invite_emails_raw and current_app.config["SMTP_HOST"]:
+            invite_emails = [e.strip().lower() for e in invite_emails_raw.split(",") if e.strip()]
+            for ie in invite_emails:
+                if _valid_email(ie) and not is_disposable_email(ie):
+                    _send_invite_email(ie, event)
+
+        session["creator_id"] = event.creator_id
+        flash("Événement confirmé !", "success")
+        return redirect(url_for("events.dashboard", code=event.code))
+
+    return render_template("events/verify.html", event=event, token=token, errors=[], form_data={})
 
 
 @events_bp.route("/<code>")
@@ -477,21 +547,22 @@ Ton code te servira à te reconnecter sur un autre appareil.
         s.send_message(msg)
 
 
-def _send_verification_email(creator: Creator, event: Event) -> None:
-    """Send a confirmation email to the event's creator email."""
+def _send_verification_email(creator: Creator, event: Event, token: str) -> None:
+    """Send verification email with link to set code + nickname."""
     import smtplib
     from email.mime.text import MIMEText
 
-    creator.verification_sent_at = datetime.utcnow()  # noqa: DTZ003
-    db.session.commit()
-    url = f"{current_app.config['APP_URL']}/e/{event.code}/verify/{creator.verification_token}"
+    url = f"{current_app.config['APP_URL']}/verify/{token}"
     to_addr = event.creator_email or creator.email
     msg = MIMEText(f"""Bonjour,
 
 Tu as créé l'événement "{event.title}" sur holishared.
-Valide l'événement en suivant ce lien :
+
+Pour finaliser, clique sur ce lien (valide 3 jours) :
 
 {url}
+
+Tu y définiras ton code personnel et ton pseudo, et tu pourras inviter tes proches.
 
 — holishared
 """)
@@ -505,28 +576,36 @@ Valide l'événement en suivant ce lien :
         s.send_message(msg)
 
 
-@events_bp.route("/<code>/verify/<token>")
-def verify(code: str, token: str) -> Response:
-    """Verify creator email via token (single-use, 24h expiry)."""
-    import hmac
-    from datetime import timedelta
+def _send_invite_email(to_addr: str, event: Event) -> None:
+    """Send an invite email to a guest (email NOT stored)."""
+    import smtplib
+    from email.mime.text import MIMEText
 
-    event = Event.query.filter_by(code=code).first_or_404()
-    creator = Creator.query.get(event.creator_id)
-    if (
-        creator
-        and creator.verification_token
-        and creator.verification_sent_at
-        and creator.verification_sent_at + timedelta(hours=24) > datetime.utcnow()  # noqa: DTZ003
-        and hmac.compare_digest(creator.verification_token, token)
-    ):
-        creator.email_verified = True
-        creator.verification_token = None  # single-use
-        db.session.commit()
-        flash("Compte validé !", "success")
-    else:
-        flash("Lien de validation invalide ou expiré.", "danger")
-    return redirect(url_for("events.dashboard", code=code))
+    url = f"{current_app.config['APP_URL']}/e/{event.code}/join"
+    location_line = f"Lieu : {event.location}\n" if event.location else ""
+    body = f"""Bonjour,
+
+Tu es invité(e) à l'événement "{event.title}" sur holishared.
+
+Dates : {event.start_date.strftime('%d/%m/%Y')} → {event.end_date.strftime('%d/%m/%Y')}
+{location_line}
+Pour rejoindre, clique ici :
+
+{url}
+
+Tu choisiras ton pseudo et ton code personnel.
+
+— holishared
+"""
+    msg = MIMEText(body)
+    msg["Subject"] = f"Invitation : {event.title}"
+    msg["From"] = current_app.config["SMTP_FROM"]
+    msg["To"] = to_addr
+
+    with smtplib.SMTP(current_app.config["SMTP_HOST"], current_app.config["SMTP_PORT"]) as s:
+        s.starttls()
+        s.login(current_app.config["SMTP_USER"], current_app.config["SMTP_PASSWORD"])
+        s.send_message(msg)
 
 
 @events_bp.route("/<code>/log")
@@ -543,3 +622,47 @@ def log(code: str) -> str | Response | tuple[str, int]:
 
     logs = ActivityLog.query.filter_by(event_id=event.id).order_by(ActivityLog.created_at.desc()).limit(100).all()
     return render_template("events/log.html", event=event, logs=logs)
+
+
+@events_bp.route("/recover", methods=["GET", "POST"])
+@limiter.limit("5 per 15 minutes")
+def recover_code() -> str | Response:
+    """Recover personal code via stored email."""
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        if not email or not _valid_email(email):
+            flash("Email invalide.", "danger")
+            return render_template("events/recover.html")
+
+        creator = Creator.query.filter_by(email=email).first()
+        if not creator or not creator.personal_code:
+            flash("Aucun compte trouvé avec cet email. Si tu n'avais pas coché 'conserver mon email', le code est perdu.", "danger")
+            return render_template("events/recover.html")
+
+        # Send recovery email with the code
+        if current_app.config["SMTP_HOST"]:
+            import smtplib
+            from email.mime.text import MIMEText
+            msg = MIMEText(f"""Bonjour,
+
+Ton code personnel holishared est : {creator.personal_code}
+
+Pseudo : {creator.display_name}
+
+— holishared
+""")
+            msg["Subject"] = "Ton code holishared"
+            msg["From"] = current_app.config["SMTP_FROM"]
+            msg["To"] = email
+            with smtplib.SMTP(current_app.config["SMTP_HOST"], current_app.config["SMTP_PORT"]) as s:
+                s.starttls()
+                s.login(current_app.config["SMTP_USER"], current_app.config["SMTP_PASSWORD"])
+                s.send_message(msg)
+            flash("Ton code a été envoyé par email.", "success")
+        else:
+            # Dev mode: show code directly
+            flash(f"Ton code : {creator.personal_code}", "success")
+
+        return redirect(url_for("events.recover_code"))
+
+    return render_template("events/recover.html")

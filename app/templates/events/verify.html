@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Valider — {{ event.title }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>{{ _("Valider ton événement") }}</h1>
+        <p class="page-sub">{{ event.title }} · {{ event.start_date.strftime("%d/%m") }} → {{ event.end_date.strftime("%d/%m") }}</p>
+    </div>
+</div>
+
+{% if errors %}
+<ul class="errors" aria-live="assertive">
+  {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+</ul>
+{% endif %}
+
+<form method="post" action="{{ url_for('events.verify', token=token) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <div class="form-group">
+    <label for="display_name">{{ _("Ton pseudo") }} *</label>
+    <input type="text" id="display_name" name="display_name" required minlength="2" maxlength="50"
+           value="{{ form_data.get('display_name', '') }}" placeholder="{{ _('Ex : Alice, Bob…') }}">
+  </div>
+
+  <div class="form-group">
+    <label for="personal_code">{{ _("Ton code personnel") }} *</label>
+    <div class="code-input-row">
+      <input type="text" id="personal_code" name="personal_code" required minlength="4" maxlength="8"
+             pattern="[a-z0-9]{4,8}" autocomplete="off" spellcheck="false"
+             value="{{ form_data.get('personal_code', '') }}" placeholder="{{ _('Ex : alice42') }}">
+      <button type="button" class="btn btn-secondary" id="gen-code">{{ _("Générer") }}</button>
+    </div>
+    <p class="hint">{{ _("Ce code te sert à accéder à l'événement sur n'importe quel appareil. 4 à 8 lettres minuscules ou chiffres.") }}</p>
+  </div>
+
+  <fieldset class="form-group">
+    <legend>{{ _("Inviter des proches (optionnel)") }}</legend>
+    <div class="form-group">
+      <label for="invite_emails">{{ _("Emails (séparés par des virgules)") }}</label>
+      <input type="text" id="invite_emails" name="invite_emails"
+             value="{{ form_data.get('invite_emails', '') }}"
+             placeholder="{{ _('Ex : alice@mail.com, bob@mail.fr') }}">
+    </div>
+    <p class="hint">{{ _("Ces emails ne servent qu'à envoyer l'invitation : ils ne sont PAS conservés.") }}</p>
+  </fieldset>
+
+  <fieldset class="form-group">
+    <legend>{{ _("Ton email") }}</legend>
+    <label class="checkbox-label">
+      <input type="checkbox" name="store_creator_email" value="1">
+      <span>{{ _("Conserver mon email pour récupérer mon code si perdu") }}</span>
+    </label>
+    <p class="hint">{{ _("Si non coché, ton email est effacé après validation. Tu ne pourras pas récupérer ton code.") }}</p>
+  </fieldset>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary btn-lg">{{ _("Confirmer et accéder") }}</button>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+  document.getElementById("gen-code").addEventListener("click", function () {
+    var alphabet = "abcdefghijkmnpqrstuvwxyz23456789";
+    var out = "";
+    for (var i = 0; i < 8; i++) {
+      out += alphabet[Math.floor(Math.random() * alphabet.length)];
+    }
+    document.getElementById("personal_code").value = out;
+  });
+</script>
+{% endblock %}

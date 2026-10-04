@@ -3,7 +3,7 @@
 import os
 import shutil
 import time
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 from typing import cast
 
@@ -122,24 +122,41 @@ def create_app() -> Flask:
                 cursor.close()
         db.create_all()
 
-    # Auto-purge: delete events ended more than 30 days ago.
+    # Auto-purge: delete events ended >30d ago OR unverified >3d ago.
     from datetime import timedelta
+
     from app.models import Event as _Event
 
     def _purge_expired_events() -> None:
-        cutoff = date.today() - timedelta(days=30)
-        expired = _Event.query.filter(
+        now = datetime.utcnow()
+        # 1. Ended events: 30 days after end_date
+        cutoff_ended = date.today() - timedelta(days=30)
+        expired_ended = _Event.query.filter(
             _Event.end_date.isnot(None),
-            _Event.end_date < cutoff,
+            _Event.end_date < cutoff_ended,
             _Event.is_active == True,  # noqa: E712
         ).all()
-        for ev in expired:
-            db.session.delete(ev)
-        if expired:
+        # 2. Unverified events: 3 days after creation
+        cutoff_unverified = now - timedelta(days=3)
+        expired_unverified = _Event.query.filter(
+            _Event.verified_at.is_(None),
+            _Event.created_at < cutoff_unverified,
+            _Event.is_active == True,  # noqa: E712
+        ).all()
+        to_delete = {ev.id for ev in expired_ended} | {ev.id for ev in expired_unverified}
+        for ev in expired_ended + expired_unverified:
+            if ev.id in to_delete:
+                db.session.delete(ev)
+                to_delete.discard(ev.id)
+        if expired_ended or expired_unverified:
             db.session.commit()
 
     with app.app_context():
-        _purge_expired_events()
+        try:
+            _purge_expired_events()
+        except Exception:
+            import logging
+            logging.getLogger(__name__).exception("Auto-purge failed (continuing)")
 
     # Language selector. A ?lang= switch is persisted in the session so the
     # preference survives navigation; otherwise fall back to the browser
