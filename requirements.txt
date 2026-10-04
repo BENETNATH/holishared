@@ -3,6 +3,7 @@ flask-login>=0.6
 flask-sqlalchemy>=3.1
 flask-wtf>=1.2
 flask-babel>=4.0
+flask-limiter>=3.0
 waitress>=3.0
 python-dotenv>=1.0
 jinja2>=3.1
