@@ -106,6 +106,8 @@ def create_app() -> Flask:
     limiter.init_app(app)
 
     # Ensure database tables exist (idempotent; no-op if already created).
+    # Import models first so SQLAlchemy knows about all tables.
+    from app import models as _models  # noqa: F401
     # SQLite: enable WAL mode + busy timeout for concurrent access.
     with app.app_context():
         if db_uri.startswith("sqlite"):
