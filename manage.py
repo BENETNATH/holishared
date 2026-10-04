@@ -56,6 +56,57 @@ def run(cmd, cwd=ROOT, shell=False, **kwargs):
 
 # === Commands ===
 
+def _generate_vapid_keys():
+    """Generate VAPID key pair for Web Push notifications."""
+    from cryptography.hazmat.primitives.asymmetric import ec
+    from cryptography.hazmat.primitives import serialization
+    import base64
+
+    private_key = ec.generate_private_key(ec.SECP256R1())
+    
+    # Private key: PKCS8 DER, base64url
+    priv_der = private_key.private_bytes(
+        encoding=serialization.Encoding.DER,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption(),
+    )
+    vapid_private = base64.urlsafe_b64encode(priv_der).rstrip(b"=").decode()
+
+    # Public key: raw uncompressed point (65 bytes), base64url
+    pub_numbers = private_key.public_key().public_numbers()
+    pub_bytes = b"\x04" + pub_numbers.x.to_bytes(32, "big") + pub_numbers.y.to_bytes(32, "big")
+    vapid_public = base64.urlsafe_b64encode(pub_bytes).rstrip(b"=").decode()
+
+    return vapid_public, vapid_private
+
+
+def _test_smtp(host, port, user, password):
+    """Test SMTP connection and login."""
+    import smtplib
+    import ssl
+
+    try:
+        if port == 465:
+            ctx = ssl.create_default_context()
+            server = smtplib.SMTP_SSL(host, port, timeout=10, context=ctx)
+        else:
+            server = smtplib.SMTP(host, port, timeout=10)
+            server.starttls()
+        
+        if user:
+            server.login(user, password)
+        server.quit()
+        return True, ""
+    except smtplib.SMTPAuthenticationError as e:
+        return False, f"Auth failed: {e.code} {e.message}"
+    except smtplib.SMTPConnectError as e:
+        return False, f"Connection failed: {e}"
+    except smtplib.SMTPException as e:
+        return False, f"SMTP error: {e}"
+    except Exception as e:
+        return False, f"Error: {e}"
+
+
 def _interactive_env():
     """Create .env interactively, generating secrets on the fly."""
     env_file = ROOT / ".env"
@@ -106,6 +157,36 @@ def _interactive_env():
     scheme = "https" if domain != "localhost" else "http"
     app_url = f"{scheme}://{domain}:{port}"
 
+    # VAPID keys (Web Push)
+    print("  Generating VAPID keys (Web Push)...")
+    vapid_public, vapid_private = _generate_vapid_keys()
+    print(f"  VAPID_PUBLIC_KEY: {vapid_public[:16]}...")
+    print(f"  VAPID_PRIVATE_KEY: {vapid_private[:16]}...")
+
+    # SMTP
+    print()
+    smtp_enabled = input("  Configure SMTP email? [y/N]: ").strip().lower()
+    smtp_host = smtp_port = smtp_user = smtp_pass = ""
+    smtp_port_str = "587"
+    
+    if smtp_enabled in ("y", "yes"):
+        smtp_host = input("  SMTP host [smtp.gmail.com]: ").strip() or "smtp.gmail.com"
+        smtp_port_str = input("  SMTP port [587]: ").strip() or "587"
+        smtp_user = input("  SMTP user (email): ").strip()
+        smtp_pass = input("  SMTP password/app password: ").strip()
+        
+        # Test connection
+        print("  Testing SMTP connection...")
+        ok, err = _test_smtp(smtp_host, int(smtp_port_str), smtp_user, smtp_pass)
+        if ok:
+            print("  [OK] SMTP connection successful")
+        else:
+            print(f"  [WARN] SMTP test failed: {err}")
+            retry = input("  Continue anyway? [Y/n]: ").strip().lower()
+            if retry in ("n", "no"):
+                print("  [SKIP] SMTP not configured")
+                smtp_host = smtp_user = smtp_pass = ""
+
     env_content = f"""# === Holishared Configuration ===
 
 # === Docker / Nginx ===
@@ -139,9 +220,9 @@ MAX_DURATION_DAYS=30
 MAX_EVENTS_PER_CREATOR=3
 ENABLED_MODULES=planning,lists,logistics,voting,media,chat,costs
 
-# === Push notifications ===
-VAPID_PUBLIC_KEY=
-VAPID_PRIVATE_KEY=
+# === Push notifications (Web Push) ===
+VAPID_PUBLIC_KEY={vapid_public}
+VAPID_PRIVATE_KEY={vapid_private}
 VAPID_CLAIMS_SUBJECT=mailto:{email}
 
 # === Anti-abus ===
@@ -149,11 +230,11 @@ RATE_LIMIT_CREATE=5/hour
 RATE_LIMIT_INVITE=20/hour
 BLOCKED_EMAIL_DOMAINS=mailinator.com,temp-mail.com,10minutemail.com,guerrillamail.com,yopmail.com,throwaway.email
 
-# === Email ===
-SMTP_HOST=
-SMTP_PORT=587
-SMTP_USER=
-SMTP_PASSWORD=
+# === Email (SMTP) ===
+SMTP_HOST={smtp_host}
+SMTP_PORT={smtp_port_str}
+SMTP_USER={smtp_user}
+SMTP_PASSWORD={smtp_pass}
 SMTP_FROM=holishared@{domain}
 
 # === i18n ===
