@@ -18,6 +18,10 @@ def app(monkeypatch):
     """
     monkeypatch.setattr("app.load_dotenv", lambda *args, **kwargs: True)
     monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
+    # Enable every module so blueprint-gated routes exist in tests.
+    monkeypatch.setenv(
+        "ENABLED_MODULES", "planning,lists,logistics,voting,media,chat,costs"
+    )
     app = create_app()
     app.config["TESTING"] = True
     app.config["WTF_CSRF_ENABLED"] = False

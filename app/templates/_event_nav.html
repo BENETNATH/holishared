@@ -1,0 +1,32 @@
+{# Shared event module navigation.
+   Expects `event` in context. Every module link is guarded by
+   ENABLED_MODULES so a disabled (e.g. premium) module never produces a
+   broken link or an orphaned route. #}
+<nav class="event-nav" aria-label="{{ _('Navigation de l\'événement') }}">
+  <a href="{{ url_for('events.dashboard', code=event.code) }}" class="nav-home">{{ _("Accueil") }}</a>
+  {% if "planning" in enabled_modules %}
+  <a href="{{ url_for('planning.index', code=event.code) }}">{{ _("Planning") }}</a>
+  {% endif %}
+  {% if "lists" in enabled_modules %}
+  <a href="{{ url_for('lists.index', code=event.code) }}">{{ _("Listes") }}</a>
+  {% endif %}
+  {% if "logistics" in enabled_modules %}
+  <a href="{{ url_for('logistics.index', code=event.code) }}">{{ _("Infos pratiques") }}</a>
+  {% endif %}
+  {% if "voting" in enabled_modules %}
+  <a href="{{ url_for('voting.index', code=event.code) }}">{{ _("Sondages") }}</a>
+  {% endif %}
+  {% if "costs" in enabled_modules %}
+  <a href="{{ url_for('costs.index', code=event.code) }}">{{ _("Frais") }}</a>
+  {% endif %}
+  {% if "media" in enabled_modules %}
+  <a href="{{ url_for('media.gallery', code=event.code) }}">{{ _("Media") }}</a>
+  {% endif %}
+  {% if "chat" in enabled_modules %}
+  <a href="{{ url_for('chat.index', code=event.code) }}">{{ _("Chat") }}</a>
+  {% endif %}
+  {% if current_user.is_authenticated %}
+  <a href="{{ url_for('events.invite', code=event.code) }}">{{ _("Inviter") }}</a>
+  {% endif %}
+  <a href="{{ url_for('events.log', code=event.code) }}">{{ _("Journal") }}</a>
+</nav>

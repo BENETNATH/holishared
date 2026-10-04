@@ -2,6 +2,7 @@
 {% block title %}{{ _("Listes") }} — {{ event.title }}{% endblock %}
 {% block content %}
 <h1>{{ _("Listes") }} — {{ event.title }}</h1>
+{% include "_event_nav.html" %}
 
 <a href="{{ url_for('lists.create', code=event.code) }}" class="btn btn-primary">
   {{ _("Nouvelle liste") }}

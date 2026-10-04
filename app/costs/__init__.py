@@ -1,13 +1,18 @@
 """Costs blueprint - cost sharing by household with weighted settlement."""
 
+import json
+
 from flask import (Blueprint, render_template, redirect, url_for, flash,
                    request, session)
-from datetime import date, datetime
+from datetime import datetime
+
 from app.extensions import db
-from app.models import Event, Household, Expense, ActivityLog
+from app.models import Event, Household, Expense, Transfer, PaymentRequest
 from app.utils import log_action
 
 costs_bp = Blueprint("costs", __name__)
+
+CURRENCIES = ["EUR", "USD", "GBP", "CHF", "CAD", "AUD", "JPY"]
 
 
 def _get_event_or_404(code):
@@ -18,52 +23,77 @@ def _get_event_or_404(code):
 
 
 def _resolve_actor(event):
-    """Return (guest, is_creator) or redirect to mycode."""
+    """Return (guest, is_creator, denied_redirect_or_None)."""
     from flask_login import current_user
+    from app.models import Guest
+
     is_creator = (current_user.is_authenticated and current_user.id == event.creator_id)
     guest_id = session.get(f"guest_{event.code}")
     guest = None
     if guest_id:
-        from app.models import Guest
         guest = Guest.query.filter_by(id=guest_id, event_id=event.id, is_active=True).first()
     if not guest and not is_creator:
         return None, False, redirect(url_for("events.guest_access", code=event.code))
     return guest, is_creator, None
 
 
-def _settlement(households, expenses):
-    """Calculate who pays whom.
-    
-    Returns list of (from_household, to_household, amount_cents).
-    Uses the "minimum transactions" algorithm (greedy: match largest debtor with largest creditor).
-    """
-    if not households or not expenses:
-        return []
+def _actor(event, guest):
+    return (guest.display_name if guest else "Créateur", "guest" if guest else "creator")
 
-    total_weight = sum(h.total_weight for h in households)
-    if total_weight == 0:
-        return []
 
-    total_expenses = sum(e.amount_cents for e in expenses)
+def _base_cents(amount_cents, exchange_rate):
+    """Amount converted to base currency, in cents (int)."""
+    return int(round(amount_cents * (exchange_rate or 1.0)))
 
-    # Calculate each household's share and what they paid
-    balances = {}  # household_id -> net balance (positive = should receive, negative = should pay)
-    for h in households:
-        share = int(round(total_expenses * (h.total_weight / total_weight)))
-        paid = sum(e.amount_cents for e in expenses if e.paid_by_household_id == h.id)
-        balances[h.id] = paid - share  # positive = overpaid (should receive), negative = underpaid (should pay)
 
-    # Fix rounding: adjust the last household so balances sum to 0
-    diff = -sum(balances.values())
+def _per_expense_shares(households, expenses):
+    """Return ({household_id: share_cents}, {household_id: paid_cents})."""
+    ids = {h.id for h in households}
+    paid = {h.id: 0 for h in households}
+    shares = {h.id: 0 for h in households}
+    for exp in expenses:
+        if exp.paid_by_household_id not in ids:
+            continue
+        base = _base_cents(exp.amount_cents, exp.exchange_rate)
+        paid[exp.paid_by_household_id] += base
+        weights = exp.get_split_weights(households)
+        total_w = sum(weights.get(h.id, 0) for h in households)
+        if total_w > 0:
+            for h in households:
+                shares[h.id] += int(round(base * weights.get(h.id, 0) / total_w))
+    # Rounding fix: shares must sum to the total base amount.
+    total_base = sum(
+        _base_cents(e.amount_cents, e.exchange_rate)
+        for e in expenses if e.paid_by_household_id in ids
+    )
+    diff = total_base - sum(shares.values())
     if diff != 0 and households:
-        balances[households[-1].id] += diff
+        shares[households[-1].id] += diff
+    return shares, paid
 
-    # Greedy settlement: match largest debtor with largest creditor
-    debtors = [(hid, bal) for hid, bal in balances.items() if bal < 0]
-    creditors = [(hid, bal) for hid, bal in balances.items() if bal > 0]
-    debtors.sort(key=lambda x: x[1])  # most negative first
-    creditors.sort(key=lambda x: x[1], reverse=True)  # most positive first
 
+def _settlement(households, expenses, transfers):
+    """Compute who pays whom, in base currency cents.
+
+    Accounts for per-expense custom splits, exchange rates, and transfers
+    already made (a transfer from A to B reduces A's outstanding debt).
+    Uses the greedy minimum-transactions algorithm.
+    """
+    if not households:
+        return []
+    shares, paid = _per_expense_shares(households, expenses)
+    balances = {h.id: paid[h.id] - shares[h.id] for h in households}
+    ids = {h.id for h in households}
+    for t in transfers:
+        if t.from_household_id not in ids or t.to_household_id not in ids:
+            continue
+        base = _base_cents(t.amount_cents, t.exchange_rate)
+        balances[t.from_household_id] += base
+        balances[t.to_household_id] -= base
+
+    debtors = sorted([(hid, b) for hid, b in balances.items() if b < 0], key=lambda x: x[1])
+    creditors = sorted([(hid, b) for hid, b in balances.items() if b > 0],
+                       key=lambda x: x[1], reverse=True)
     settlements = []
     di = ci = 0
     while di < len(debtors) and ci < len(creditors):
@@ -78,8 +108,18 @@ def _settlement(households, expenses):
             di += 1
         if creditors[ci][1] == 0:
             ci += 1
-
     return settlements
+
+
+def _category_breakdown(expenses):
+    """Return {category: base_cents} sorted by amount desc."""
+    ids = set()
+    totals = {}
+    for exp in expenses:
+        base = _base_cents(exp.amount_cents, exp.exchange_rate)
+        cat = exp.category or "general"
+        totals[cat] = totals.get(cat, 0) + base
+    return sorted(totals.items(), key=lambda x: x[1], reverse=True)
 
 
 # === Routes ===
@@ -97,37 +137,43 @@ def index(code):
 
     households = event.households.all()
     expenses = event.expenses.order_by(Expense.date.desc(), Expense.created_at.desc()).all()
-    settlements = _settlement(households, expenses)
+    transfers = event.transfers.order_by(Transfer.created_at.desc()).all()
+    payment_requests = (
+        event.payment_requests.order_by(PaymentRequest.is_resolved.asc(),
+                                        PaymentRequest.created_at.desc()).all()
+    )
 
-    # Build settlement display
+    settlements = _settlement(households, expenses, transfers)
     h_map = {h.id: h for h in households}
-    settlement_display = []
-    for from_id, to_id, amount in settlements:
-        settlement_display.append({
-            "from": h_map.get(from_id),
-            "to": h_map.get(to_id),
-            "amount": amount / 100.0,
-        })
+    settlement_display = [
+        {"from": h_map.get(f), "to": h_map.get(t), "amount": a / 100.0}
+        for f, t, a in settlements
+    ]
 
-    # Per-household summary
-    total_weight = sum(h.total_weight for h in households)
-    total_expenses = sum(e.amount_cents for e in expenses)
-    h_summary = []
-    for h in households:
-        share = int(round(total_expenses * (h.total_weight / total_weight))) if total_weight > 0 else 0
-        paid = sum(e.amount_cents for e in expenses if e.paid_by_household_id == h.id)
-        h_summary.append({
+    shares, paid = _per_expense_shares(households, expenses)
+    h_summary = [
+        {
             "household": h,
-            "share": share / 100.0,
-            "paid": paid / 100.0,
-            "balance": (paid - share) / 100.0,
-        })
+            "share": shares[h.id] / 100.0,
+            "paid": paid[h.id] / 100.0,
+            "balance": (paid[h.id] - shares[h.id]) / 100.0,
+        }
+        for h in households
+    ]
+
+    total_expenses = sum(_base_cents(e.amount_cents, e.exchange_rate) for e in expenses) / 100.0
+    category_breakdown = [
+        {"category": c, "amount": a / 100.0} for c, a in _category_breakdown(expenses)
+    ]
 
     return render_template("costs/index.html",
                            event=event, guest=guest, is_creator=is_creator,
                            households=households, expenses=expenses,
+                           transfers=transfers, payment_requests=payment_requests,
                            settlements=settlement_display, h_summary=h_summary,
-                           total_expenses=total_expenses / 100.0)
+                           total_expenses=total_expenses,
+                           category_breakdown=category_breakdown,
+                           currencies=CURRENCIES)
 
 
 @costs_bp.route("/e/<code>/costs/households/new", methods=["GET", "POST"])
@@ -179,9 +225,7 @@ def add_household(code):
                 event_id=event.id,
             )
             db.session.add(h)
-
-            actor_name = guest.display_name if guest else "Créateur"
-            actor_type = "guest" if guest else "creator"
+            actor_name, actor_type = _actor(event, guest)
             log_action(db.session, event.id, actor_name, actor_type,
                        "household.created", target=name)
             db.session.commit()
@@ -206,6 +250,9 @@ def add_expense(code):
     amount_str = request.form.get("amount", "").strip()
     household_id = request.form.get("household_id", "")
     exp_date = request.form.get("date", "")
+    category = request.form.get("category", "general").strip() or "general"
+    currency = request.form.get("currency", "EUR").strip().upper() or "EUR"
+    rate_str = request.form.get("exchange_rate", "1.0").strip()
 
     errors = []
     if not description:
@@ -218,6 +265,13 @@ def add_expense(code):
         errors.append("Montant invalide.")
     if not household_id:
         errors.append("Foyer payeur requis.")
+    try:
+        exchange_rate = float(rate_str) if rate_str else 1.0
+        if exchange_rate <= 0:
+            raise ValueError
+    except (ValueError, TypeError):
+        errors.append("Taux de change invalide.")
+        exchange_rate = 1.0
 
     if errors:
         for e in errors:
@@ -234,16 +288,19 @@ def add_expense(code):
     exp = Expense(
         description=description,
         amount_cents=amount_cents,
+        currency=currency,
+        exchange_rate=exchange_rate,
+        category=category,
         paid_by_household_id=household_id,
         date=d,
         event_id=event.id,
     )
     db.session.add(exp)
 
-    actor_name = guest.display_name if guest else "Créateur"
-    actor_type = "guest" if guest else "creator"
+    actor_name, actor_type = _actor(event, guest)
     log_action(db.session, event.id, actor_name, actor_type,
-               "expense.created", target=description, details=f"{amount_cents/100:.2f}€")
+               "expense.created", target=description,
+               details=f"{amount_cents/100:.2f} {currency}")
     db.session.commit()
     flash("Frais ajouté.", "success")
     return redirect(url_for("costs.index", code=code))
@@ -251,7 +308,7 @@ def add_expense(code):
 
 @costs_bp.route("/e/<code>/costs/expenses/<exp_id>/delete", methods=["POST"])
 def delete_expense(code, exp_id):
-    """Delete an expense."""
+    """Delete an expense (creator only)."""
     event = _get_event_or_404(code)
     if not event:
         return "Not found", 404
@@ -260,19 +317,16 @@ def delete_expense(code, exp_id):
     if denied:
         return denied
 
+    if not is_creator:
+        return "Pas autorisé.", 403
+
     exp = Expense.query.filter_by(id=exp_id, event_id=event.id).first()
     if not exp:
         return "Not found", 404
 
-    # Only creator can delete
-    if not is_creator:
-        return "Pas autorisé.", 403
-
     desc = exp.description
     db.session.delete(exp)
-
-    actor_name = guest.display_name if guest else "Créateur"
-    actor_type = "guest" if guest else "creator"
+    actor_name, actor_type = _actor(event, guest)
     log_action(db.session, event.id, actor_name, actor_type,
                "expense.deleted", target=desc)
     db.session.commit()
@@ -300,11 +354,192 @@ def delete_household(code, h_id):
 
     name = h.name
     db.session.delete(h)
-
-    actor_name = guest.display_name if guest else "Créateur"
-    actor_type = "guest" if guest else "creator"
+    actor_name, actor_type = _actor(event, guest)
     log_action(db.session, event.id, actor_name, actor_type,
                "household.deleted", target=name)
     db.session.commit()
     flash("Foyer supprimé.", "success")
+    return redirect(url_for("costs.index", code=code))
+
+
+@costs_bp.route("/e/<code>/costs/transfers/new", methods=["POST"])
+def add_transfer(code):
+    """Record a transfer/repayment between two households."""
+    event = _get_event_or_404(code)
+    if not event:
+        return "Not found", 404
+
+    guest, is_creator, denied = _resolve_actor(event)
+    if denied:
+        return denied
+
+    from_id = request.form.get("from_household_id", "")
+    to_id = request.form.get("to_household_id", "")
+    amount_str = request.form.get("amount", "").strip()
+    note = request.form.get("note", "").strip()
+    t_date = request.form.get("date", "")
+
+    errors = []
+    if not from_id or not to_id:
+        errors.append("Foyers d'origine et de destination requis.")
+    elif from_id == to_id:
+        errors.append("Le foyer d'origine et de destination doivent différer.")
+    try:
+        amount_cents = int(round(float(amount_str) * 100))
+        if amount_cents <= 0:
+            errors.append("Montant invalide.")
+    except (ValueError, TypeError):
+        errors.append("Montant invalide.")
+
+    if errors:
+        for e in errors:
+            flash(e, "danger")
+        return redirect(url_for("costs.index", code=code))
+
+    d = None
+    if t_date:
+        try:
+            d = datetime.strptime(t_date, "%Y-%m-%d").date()
+        except ValueError:
+            pass
+
+    t = Transfer(
+        from_household_id=from_id,
+        to_household_id=to_id,
+        amount_cents=amount_cents,
+        note=note,
+        date=d,
+        event_id=event.id,
+    )
+    db.session.add(t)
+    actor_name, actor_type = _actor(event, guest)
+    log_action(db.session, event.id, actor_name, actor_type,
+               "transfer.created", details=f"{amount_cents/100:.2f} €")
+    db.session.commit()
+    flash("Transfert enregistré.", "success")
+    return redirect(url_for("costs.index", code=code))
+
+
+@costs_bp.route("/e/<code>/costs/transfers/<t_id>/delete", methods=["POST"])
+def delete_transfer(code, t_id):
+    """Delete a transfer (creator only)."""
+    event = _get_event_or_404(code)
+    if not event:
+        return "Not found", 404
+
+    guest, is_creator, denied = _resolve_actor(event)
+    if denied:
+        return denied
+
+    if not is_creator:
+        return "Pas autorisé.", 403
+
+    t = Transfer.query.filter_by(id=t_id, event_id=event.id).first()
+    if not t:
+        return "Not found", 404
+
+    db.session.delete(t)
+    actor_name, actor_type = _actor(event, guest)
+    log_action(db.session, event.id, actor_name, actor_type, "transfer.deleted")
+    db.session.commit()
+    flash("Transfert supprimé.", "success")
+    return redirect(url_for("costs.index", code=code))
+
+
+@costs_bp.route("/e/<code>/costs/payment-requests/new", methods=["POST"])
+def add_payment_request(code):
+    """Create a payment request (reminder) from one household to another."""
+    event = _get_event_or_404(code)
+    if not event:
+        return "Not found", 404
+
+    guest, is_creator, denied = _resolve_actor(event)
+    if denied:
+        return denied
+
+    from_id = request.form.get("from_household_id", "")
+    to_id = request.form.get("to_household_id", "")
+    amount_str = request.form.get("amount", "").strip()
+    message = request.form.get("message", "").strip()
+
+    errors = []
+    if not from_id or not to_id:
+        errors.append("Foyers requis.")
+    elif from_id == to_id:
+        errors.append("Les foyers doivent différer.")
+    try:
+        amount_cents = int(round(float(amount_str) * 100))
+        if amount_cents <= 0:
+            errors.append("Montant invalide.")
+    except (ValueError, TypeError):
+        errors.append("Montant invalide.")
+
+    if errors:
+        for e in errors:
+            flash(e, "danger")
+        return redirect(url_for("costs.index", code=code))
+
+    pr = PaymentRequest(
+        from_household_id=from_id,
+        to_household_id=to_id,
+        amount_cents=amount_cents,
+        message=message,
+        event_id=event.id,
+    )
+    db.session.add(pr)
+    actor_name, actor_type = _actor(event, guest)
+    log_action(db.session, event.id, actor_name, actor_type,
+               "payment_request.created", details=f"{amount_cents/100:.2f} €")
+    db.session.commit()
+    flash("Demande de paiement créée.", "success")
+    return redirect(url_for("costs.index", code=code))
+
+
+@costs_bp.route("/e/<code>/costs/payment-requests/<pr_id>/resolve", methods=["POST"])
+def resolve_payment_request(code, pr_id):
+    """Mark a payment request as resolved."""
+    event = _get_event_or_404(code)
+    if not event:
+        return "Not found", 404
+
+    guest, is_creator, denied = _resolve_actor(event)
+    if denied:
+        return denied
+
+    pr = PaymentRequest.query.filter_by(id=pr_id, event_id=event.id).first()
+    if not pr:
+        return "Not found", 404
+
+    pr.is_resolved = True
+    pr.resolved_at = datetime.utcnow()
+    actor_name, actor_type = _actor(event, guest)
+    log_action(db.session, event.id, actor_name, actor_type, "payment_request.resolved")
+    db.session.commit()
+    flash("Demande marquée comme réglée.", "success")
+    return redirect(url_for("costs.index", code=code))
+
+
+@costs_bp.route("/e/<code>/costs/payment-requests/<pr_id>/delete", methods=["POST"])
+def delete_payment_request(code, pr_id):
+    """Delete a payment request (creator only)."""
+    event = _get_event_or_404(code)
+    if not event:
+        return "Not found", 404
+
+    guest, is_creator, denied = _resolve_actor(event)
+    if denied:
+        return denied
+
+    if not is_creator:
+        return "Pas autorisé.", 403
+
+    pr = PaymentRequest.query.filter_by(id=pr_id, event_id=event.id).first()
+    if not pr:
+        return "Not found", 404
+
+    db.session.delete(pr)
+    actor_name, actor_type = _actor(event, guest)
+    log_action(db.session, event.id, actor_name, actor_type, "payment_request.deleted")
+    db.session.commit()
+    flash("Demande supprimée.", "success")
     return redirect(url_for("costs.index", code=code))

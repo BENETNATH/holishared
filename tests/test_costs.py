@@ -229,3 +229,96 @@ class TestSettlement:
         resp = client.get(f"/e/{event.code}/costs")
         assert resp.status_code == 200
         assert b"10.00" in resp.data
+
+
+class TestTransfers:
+    def test_add_transfer(self, client, creator, event, db):
+        from app.models import Transfer
+        _login_creator(client, creator)
+        h1 = _make_household(db, event, "A")
+        h2 = _make_household(db, event, "B")
+        resp = client.post(f"/e/{event.code}/costs/transfers/new", data={
+            "from_household_id": h1.id, "to_household_id": h2.id,
+            "amount": "20.00", "note": "remboursement",
+        })
+        assert resp.status_code == 302
+        t = Transfer.query.filter_by(event_id=event.id).first()
+        assert t is not None
+        assert t.amount_cents == 2000
+
+    def test_add_transfer_same_household_rejected(self, client, creator, event, db):
+        _login_creator(client, creator)
+        h1 = _make_household(db, event, "A")
+        resp = client.post(f"/e/{event.code}/costs/transfers/new", data={
+            "from_household_id": h1.id, "to_household_id": h1.id, "amount": "10",
+        }, follow_redirects=True)
+        assert b"diff\u00e9rer" in resp.data or b"doivent" in resp.data
+
+    def test_delete_transfer_as_creator(self, client, creator, event, db):
+        from app.models import Transfer
+        _login_creator(client, creator)
+        h1 = _make_household(db, event, "A")
+        h2 = _make_household(db, event, "B")
+        t = Transfer(from_household_id=h1.id, to_household_id=h2.id,
+                     amount_cents=1000, event_id=event.id)
+        db.session.add(t); db.session.commit()
+        resp = client.post(f"/e/{event.code}/costs/transfers/{t.id}/delete")
+        assert resp.status_code == 302
+        assert Transfer.query.get(t.id) is None
+
+    def test_settlement_accounts_for_transfer(self, client, creator, event, db):
+        """A owes B 30; a 30 transfer A->B settles it to zero."""
+        from app.models import Transfer
+        _login_creator(client, creator)
+        h1 = _make_household(db, event, "A", adults=2, children=0)
+        h2 = _make_household(db, event, "B", adults=2, children=0)
+        _make_expense(db, event, h1, "Total", 10000)  # A paid 100, each owes 50
+        # B owes A 50. Transfer B->A of 50 settles it.
+        t = Transfer(from_household_id=h2.id, to_household_id=h1.id,
+                     amount_cents=5000, event_id=event.id)
+        db.session.add(t); db.session.commit()
+        resp = client.get(f"/e/{event.code}/costs")
+        assert resp.status_code == 200
+        # No outstanding settlement (the transfer covered it)
+        assert b"Qui rembourse qui" not in resp.data
+
+
+class TestPaymentRequests:
+    def test_add_payment_request(self, client, creator, event, db):
+        from app.models import PaymentRequest
+        _login_creator(client, creator)
+        h1 = _make_household(db, event, "A")
+        h2 = _make_household(db, event, "B")
+        resp = client.post(f"/e/{event.code}/costs/payment-requests/new", data={
+            "from_household_id": h1.id, "to_household_id": h2.id,
+            "amount": "15.00", "message": "pour le loyer",
+        })
+        assert resp.status_code == 302
+        pr = PaymentRequest.query.filter_by(event_id=event.id).first()
+        assert pr is not None
+        assert pr.amount_cents == 1500
+        assert pr.is_resolved is False
+
+    def test_resolve_payment_request(self, client, creator, event, db):
+        from app.models import PaymentRequest
+        _login_creator(client, creator)
+        h1 = _make_household(db, event, "A")
+        h2 = _make_household(db, event, "B")
+        pr = PaymentRequest(from_household_id=h1.id, to_household_id=h2.id,
+                            amount_cents=1000, event_id=event.id)
+        db.session.add(pr); db.session.commit()
+        resp = client.post(f"/e/{event.code}/costs/payment-requests/{pr.id}/resolve")
+        assert resp.status_code == 302
+        db.session.refresh(pr)
+        assert pr.is_resolved is True
+
+    def test_delete_payment_request_forbidden_for_guest(self, client, event, guest, db):
+        from app.models import PaymentRequest
+        _login_guest(client, event, guest)
+        h1 = _make_household(db, event, "A")
+        h2 = _make_household(db, event, "B")
+        pr = PaymentRequest(from_household_id=h1.id, to_household_id=h2.id,
+                            amount_cents=1000, event_id=event.id)
+        db.session.add(pr); db.session.commit()
+        resp = client.post(f"/e/{event.code}/costs/payment-requests/{pr.id}/delete")
+        assert resp.status_code == 403

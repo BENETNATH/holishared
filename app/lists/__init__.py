@@ -20,7 +20,7 @@ from app.utils import log_action
 
 lists_bp = Blueprint("lists", __name__)
 
-LIST_TYPE_CHOICES = ["general", "shopping", "packing", "materials", "buffet"]
+LIST_TYPE_CHOICES = ["general", "shopping", "packing", "materials", "buffet", "todo"]
 LIST_TYPES = frozenset(LIST_TYPE_CHOICES)
 
 
@@ -279,6 +279,53 @@ def delete_item(code: str, list_id: str, item_id: str) -> Response | tuple[str, 
     db.session.commit()
 
     flash(_("Article supprimé."))
+    return redirect(url_for("lists.detail", code=code, list_id=shared_list.id))
+
+
+@lists_bp.route("/e/<code>/lists/<list_id>/items/<item_id>/claim", methods=["POST"])
+def claim_item(code: str, list_id: str, item_id: str) -> Response | tuple[str, int] | str:
+    """Self-assign an item to the current actor (to-do list)."""
+    event = _get_event_or_404(code)
+    shared_list = _get_list_or_404(event, list_id)
+    item = _get_item_or_404(shared_list, item_id)
+    guest, is_creator, denied = _resolve_actor(event, code)
+    if denied is not None:
+        return denied
+
+    actor_name, actor_type = _actor_name(guest, is_creator)
+    item.assigned_to = actor_name
+    log_action(
+        db.session, event.id, actor_name, actor_type,
+        "list_item.claimed", target=item.name, details=shared_list.title,
+    )
+    db.session.commit()
+
+    flash(_("Vous vous êtes attribué cet article."))
+    return redirect(url_for("lists.detail", code=code, list_id=shared_list.id))
+
+
+@lists_bp.route("/e/<code>/lists/<list_id>/items/<item_id>/unclaim", methods=["POST"])
+def unclaim_item(code: str, list_id: str, item_id: str) -> Response | tuple[str, int] | str:
+    """Release a self-assigned item (assignee or creator only)."""
+    event = _get_event_or_404(code)
+    shared_list = _get_list_or_404(event, list_id)
+    item = _get_item_or_404(shared_list, item_id)
+    guest, is_creator, denied = _resolve_actor(event, code)
+    if denied is not None:
+        return denied
+
+    actor_name, actor_type = _actor_name(guest, is_creator)
+    if not is_creator and item.assigned_to != actor_name:
+        return _("Pas autorisé."), 403
+
+    item.assigned_to = ""
+    log_action(
+        db.session, event.id, actor_name, actor_type,
+        "list_item.unclaimed", target=item.name, details=shared_list.title,
+    )
+    db.session.commit()
+
+    flash(_("Article libéré."))
     return redirect(url_for("lists.detail", code=code, list_id=shared_list.id))
 
 

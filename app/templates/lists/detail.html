@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 {% block title %}{{ shared_list.title }} — {{ event.title }}{% endblock %}
 {% block content %}
+{% set actor_name = guest.display_name if guest else (current_user.display_name or "Créateur") %}
 <p><a href="{{ url_for('lists.index', code=event.code) }}">&larr; {{ _("Listes") }}</a></p>
 <h1>{{ shared_list.title }}</h1>
+{% if shared_list.list_type %}<span class="tag">{{ _(shared_list.list_type) }}</span>{% endif %}
+{% include "_event_nav.html" %}
 
 {% if errors %}
 <ul class="errors" aria-live="assertive">
@@ -12,28 +15,43 @@
 
 <ul class="items" aria-label="{{ _('Articles de la liste') }}">
   {% for item in items %}
-    <li class="card item{% if item.is_done %} done{% endif %}">
-      <form method="post" action="{{ url_for('lists.toggle_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}">
+  <li class="card item{% if item.is_done %} done{% endif %}">
+    <form method="post" action="{{ url_for('lists.toggle_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="done-{{ item.id }}">
+        <input type="checkbox" id="done-{{ item.id }}" name="is_done"
+               {% if item.is_done %}checked{% endif %}
+               onchange="this.form.submit()"
+               aria-label="{{ _('Marquer comme fait') }}: {{ item.name }}">
+        {{ item.name }}
+      </label>
+    </form>
+    {% if item.quantity and item.quantity != "1" %}<span class="qty">{{ item.quantity }}</span>{% endif %}
+    {% if item.section %}<span class="section">{{ item.section }}</span>{% endif %}
+
+    {% if item.assigned_to %}
+      <span class="assigned">{{ _("À") }} : <strong>{{ item.assigned_to }}</strong></span>
+      {% if is_creator or item.assigned_to == actor_name %}
+      <form method="post" action="{{ url_for('lists.unclaim_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <label for="done-{{ item.id }}">
-          <input type="checkbox" id="done-{{ item.id }}" name="is_done"
-                 {% if item.is_done %}checked{% endif %}
-                 onchange="this.form.submit()"
-                 aria-label="{{ _('Marquer comme fait') }}: {{ item.name }}">
-          {{ item.name }}
-        </label>
+        <button type="submit" class="btn btn-small btn-secondary">{{ _("Libérer") }}</button>
       </form>
-      {% if item.quantity and item.quantity != "1" %}<span class="qty">{{ item.quantity }}</span>{% endif %}
-      {% if item.section %}<span class="section">{{ item.section }}</span>{% endif %}
-      {% if item.assigned_to %}<span class="assigned">{{ _("À") }} : {{ item.assigned_to }}</span>{% endif %}
-      <form method="post" action="{{ url_for('lists.delete_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}">
+      {% endif %}
+    {% else %}
+      <form method="post" action="{{ url_for('lists.claim_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="btn btn-danger"
-                aria-label="{{ _('Supprimer') }}: {{ item.name }}">{{ _("Supprimer") }}</button>
+        <button type="submit" class="btn btn-small">{{ _("Je m'occupe de ça") }}</button>
       </form>
-    </li>
+    {% endif %}
+
+    <form method="post" action="{{ url_for('lists.delete_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-danger"
+              aria-label="{{ _('Supprimer') }}: {{ item.name }}">{{ _("Supprimer") }}</button>
+    </form>
+  </li>
   {% else %}
-    <li class="empty">{{ _("Aucun article dans cette liste.") }}</li>
+  <li class="empty">{{ _("Aucun article dans cette liste.") }}</li>
   {% endfor %}
 </ul>
 

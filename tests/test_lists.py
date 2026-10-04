@@ -244,3 +244,69 @@ class TestDeleteList:
         assert log is not None
         assert log.target == "Shopping"
         assert log.actor_type == "creator"
+
+
+# === TestClaim (auto-attribution, to-do list) ===
+
+
+class TestClaim:
+    def test_guest_claims_item(self, client, event, guest, shared_list, db):
+        item = ListItem(name="Tâche", list_id=shared_list.id)
+        db.session.add(item)
+        db.session.commit()
+        _login_guest(client, event, guest)
+        resp = client.post(
+            f"/e/{event.code}/lists/{shared_list.id}/items/{item.id}/claim"
+        )
+        assert resp.status_code == 302
+        db.session.refresh(item)
+        assert item.assigned_to == guest.display_name
+
+    def test_claim_creates_log(self, client, event, guest, shared_list, db):
+        item = ListItem(name="Tâche log", list_id=shared_list.id)
+        db.session.add(item)
+        db.session.commit()
+        _login_guest(client, event, guest)
+        client.post(f"/e/{event.code}/lists/{shared_list.id}/items/{item.id}/claim")
+        log = ActivityLog.query.filter_by(
+            event_id=event.id, action="list_item.claimed"
+        ).first()
+        assert log is not None
+        assert log.actor_type == "guest"
+
+    def test_assignee_can_unclaim(self, client, event, guest, shared_list, db):
+        item = ListItem(name="Tâche", assigned_to=guest.display_name, list_id=shared_list.id)
+        db.session.add(item)
+        db.session.commit()
+        _login_guest(client, event, guest)
+        resp = client.post(
+            f"/e/{event.code}/lists/{shared_list.id}/items/{item.id}/unclaim"
+        )
+        assert resp.status_code == 302
+        db.session.refresh(item)
+        assert item.assigned_to == ""
+
+    def test_unclaim_forbidden_for_other_guest(self, client, event, guest, shared_list, db):
+        other = "Autre"
+        item = ListItem(name="Tâche", assigned_to=other, list_id=shared_list.id)
+        db.session.add(item)
+        db.session.commit()
+        _login_guest(client, event, guest)
+        resp = client.post(
+            f"/e/{event.code}/lists/{shared_list.id}/items/{item.id}/unclaim"
+        )
+        assert resp.status_code == 403
+        db.session.refresh(item)
+        assert item.assigned_to == other
+
+    def test_creator_can_unclaim_any(self, client, creator, event, shared_list, db):
+        item = ListItem(name="Tâche", assigned_to="Quelqu'un", list_id=shared_list.id)
+        db.session.add(item)
+        db.session.commit()
+        _login_creator(client, creator)
+        resp = client.post(
+            f"/e/{event.code}/lists/{shared_list.id}/items/{item.id}/unclaim"
+        )
+        assert resp.status_code == 302
+        db.session.refresh(item)
+        assert item.assigned_to == ""

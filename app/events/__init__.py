@@ -113,13 +113,25 @@ def dashboard(code):
 
     # Load data
     activities = event.activities.filter_by(date=date.today()).all()
-    all_activities = event.activities.order_by(Activity.date).all() if hasattr(event, 'activities') else []
     lists = event.lists.all()
     polls = event.polls.filter_by(is_closed=False).all()
 
+    from flask_babel import _ as _tr
+    from app.logistics import CATEGORY_LABELS
+    from app.models import LogisticsItem
+
+    logistics_items = (
+        LogisticsItem.query.filter_by(event_id=event.id)
+        .order_by(LogisticsItem.category.asc(), LogisticsItem.order.asc())
+        .all()
+    )
+    category_labels = {k: _tr(v) for k, v in CATEGORY_LABELS.items()}
+
     return render_template("events/dashboard.html",
                            event=event, guest=guest,
-                           activities=activities, lists=lists, polls=polls)
+                           activities=activities, lists=lists, polls=polls,
+                           logistics_items=logistics_items,
+                           category_labels=category_labels)
 
 
 @events_bp.route("/<code>/invite")

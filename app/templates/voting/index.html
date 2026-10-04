@@ -2,6 +2,7 @@
 {% block title %}{{ _("Sondages") }} — {{ event.title }}{% endblock %}
 {% block content %}
 <h1>{{ _("Sondages") }} — {{ event.title }}</h1>
+{% include "_event_nav.html" %}
 
 <a href="{{ url_for('voting.create', code=event.code) }}" class="btn btn-primary">
   {{ _("Nouveau sondage") }}

@@ -40,7 +40,7 @@ def create_app():
     app.config["MAX_DURATION_DAYS"] = int(os.environ.get("MAX_DURATION_DAYS", "30"))
     app.config["MAX_EVENTS_PER_CREATOR"] = int(os.environ.get("MAX_EVENTS_PER_CREATOR", "3"))
     app.config["ENABLED_MODULES"] = os.environ.get(
-        "ENABLED_MODULES", "planning,lists,logistics,voting,media,chat"
+        "ENABLED_MODULES", "planning,lists,logistics,voting,media,chat,costs"
     ).split(",")
 
     # Anti-abus
@@ -87,26 +87,36 @@ def create_app():
     def format_date_filter(value, fmt="medium"):
         return babel_format_date(value, format=fmt)
 
-    # Blueprints
+    # Core blueprints (always registered)
     from app.auth import auth_bp
+    from app.events import events_bp
+
+    app.register_blueprint(auth_bp, url_prefix="/admin")
+    app.register_blueprint(events_bp, url_prefix="/e")
+
+    # Module blueprints — registered only when the module is enabled, so a
+    # disabled (e.g. premium) module returns 404 instead of exposing a
+    # half-wired route, and the nav links stay consistent with ENABLED_MODULES.
     from app.chat import chat_bp
     from app.costs import costs_bp
-    from app.events import events_bp
     from app.lists import lists_bp
     from app.logistics import logistics_bp
     from app.media import media_bp
     from app.planning import planning_bp
     from app.voting import voting_bp
 
-    app.register_blueprint(auth_bp, url_prefix="/admin")
-    app.register_blueprint(events_bp, url_prefix="/e")
-    app.register_blueprint(planning_bp)
-    app.register_blueprint(lists_bp)
-    app.register_blueprint(logistics_bp)
-    app.register_blueprint(media_bp)
-    app.register_blueprint(voting_bp)
-    app.register_blueprint(chat_bp)
-    app.register_blueprint(costs_bp)
+    module_blueprints = {
+        "planning": planning_bp,
+        "lists": lists_bp,
+        "logistics": logistics_bp,
+        "voting": voting_bp,
+        "media": media_bp,
+        "chat": chat_bp,
+        "costs": costs_bp,
+    }
+    for name, bp in module_blueprints.items():
+        if name in app.config["ENABLED_MODULES"]:
+            app.register_blueprint(bp)
 
     # Context processor
     @app.context_processor

@@ -44,6 +44,7 @@
 {% endblock %}
 {% block content %}
 <h1>{{ _("Chat") }} — {{ event.title }}</h1>
+{% include "_event_nav.html" %}
 
 <div id="messages"
      class="chat-messages"

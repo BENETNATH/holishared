@@ -5,7 +5,8 @@ import uuid
 from pathlib import Path
 
 from flask import (Blueprint, render_template, redirect, url_for, flash,
-                   request, current_app, session)
+                   request, current_app, session, send_from_directory)
+from flask_login import current_user
 from app.extensions import db
 from app.models import Event, MediaItem, Guest
 from app.freemium import can_upload_media, consume_media_quota, release_media_quota
@@ -26,11 +27,22 @@ def _media_dir(event_code):
     return base
 
 
+def _resolve_actor(event, code):
+    """Return (guest, is_creator, denied_redirect_or_None)."""
+    if current_user.is_authenticated and current_user.id == event.creator_id:
+        return None, True, None
+    guest_id = session.get(f"guest_{code}")
+    if guest_id:
+        guest = Guest.query.filter_by(id=guest_id, event_id=event.id, is_active=True).first()
+        if guest is not None:
+            return guest, False, None
+    return None, False, redirect(url_for("events.guest_access", code=code))
+
+
 def _extract_exif(file_storage):
     """Extract GPS and date from EXIF data. Returns (lat, lng, taken_at)."""
     try:
         from PIL import Image
-        from PIL.ExifTags import TAGS, GPSTAGS
         import io
 
         file_storage.seek(0)
@@ -66,23 +78,40 @@ def _extract_exif(file_storage):
         return None, None, None
 
 
+@media_bp.route("/e/<code>/media/<item_id>/file")
+def file(code, item_id):
+    """Serve a stored media file (creator or guest only)."""
+    event = Event.query.filter_by(code=code, is_active=True).first_or_404()
+    guest, is_creator, denied = _resolve_actor(event, code)
+    if denied is not None:
+        return denied
+    item = MediaItem.query.filter_by(id=item_id, event_id=event.id).first_or_404()
+    return send_from_directory(_media_dir(code), item.filename, mimetype=item.mime_type)
+
+
 @media_bp.route("/e/<code>/media", methods=["GET"])
 def gallery(code):
-    """Media gallery for an event."""
+    """Media gallery for an event (creator or guest only)."""
     event = Event.query.filter_by(code=code, is_active=True).first_or_404()
+    guest, is_creator, denied = _resolve_actor(event, code)
+    if denied is not None:
+        return denied
+
     items = event.media.order_by(MediaItem.uploaded_at.desc()).all()
-    return render_template("media/gallery.html", event=event, items=items)
+    return render_template("media/gallery.html", event=event, items=items,
+                           guest=guest, is_creator=is_creator)
 
 
 @media_bp.route("/e/<code>/media/upload", methods=["POST"])
 def upload(code):
-    """Upload a media file."""
+    """Upload a media file (creator or guest only)."""
     event = Event.query.filter_by(code=code, is_active=True).first_or_404()
+    guest, is_creator, denied = _resolve_actor(event, code)
+    if denied is not None:
+        return denied
 
-    # Get actor (creator or guest)
-    guest_id = session.get(f"guest_{code}")
-    guest = Guest.query.get(guest_id) if guest_id else None
     actor_name = guest.display_name if guest else "Créateur"
+    guest_id = guest.id if guest else None
 
     # Check file
     file = request.files.get("file")
@@ -154,21 +183,27 @@ def upload(code):
 
 @media_bp.route("/e/<code>/media/<item_id>")
 def detail(code, item_id):
-    """Single media detail."""
+    """Single media detail (creator or guest only)."""
     event = Event.query.filter_by(code=code, is_active=True).first_or_404()
+    guest, is_creator, denied = _resolve_actor(event, code)
+    if denied is not None:
+        return denied
+
     item = MediaItem.query.filter_by(id=item_id, event_id=event.id).first_or_404()
-    return render_template("media/detail.html", event=event, item=item)
+    return render_template("media/detail.html", event=event, item=item,
+                           guest=guest, is_creator=is_creator)
 
 
 @media_bp.route("/e/<code>/media/<item_id>/delete", methods=["POST"])
 def delete(code, item_id):
     """Delete a media item (uploader or creator)."""
     event = Event.query.filter_by(code=code, is_active=True).first_or_404()
-    item = MediaItem.query.filter_by(id=item_id, event_id=event.id).first_or_404()
+    guest, is_creator, denied = _resolve_actor(event, code)
+    if denied is not None:
+        return denied
 
-    # Permission: uploader or creator
-    guest_id = session.get(f"guest_{code}")
-    is_creator = current_user.is_authenticated if hasattr(current_user, 'is_authenticated') else False
+    item = MediaItem.query.filter_by(id=item_id, event_id=event.id).first_or_404()
+    guest_id = guest.id if guest else None
     if item.uploaded_by != guest_id and not is_creator:
         flash("Pas autorisé.", "danger")
         return redirect(url_for("media.gallery", code=code))

@@ -1,21 +1,94 @@
 {% extends "base.html" %}
+{% block title %}{{ event.title }}{% endblock %}
 {% block content %}
 <h1>{{ event.title }}</h1>
-<p class="meta">{{ event.start_date }} → {{ event.end_date }}{% if event.location %} · 📍 {{ event.location }}{% endif %}</p>
+<p class="meta">
+  {{ event.start_date | format_date('medium') }} → {{ event.end_date | format_date('medium') }}
+  {% if event.location %} · 📍 {{ event.location }}{% endif %}
+</p>
 {% if event.description %}<p>{{ event.description }}</p>{% endif %}
 
-<nav class="event-nav">
-  {% if "planning" in enabled_modules %}
-    <a href="{{ url_for('planning.index', code=event.code) }}">{{ _("Planning") }}</a>
-  {% endif %}
-  {% if "media" in enabled_modules %}
-    <a href="{{ url_for('media.gallery', code=event.code) }}">{{ _("Media") }}</a>
-  {% endif %}
-  <a href="{{ url_for('events.invite', code=event.code) }}">{{ _("Inviter") }}</a>
-  <a href="{{ url_for('events.log', code=event.code) }}">{{ _("Journal") }}</a>
-</nav>
+{% include "_event_nav.html" %}
 
 {% if guest %}
-<p class="guest-info">{{ _("Connecté en tant que") }} : {{ guest.display_name }} ({{ guest.code }})</p>
+<p class="guest-info">{{ _("Connecté en tant que") }} : {{ guest.display_name }}</p>
+{% endif %}
+
+<!-- Important info (collaborative) -->
+<section aria-labelledby="h-info" class="section">
+  <div class="section-head">
+    <h2 id="h-info">{{ _("Infos importantes") }}</h2>
+    {% if "logistics" in enabled_modules %}
+    <a href="{{ url_for('logistics.create', code=event.code) }}" class="btn btn-small">{{ _("+ Ajouter une info") }}</a>
+    {% endif %}
+  </div>
+  {% if logistics_items %}
+  <div class="info-grid">
+    {% for item in logistics_items %}
+    <div class="card info-card">
+      <span class="tag">{{ category_labels.get(item.category, item.category) }}</span>
+      <h3>{{ item.title }}</h3>
+      <p>{{ item.content }}</p>
+      {% if "logistics" in enabled_modules %}
+      <a href="{{ url_for('logistics.edit', code=event.code, item_id=item.id) }}">{{ _("Modifier") }}</a>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="empty">{{ _("Aucune info pour l'instant. Adresse du gîte, code d'accès, horaires, documents… chacun peut compléter.") }}</p>
+  {% endif %}
+</section>
+
+{% if activities %}
+<section aria-labelledby="h-today" class="section">
+  <h2 id="h-today">{{ _("Aujourd'hui") }}</h2>
+  {% for act in activities %}
+  <div class="card activity-card">
+    {% if act.start_time %}<span class="time">{{ act.start_time.strftime("%H:%M") }}</span>{% endif %}
+    <h3>
+      {% if "planning" in enabled_modules %}
+      <a href="{{ url_for('planning.index', code=event.code) }}">{{ act.title }}</a>
+      {% else %}{{ act.title }}{% endif %}
+    </h3>
+    {% if act.location %}<p class="location">📍 {{ act.location }}</p>{% endif %}
+  </div>
+  {% endfor %}
+</section>
+{% endif %}
+
+{% if polls %}
+<section aria-labelledby="h-polls" class="section">
+  <h2 id="h-polls">{{ _("Sondages ouverts") }}</h2>
+  <ul class="lists">
+    {% for poll in polls %}
+    <li class="card list-card">
+      {% if "voting" in enabled_modules %}
+      <a href="{{ url_for('voting.detail', code=event.code, poll_id=poll.id) }}">{{ poll.question }}</a>
+      {% else %}<span>{{ poll.question }}</span>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{% if lists %}
+<section aria-labelledby="h-lists" class="section">
+  <h2 id="h-lists">{{ _("Listes & to-do") }}</h2>
+  <ul class="lists">
+    {% for lst in lists %}
+    <li class="card list-card">
+      {% if "lists" in enabled_modules %}
+      <a href="{{ url_for('lists.detail', code=event.code, list_id=lst.id) }}">{{ lst.title }}</a>
+      {% else %}<span>{{ lst.title }}</span>{% endif %}
+      <span class="item-count">{{ lst.items.count() }} {{ _("articles") }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{% if not activities and not polls and not lists and not logistics_items %}
+<p class="empty">{{ _("Rien à afficher pour l'instant. Utilisez la navigation ci-dessus pour planifier, lister, voter, partager les frais…") }}</p>
 {% endif %}
 {% endblock %}

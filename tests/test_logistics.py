@@ -110,12 +110,12 @@ class TestLogisticsIndex:
         resp = client.get(f"/e/{event.code}/logistics")
         assert b"Aucune info pratique" in resp.data
 
-    def test_index_shows_edit_delete_only_for_creator(self, client, event, guest, logistics_item):
+    def test_index_shows_edit_for_guest_delete_only_for_creator(self, client, event, guest, logistics_item):
         _login_guest(client, event, guest)
         resp = client.get(f"/e/{event.code}/logistics")
         assert resp.status_code == 200
-        # Pas de lien d'édition ni de bouton de suppression pour un guest
-        assert f"/logistics/{logistics_item.id}/edit".encode() not in resp.data
+        # Collaboratif : le guest peut éditer, mais pas supprimer
+        assert f"/logistics/{logistics_item.id}/edit".encode() in resp.data
         assert f"/logistics/{logistics_item.id}/delete".encode() not in resp.data
 
 
@@ -281,15 +281,15 @@ class TestEditLogistics:
         assert logistics_item.content == "14 rue des Vignes"
         assert logistics_item.order == 1
 
-    def test_edit_forbidden_for_guest(self, client, event, guest, logistics_item, db):
+    def test_edit_allowed_for_guest(self, client, event, guest, logistics_item, db):
         _login_guest(client, event, guest)
         resp = client.post(
             f"/e/{event.code}/logistics/{logistics_item.id}/edit",
-            data={"title": "Hacked", "content": "x"},
+            data={"title": "Adresse corrigée", "content": "14 rue des Vignes", "category": "address"},
         )
-        assert resp.status_code == 403
+        assert resp.status_code == 302
         db.session.refresh(logistics_item)
-        assert logistics_item.title == "Adresse du gîte"
+        assert logistics_item.title == "Adresse corrigée"
 
     def test_edit_404_invalid_id(self, client, creator, event):
         _login_creator(client, creator)

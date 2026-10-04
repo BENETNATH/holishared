@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Media") }} — {{ event.title }}{% endblock %}
+{% block content %}
+<h1>{{ _("Media") }} — {{ event.title }}</h1>
+{% include "_event_nav.html" %}
+
+<form method="post" action="{{ url_for('media.upload', code=event.code) }}" enctype="multipart/form-data" class="expense-form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="form-grid">
+    <div class="field field-wide">
+      <label for="file">{{ _("Photo ou vidéo") }} *</label>
+      <input type="file" id="file" name="file" accept="image/jpeg,image/png,image/webp,image/heic,video/mp4,video/webm" required>
+    </div>
+    <div class="field field-wide">
+      <label for="caption">{{ _("Légende") }}</label>
+      <input type="text" id="caption" name="caption" maxlength="500">
+    </div>
+  </div>
+  <button type="submit" class="btn">{{ _("Téléverser") }}</button>
+</form>
+
+{% if items %}
+<div class="media-grid" role="list" aria-label="{{ _('Galerie') }}">
+  {% for item in items %}
+  <div class="media-item" role="listitem">
+    <a href="{{ url_for('media.detail', code=event.code, item_id=item.id) }}">
+      {% if item.mime_type.startswith("video/") %}
+      <video src="{{ url_for('media.file', code=event.code, item_id=item.id) }}" preload="metadata" muted></video>
+      {% else %}
+      <img src="{{ url_for('media.file', code=event.code, item_id=item.id) }}" alt="{{ item.caption or item.original_name }}" loading="lazy">
+      {% endif %}
+    </a>
+    {% if item.caption %}<div class="caption">{{ item.caption }}</div>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p class="empty">{{ _("Aucun media. Partagez les photos et vidéos du séjour.") }}</p>
+{% endif %}
+{% endblock %}

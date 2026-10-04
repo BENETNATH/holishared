@@ -188,7 +188,11 @@ def create(code: str) -> Response | str:
 
 @logistics_bp.route("/e/<code>/logistics/<item_id>/edit", methods=["GET", "POST"])
 def edit(code: str, item_id: str) -> Response | tuple[str, int] | str:
-    """Edit an existing practical info item (creator only)."""
+    """Edit an existing practical info item.
+
+    Collaborative: any participant (creator or guest) may complete or fix the
+    practical info (address, access, timing…). Deletion stays creator-only.
+    """
     event = _get_event_or_404(code)
     item = LogisticsItem.query.filter_by(id=item_id, event_id=event.id).first()
     if item is None:
@@ -196,8 +200,6 @@ def edit(code: str, item_id: str) -> Response | tuple[str, int] | str:
     guest, is_creator, denied = _resolve_actor(event, code)
     if denied is not None:
         return denied
-    if not is_creator:
-        return _("Pas autorisé."), 403
 
     action_url = url_for("logistics.edit", code=code, item_id=item.id)
 

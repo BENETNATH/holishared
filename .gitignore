@@ -21,6 +21,9 @@ instance/*.db-journal
 instance/*.db-wal
 instance/*.db-shm
 
+# Runtime media uploads
+instance/media/
+
 # Environment
 .env
 .env.local

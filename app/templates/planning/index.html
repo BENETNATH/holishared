@@ -2,6 +2,7 @@
 {% block title %}{{ _("Planning") }} — {{ event.title }}{% endblock %}
 {% block content %}
 <h1>{{ _("Planning") }} — {{ event.title }}</h1>
+{% include "_event_nav.html" %}
 
 <a href="{{ url_for('planning.create', code=event.code) }}" class="btn btn-primary">
   {{ _("Nouvelle activité") }}
