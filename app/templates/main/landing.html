@@ -9,7 +9,6 @@
 
     <div class="landing-actions">
         <a href="{{ url_for('events.create') }}" class="landing-card landing-card-primary">
-            <span class="landing-card-icon" aria-hidden="true">＋</span>
             <span class="landing-card-title">{{ _("Créer un événement") }}</span>
             <span class="landing-card-desc">{{ _("Vacances, week-end, projet…") }}</span>
         </a>
@@ -19,7 +18,7 @@
             <form method="post" action="{{ url_for('events.access_by_code') }}" class="code-form">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="text" name="code" class="code-input"
-                       placeholder="{{ _('Votre code (8 caractères)') }}"
+                       placeholder="{{ _("Votre code") }}"
                        pattern="[a-z0-9]{8}" required
                        autocomplete="off" spellcheck="false"
                        maxlength="8">
@@ -27,11 +26,5 @@
             </form>
         </div>
     </div>
-
-    <p class="landing-hint">
-        {{ _("Pas encore de code ?") }}
-        <a href="{{ url_for('events.create') }}">{{ _("Créez un événement") }}</a>
-        {{ _("pour en obtenir un.") }}
-    </p>
 </div>
 {% endblock %}
