@@ -11,6 +11,7 @@ dependencies = [
     "flask-sqlalchemy>=3.1",
     "flask-login>=0.6",
     "flask-babel>=4.0",
+    "flask-wtf>=1.2",
     "waitress>=3.0",
     "python-dotenv>=1.0",
     "pillow>=10.0",
@@ -54,10 +55,15 @@ ignore = [
     "S105",   # hardcoded password string (we use env vars)
     "S106",   # hardcoded password func arg
     "DTZ005", # datetime.now() in tests is fine
+    "DTZ007", # strptime parsing of user input (naive by design, B003)
+    "DTZ011", # date.today() for planning display (spec B003 §5.1)
 ]
 
 [tool.ruff.lint.isort]
 known-first-party = ["app"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]  # assert est l'idiome pytest
 
 [tool.mypy]
 python_version = "3.12"
@@ -66,6 +72,15 @@ warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
+
+# Third-party packages without type stubs
+[[tool.mypy.overrides]]
+module = [
+    "flask_babel.*",
+    "flask_login.*",
+    "flask_sqlalchemy.*",
+]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
