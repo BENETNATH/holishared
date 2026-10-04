@@ -93,7 +93,11 @@
             {% if messages %}
             <div aria-live="polite" role="status">
                 {% for category, message in messages %}
-                <div class="flash flash-{{ category }}">{{ message }}</div>
+                <div class="flash flash-{{ category }}">
+                    <span>{{ message }}</span>
+                    <button type="button" class="flash-close" @click="$el.closest('.flash').remove()"
+                            aria-label="{{ _('Fermer') }}">✕</button>
+                </div>
                 {% endfor %}
             </div>
             {% endif %}

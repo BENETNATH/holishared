@@ -65,14 +65,14 @@
     <tbody>
       {% for s in h_summary %}
       <tr>
-        <td>{{ s.household.name }}
+        <td data-label="{{ _('Foyer') }}">{{ s.household.name }}
           <span class="muted">({{ s.household.total_people }} pers., {{ s.household.total_weight }} parts)</span>
         </td>
-        <td>{{ s.household.num_adults }}</td>
-        <td>{{ s.household.num_children }}</td>
-        <td>{{ "%.2f"|format(s.share) }} €</td>
-        <td>{{ "%.2f"|format(s.paid) }} €</td>
-        <td class="{% if s.balance > 0 %}credit{% elif s.balance < 0 %}debit{% endif %}">
+        <td data-label="{{ _('Adultes') }}">{{ s.household.num_adults }}</td>
+        <td data-label="{{ _('Enfants') }}">{{ s.household.num_children }}</td>
+        <td data-label="{{ _('Part') }}">{{ "%.2f"|format(s.share) }} €</td>
+        <td data-label="{{ _('Payé') }}">{{ "%.2f"|format(s.paid) }} €</td>
+        <td data-label="{{ _('Solde') }}" class="{% if s.balance > 0 %}credit{% elif s.balance < 0 %}debit{% endif %}">
           {{ "%.2f"|format(s.balance) }} €
         </td>
         {% if is_creator %}
@@ -120,11 +120,11 @@
     <tbody>
       {% for exp in expenses %}
       <tr>
-        <td>{{ exp.date or "" }}</td>
-        <td>{{ exp.description }}</td>
-        <td><span class="tag">{{ exp.category }}</span></td>
-        <td>{{ "%.2f"|format(exp.amount_original) }} {{ exp.currency }}</td>
-        <td>{{ exp.paid_by.name if exp.paid_by else "" }}</td>
+        <td data-label="{{ _('Date') }}">{{ exp.date or "" }}</td>
+        <td data-label="{{ _('Description') }}">{{ exp.description }}</td>
+        <td data-label="{{ _('Catégorie') }}"><span class="tag">{{ exp.category }}</span></td>
+        <td data-label="{{ _('Montant') }}">{{ "%.2f"|format(exp.amount_original) }} {{ exp.currency }}</td>
+        <td data-label="{{ _('Payé par') }}">{{ exp.paid_by.name if exp.paid_by else "" }}</td>
         {% if is_creator %}
         <td>
           <form method="post" action="{{ url_for('costs.delete_expense', code=event.code, exp_id=exp.id) }}">
@@ -223,11 +223,11 @@
     <tbody>
       {% for t in transfers %}
       <tr>
-        <td>{{ t.from_household.name if t.from_household else "" }}</td>
-        <td>{{ t.to_household.name if t.to_household else "" }}</td>
-        <td>{{ "%.2f"|format(t.amount) }} €</td>
-        <td>{{ t.note }}</td>
-        <td>{{ t.date or "" }}</td>
+        <td data-label="{{ _('De') }}">{{ t.from_household.name if t.from_household else "" }}</td>
+        <td data-label="{{ _('À') }}">{{ t.to_household.name if t.to_household else "" }}</td>
+        <td data-label="{{ _('Montant') }}">{{ "%.2f"|format(t.amount) }} €</td>
+        <td data-label="{{ _('Note') }}">{{ t.note }}</td>
+        <td data-label="{{ _('Date') }}">{{ t.date or "" }}</td>
         {% if is_creator %}
         <td>
           <form method="post" action="{{ url_for('costs.delete_transfer', code=event.code, t_id=t.id) }}">

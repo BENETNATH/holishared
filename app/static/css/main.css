@@ -146,17 +146,20 @@ h4 {
 }
 
 h1 {
-  font-size: var(--text-4xl);
+  font-size: 1.75rem;
+  font-weight: 700;
   margin-bottom: var(--sp-2);
 }
 
 h2 {
-  font-size: var(--text-2xl);
+  font-size: 1.375rem;
+  font-weight: 600;
   margin-bottom: var(--sp-3);
 }
 
 h3 {
-  font-size: var(--text-xl);
+  font-size: 1.125rem;
+  font-weight: 600;
   margin-bottom: var(--sp-2);
 }
 
@@ -383,7 +386,7 @@ main.container {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: var(--sp-4);
+  padding: 1.25rem;
   margin-bottom: var(--sp-3);
   box-shadow: var(--shadow-sm);
 }
@@ -666,6 +669,29 @@ select {
   margin-bottom: 0;
 }
 
+.flash > span {
+  flex: 1;
+}
+
+.flash-close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: var(--text-sm);
+  line-height: 1;
+  padding: var(--sp-1);
+  border-radius: var(--radius-sm);
+  opacity: 0.65;
+  flex-shrink: 0;
+}
+
+.flash-close:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.08);
+}
+
 .flash-success {
   background: var(--success-soft);
   border-color: var(--success);
@@ -796,6 +822,48 @@ tfoot td {
   background: var(--surface-2);
 }
 
+/* Responsive tables: stack labelled cells into cards on narrow screens.
+   Falls back to horizontal scroll when :has() is unsupported. */
+@media (max-width: 640px) {
+  .table-wrap table:has(td[data-label]) {
+    thead {
+      display: none;
+    }
+    tbody tr {
+      display: block;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: var(--sp-2);
+      overflow: hidden;
+    }
+    tbody td {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--sp-3);
+      border-bottom: 1px solid var(--border);
+      padding: var(--sp-2) var(--sp-3);
+    }
+    tbody td:last-child {
+      border-bottom: none;
+    }
+    tbody td::before {
+      content: attr(data-label);
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    tbody td:has(> form) {
+      justify-content: flex-end;
+    }
+    tbody td:has(> form)::before {
+      content: none;
+    }
+  }
+}
+
 /* ---------- Empty states ---------- */
 .empty {
   color: var(--text-muted);
@@ -887,7 +955,7 @@ tfoot td {
    Planning
    ============================================================ */
 .day-header {
-  font-size: var(--text-xl);
+  font-size: var(--text-2xl);
   font-weight: 700;
   margin: var(--sp-5) 0 var(--sp-3);
   padding-bottom: var(--sp-2);
@@ -1283,7 +1351,6 @@ tfoot td {
 }
 
 .section > h2 {
-  font-size: var(--text-xl);
   margin-bottom: var(--sp-3);
 }
 
@@ -1428,7 +1495,6 @@ tfoot td {
 
 .section-head h2 {
   margin-bottom: 0;
-  font-size: var(--text-xl);
 }
 
 .info-grid {

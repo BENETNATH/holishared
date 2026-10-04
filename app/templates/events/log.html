@@ -24,11 +24,11 @@
   <tbody>
     {% for log in logs %}
     <tr>
-      <td>{{ log.created_at | format_datetime('short') }}</td>
-      <td>{{ log.actor_name }}</td>
-      <td><code>{{ log.action }}</code></td>
-      <td>{{ log.target or "" }}</td>
-      <td>{{ log.details or "" }}</td>
+      <td data-label="{{ _('Quand') }}">{{ log.created_at | format_datetime('short') }}</td>
+      <td data-label="{{ _('Qui') }}">{{ log.actor_name }}</td>
+      <td data-label="{{ _('Action') }}"><code>{{ log.action }}</code></td>
+      <td data-label="{{ _('Cible') }}">{{ log.target or "" }}</td>
+      <td data-label="{{ _('Détails') }}">{{ log.details or "" }}</td>
     </tr>
     {% endfor %}
   </tbody>

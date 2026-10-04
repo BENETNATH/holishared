@@ -1,4 +1,4 @@
-# Translations template for PROJECT.
+# English translations for PROJECT.
 # Copyright (C) 2026 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
@@ -11,7 +11,9 @@ msgstr ""
 "POT-Creation-Date: 2026-10-04 14:40+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: en\n"
+"Language-Team: en <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -704,4 +706,121 @@ msgstr "No media"
 
 msgid "Partagez les photos et vidéos du séjour pour les retrouver tous ensemble."
 msgstr "Share photos and videos from the trip to find them all together."
+
+msgid "0,5 par défaut : un enfant compte pour une demi-part."
+msgstr "0.5 by default: a child counts as half a share."
+
+msgid "1 adulte compte pour 1 part par défaut."
+msgstr "1 adult counts as 1 share by default."
+
+msgid "Accès refusé"
+msgstr "Access denied"
+
+msgid "Ajoutez des foyers pour partager les frais."
+msgstr "Add households to split the costs."
+
+msgid "Ajoutez les dépenses du séjour pour les répartir entre les foyers."
+msgstr "Add the trip's expenses to split them between households."
+
+msgid "Articles de la liste"
+msgstr "List items"
+
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Ex : 2 chaises, 1 nappe"
+msgstr "E.g. 2 chairs, 1 tablecloth"
+
+msgid "Ex : Adresse du gîte"
+msgstr "E.g. Gite address"
+
+msgid "Ex : Alice Martin"
+msgstr "E.g. Alice Martin"
+
+msgid "Ex : Alice, Bob…"
+msgstr "E.g. Alice, Bob…"
+
+msgid "Ex : Anniversaire de Léa"
+msgstr "E.g. Léa's birthday"
+
+msgid "Ex : Courses du samedi"
+msgstr "E.g. Saturday groceries"
+
+msgid "Ex : Famille Dupont"
+msgstr "E.g. Dupont family"
+
+msgid "Ex : Gîte de la Vallée, Annecy"
+msgstr "E.g. Gîte de la Vallée, Annecy"
+
+msgid "Ex : Pain, fromage…"
+msgstr "E.g. Bread, cheese…"
+
+msgid "Ex : Quel menu pour samedi ?"
+msgstr "E.g. What menu for Saturday?"
+
+msgid "Ex : Randonnée au lac"
+msgstr "E.g. Lake hike"
+
+msgid "Ex : alice42"
+msgstr "E.g. alice42"
+
+msgid "Ex : Épicerie"
+msgstr "E.g. Grocery"
+
+msgid "Fermer"
+msgstr "Close"
+
+msgid "Lancez la conversation !"
+msgstr "Start the conversation!"
+
+msgid "Le SaaS est opérationnel."
+msgstr "The SaaS is up and running."
+
+msgid "Marquer comme fait"
+msgstr "Mark as done"
+
+msgid "Navigation principale"
+msgstr "Main navigation"
+
+msgid "Partagez les photos et vidéos du séjour."
+msgstr "Share the trip photos and videos."
+
+msgid ""
+"Poisson\n"
+"Poulet\n"
+"Végétarien"
+msgstr ""
+"Fish\n"
+"Chicken\n"
+"Vegetarian"
+
+msgid "Quelques mots pour situer le contexte…"
+msgstr "A few words to set the context…"
+
+msgid "Résultats du sondage"
+msgstr "Poll results"
+
+msgid "Résumé"
+msgstr "Summary"
+
+msgid "Statut"
+msgstr "Status"
+
+msgid "Supprimer le message de"
+msgstr "Delete message from"
+
+msgid "alice@example.com"
+msgstr "alice@example.com"
+
+msgid "confirmés sur"
+msgstr "confirmed of"
+
+msgid "demande de paiement"
+msgstr "payment request"
+
+msgid "requis"
+msgstr "required"
+
+msgid "transfert"
+msgstr "transfer"
 
