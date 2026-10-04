@@ -56,21 +56,136 @@ def run(cmd, cwd=ROOT, shell=False, **kwargs):
 
 # === Commands ===
 
+def _interactive_env():
+    """Create .env interactively, generating secrets on the fly."""
+    env_file = ROOT / ".env"
+    if env_file.exists():
+        print("  [SKIP] .env already exists")
+        return
+
+    print("  Creating .env interactively...")
+    print()
+
+    # SECRET_KEY: always auto-generated
+    secret_key = secrets.token_hex(32)
+    print(f"  SECRET_KEY: auto-generated ({secret_key[:8]}...)")
+
+    # SUPERADMIN_EMAIL
+    while True:
+        email = input("  Superadmin email [admin@example.com]: ").strip()
+        if not email:
+            email = "admin@example.com"
+        if "@" in email:
+            break
+        print("  [ERROR] Invalid email, try again.")
+
+    # SUPERADMIN_PASSWORD
+    gen_pass = input("  Generate random password? [Y/n]: ").strip().lower()
+    if gen_pass in ("", "y", "yes"):
+        password = secrets.token_urlsafe(12)
+        print(f"  SUPERADMIN_PASSWORD: {password}")
+        print("  [!] Save this password, it won't be shown again.")
+    else:
+        while True:
+            password = input("  Superadmin password (min 8 chars): ").strip()
+            if len(password) >= 8:
+                break
+            print("  [ERROR] Password too short (min 8 chars).")
+
+    # NGINX_PORT
+    port = input("  Nginx port [8080]: ").strip()
+    if not port or not port.isdigit():
+        port = "8080"
+
+    # APP_DOMAIN
+    domain = input("  App domain [localhost]: ").strip()
+    if not domain:
+        domain = "localhost"
+
+    # APP_URL
+    scheme = "https" if domain != "localhost" else "http"
+    app_url = f"{scheme}://{domain}:{port}"
+
+    env_content = f"""# === Holishared Configuration ===
+
+# === Docker / Nginx ===
+NGINX_PORT={port}
+
+# === Serveur ===
+APP_HOST=0.0.0.0
+APP_PORT=8400
+APP_THREADS=4
+
+# === Sécurité ===
+SECRET_KEY={secret_key}
+SESSION_COOKIE_SECURE={'true' if domain != 'localhost' else 'false'}
+SESSION_COOKIE_HTTPONLY=true
+PERMANENT_SESSION_LIFETIME=86400
+
+# === Base de données ===
+DATABASE_URL=sqlite:///instance/holishared.db
+
+# === Superadmin ===
+SUPERADMIN_EMAIL={email}
+SUPERADMIN_PASSWORD={password}
+
+# === Domaine ===
+APP_DOMAIN={domain}
+APP_URL={app_url}
+
+# === Freemium ===
+MAX_GUESTS_PER_EVENT=10
+MAX_DURATION_DAYS=30
+MAX_EVENTS_PER_CREATOR=3
+ENABLED_MODULES=planning,lists,logistics,voting,media,chat,costs
+
+# === Push notifications ===
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+VAPID_CLAIMS_SUBJECT=mailto:{email}
+
+# === Anti-abus ===
+RATE_LIMIT_CREATE=5/hour
+RATE_LIMIT_INVITE=20/hour
+BLOCKED_EMAIL_DOMAINS=mailinator.com,temp-mail.com,10minutemail.com,guerrillamail.com,yopmail.com,throwaway.email
+
+# === Email ===
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASSWORD=
+SMTP_FROM=holishared@{domain}
+
+# === i18n ===
+DEFAULT_LANGUAGE=fr
+SUPPORTED_LANGUAGES=fr,en
+
+# === Logs ===
+LOG_LEVEL=INFO
+LOG_FILE=logs/app.log
+"""
+    env_file.write_text(env_content)
+    print(f"  [OK] .env created: {env_file}")
+
+
 def cmd_init():
-    """Initialize the project: venv, deps, DB."""
-    print("[1/4] Creating virtualenv...")
+    """Initialize the project: .env, venv, deps, DB."""
+    print("[1/5] Creating .env (interactive)...")
+    _interactive_env()
+
+    print("[2/5] Creating virtualenv...")
     if VENV.exists():
         print("  [SKIP] .venv already exists")
     else:
         run([sys.executable, "-m", "venv", str(VENV)])
 
-    print("[2/4] Installing dependencies...")
+    print("[3/5] Installing dependencies...")
     run([str(venv_pip()), "install", "-q", "-r", str(ROOT / "requirements.txt")])
 
-    print("[3/4] Creating logs directory...")
+    print("[4/5] Creating logs directory...")
     LOG_DIR.mkdir(exist_ok=True)
 
-    print("[4/4] Initializing database...")
+    print("[5/5] Initializing database...")
     run([str(venv_python()), "-c", """
 import sys; sys.path.insert(0, '.')
 from app import create_app
@@ -81,7 +196,7 @@ with app.app_context():
     print('  [OK] Database initialized')
 """])
     print("\n[OK] Init complete.")
-    print("Next: edit .env (SECRET_KEY, SUPERADMIN_*) then 'python manage.py run'")
+    print("Next: python manage.py run  (dev)  or  docker compose up -d  (prod)")
 
 
 def cmd_run():
