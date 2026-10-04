@@ -63,17 +63,17 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B003 — Blueprint Planning (activités + RSVP)
 
-**Statut** : ⬜
+**Statut** : ✅
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
 | 3.1 | Route création activité | POST avec titre, date, heure, lieu, min_headcount |
 | 3.2 | Route liste activités | GET par date, tri chronologique |
 | 3.3 | Route RSVP | POST yes/no/maybe, 1 par invité |
-| 3.4 | Route modification activité | PUT (créateur ou créateur de l'activité) |
-| 3.5 | Route suppression activité | DELETE (créateur) |
+| 3.4 | Route modification activité | POST (créateur ou créateur de l'activité) |
+| 3.5 | Route suppression activité | POST (créateur) |
 | 3.6 | Template planning | Liste + formulaire + RSVP buttons |
-| 3.7 | Tests | CRUD + RSVP + permissions |
+| 3.7 | Tests | CRUD + RSVP + permissions (45 tests) |
 
 ---
 

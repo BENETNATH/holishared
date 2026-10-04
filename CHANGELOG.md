@@ -10,6 +10,14 @@ sous chaque lot.
 
 ## [Unreleased]
 
+### B003 — Blueprint Planning (activités + RSVP)
+- [x] Helper log_action() (app/utils.py)
+- [x] Modèle ActivityLog (app/models.py)
+- [x] Blueprint planning : 5 routes (index, create, edit, delete, rsvp)
+- [x] Templates planning (index + form) + erreurs 403/404
+- [x] CSRFProtect + flask-wtf
+- [x] 45 tests passent (tests/test_planning.py)
+
 ### B002 — Tracabilité (ActivityLog)
 - [ ] Modèle ActivityLog
 - [ ] Helper log_action()

@@ -180,12 +180,13 @@ Fonctions dans `app/freemium.py` :
 | — | Infra | `nginx/saas.conf`, `systemd/saas.service`, `manage.py`, `requirements.txt` | Déploiement |
 | — | **Tracabilité** | `app/models.py` (ActivityLog) | Log de chaque action, visible par tous |
 | — | **Media + quota** | `app/models.py` (MediaItem, MediaQuota), `app/freemium.py` | Partage photos/vidéos + GPS + datation, quota par tier |
+| — | **B003 Planning** | `app/planning/__init__.py`, `app/utils.py`, `app/models.py` (ActivityLog), `app/templates/planning/` | 5 routes (index/create/edit/delete/rsvp), helper log_action(), 45 tests verts |
 
 ### À faire (backlog)
 
 | Priorité | Tâche | Statut |
 |----------|-------|--------|
-| P0 | Blueprint `planning/` (activités + RSVP) | ⬜ |
+| P0 | Blueprint `planning/` (activités + RSVP) | ✅ B003 |
 | P0 | Blueprint `lists/` (listes partagées) | ⬜ |
 | P0 | Blueprint `logistics/` (infos pratiques) | ⬜ |
 | P0 | Blueprint `voting/` (sondages) | ⬜ |
