@@ -1,7 +1,12 @@
 {% extends "base.html" %}
-{% block title %}{% if item %}{{ _("Modifier") }}{% else %}{{ _("Ajouter une info") }}{% endif %}{% endblock %}
+{% block title %}{% if item %}{{ _("Modifier") }}{% else %}{{ _("Ajouter une info") }}{% endif %} — {{ event.title }}{% endblock %}
 {% block content %}
-<h1>{% if item %}{{ _("Modifier") }}{% else %}{{ _("Ajouter une info") }}{% endif %}</h1>
+<div class="page-head">
+    <div>
+        <h1>{% if item %}{{ _("Modifier l'info") }}{% else %}{{ _("Ajouter une info") }}{% endif %}</h1>
+        <p class="page-sub">{{ event.title }}</p>
+    </div>
+</div>
 
 {% if errors %}
 <ul class="errors" aria-live="assertive">
@@ -15,7 +20,7 @@
   <div class="form-group">
     <label for="title">{{ _("Titre") }} *</label>
     <input type="text" id="title" name="title" required minlength="2" maxlength="200"
-           value="{{ form_data.get('title', '') }}">
+           value="{{ form_data.get('title', '') }}" placeholder="{{ _('Ex : Adresse du gîte') }}">
   </div>
 
   <div class="form-group">
@@ -23,20 +28,23 @@
     <textarea id="content" name="content" rows="5" required maxlength="5000">{{ form_data.get('content', '') }}</textarea>
   </div>
 
-  <div class="form-group">
-    <label for="category">{{ _("Catégorie") }}</label>
-    <select id="category" name="category">
-      {% for value, label in category_labels.items() %}
-      <option value="{{ value }}"{% if form_data.get('category', 'general') == value %} selected{% endif %}>{{ label }}</option>
-      {% endfor %}
-    </select>
+  <div class="form-grid">
+    <div class="form-group">
+      <label for="category">{{ _("Catégorie") }}</label>
+      <select id="category" name="category">
+        {% for value, label in category_labels.items() %}
+        <option value="{{ value }}"{% if form_data.get('category', 'general') == value %} selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="order">{{ _("Ordre d'affichage") }}</label>
+      <input type="number" id="order" name="order" value="{{ form_data.get('order', 0) }}">
+    </div>
   </div>
 
-  <div class="form-group">
-    <label for="order">{{ _("Ordre d'affichage") }}</label>
-    <input type="number" id="order" name="order" value="{{ form_data.get('order', 0) }}">
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">{% if item %}{{ _("Enregistrer") }}{% else %}{{ _("Créer l'info") }}{% endif %}</button>
   </div>
-
-  <button type="submit">{% if item %}{{ _("Modifier") }}{% else %}{{ _("Créer") }}{% endif %}</button>
 </form>
 {% endblock %}

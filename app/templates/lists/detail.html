@@ -2,9 +2,14 @@
 {% block title %}{{ shared_list.title }} — {{ event.title }}{% endblock %}
 {% block content %}
 {% set actor_name = guest.display_name if guest else (current_user.display_name or "Créateur") %}
-<p><a href="{{ url_for('lists.index', code=event.code) }}">&larr; {{ _("Listes") }}</a></p>
-<h1>{{ shared_list.title }}</h1>
-{% if shared_list.list_type %}<span class="tag">{{ _(shared_list.list_type) }}</span>{% endif %}
+<p class="back-link"><a href="{{ url_for('lists.index', code=event.code) }}">&larr; {{ _("Listes") }}</a></p>
+
+<div class="page-head">
+    <div>
+        <h1>{{ shared_list.title }}</h1>
+        {% if shared_list.list_type %}<span class="tag">{{ _(shared_list.list_type) }}</span>{% endif %}
+    </div>
+</div>
 
 {% if errors %}
 <ul class="errors" aria-live="assertive">
@@ -22,11 +27,11 @@
                {% if item.is_done %}checked{% endif %}
                onchange="this.form.submit()"
                aria-label="{{ _('Marquer comme fait') }}: {{ item.name }}">
-        {{ item.name }}
+        <span class="item-name">{{ item.name }}</span>
       </label>
     </form>
     {% if item.quantity and item.quantity != "1" %}<span class="qty">{{ item.quantity }}</span>{% endif %}
-    {% if item.section %}<span class="section">{{ item.section }}</span>{% endif %}
+    {% if item.section %}<span class="item-section">{{ item.section }}</span>{% endif %}
 
     {% if item.assigned_to %}
       <span class="assigned">{{ _("À") }} : <strong>{{ item.assigned_to }}</strong></span>
@@ -39,56 +44,61 @@
     {% else %}
       <form method="post" action="{{ url_for('lists.claim_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="btn btn-small">{{ _("Je m'occupe de ça") }}</button>
+        <button type="submit" class="btn btn-small btn-primary">{{ _("Je m'occupe de ça") }}</button>
       </form>
     {% endif %}
 
     <form method="post" action="{{ url_for('lists.delete_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button type="submit" class="btn btn-danger"
+      <button type="submit" class="btn btn-small btn-danger"
               aria-label="{{ _('Supprimer') }}: {{ item.name }}">{{ _("Supprimer") }}</button>
     </form>
   </li>
   {% else %}
-  <li class="empty">{{ _("Aucun article dans cette liste.") }}</li>
+  <li class="empty">{{ _("Aucun article dans cette liste. Ajoutez le premier ci-dessous.") }}</li>
   {% endfor %}
 </ul>
 
-<h2>{{ _("Ajouter un article") }}</h2>
-<form method="post" action="{{ url_for('lists.add_item', code=event.code, list_id=shared_list.id) }}">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="card add-item-card">
+  <h2>{{ _("Ajouter un article") }}</h2>
+  <form method="post" action="{{ url_for('lists.add_item', code=event.code, list_id=shared_list.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-  <div class="form-group">
-    <label for="name">{{ _("Nom") }} *</label>
-    <input type="text" id="name" name="name" required maxlength="300"
-           value="{{ form_data.get('name', '') }}">
-  </div>
+    <div class="form-grid">
+      <div class="form-group field-wide">
+        <label for="name">{{ _("Nom") }} *</label>
+        <input type="text" id="name" name="name" required maxlength="300"
+               value="{{ form_data.get('name', '') }}" placeholder="{{ _('Ex : Pain, fromage…') }}">
+      </div>
+      <div class="form-group">
+        <label for="quantity">{{ _("Quantité") }}</label>
+        <input type="text" id="quantity" name="quantity" maxlength="50"
+               value="{{ form_data.get('quantity', '1') }}">
+      </div>
+      <div class="form-group">
+        <label for="section">{{ _("Section") }}</label>
+        <input type="text" id="section" name="section" maxlength="100"
+               value="{{ form_data.get('section', '') }}" placeholder="{{ _('Ex : Épicerie') }}">
+      </div>
+      <div class="form-group">
+        <label for="assigned_to">{{ _("Assigné à") }}</label>
+        <input type="text" id="assigned_to" name="assigned_to" maxlength="50"
+               value="{{ form_data.get('assigned_to', '') }}">
+      </div>
+    </div>
 
-  <div class="form-group">
-    <label for="quantity">{{ _("Quantité") }}</label>
-    <input type="text" id="quantity" name="quantity" maxlength="50"
-           value="{{ form_data.get('quantity', '1') }}">
-  </div>
-
-  <div class="form-group">
-    <label for="section">{{ _("Section") }}</label>
-    <input type="text" id="section" name="section" maxlength="100"
-           value="{{ form_data.get('section', '') }}">
-  </div>
-
-  <div class="form-group">
-    <label for="assigned_to">{{ _("Assigné à") }}</label>
-    <input type="text" id="assigned_to" name="assigned_to" maxlength="50"
-           value="{{ form_data.get('assigned_to', '') }}">
-  </div>
-
-  <button type="submit" class="btn btn-primary">{{ _("Ajouter") }}</button>
-</form>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">{{ _("Ajouter") }}</button>
+    </div>
+  </form>
+</div>
 
 {% if is_creator %}
-<form method="post" action="{{ url_for('lists.delete_list', code=event.code, list_id=shared_list.id) }}">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  <button type="submit" class="btn btn-danger">{{ _("Supprimer la liste") }}</button>
-</form>
+<div class="danger-zone">
+  <form method="post" action="{{ url_for('lists.delete_list', code=event.code, list_id=shared_list.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-danger-solid">{{ _("Supprimer la liste") }}</button>
+  </form>
+</div>
 {% endif %}
 {% endblock %}

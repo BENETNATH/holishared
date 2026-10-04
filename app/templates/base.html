@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#1e293b">
+    <meta name="theme-color" content="#0f766e">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
     <title>{% block title %}holishared{% endblock %}</title>
@@ -17,8 +17,25 @@
 <body>
     <header class="site-header">
         <div class="container">
-            <a href="/" style="font-weight: 700; font-size: 1.125rem;">holishared</a>
-            <nav>
+            <a href="/" class="brand" aria-label="holishared">
+                <span class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="4" fill="currentColor"/>
+                        <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <line x1="12" y1="2.5" x2="12" y2="5"/>
+                            <line x1="12" y1="19" x2="12" y2="21.5"/>
+                            <line x1="2.5" y1="12" x2="5" y2="12"/>
+                            <line x1="19" y1="12" x2="21.5" y2="12"/>
+                            <line x1="5.3" y1="5.3" x2="7" y2="7"/>
+                            <line x1="17" y1="17" x2="18.7" y2="18.7"/>
+                            <line x1="5.3" y1="18.7" x2="7" y2="17"/>
+                            <line x1="17" y1="7" x2="18.7" y2="5.3"/>
+                        </g>
+                    </svg>
+                </span>
+                <span>holishared</span>
+            </a>
+            <nav aria-label="{{ _('Navigation principale') }}">
                 <ul class="nav-links">
                     {% if current_event %}
                     <li><a href="{{ url_for('events.dashboard', code=current_event.code) }}" class="{% if request.endpoint and request.endpoint.startswith('events.dashboard') %}active{% endif %}">{{ current_event.title[:20] }}{% if current_event.title|length > 20 %}…{% endif %}</a></li>
@@ -43,7 +60,6 @@
                     {% if "chat" in enabled_modules %}
                     <li><a href="{{ url_for('chat.index', code=current_event.code) }}" class="{% if request.endpoint and request.endpoint.startswith('chat') %}active{% endif %}">{{ _("Chat") }}</a></li>
                     {% endif %}
-                    <li><a href="{{ url_for('events.members', code=current_event.code) }}" class="{% if request.endpoint and request.endpoint.startswith('events.members') %}active{% endif %}">{{ _("Membres") }}</a></li>
                     {% if current_user.is_authenticated %}
                     <li><a href="{{ url_for('events.invite', code=current_event.code) }}" class="{% if request.endpoint and request.endpoint.startswith('events.invite') %}active{% endif %}">{{ _("Inviter") }}</a></li>
                     {% endif %}
@@ -58,8 +74,9 @@
                     {% endif %}
                     <li x-data="{ open: false }" class="relative">
                         <button @click="open = !open" @click.outside="open = false"
-                                class="bg-transparent border-none cursor-pointer text-sm" aria-label="Language">
-                            {% if current_lang == 'en' %}EN{% else %}FR{% endif %} ▾
+                                class="lang-toggle" aria-label="Language" aria-haspopup="true" :aria-expanded="open">
+                            {% if current_lang == 'en' %}EN{% else %}FR{% endif %}
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
                         </button>
                         <ul x-show="open" x-transition class="lang-dropdown">
                             <li><a href="?lang=fr" @click="open = false">Français</a></li>
@@ -85,7 +102,7 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="site-footer" style="text-align: center; padding: 2rem 1rem; color: var(--text-muted); font-size: 0.8125rem;">
+    <footer class="site-footer">
         holishared — {{ _("Planification de vacances en groupe") }}
     </footer>
 

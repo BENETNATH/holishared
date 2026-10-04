@@ -1,11 +1,20 @@
 {% extends "base.html" %}
+{% block title %}{{ _("Invitations") }} — {{ event.title }}{% endblock %}
 {% block content %}
-<h1>{{ _("Invitations") }} — {{ event.title }}</h1>
+<div class="page-head">
+    <div>
+        <h1>{{ _("Invitations") }}</h1>
+        <p class="page-sub">{{ event.title }} · {{ event.guest_count }} / {{ config.MAX_GUESTS_PER_EVENT }} {{ _("invités") }}</p>
+    </div>
+</div>
 
 <div class="invite-box">
-  <label for="invite-url">{{ _("Lien d'invitation") }} :</label>
-  <input type="text" id="invite-url" value="{{ invite_url }}" readonly onclick="this.select()">
-  <button class="btn btn-small" onclick="navigator.clipboard.writeText('{{ invite_url }}')">{{ _("Copier") }}</button>
+  <h2>{{ _("Partager l'événement") }}</h2>
+  <div class="url-row">
+    <label for="invite-url" class="sr-only">{{ _("Lien d'invitation") }}</label>
+    <input type="text" id="invite-url" value="{{ invite_url }}" readonly onclick="this.select()">
+    <button class="btn btn-secondary" onclick="navigator.clipboard.writeText('{{ invite_url }}')">{{ _("Copier") }}</button>
+  </div>
 
   <div class="invite-qr">
     <img src="{{ url_for('events.invite_qr', code=event.code) }}" alt="{{ _("QR code d'invitation") }}" width="220" height="220">
@@ -20,9 +29,11 @@
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="form-group">
       <label for="invite-email">{{ _("Adresse email de l'invité") }}</label>
-      <input type="email" id="invite-email" name="email" required>
+      <input type="email" id="invite-email" name="email" required autocomplete="email">
     </div>
-    <button type="submit" class="btn btn-primary">{{ _("Envoyer l'invitation") }}</button>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">{{ _("Envoyer l'invitation") }}</button>
+    </div>
   </form>
 </div>
 
@@ -37,7 +48,7 @@
       {% if g.email %}
       <form method="post" action="{{ url_for('events.invite_resend', code=event.code, guest_id=g.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="btn btn-small">{{ _("Renvoyer") }}</button>
+        <button type="submit" class="btn btn-small btn-secondary">{{ _("Renvoyer") }}</button>
       </form>
       {% else %}
       <span class="hint">{{ _("pas d'email") }}</span>
@@ -47,6 +58,4 @@
   </ul>
 </div>
 {% endif %}
-
-<p>{{ event.guest_count }} / {{ config.MAX_GUESTS_PER_EVENT }} {{ _("invités") }}</p>
 {% endblock %}

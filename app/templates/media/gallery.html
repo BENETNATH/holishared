@@ -1,7 +1,12 @@
 {% extends "base.html" %}
 {% block title %}{{ _("Media") }} — {{ event.title }}{% endblock %}
 {% block content %}
-<h1>{{ _("Media") }} — {{ event.title }}</h1>
+<div class="page-head">
+    <div>
+        <h1>{{ _("Media") }}</h1>
+        <p class="page-sub">{{ event.title }} · {{ _("Photos et vidéos du séjour") }}</p>
+    </div>
+</div>
 
 <form method="post" action="{{ url_for('media.upload', code=event.code) }}" enctype="multipart/form-data" class="expense-form">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -15,7 +20,7 @@
       <input type="text" id="caption" name="caption" maxlength="500">
     </div>
   </div>
-  <button type="submit" class="btn">{{ _("Téléverser") }}</button>
+  <button type="submit" class="btn btn-primary">{{ _("Téléverser") }}</button>
 </form>
 
 {% if items %}
@@ -34,6 +39,10 @@
   {% endfor %}
 </div>
 {% else %}
-<p class="empty">{{ _("Aucun media. Partagez les photos et vidéos du séjour.") }}</p>
+<div class="empty-state">
+  <span class="empty-icon" aria-hidden="true">📷</span>
+  <h3>{{ _("Aucun media") }}</h3>
+  <p>{{ _("Partagez les photos et vidéos du séjour.") }}</p>
+</div>
 {% endif %}
 {% endblock %}

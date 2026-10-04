@@ -1,22 +1,42 @@
 {% extends "base.html" %}
-{% block title %}Login - SaaS{% endblock %}
+{% block title %}{{ _("Connexion") }} — holishared{% endblock %}
 {% block content %}
-<div style="max-width: 400px; margin: 4rem auto;">
-    <div class="card">
-        <h1 style="margin-bottom: 1.5rem; font-size: 1.5rem;">Connexion</h1>
+<div class="auth-wrap">
+    <div class="card auth-card">
+        <div class="auth-brand" aria-hidden="true">
+            <span class="brand-mark">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="4" fill="currentColor"/>
+                    <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <line x1="12" y1="2.5" x2="12" y2="5"/>
+                        <line x1="12" y1="19" x2="12" y2="21.5"/>
+                        <line x1="2.5" y1="12" x2="5" y2="12"/>
+                        <line x1="19" y1="12" x2="21.5" y2="12"/>
+                        <line x1="5.3" y1="5.3" x2="7" y2="7"/>
+                        <line x1="17" y1="17" x2="18.7" y2="18.7"/>
+                        <line x1="5.3" y1="18.7" x2="7" y2="17"/>
+                        <line x1="17" y1="7" x2="18.7" y2="5.3"/>
+                    </g>
+                </svg>
+            </span>
+        </div>
+        <h1>{{ _("Connexion") }}</h1>
+        <p class="auth-sub">{{ _("Accédez à vos événements.") }}</p>
         <form method="POST" action="{{ url_for('auth.login', next=request.args.get('next', '')) }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-group">
-                <label for="email">Email</label>
+                <label for="email">{{ _("Email") }}</label>
                 <input type="email" id="email" name="email" required autofocus
-                       x-data="{ value: '' }" x-model="value" placeholder="admin@example.com">
+                       x-data="{ value: '' }" x-model="value" placeholder="admin@example.com"
+                       autocomplete="email">
             </div>
             <div class="form-group">
-                <label for="password">Mot de passe</label>
-                <input type="password" id="password" name="password" required placeholder="••••••••">
+                <label for="password">{{ _("Mot de passe") }}</label>
+                <input type="password" id="password" name="password" required
+                       placeholder="••••••••" autocomplete="current-password">
             </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem;">
-                Se connecter
+            <button type="submit" class="btn btn-primary auth-submit">
+                {{ _("Se connecter") }}
             </button>
         </form>
     </div>

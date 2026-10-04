@@ -1,6 +1,15 @@
 {% extends "base.html" %}
+{% block title %}{{ _("Mes événements") }} — holishared{% endblock %}
 {% block content %}
-<h1>{{ _("Mes événements") }}</h1>
+<div class="page-head">
+    <div>
+        <h1>{{ _("Mes événements") }}</h1>
+        <p class="page-sub">{{ _("Retrouvez vos événements et leurs invités.") }}</p>
+    </div>
+    <div class="head-actions">
+        <a href="{{ url_for('events.create') }}" class="btn btn-primary">{{ _("Nouvel événement") }}</a>
+    </div>
+</div>
 
 {% if events %}
 <ul class="event-list">
@@ -12,8 +21,11 @@
   {% endfor %}
 </ul>
 {% else %}
-<p>{{ _("Aucun événement. Créez-en un !") }}</p>
+<div class="empty-state">
+  <span class="empty-icon" aria-hidden="true">📅</span>
+  <h3>{{ _("Aucun événement") }}</h3>
+  <p>{{ _("Créez votre premier événement pour commencer à planifier avec vos proches.") }}</p>
+  <a href="{{ url_for('events.create') }}" class="btn btn-primary">{{ _("Créer un événement") }}</a>
+</div>
 {% endif %}
-
-<a href="{{ url_for('events.create') }}" class="btn btn-primary">{{ _("Nouvel événement") }}</a>
 {% endblock %}

@@ -1,27 +1,29 @@
 {% extends "base.html" %}
-{% block title %}{{ _("Membres") }} - {{ event.title }}{% endblock %}
+{% block title %}{{ _("Membres") }} — {{ event.title }}{% endblock %}
 {% block content %}
-<div class="page-header">
-    <h1>{{ _("Membres") }}</h1>
-    <p class="meta">{{ event.title }} · {{ guests|length }} {{ _("membres") }}</p>
+<div class="page-head">
+    <div>
+        <h1>{{ _("Membres") }}</h1>
+        <p class="page-sub">{{ event.title }} · {{ guests|length }} {{ _("membres") }}</p>
+    </div>
 </div>
 
 {% if is_creator %}
 <section class="section" aria-labelledby="h-add">
     <h2 id="h-add">{{ _("Ajouter un membre") }}</h2>
-    <form method="POST" class="form-inline">
+    <form method="POST" class="expense-form">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="action" value="add">
-        <div class="form-row">
+        <div class="form-grid">
             <div class="form-group">
-                <label for="display_name">{{ _("Nom") }}</label>
+                <label for="display_name">{{ _("Nom") }} *</label>
                 <input type="text" id="display_name" name="display_name" required minlength="2" maxlength="50"
                        placeholder="{{ _('Ex : Alice Martin') }}">
             </div>
             <div class="form-group">
                 <label for="email">{{ _("Email") }} <span class="optional">({{ _("optionnel") }})</span></label>
                 <input type="email" id="email" name="email" maxlength="255"
-                       placeholder="{{ _('alice@example.com') }}">
+                       placeholder="{{ _('alice@example.com') }}" autocomplete="off">
             </div>
             <div class="form-group form-group--action">
                 <button type="submit" class="btn btn-primary">{{ _("Ajouter") }}</button>
@@ -58,7 +60,11 @@
         {% endfor %}
     </div>
     {% else %}
-    <p class="empty">{{ _("Aucun membre pour l'instant. ") }}{% if is_creator %}{{ _("Ajoutez des invités ci-dessus ou partagez le lien d'invitation.") }}{% else %}{{ _("Le créateur peut vous ajouter.") }}{% endif %}</p>
+    <div class="empty-state">
+      <span class="empty-icon" aria-hidden="true">👥</span>
+      <h3>{{ _("Aucun membre pour l'instant") }}</h3>
+      <p>{% if is_creator %}{{ _("Ajoutez des invités ci-dessus ou partagez le lien d'invitation.") }}{% else %}{{ _("Le créateur peut vous ajouter.") }}{% endif %}</p>
+    </div>
     {% endif %}
 </section>
 {% endblock %}

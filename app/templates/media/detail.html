@@ -1,8 +1,13 @@
 {% extends "base.html" %}
 {% block title %}{{ item.caption or item.original_name }} — {{ event.title }}{% endblock %}
 {% block content %}
-<p><a href="{{ url_for('media.gallery', code=event.code) }}">&larr; {{ _("Galerie") }}</a></p>
-<h1>{{ item.caption or item.original_name }}</h1>
+<p class="back-link"><a href="{{ url_for('media.gallery', code=event.code) }}">&larr; {{ _("Galerie") }}</a></p>
+
+<div class="page-head">
+    <div>
+        <h1>{{ item.caption or item.original_name }}</h1>
+    </div>
+</div>
 
 <figure class="media-detail">
   {% if item.mime_type.startswith("video/") %}
@@ -20,7 +25,7 @@
 {% if is_creator or (guest and guest.id == item.uploaded_by) %}
 <form method="post" action="{{ url_for('media.delete', code=event.code, item_id=item.id) }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  <button type="submit" class="btn btn-danger">{{ _("Supprimer") }}</button>
+  <button type="submit" class="btn btn-danger-solid">{{ _("Supprimer") }}</button>
 </form>
 {% endif %}
 {% endblock %}

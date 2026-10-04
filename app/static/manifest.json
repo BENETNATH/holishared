@@ -4,8 +4,8 @@
   "description": "Planification de vacances et événements en groupe",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#1e293b",
+  "background_color": "#f6f4f0",
+  "theme_color": "#0f766e",
   "orientation": "portrait-primary",
   "icons": [
     {

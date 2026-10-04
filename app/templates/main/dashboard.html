@@ -1,18 +1,16 @@
 {% extends "base.html" %}
-{% block title %}Dashboard - SaaS{% endblock %}
+{% block title %}Dashboard — holishared{% endblock %}
 {% block content %}
-<h1 style="margin-bottom: 1.5rem;">Dashboard</h1>
-
-<div class="card">
-    <h2 style="font-size: 1.125rem; margin-bottom: 0.5rem;">Bienvenue</h2>
-    <p style="color: var(--text-muted);">
-        Le SaaS est opérationnel. Ajoutez vos features ici.
-    </p>
+<div class="page-head">
+    <div>
+        <h1>{{ _("Dashboard") }}</h1>
+        <p class="page-sub">{{ _("Le SaaS est opérationnel.") }}</p>
+    </div>
 </div>
 
-<div class="card" x-data="{ loaded: false }" x-init="loaded = true">
-    <h2 style="font-size: 1.125rem; margin-bottom: 0.5rem;">Statut</h2>
-    <p x-show="loaded" style="color: var(--success);">
+<div class="card">
+    <h2>{{ _("Statut") }}</h2>
+    <p class="status-ok" x-data="{ loaded: false }" x-init="loaded = true" x-show="loaded">
         ✓ Flask + HTMX + Alpine.js opérationnels
     </p>
 </div>

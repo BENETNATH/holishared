@@ -1,14 +1,23 @@
 {% extends "base.html" %}
 {% block title %}{{ _("Infos pratiques") }} — {{ event.title }}{% endblock %}
 {% block content %}
-<h1>{{ _("Infos pratiques") }} — {{ event.title }}</h1>
-
-<a href="{{ url_for('logistics.create', code=event.code) }}" class="btn btn-primary">
-  {{ _("Ajouter une info") }}
-</a>
+<div class="page-head">
+    <div>
+        <h1>{{ _("Infos pratiques") }}</h1>
+        <p class="page-sub">{{ event.title }} · {{ _("Adresse, accès, horaires, documents…") }}</p>
+    </div>
+    <div class="head-actions">
+        <a href="{{ url_for('logistics.create', code=event.code) }}" class="btn btn-primary">{{ _("Ajouter une info") }}</a>
+    </div>
+</div>
 
 {% if not items %}
-  <p class="empty">{{ _("Aucune info pratique. Ajoutez l'adresse, l'accès, les horaires…") }}</p>
+  <div class="empty-state">
+    <span class="empty-icon" aria-hidden="true">📌</span>
+    <h3>{{ _("Aucune info pratique") }}</h3>
+    <p>{{ _("Ajoutez l'adresse, l'accès, les horaires… pour que tout le monde soit au courant.") }}</p>
+    <a href="{{ url_for('logistics.create', code=event.code) }}" class="btn btn-primary">{{ _("Ajouter une info") }}</a>
+  </div>
 {% else %}
   {% for category, cat_items in items | groupby("category") %}
     <section aria-labelledby="cat-{{ category }}">
@@ -17,13 +26,15 @@
         <div class="card logistics-card">
           <h3>{{ item.title }}</h3>
           <p>{{ item.content }}</p>
-          <a href="{{ url_for('logistics.edit', code=event.code, item_id=item.id) }}">{{ _("Modifier") }}</a>
-          {% if is_creator %}
-          <form method="post" action="{{ url_for('logistics.delete', code=event.code, item_id=item.id) }}">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="btn btn-danger">{{ _("Supprimer") }}</button>
-          </form>
-          {% endif %}
+          <div class="card-actions">
+            <a href="{{ url_for('logistics.edit', code=event.code, item_id=item.id) }}" class="btn btn-small btn-secondary">{{ _("Modifier") }}</a>
+            {% if is_creator %}
+            <form method="post" action="{{ url_for('logistics.delete', code=event.code, item_id=item.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-small btn-danger">{{ _("Supprimer") }}</button>
+            </form>
+            {% endif %}
+          </div>
         </div>
       {% endfor %}
     </section>

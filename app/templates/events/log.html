@@ -1,16 +1,24 @@
 {% extends "base.html" %}
+{% block title %}{{ _("Journal") }} — {{ event.title }}{% endblock %}
 {% block content %}
-<h1>{{ _("Journal") }} — {{ event.title }}</h1>
+<div class="page-head">
+    <div>
+        <h1>{{ _("Journal") }}</h1>
+        <p class="page-sub">{{ event.title }} · {{ _("Historique des actions de l'événement") }}</p>
+    </div>
+</div>
 
 {% if logs %}
+<div class="table-wrap">
 <table class="log-table">
+  <caption class="sr-only">{{ _("Journal des actions") }}</caption>
   <thead>
     <tr>
-      <th>{{ _("Quand") }}</th>
-      <th>{{ _("Qui") }}</th>
-      <th>{{ _("Action") }}</th>
-      <th>{{ _("Cible") }}</th>
-      <th>{{ _("Détails") }}</th>
+      <th scope="col">{{ _("Quand") }}</th>
+      <th scope="col">{{ _("Qui") }}</th>
+      <th scope="col">{{ _("Action") }}</th>
+      <th scope="col">{{ _("Cible") }}</th>
+      <th scope="col">{{ _("Détails") }}</th>
     </tr>
   </thead>
   <tbody>
@@ -25,7 +33,12 @@
     {% endfor %}
   </tbody>
 </table>
+</div>
 {% else %}
-<p>{{ _("Aucune action enregistrée.") }}</p>
+<div class="empty-state">
+  <span class="empty-icon" aria-hidden="true">📝</span>
+  <h3>{{ _("Aucune action enregistrée") }}</h3>
+  <p>{{ _("Les actions de l'événement (créations, modifications, votes…) apparaîtront ici.") }}</p>
+</div>
 {% endif %}
 {% endblock %}

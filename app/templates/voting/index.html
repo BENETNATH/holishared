@@ -1,14 +1,23 @@
 {% extends "base.html" %}
 {% block title %}{{ _("Sondages") }} — {{ event.title }}{% endblock %}
 {% block content %}
-<h1>{{ _("Sondages") }} — {{ event.title }}</h1>
-
-<a href="{{ url_for('voting.create', code=event.code) }}" class="btn btn-primary">
-  {{ _("Nouveau sondage") }}
-</a>
+<div class="page-head">
+    <div>
+        <h1>{{ _("Sondages") }}</h1>
+        <p class="page-sub">{{ event.title }} · {{ _("Votez et décidez ensemble") }}</p>
+    </div>
+    <div class="head-actions">
+        <a href="{{ url_for('voting.create', code=event.code) }}" class="btn btn-primary">{{ _("Nouveau sondage") }}</a>
+    </div>
+</div>
 
 {% if not open_polls and not closed_polls %}
-  <p class="empty">{{ _("Aucun sondage. Créez-en un !") }}</p>
+  <div class="empty-state">
+    <span class="empty-icon" aria-hidden="true">🗳️</span>
+    <h3>{{ _("Aucun sondage") }}</h3>
+    <p>{{ _("Créez un sondage pour laisser le groupe choisir (menu, activité, horaires…).") }}</p>
+    <a href="{{ url_for('voting.create', code=event.code) }}" class="btn btn-primary">{{ _("Nouveau sondage") }}</a>
+  </div>
 {% endif %}
 
 {% for poll in open_polls %}

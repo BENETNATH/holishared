@@ -1,22 +1,48 @@
 {% extends "base.html" %}
+{% block title %}{{ _("Votre code") }} — {{ event.title }}{% endblock %}
 {% block content %}
-<h1>{{ _("Votre code") }} — {{ event.title }}</h1>
-<p>{{ _("Saisissez votre code personnel pour accéder à l'événement.") }}</p>
+<div class="code-entry">
+  <div class="card code-entry-card">
+    <div class="auth-brand" aria-hidden="true">
+        <span class="brand-mark">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="4" fill="currentColor"/>
+                <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <line x1="12" y1="2.5" x2="12" y2="5"/>
+                    <line x1="12" y1="19" x2="12" y2="21.5"/>
+                    <line x1="2.5" y1="12" x2="5" y2="12"/>
+                    <line x1="19" y1="12" x2="21.5" y2="12"/>
+                    <line x1="5.3" y1="5.3" x2="7" y2="7"/>
+                    <line x1="17" y1="17" x2="18.7" y2="18.7"/>
+                    <line x1="5.3" y1="18.7" x2="7" y2="17"/>
+                    <line x1="17" y1="7" x2="18.7" y2="5.3"/>
+                </g>
+            </svg>
+        </span>
+    </div>
+    <h1>{{ _("Votre code") }}</h1>
+    <p class="auth-sub">{{ event.title }}</p>
+    <p class="prose">{{ _("Saisissez votre code personnel pour accéder à l'événement.") }}</p>
 
-<form method="post" action="{{ url_for('events.my_code', code=event.code) }}">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <form method="post" action="{{ url_for('events.my_code', code=event.code) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-  <div class="form-group">
-    <label for="guest_code">{{ _("Code personnel") }} *</label>
-    <input type="text" id="guest_code" name="guest_code" required minlength="4" maxlength="8"
-           pattern="[a-z0-9]{4,8}" autocomplete="off" spellcheck="false">
+      <div class="form-group">
+        <label for="guest_code">{{ _("Code personnel") }} *</label>
+        <input type="text" id="guest_code" name="guest_code" required minlength="4" maxlength="8"
+               pattern="[a-z0-9]{4,8}" autocomplete="off" spellcheck="false"
+               class="code-input" autofocus>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary code-submit">{{ _("Accéder à l'événement") }}</button>
+      </div>
+    </form>
+
+    <p class="hint code-entry-hint">
+      {{ _("Vous n'avez pas encore de code ?") }}
+      <a href="{{ url_for('events.guest_access', code=event.code) }}">{{ _("Créez votre code personnel") }}</a>
+    </p>
   </div>
-
-  <button type="submit" class="btn btn-primary">{{ _("Accéder") }}</button>
-</form>
-
-<p class="hint">
-  {{ _("Vous n'avez pas encore de code ?") }}
-  <a href="{{ url_for('events.guest_access', code=event.code) }}">{{ _("Créez votre code personnel") }}</a>
-</p>
+</div>
 {% endblock %}

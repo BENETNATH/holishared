@@ -1,6 +1,10 @@
 {# Partial HTMX — fragment des messages (polling toutes les 5s). #}
 {% if not messages %}
-  <p class="empty">{{ _("Aucun message. Lancez la conversation !") }}</p>
+  <div class="empty-state chat-empty">
+    <span class="empty-icon" aria-hidden="true">💬</span>
+    <h3>{{ _("Aucun message") }}</h3>
+    <p>{{ _("Lancez la conversation !") }}</p>
+  </div>
 {% else %}
   <ul class="chat-list">
     {% for msg in messages %}

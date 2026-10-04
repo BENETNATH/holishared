@@ -1,14 +1,23 @@
 {% extends "base.html" %}
 {% block title %}{{ _("Listes") }} — {{ event.title }}{% endblock %}
 {% block content %}
-<h1>{{ _("Listes") }} — {{ event.title }}</h1>
-
-<a href="{{ url_for('lists.create', code=event.code) }}" class="btn btn-primary">
-  {{ _("Nouvelle liste") }}
-</a>
+<div class="page-head">
+    <div>
+        <h1>{{ _("Listes") }}</h1>
+        <p class="page-sub">{{ event.title }} · {{ _("Courses, to-do, matériel…") }}</p>
+    </div>
+    <div class="head-actions">
+        <a href="{{ url_for('lists.create', code=event.code) }}" class="btn btn-primary">{{ _("Nouvelle liste") }}</a>
+    </div>
+</div>
 
 {% if not lists %}
-  <p class="empty">{{ _("Aucune liste. Créez-en une !") }}</p>
+  <div class="empty-state">
+    <span class="empty-icon" aria-hidden="true">📝</span>
+    <h3>{{ _("Aucune liste") }}</h3>
+    <p>{{ _("Créez une liste de courses, de to-do ou de matériel à partager avec le groupe.") }}</p>
+    <a href="{{ url_for('lists.create', code=event.code) }}" class="btn btn-primary">{{ _("Nouvelle liste") }}</a>
+  </div>
 {% else %}
   <ul class="lists" aria-label="{{ _('Listes de l\'événement') }}">
     {% for lst in lists %}

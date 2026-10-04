@@ -1,6 +1,12 @@
 {% extends "base.html" %}
-{% block title %}403{% endblock %}
+{% block title %}403 — {{ _("Accès refusé") }}{% endblock %}
 {% block content %}
-<h1>403</h1>
-<p>{{ _("Pas autorisé.") }}</p>
+<div class="error-page">
+  <span class="error-code" aria-hidden="true">403</span>
+  <h1>{{ _("Accès refusé") }}</h1>
+  <p>{{ _("Vous n'avez pas la permission d'accéder à cette page. Connectez-vous ou utilisez votre code personnel pour rejoindre l'événement.") }}</p>
+  <div class="error-actions">
+    <a href="/" class="btn btn-primary">{{ _("Retour à l'accueil") }}</a>
+  </div>
+</div>
 {% endblock %}

@@ -1,13 +1,17 @@
 {% extends "base.html" %}
-{% block title %}{{ event.title }}{% endblock %}
+{% block title %}{{ event.title }} — holishared{% endblock %}
 {% block content %}
-<h1>{{ event.title }}</h1>
-<p class="meta">
-  {{ event.start_date | format_date('medium') }} → {{ event.end_date | format_date('medium') }}
-  {% if event.location %} · 📍 {{ event.location }}{% endif %}
-</p>
-{% if event.description %}<p>{{ event.description }}</p>{% endif %}
+<div class="page-head">
+    <div>
+        <h1>{{ event.title }}</h1>
+        <p class="page-sub">
+            {{ event.start_date | format_date('medium') }} → {{ event.end_date | format_date('medium') }}
+            {% if event.location %} · 📍 {{ event.location }}{% endif %}
+        </p>
+    </div>
+</div>
 
+{% if event.description %}<p class="prose">{{ event.description }}</p>{% endif %}
 
 {% if guest %}
 <div class="code-box">
@@ -22,7 +26,7 @@
   <div class="section-head">
     <h2 id="h-info">{{ _("Infos importantes") }}</h2>
     {% if "logistics" in enabled_modules %}
-    <a href="{{ url_for('logistics.create', code=event.code) }}" class="btn btn-small">{{ _("+ Ajouter une info") }}</a>
+    <a href="{{ url_for('logistics.create', code=event.code) }}" class="btn btn-small btn-secondary">{{ _("+ Ajouter une info") }}</a>
     {% endif %}
   </div>
   {% if logistics_items %}
@@ -39,13 +43,25 @@
     {% endfor %}
   </div>
   {% else %}
-  <p class="empty">{{ _("Aucune info pour l'instant. Adresse du gîte, code d'accès, horaires, documents… chacun peut compléter.") }}</p>
+  <div class="empty-state">
+    <span class="empty-icon" aria-hidden="true">📌</span>
+    <h3>{{ _("Aucune info pour l'instant") }}</h3>
+    <p>{{ _("Adresse du gîte, code d'accès, horaires, documents… chacun peut compléter.") }}</p>
+    {% if "logistics" in enabled_modules %}
+    <a href="{{ url_for('logistics.create', code=event.code) }}" class="btn btn-primary">{{ _("Ajouter une info") }}</a>
+    {% endif %}
+  </div>
   {% endif %}
 </section>
 
 {% if activities %}
 <section aria-labelledby="h-today" class="section">
-  <h2 id="h-today">{{ _("Aujourd'hui") }}</h2>
+  <div class="section-head">
+    <h2 id="h-today">{{ _("Aujourd'hui") }}</h2>
+    {% if "planning" in enabled_modules %}
+    <a href="{{ url_for('planning.index', code=event.code) }}" class="btn btn-small btn-ghost">{{ _("Voir le planning") }} →</a>
+    {% endif %}
+  </div>
   {% for act in activities %}
   <div class="card activity-card">
     {% if act.start_time %}<span class="time">{{ act.start_time.strftime("%H:%M") }}</span>{% endif %}
@@ -62,13 +78,19 @@
 
 {% if polls %}
 <section aria-labelledby="h-polls" class="section">
-  <h2 id="h-polls">{{ _("Sondages ouverts") }}</h2>
+  <div class="section-head">
+    <h2 id="h-polls">{{ _("Sondages ouverts") }}</h2>
+    {% if "voting" in enabled_modules %}
+    <a href="{{ url_for('voting.index', code=event.code) }}" class="btn btn-small btn-ghost">{{ _("Tous les sondages") }} →</a>
+    {% endif %}
+  </div>
   <ul class="lists">
     {% for poll in polls %}
     <li class="card list-card">
       {% if "voting" in enabled_modules %}
       <a href="{{ url_for('voting.detail', code=event.code, poll_id=poll.id) }}">{{ poll.question }}</a>
       {% else %}<span>{{ poll.question }}</span>{% endif %}
+      <span class="tag">{{ _("À voter") }}</span>
     </li>
     {% endfor %}
   </ul>
@@ -77,7 +99,12 @@
 
 {% if lists %}
 <section aria-labelledby="h-lists" class="section">
-  <h2 id="h-lists">{{ _("Listes & to-do") }}</h2>
+  <div class="section-head">
+    <h2 id="h-lists">{{ _("Listes & to-do") }}</h2>
+    {% if "lists" in enabled_modules %}
+    <a href="{{ url_for('lists.index', code=event.code) }}" class="btn btn-small btn-ghost">{{ _("Toutes les listes") }} →</a>
+    {% endif %}
+  </div>
   <ul class="lists">
     {% for lst in lists %}
     <li class="card list-card">
@@ -92,6 +119,10 @@
 {% endif %}
 
 {% if not activities and not polls and not lists and not logistics_items %}
-<p class="empty">{{ _("Rien à afficher pour l'instant. Utilisez la navigation ci-dessus pour planifier, lister, voter, partager les frais…") }}</p>
+<div class="empty-state">
+  <span class="empty-icon" aria-hidden="true">🧭</span>
+  <h3>{{ _("Rien à afficher pour l'instant") }}</h3>
+  <p>{{ _("Utilisez la navigation ci-dessus pour planifier, lister, voter, partager les frais…") }}</p>
+</div>
 {% endif %}
 {% endblock %}

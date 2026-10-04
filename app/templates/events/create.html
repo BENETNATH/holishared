@@ -1,9 +1,15 @@
 {% extends "base.html" %}
+{% block title %}{{ _("Nouvel événement") }} — holishared{% endblock %}
 {% block content %}
-<h1>{{ _("Nouvel événement") }}</h1>
+<div class="page-head">
+    <div>
+        <h1>{{ _("Nouvel événement") }}</h1>
+        <p class="page-sub">{{ _("Créez un événement et invitez vos proches à planifier ensemble.") }}</p>
+    </div>
+</div>
 
 {% if errors %}
-<ul class="errors">
+<ul class="errors" aria-live="assertive">
   {% for e in errors %}<li>{{ e }}</li>{% endfor %}
 </ul>
 {% endif %}
@@ -14,38 +20,43 @@
   <div class="form-group">
     <label for="title">{{ _("Titre") }} *</label>
     <input type="text" id="title" name="title" required maxlength="200"
-           value="{{ form.title if form else '' }}">
+           value="{{ form.title if form else '' }}" placeholder="{{ _('Ex : Anniversaire de Léa') }}">
   </div>
 
   <div class="form-group">
     <label for="description">{{ _("Description") }}</label>
-    <textarea id="description" name="description" rows="3" maxlength="2000">{{ form.description if form else '' }}</textarea>
+    <textarea id="description" name="description" rows="3" maxlength="2000"
+              placeholder="{{ _('Quelques mots pour situer le contexte…') }}">{{ form.description if form else '' }}</textarea>
   </div>
 
-  <div class="form-group">
-    <label for="start_date">{{ _("Date de début") }} *</label>
-    <input type="date" id="start_date" name="start_date" required
-           value="{{ form.start_date if form else '' }}">
-  </div>
-
-  <div class="form-group">
-    <label for="end_date">{{ _("Date de fin") }} *</label>
-    <input type="date" id="end_date" name="end_date" required
-           value="{{ form.end_date if form else '' }}">
+  <div class="form-grid">
+    <div class="form-group">
+      <label for="start_date">{{ _("Date de début") }} *</label>
+      <input type="date" id="start_date" name="start_date" required
+             value="{{ form.start_date if form else '' }}">
+    </div>
+    <div class="form-group">
+      <label for="end_date">{{ _("Date de fin") }} *</label>
+      <input type="date" id="end_date" name="end_date" required
+             value="{{ form.end_date if form else '' }}">
+    </div>
   </div>
 
   <div class="form-group">
     <label for="location">{{ _("Lieu") }}</label>
     <input type="text" id="location" name="location" maxlength="300"
-           value="{{ form.location if form else '' }}">
+           value="{{ form.location if form else '' }}" placeholder="{{ _('Ex : Gîte de la Vallée, Annecy') }}">
   </div>
 
   <div class="form-group">
     <label for="email">{{ _("Votre email") }} *</label>
     <input type="email" id="email" name="email" required
-           value="{{ form.email if form else '' }}">
+           value="{{ form.email if form else '' }}" autocomplete="email">
+    <p class="hint">{{ _("Sert à retrouver votre événement et à gérer les invitations.") }}</p>
   </div>
 
-  <button type="submit" class="btn btn-primary">{{ _("Créer") }}</button>
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">{{ _("Créer l'événement") }}</button>
+  </div>
 </form>
 {% endblock %}

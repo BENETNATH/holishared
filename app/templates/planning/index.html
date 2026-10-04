@@ -1,14 +1,23 @@
 {% extends "base.html" %}
 {% block title %}{{ _("Planning") }} — {{ event.title }}{% endblock %}
 {% block content %}
-<h1>{{ _("Planning") }} — {{ event.title }}</h1>
-
-<a href="{{ url_for('planning.create', code=event.code) }}" class="btn btn-primary">
-  {{ _("Nouvelle activité") }}
-</a>
+<div class="page-head">
+    <div>
+        <h1>{{ _("Planning") }}</h1>
+        <p class="page-sub">{{ event.title }} · {{ _("Organisez les activités du séjour") }}</p>
+    </div>
+    <div class="head-actions">
+        <a href="{{ url_for('planning.create', code=event.code) }}" class="btn btn-primary">{{ _("Nouvelle activité") }}</a>
+    </div>
+</div>
 
 {% if not activities %}
-  <p class="empty">{{ _("Aucune activité planifiée. Ajoutez-en une !") }}</p>
+  <div class="empty-state">
+    <span class="empty-icon" aria-hidden="true">🗓️</span>
+    <h3>{{ _("Aucune activité planifiée") }}</h3>
+    <p>{{ _("Ajoutez des activités pour structurer les journées du groupe.") }}</p>
+    <a href="{{ url_for('planning.create', code=event.code) }}" class="btn btn-primary">{{ _("Nouvelle activité") }}</a>
+  </div>
 {% else %}
   {% set grouped = activities | groupby("date") %}
   {% for day, acts in grouped %}
@@ -25,10 +34,12 @@
         {% elif act.end_time %}
           <span class="time">{{ _("jusqu'à") }} {{ act.end_time.strftime("%H:%M") }}</span>
         {% endif %}
-        <h3>{{ act.title }}</h3>
-        {% if act.description %}<p>{{ act.description }}</p>{% endif %}
-        {% if act.location %}<p class="location">📍 {{ act.location }}</p>{% endif %}
-        {% if act.bring_items %}<p class="bring">{{ _("Apporter") }} : {{ act.bring_items }}</p>{% endif %}
+        <div class="activity-main">
+          <h3>{{ act.title }}</h3>
+          {% if act.description %}<p>{{ act.description }}</p>{% endif %}
+          {% if act.location %}<p class="location">📍 {{ act.location }}</p>{% endif %}
+          {% if act.bring_items %}<p class="bring">{{ _("Apporter") }} : {{ act.bring_items }}</p>{% endif %}
+        </div>
 
         <span class="badge-headcount {% if act.confirmed_count >= act.min_headcount %}ok{% else %}insufficient{% endif %}"
               aria-label="{{ act.confirmed_count }} {{ _('confirmés sur') }} {{ act.min_headcount }} {{ _('requis') }}">
@@ -48,11 +59,13 @@
         {% endif %}
 
         {% if can_modify(act) %}
-          <a href="{{ url_for('planning.edit', code=event.code, activity_id=act.id) }}">{{ _("Modifier") }}</a>
-          <form method="post" action="{{ url_for('planning.delete', code=event.code, activity_id=act.id) }}">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="btn btn-danger">{{ _("Supprimer") }}</button>
-          </form>
+          <div class="activity-actions">
+            <a href="{{ url_for('planning.edit', code=event.code, activity_id=act.id) }}" class="btn btn-small btn-secondary">{{ _("Modifier") }}</a>
+            <form method="post" action="{{ url_for('planning.delete', code=event.code, activity_id=act.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-small btn-danger">{{ _("Supprimer") }}</button>
+            </form>
+          </div>
         {% endif %}
       </div>
     {% endfor %}
