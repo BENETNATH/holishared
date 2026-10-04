@@ -4,14 +4,14 @@
 <div class="page-head">
     <div>
         <h1>{{ _("Planning") }}</h1>
-        <p class="page-sub">{{ event.title }} · {{ _("Organisez les activités du séjour") }}</p>
+        <p class="page-sub">{{ event.title }} · {{ event.start_date.strftime("%d/%m") }} → {{ event.end_date.strftime("%d/%m") }}</p>
     </div>
     <div class="head-actions">
         <a href="{{ url_for('planning.create', code=event.code) }}" class="btn btn-primary">{{ _("Nouvelle activité") }}</a>
     </div>
 </div>
 
-{# Meal grid: days × meal types #}
+{# Meal grid: direct input in each cell #}
 <div class="meal-grid-wrap">
   <h2>{{ _("Repas") }}</h2>
   <div class="meal-grid">
@@ -21,10 +21,12 @@
       <span>{{ _("Déjeuner") }}</span>
       <span>{{ _("Dîner") }}</span>
     </div>
-    {% for day in event_days %}
+    {% set num_days = (event.end_date - event.start_date).days + 1 %}
+    {% for i in range(num_days) %}
+    {% set day = event.start_date | add_days(i) %}
     <div class="meal-grid-row">
-      <span class="meal-grid-day">{{ day.strftime("%a %d/%m") }}</span>
-      {% for meal_type, time_range in [('breakfast', '06-11'), ('lunch', '11-15'), ('dinner', '18-23')] %}
+      <span class="meal-grid-day">{{ day.strftime("%a") }}<br><strong>{{ day.strftime("%d/%m") }}</strong></span>
+      {% for meal_type, default_time in [('breakfast', '08:00'), ('lunch', '12:00'), ('dinner', '19:00')] %}
         {% set cell_acts = [] %}
         {% for act in activities %}
           {% if act.date == day and act.start_time %}
@@ -37,11 +39,26 @@
         <div class="meal-cell">
           {% if cell_acts %}
             {% for act in cell_acts %}
-            <span class="meal-item" title="{{ act.title }}">{{ act.title }}</span>
+            <div class="meal-item-wrap">
+              <span class="meal-item">{{ act.title }}</span>
+              <span class="badge-headcount meal-badge {% if act.confirmed_count >= act.min_headcount %}ok{% else %}insufficient{% endif %}">{{ act.confirmed_count }}/{{ act.min_headcount }}</span>
+              {% if can_modify(act) %}
+              <form method="post" action="{{ url_for('planning.delete', code=event.code, activity_id=act.id) }}" class="meal-delete-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="meal-delete-btn" title="{{ _('Supprimer') }}">&times;</button>
+              </form>
+              {% endif %}
+            </div>
             {% endfor %}
-          {% else %}
-            <a href="{{ url_for('planning.create', code=event.code) }}?date={{ day.isoformat() }}&time={{ {'breakfast': '08:00', 'lunch': '12:00', 'dinner': '19:00'}[meal_type] }}" class="meal-add">+</a>
           {% endif %}
+          <form method="post" action="{{ url_for('planning.create', code=event.code) }}" class="meal-add-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="date" value="{{ day.isoformat() }}">
+            <input type="hidden" name="start_time" value="{{ default_time }}">
+            <input type="hidden" name="min_headcount" value="1">
+            <input type="text" name="title" class="meal-input"
+                   placeholder="{{ _('Repas…') }}" maxlength="200" required minlength="2">
+          </form>
         </div>
       {% endfor %}
     </div>
@@ -49,54 +66,39 @@
   </div>
 </div>
 
-{# Activity list #}
 {% if not activities %}
-  <div class="empty-state">
-    <span class="empty-icon" aria-hidden="true">🗓️</span>
-    <h3>{{ _("Aucune activité planifiée") }}</h3>
-    <p>{{ _("Ajoutez des activités pour structurer les journées du groupe.") }}</p>
-    <a href="{{ url_for('planning.create', code=event.code) }}" class="btn btn-primary">{{ _("Nouvelle activité") }}</a>
-  </div>
-{% else %}
-  {% set grouped = activities | groupby("date") %}
+<p class="empty-hint">{{ _("Aucune activité planifiée. Utilisez la grille ci-dessus pour ajouter des repas, ou le bouton « Nouvelle activité ».") }}</p>
+{% endif %}
+
+{# Other activities (non-meal) #}
+{% set other_acts = [] %}
+{% for act in activities %}
+  {% if act.start_time %}
+    {% set h = act.start_time.hour %}
+    {% if (h < 6 or (h >= 11 and h < 18)) and not (h >= 6 and h < 11) and not (h >= 11 and h < 15) and not (h >= 18) %}
+      {% set _ = other_acts.append(act) %}
+    {% endif %}
+  {% else %}
+    {% set _ = other_acts.append(act) %}
+  {% endif %}
+{% endfor %}
+
+{% if other_acts %}
+<div class="other-activities">
+  <h2>{{ _("Autres activités") }}</h2>
+  {% set grouped = other_acts | groupby("date") %}
   {% for day, acts in grouped %}
-    <h2 class="day-header{% if day == today %} today{% endif %}">
-      {{ day | format_date('full') }}
-    </h2>
+    <h3 class="day-header{% if day == today %} today{% endif %}">{{ day | format_date('full') }}</h3>
     {% for act in acts %}
       <div class="card activity-card">
         {% if act.start_time %}
-          <span class="time">
-            {{ act.start_time.strftime("%H:%M") }}
-            {% if act.end_time %} – {{ act.end_time.strftime("%H:%M") }}{% endif %}
-          </span>
-        {% elif act.end_time %}
-          <span class="time">{{ _("jusqu'à") }} {{ act.end_time.strftime("%H:%M") }}</span>
+          <span class="time">{{ act.start_time.strftime("%H:%M") }}{% if act.end_time %} – {{ act.end_time.strftime("%H:%M") }}{% endif %}</span>
         {% endif %}
         <div class="activity-main">
           <h3>{{ act.title }}</h3>
           {% if act.description %}<p>{{ act.description }}</p>{% endif %}
           {% if act.location %}<p class="location">📍 {{ act.location }}</p>{% endif %}
-          {% if act.bring_items %}<p class="bring">{{ _("Apporter") }} : {{ act.bring_items }}</p>{% endif %}
         </div>
-
-        <span class="badge-headcount {% if act.confirmed_count >= act.min_headcount %}ok{% else %}insufficient{% endif %}"
-              aria-label="{{ act.confirmed_count }} {{ _('confirmés sur') }} {{ act.min_headcount }} {{ _('requis') }}">
-          {{ act.confirmed_count }}/{{ act.min_headcount }}
-          {% if act.confirmed_count < act.min_headcount %}
-            <span class="sr-only">{{ _("— insuffisant") }}</span>
-          {% endif %}
-        </span>
-
-        {% if guest %}
-          <form method="post" action="{{ url_for('planning.rsvp', code=event.code, activity_id=act.id) }}">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" name="status" value="yes" aria-pressed="{{ 'true' if guest_rsvps.get(act.id) == 'yes' else 'false' }}">{{ _("Oui") }}</button>
-            <button type="submit" name="status" value="no" aria-pressed="{{ 'true' if guest_rsvps.get(act.id) == 'no' else 'false' }}">{{ _("Non") }}</button>
-            <button type="submit" name="status" value="maybe" aria-pressed="{{ 'true' if guest_rsvps.get(act.id) == 'maybe' else 'false' }}">{{ _("Peut-être") }}</button>
-          </form>
-        {% endif %}
-
         {% if can_modify(act) %}
           <div class="activity-actions">
             <a href="{{ url_for('planning.edit', code=event.code, activity_id=act.id) }}" class="btn btn-small btn-secondary">{{ _("Modifier") }}</a>
@@ -109,5 +111,25 @@
       </div>
     {% endfor %}
   {% endfor %}
+</div>
+{% endif %}
+
+{# RSVP section for guests #}
+{% if guest and activities %}
+<div class="rsvp-section">
+  <h2>{{ _("Vos participations") }}</h2>
+  {% for act in activities %}
+    <div class="card rsvp-card">
+      <span class="time">{% if act.start_time %}{{ act.start_time.strftime("%H:%M") }}{% endif %}</span>
+      <h3>{{ act.title }}</h3>
+      <form method="post" action="{{ url_for('planning.rsvp', code=event.code, activity_id=act.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" name="status" value="yes" class="rsvp-btn {% if guest_rsvps.get(act.id) == 'yes' %}active{% endif %}" aria-pressed="{{ 'true' if guest_rsvps.get(act.id) == 'yes' else 'false' }}">{{ _("Oui") }}</button>
+        <button type="submit" name="status" value="maybe" class="rsvp-btn {% if guest_rsvps.get(act.id) == 'maybe' %}active{% endif %}" aria-pressed="{{ 'true' if guest_rsvps.get(act.id) == 'maybe' else 'false' }}">{{ _("Peut-être") }}</button>
+        <button type="submit" name="status" value="no" class="rsvp-btn {% if guest_rsvps.get(act.id) == 'no' %}active{% endif %}" aria-pressed="{{ 'true' if guest_rsvps.get(act.id) == 'no' else 'false' }}">{{ _("Non") }}</button>
+      </form>
+    </div>
+  {% endfor %}
+</div>
 {% endif %}
 {% endblock %}

@@ -37,7 +37,7 @@
             <nav aria-label="{{ _('Navigation principale') }}">
                 <ul class="nav-links">
                     {% if current_event %}
-                    <li><a href="{{ url_for('events.dashboard', code=current_event.code) }}" class="{% if request.endpoint and request.endpoint.startswith('events.dashboard') %}active{% endif %}">{{ current_event.title[:20] }}{% if current_event.title|length > 20 %}…{% endif %}</a></li>
+                    <li class="nav-event"><a href="{{ url_for('events.dashboard', code=current_event.code) }}" class="{% if request.endpoint and request.endpoint.startswith('events.dashboard') %}active{% endif %}">{{ current_event.title[:18] }}{% if current_event.title|length > 18 %}…{% endif %}</a></li>
                     {% if "planning" in enabled_modules %}
                     <li><a href="{{ url_for('planning.index', code=current_event.code) }}" class="{% if request.endpoint and request.endpoint.startswith('planning') %}active{% endif %}">{{ _("Planning") }}</a></li>
                     {% endif %}
@@ -59,10 +59,6 @@
                     {% if "chat" in enabled_modules %}
                     <li><a href="{{ url_for('chat.index', code=current_event.code) }}" class="{% if request.endpoint and request.endpoint.startswith('chat') %}active{% endif %}">{{ _("Chat") }}</a></li>
                     {% endif %}
-                    {% if current_user.is_authenticated %}
-                    <li><a href="{{ url_for('events.invite', code=current_event.code) }}" class="{% if request.endpoint and request.endpoint.startswith('events.invite') %}active{% endif %}">{{ _("Inviter") }}</a></li>
-                    {% endif %}
-                    <li><a href="{{ url_for('events.log', code=current_event.code) }}" class="{% if request.endpoint and request.endpoint.startswith('events.log') %}active{% endif %}">{{ _("Journal") }}</a></li>
                     {% else %}
                     {% if current_user.is_authenticated %}
                     <li><a href="{{ url_for('events.index') }}">{{ _("Mes événements") }}</a></li>
