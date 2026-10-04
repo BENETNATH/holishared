@@ -114,7 +114,9 @@ def create_app():
     # Core blueprints (always registered)
     from app.auth import auth_bp
     from app.events import events_bp
+    from app.main import main_bp
 
+    app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix="/admin")
     app.register_blueprint(events_bp, url_prefix="/e")
 
