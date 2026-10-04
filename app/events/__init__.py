@@ -20,7 +20,7 @@ from werkzeug.wrappers import Response
 from app.auth import is_disposable_email
 from app.extensions import db, limiter
 from app.freemium import can_add_guest, can_create_event, max_duration_days
-from app.models import Creator, Event, Guest
+from app.models import Creator, Event, Guest, generate_guest_code
 
 
 def _valid_email(email: str) -> bool:
@@ -163,6 +163,61 @@ def dashboard(code: str) -> str | Response:
                            activities=activities, lists=lists, polls=polls,
                            logistics_items=logistics_items,
                            category_labels=category_labels)
+
+
+@events_bp.route("/<code>/members", methods=["GET", "POST"])
+def members(code: str) -> str | Response:
+    """Event members page: list all guests, creator can add/remove."""
+    event = Event.query.filter_by(code=code, is_active=True).first()
+    if not event:
+        flash("Événement introuvable.", "danger")
+        return redirect(url_for("events.index"))
+
+    is_creator = current_user.is_authenticated and current_user.id == event.creator_id
+    guest = _get_current_guest(event)
+    if not guest and not is_creator:
+        return redirect(url_for("events.my_code", code=code))
+
+    if request.method == "POST" and is_creator:
+        action = request.form.get("action", "")
+        if action == "add":
+            display_name = request.form.get("display_name", "").strip()
+            email = request.form.get("email", "").strip().lower() or None
+            errors = []
+            if not display_name or len(display_name) < 2:
+                errors.append("Nom requis (min 2 caractères).")
+            if email and not _valid_email(email):
+                errors.append("Format d'email invalide.")
+            if email and is_disposable_email(email):
+                errors.append("Domaine email non accepté.")
+            if not can_add_guest(event):
+                errors.append("Limite d'invités atteinte.")
+            if errors:
+                for e in errors:
+                    flash(e, "danger")
+            else:
+                new_code = generate_guest_code()
+                member = Guest(
+                    code=new_code,
+                    display_name=display_name,
+                    email=email,
+                    event_id=event.id,
+                )
+                db.session.add(member)
+                db.session.commit()
+                flash(f"{display_name} ajouté·e (code : {new_code})", "success")
+                return redirect(url_for("events.members", code=code))
+        elif action == "remove":
+            guest_id = request.form.get("guest_id", "")
+            target = Guest.query.filter_by(id=guest_id, event_id=event.id).first()
+            if target:
+                target.is_active = False
+                db.session.commit()
+                flash(f"{target.display_name} retiré·e.", "success")
+            return redirect(url_for("events.members", code=code))
+
+    all_guests = Guest.query.filter_by(event_id=event.id, is_active=True).order_by(Guest.display_name).all()
+    return render_template("events/members.html", event=event, guests=all_guests, is_creator=is_creator)
 
 
 @events_bp.route("/<code>/invite")

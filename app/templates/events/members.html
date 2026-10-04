@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Membres") }} - {{ event.title }}{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>{{ _("Membres") }}</h1>
+    <p class="meta">{{ event.title }} · {{ guests|length }} {{ _("membres") }}</p>
+</div>
+
+{% if is_creator %}
+<section class="section" aria-labelledby="h-add">
+    <h2 id="h-add">{{ _("Ajouter un membre") }}</h2>
+    <form method="POST" class="form-inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="action" value="add">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="display_name">{{ _("Nom") }}</label>
+                <input type="text" id="display_name" name="display_name" required minlength="2" maxlength="50"
+                       placeholder="{{ _('Ex : Alice Martin') }}">
+            </div>
+            <div class="form-group">
+                <label for="email">{{ _("Email") }} <span class="optional">({{ _("optionnel") }})</span></label>
+                <input type="email" id="email" name="email" maxlength="255"
+                       placeholder="{{ _('alice@example.com') }}">
+            </div>
+            <div class="form-group form-group--action">
+                <button type="submit" class="btn btn-primary">{{ _("Ajouter") }}</button>
+            </div>
+        </div>
+    </form>
+</section>
+{% endif %}
+
+<section class="section" aria-labelledby="h-list">
+    <h2 id="h-list">{{ _("Liste des membres") }}</h2>
+    {% if guests %}
+    <div class="members-grid">
+        {% for g in guests %}
+        <div class="card member-card">
+            <div class="member-info">
+                <span class="member-name">{{ g.display_name }}</span>
+                {% if g.email %}<span class="member-email">{{ g.email }}</span>{% endif %}
+            </div>
+            <div class="member-code">
+                <code>{{ g.code }}</code>
+                <button type="button" class="btn btn-small btn-ghost copy-code" data-code="{{ g.code }}">{{ _("Copier") }}</button>
+            </div>
+            {% if is_creator %}
+            <form method="POST" class="member-remove">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="action" value="remove">
+                <input type="hidden" name="guest_id" value="{{ g.id }}">
+                <button type="submit" class="btn btn-small btn-danger"
+                        onclick="return confirm('{{ _("Retirer") }} {{ g.display_name }} ?')">{{ _("Retirer") }}</button>
+            </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty">{{ _("Aucun membre pour l'instant. ") }}{% if is_creator %}{{ _("Ajoutez des invités ci-dessus ou partagez le lien d'invitation.") }}{% else %}{{ _("Le créateur peut vous ajouter.") }}{% endif %}</p>
+    {% endif %}
+</section>
+{% endblock %}

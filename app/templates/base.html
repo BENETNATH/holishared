@@ -43,6 +43,7 @@
                     {% if "chat" in enabled_modules %}
                     <li><a href="{{ url_for('chat.index', code=current_event.code) }}" class="{% if request.endpoint and request.endpoint.startswith('chat') %}active{% endif %}">{{ _("Chat") }}</a></li>
                     {% endif %}
+                    <li><a href="{{ url_for('events.members', code=current_event.code) }}" class="{% if request.endpoint and request.endpoint.startswith('events.members') %}active{% endif %}">{{ _("Membres") }}</a></li>
                     {% if current_user.is_authenticated %}
                     <li><a href="{{ url_for('events.invite', code=current_event.code) }}" class="{% if request.endpoint and request.endpoint.startswith('events.invite') %}active{% endif %}">{{ _("Inviter") }}</a></li>
                     {% endif %}
