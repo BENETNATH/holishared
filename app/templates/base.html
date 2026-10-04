@@ -11,7 +11,6 @@
     <title>{% block title %}holishared{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <script src="{{ url_for('static', filename='js/htmx.min.js') }}"></script>
-    <script defer src="{{ url_for('static', filename='js/alpine.min.js') }}"></script>
     {% block head %}{% endblock %}
 </head>
 <body>
@@ -72,28 +71,20 @@
                     <li><a href="{{ url_for('events.create') }}">{{ _("Créer un événement") }}</a></li>
                     {% endif %}
                     {% endif %}
-                    <li x-data="{ open: false }" class="relative" @click.outside="open = false">
-                        <button @click="open = !open"
-                                class="lang-toggle" aria-label="Language" aria-haspopup="true" :aria-expanded="open">
+                    <li class="lang-wrap" id="lang-wrap">
+                        <button class="lang-toggle" id="lang-btn" aria-label="Language" aria-haspopup="true" aria-expanded="false">
                             {% if current_lang == 'en' %}EN{% else %}FR{% endif %}
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
                         </button>
-                        <ul x-show="open" x-transition class="lang-dropdown">
-                            <li><a href="?lang=fr" @click="open = false">Français</a></li>
-                            <li><a href="?lang=en" @click="open = false">English</a></li>
+                        <ul class="lang-dropdown" id="lang-dropdown" hidden>
+                            <li><a href="?lang=fr">Français</a></li>
+                            <li><a href="?lang=en">English</a></li>
                         </ul>
                     </li>
                     <li>
-                        <button class="theme-toggle" aria-label="Theme"
-                                x-data="{ dark: localStorage.getItem('theme') === 'dark' }"
-                                x-init="if (dark) document.documentElement.setAttribute('data-theme', 'dark')"
-                                @click="dark = !dark; localStorage.setItem('theme', dark ? 'dark' : 'light'); document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light')">
-                            <span x-show="dark" aria-hidden="true">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-                            </span>
-                            <span x-show="!dark" aria-hidden="true">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                            </span>
+                        <button class="theme-toggle" id="theme-btn" aria-label="Theme">
+                            <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                            <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                         </button>
                     </li>
                 </ul>
@@ -128,6 +119,55 @@
         if ('serviceWorker' in navigator && !location.hostname.includes('localhost')) {
             navigator.serviceWorker.register('{{ url_for("static", filename="js/service-worker.js") }}');
         }
+
+        // Language dropdown
+        (function() {
+            var btn = document.getElementById('lang-btn');
+            var dd = document.getElementById('lang-dropdown');
+            if (!btn || !dd) return;
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dd.hidden = !dd.hidden;
+                btn.setAttribute('aria-expanded', String(!dd.hidden));
+            });
+            document.addEventListener('click', function(e) {
+                if (!dd.hidden && !dd.contains(e.target) && e.target !== btn) {
+                    dd.hidden = true;
+                    btn.setAttribute('aria-expanded', 'false');
+                }
+            });
+            dd.querySelectorAll('a').forEach(function(a) {
+                a.addEventListener('click', function() {
+                    dd.hidden = true;
+                    btn.setAttribute('aria-expanded', 'false');
+                });
+            });
+        })();
+
+        // Theme toggle
+        (function() {
+            var btn = document.getElementById('theme-btn');
+            if (!btn) return;
+            var sun = btn.querySelector('.icon-sun');
+            var moon = btn.querySelector('.icon-moon');
+            function isDark() {
+                var t = localStorage.getItem('theme');
+                if (t) return t === 'dark';
+                return window.matchMedia('(prefers-color-scheme: dark)').matches;
+            }
+            function apply() {
+                var dark = isDark();
+                document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+                sun.style.display = dark ? 'none' : '';
+                moon.style.display = dark ? '' : 'none';
+            }
+            apply();
+            btn.addEventListener('click', function() {
+                var dark = !isDark();
+                localStorage.setItem('theme', dark ? 'dark' : 'light');
+                apply();
+            });
+        })();
     </script>
     {% block scripts %}{% endblock %}
 </body>

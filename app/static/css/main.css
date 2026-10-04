@@ -392,6 +392,10 @@ main.container {
   color: var(--text);
 }
 
+.lang-wrap {
+  position: relative;
+}
+
 .lang-dropdown {
   position: absolute;
   top: calc(100% + var(--sp-1));
