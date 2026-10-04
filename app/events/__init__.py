@@ -20,7 +20,7 @@ from werkzeug.wrappers import Response
 from app.auth import is_disposable_email
 from app.extensions import db, limiter
 from app.freemium import can_add_guest, can_create_event, max_duration_days
-from app.models import Creator, Event, Guest, generate_guest_code
+from app.models import Creator, Event, Guest, Household, generate_guest_code
 
 
 def _valid_email(email: str) -> bool:
@@ -337,18 +337,20 @@ def guest_access(code: str) -> str | Response:
         display_name = request.form.get("display_name", "").strip()
         guest_code = request.form.get("code", "").strip().lower()
         email = request.form.get("email", "").strip().lower() or None
+        num_adults_raw = request.form.get("num_adults", "1")
+        num_children_raw = request.form.get("num_children", "0")
 
         # Field-level validation (the guest chooses their own personal code).
         errors = []
         if not display_name or len(display_name) < 2:
-            errors.append("Nom d'affichage requis (min 2 caractères).")
-        if not guest_code or len(guest_code) < 8 or len(guest_code) > 16:
-            errors.append("Code perso requis (8 à 16 caractères).")
+            errors.append("Pseudo requis (min 2 caractères).")
+        if not guest_code or len(guest_code) < 4 or len(guest_code) > 8:
+            errors.append("Code perso requis (4 à 8 caractères).")
         elif not re.fullmatch(r"[a-z0-9]+", guest_code):
             errors.append("Code : lettres minuscules et chiffres uniquement.")
         else:
             if Guest.query.filter_by(event_id=event.id, code=guest_code).first():
-                errors.append("Code invalide ou déjà utilisé.")
+                errors.append("Code déjà utilisé.")
         if email and not _valid_email(email):
             errors.append("Format d'email invalide.")
         elif email and is_disposable_email(email):
@@ -356,12 +358,22 @@ def guest_access(code: str) -> str | Response:
         if not can_add_guest(event):
             errors.append("Événement complet.")
 
+        # Household fields
+        num_adults = 1
+        num_children = 0
+        try:
+            num_adults = max(1, min(20, int(num_adults_raw)))
+            num_children = max(0, min(20, int(num_children_raw)))
+        except (ValueError, TypeError):
+            pass
+
         if errors:
             for e in errors:
                 flash(e, "danger")
             return render_template(
                 "events/join.html", event=event,
                 display_name=display_name, code=guest_code, email=email,
+                num_adults=num_adults, num_children=num_children,
             )
 
         guest = Guest(
@@ -371,6 +383,19 @@ def guest_access(code: str) -> str | Response:
             event_id=event.id,
         )
         db.session.add(guest)
+        db.session.flush()  # get guest.id
+
+        # Auto-create household for cost sharing
+        household = Household(
+            name=f"Foyer {display_name}",
+            num_adults=num_adults,
+            num_children=num_children,
+            adult_weight=1.0,
+            child_weight=0.5,
+            event_id=event.id,
+            guest_id=guest.id,
+        )
+        db.session.add(household)
         db.session.commit()
 
         # Store in session. The code is NOT flashed: it is the guest's own

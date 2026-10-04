@@ -8,43 +8,97 @@
     </div>
 </div>
 
-<!-- Summary -->
-<div class="summary-cards" role="group" aria-label="{{ _('Résumé') }}">
-  <div class="card">
-    <span class="card-label">{{ _("Total des frais") }}</span>
-    <span class="card-value">{{ "%.2f"|format(total_expenses) }} €</span>
-  </div>
-  <div class="card">
-    <span class="card-label">{{ _("Foyers") }}</span>
-    <span class="card-value">{{ households|length }}</span>
-  </div>
-  <div class="card">
-    <span class="card-label">{{ _("Frais") }}</span>
-    <span class="card-value">{{ expenses|length }}</span>
-  </div>
-</div>
+{# === 1. Quick expense input (top) === #}
+{% if households %}
+<section class="section" aria-labelledby="h-add-exp">
+  <h2 id="h-add-exp" class="section-title">{{ _("Ajouter un frais") }}</h2>
+  <form method="post" action="{{ url_for('costs.add_expense', code=event.code) }}" class="expense-form expense-form-top">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-grid form-grid-compact">
+      <div class="field field-wide">
+        <label for="exp-desc">{{ _("Description") }} *</label>
+        <input type="text" id="exp-desc" name="description" required maxlength="300" placeholder="{{ _('Ex : Courses, essence…') }}">
+      </div>
+      <div class="field">
+        <label for="exp-amount">{{ _("Montant") }} *</label>
+        <input type="number" id="exp-amount" name="amount" required min="0.01" step="0.01" inputmode="decimal" placeholder="0.00">
+      </div>
+      <div class="field">
+        <label for="exp-hh">{{ _("Payé par") }} *</label>
+        <select id="exp-hh" name="household_id" required>
+          {% for h in households %}
+          <option value="{{ h.id }}">{{ h.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="exp-cat">{{ _("Catégorie") }}</label>
+        <select id="exp-cat" name="category">
+          <option value="general">{{ _("Général") }}</option>
+          <option value="food">{{ _("Nourriture") }}</option>
+          <option value="transport">{{ _("Transport") }}</option>
+          <option value="lodging">{{ _("Hébergement") }}</option>
+          <option value="activities">{{ _("Activités") }}</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="exp-date">{{ _("Date") }}</label>
+        <input type="date" id="exp-date" name="date">
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">{{ _("Ajouter") }}</button>
+  </form>
+</section>
+{% endif %}
 
-<!-- Settlement -->
+{# === 2. Settlement: who owes whom (big, clear) === #}
 {% if settlements %}
-<section aria-labelledby="h-settle" class="settlement-box">
-  <h2 id="h-settle">{{ _("Qui rembourse qui") }}</h2>
-  <ul class="settlement-list">
+<section class="section settlement-section" aria-labelledby="h-settle">
+  <h2 id="h-settle" class="section-title">{{ _("Qui doit à qui") }}</h2>
+  <ul class="settlement-list settlement-list-big">
     {% for s in settlements %}
-    <li>
-      <strong>{{ s.from.name }}</strong>
-      <span class="arrow" aria-hidden="true">→</span>
-      <strong>{{ s.to.name }}</strong>
+    <li class="settlement-item">
+      <span class="settlement-from">{{ s.from.name }}</span>
+      <span class="settlement-arrow" aria-hidden="true">→</span>
+      <span class="settlement-to">{{ s.to.name }}</span>
       <span class="settlement-amount">{{ "%.2f"|format(s.amount) }} €</span>
     </li>
     {% endfor %}
   </ul>
 </section>
+{% elif households|length >= 2 and expenses %}
+<section class="section settlement-section settlement-section-empty" aria-labelledby="h-settle">
+  <h2 id="h-settle" class="section-title">{{ _("Qui doit à qui") }}</h2>
+  <p class="muted">{{ _("Tout est réglé — aucun solde à compenser.") }}</p>
+</section>
 {% endif %}
 
-<!-- Households -->
-<section aria-labelledby="h-hh" class="section">
+{# === 3. Ratio settings (adult/child weights) === #}
+{% if households %}
+<section class="section" aria-labelledby="h-ratio">
+  <h2 id="h-ratio" class="section-title">{{ _("Ratio de répartition") }}</h2>
+  <p class="hint">{{ _("1 adulte = X parts, 1 enfant = Y parts. S'applique à tous les foyers.") }}</p>
+  <form method="post" action="{{ url_for('costs.update_ratio', code=event.code) }}" class="ratio-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-grid form-grid-compact">
+      <div class="field">
+        <label for="ratio-adult">{{ _("Parts par adulte") }}</label>
+        <input type="number" id="ratio-adult" name="adult_weight" step="0.1" min="0.1" max="10" value="{{ default_adult_weight }}">
+      </div>
+      <div class="field">
+        <label for="ratio-child">{{ _("Parts par enfant") }}</label>
+        <input type="number" id="ratio-child" name="child_weight" step="0.1" min="0" max="10" value="{{ default_child_weight }}">
+      </div>
+    </div>
+    <button type="submit" class="btn btn-secondary btn-small">{{ _("Appliquer à tous les foyers") }}</button>
+  </form>
+</section>
+{% endif %}
+
+{# === 4. Households table === #}
+<section class="section" aria-labelledby="h-hh">
   <div class="section-head">
-    <h2 id="h-hh">{{ _("Foyers") }}</h2>
+    <h2 id="h-hh" class="section-title">{{ _("Foyers") }}</h2>
     <a href="{{ url_for('costs.add_household', code=event.code) }}" class="btn btn-small btn-secondary">{{ _("+ Foyer") }}</a>
   </div>
   {% if households %}
@@ -98,10 +152,10 @@
   {% endif %}
 </section>
 
-<!-- Expenses -->
-<section aria-labelledby="h-exp" class="section">
+{# === 5. Expenses list === #}
+<section class="section" aria-labelledby="h-exp">
   <div class="section-head">
-    <h2 id="h-exp">{{ _("Frais") }}</h2>
+    <h2 id="h-exp" class="section-title">{{ _("Frais") }}</h2>
   </div>
   {% if expenses %}
   <div class="table-wrap">
@@ -148,63 +202,12 @@
     <p>{{ _("Ajoutez les dépenses du séjour pour les répartir entre les foyers.") }}</p>
   </div>
   {% endif %}
-
-  {% if households %}
-  <form method="post" action="{{ url_for('costs.add_expense', code=event.code) }}" class="expense-form">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <div class="form-grid">
-      <div class="field">
-        <label for="exp-desc">{{ _("Description") }} *</label>
-        <input type="text" id="exp-desc" name="description" required maxlength="300">
-      </div>
-      <div class="field">
-        <label for="exp-amount">{{ _("Montant") }} *</label>
-        <input type="number" id="exp-amount" name="amount" required min="0.01" step="0.01" inputmode="decimal">
-      </div>
-      <div class="field">
-        <label for="exp-currency">{{ _("Devise") }}</label>
-        <select id="exp-currency" name="currency">
-          {% for c in currencies %}
-          <option value="{{ c }}" {% if c == 'EUR' %}selected{% endif %}>{{ c }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="field">
-        <label for="exp-rate">{{ _("Taux (→ €)") }}</label>
-        <input type="number" id="exp-rate" name="exchange_rate" step="0.0001" min="0" value="1.0" inputmode="decimal">
-      </div>
-      <div class="field">
-        <label for="exp-hh">{{ _("Payé par") }} *</label>
-        <select id="exp-hh" name="household_id" required>
-          {% for h in households %}
-          <option value="{{ h.id }}">{{ h.name }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="field">
-        <label for="exp-cat">{{ _("Catégorie") }}</label>
-        <select id="exp-cat" name="category">
-          <option value="general">{{ _("Général") }}</option>
-          <option value="food">{{ _("Nourriture") }}</option>
-          <option value="transport">{{ _("Transport") }}</option>
-          <option value="lodging">{{ _("Hébergement") }}</option>
-          <option value="activities">{{ _("Activités") }}</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="exp-date">{{ _("Date") }}</label>
-        <input type="date" id="exp-date" name="date">
-      </div>
-    </div>
-    <button type="submit" class="btn btn-primary">{{ _("Ajouter le frais") }}</button>
-  </form>
-  {% endif %}
 </section>
 
-<!-- Transfers -->
-<section aria-labelledby="h-transfers" class="section">
+{# === 6. Transfers === #}
+<section class="section" aria-labelledby="h-transfers">
   <div class="section-head">
-    <h2 id="h-transfers">{{ _("Transferts déjà effectués") }}</h2>
+    <h2 id="h-transfers" class="section-title">{{ _("Transferts déjà effectués") }}</h2>
   </div>
   {% if transfers %}
   <div class="table-wrap">
@@ -252,7 +255,7 @@
   {% if households|length >= 2 %}
   <form method="post" action="{{ url_for('costs.add_transfer', code=event.code) }}" class="expense-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <div class="form-grid">
+    <div class="form-grid form-grid-compact">
       <div class="field">
         <label for="tr-from">{{ _("De") }} *</label>
         <select id="tr-from" name="from_household_id" required>
@@ -283,10 +286,10 @@
   {% endif %}
 </section>
 
-<!-- Payment requests -->
-<section aria-labelledby="h-pr" class="section">
+{# === 7. Payment requests === #}
+<section class="section" aria-labelledby="h-pr">
   <div class="section-head">
-    <h2 id="h-pr">{{ _("Demandes de paiement") }}</h2>
+    <h2 id="h-pr" class="section-title">{{ _("Demandes de paiement") }}</h2>
   </div>
   {% if payment_requests %}
   <ul class="pr-list">
@@ -329,7 +332,7 @@
   {% if households|length >= 2 %}
   <form method="post" action="{{ url_for('costs.add_payment_request', code=event.code) }}" class="expense-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <div class="form-grid">
+    <div class="form-grid form-grid-compact">
       <div class="field">
         <label for="pr-from">{{ _("De") }} *</label>
         <select id="pr-from" name="from_household_id" required>
@@ -356,11 +359,11 @@
   {% endif %}
 </section>
 
-<!-- Insights -->
+{# === 8. Category breakdown === #}
 {% if category_breakdown %}
-<section aria-labelledby="h-insights" class="section">
+<section class="section" aria-labelledby="h-insights">
   <div class="section-head">
-    <h2 id="h-insights">{{ _("Répartition par catégorie") }}</h2>
+    <h2 id="h-insights" class="section-title">{{ _("Répartition par catégorie") }}</h2>
   </div>
   <ul class="insight-list">
     {% for c in category_breakdown %}

@@ -17,29 +17,18 @@
            placeholder="{{ _('Ex : Famille Dupont') }}">
   </div>
 
-  <div class="form-grid">
-    <div class="form-group">
+  <div class="form-grid form-grid-compact">
+    <div class="field">
       <label for="num_adults">{{ _("Nombre d'adultes") }} *</label>
       <input type="number" id="num_adults" name="num_adults" required min="1" max="20" value="1">
     </div>
-    <div class="form-group">
+    <div class="field">
       <label for="num_children">{{ _("Nombre d'enfants") }}</label>
       <input type="number" id="num_children" name="num_children" min="0" max="20" value="0">
     </div>
   </div>
 
-  <div class="form-grid">
-    <div class="form-group">
-      <label for="adult_weight">{{ _("Parts par adulte") }}</label>
-      <input type="number" id="adult_weight" name="adult_weight" step="0.1" min="0.1" max="10" value="1.0">
-      <p class="hint">{{ _("1 adulte compte pour 1 part par défaut.") }}</p>
-    </div>
-    <div class="form-group">
-      <label for="child_weight">{{ _("Parts par enfant") }}</label>
-      <input type="number" id="child_weight" name="child_weight" step="0.1" min="0" max="10" value="0.5">
-      <p class="hint">{{ _("0,5 par défaut : un enfant compte pour une demi-part.") }}</p>
-    </div>
-  </div>
+  <p class="hint">{{ _("Le ratio adulte/enfant se définit sur la page des frais.") }}</p>
 
   <div class="form-actions">
     <button type="submit" class="btn btn-primary">{{ _("Ajouter le foyer") }}</button>

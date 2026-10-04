@@ -361,8 +361,10 @@ class Household(db.Model):  # type: ignore[misc,name-defined]
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
 
     event_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False, index=True)
+    guest_id: Mapped[str | None] = db.Column(db.String(32), db.ForeignKey("guests.id"), nullable=True)
 
     event = db.relationship("Event", backref=db.backref("households", lazy="dynamic", cascade="all, delete-orphan"))
+    guest = db.relationship("Guest", backref=db.backref("household", lazy=True))
 
     @property
     def total_weight(self) -> float:

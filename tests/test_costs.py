@@ -80,14 +80,13 @@ class TestHouseholds:
         }, follow_redirects=True)
         assert b"requis" in resp.data.lower() or b"Nom" in resp.data
 
-    def test_add_household_invalid_weights(self, client, creator, event):
+    def test_add_household_invalid_adults(self, client, creator, event):
         _login_creator(client, creator)
         resp = client.post(f"/e/{event.code}/costs/households/new", data={
             "name": "Test",
-            "num_adults": "2",
-            "adult_weight": "0",
+            "num_adults": "0",
         }, follow_redirects=True)
-        assert b"invalides" in resp.data.lower() or b"Poids" in resp.data
+        assert b"entre 1 et 50" in resp.data or b"Adultes" in resp.data
 
     def test_add_household_logs(self, client, creator, event, db):
         _login_creator(client, creator)

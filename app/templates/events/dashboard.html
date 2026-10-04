@@ -4,9 +4,13 @@
 {% set is_creator = current_user.is_authenticated and current_user.id == event.creator_id %}
 {# Unclaimed items across all lists (template-side count, no backend change). #}
 {% set unclaimed = [] %}
+{# Items assigned to me (creator or guest). #}
+{% set my_name = guest.display_name if guest else (current_user.display_name or current_user.email.split('@').first) %}
+{% set my_items = [] %}
 {% for lst in lists %}
   {% for item in lst.items %}
     {% if not item.assigned_to %}{% set _ = unclaimed.append(item) %}{% endif %}
+    {% if item.assigned_to == my_name and not item.is_done %}{% set _ = my_items.append((item, lst)) %}{% endif %}
   {% endfor %}
 {% endfor %}
 
@@ -33,7 +37,7 @@
 {# Quick actions: the most common next steps, one tap each #}
 <div class="quick-actions" role="group" aria-label="{{ _('Actions rapides') }}">
   {% if "planning" in enabled_modules %}
-  <a href="{{ url_for('planning.index', code=event.code) }}" class="btn btn-secondary quick-action">🍽 {{ _("Ajouter un repas") }}</a>
+  <a href="{{ url_for('planning.index', code=event.code) }}" class="btn btn-secondary quick-action">🍽 {{ _("Planifier les repas") }}</a>
   <a href="{{ url_for('planning.create', code=event.code) }}" class="btn btn-secondary quick-action">＋ {{ _("Ajouter une activité") }}</a>
   {% endif %}
   {% if is_creator %}
@@ -108,6 +112,33 @@
     <a href="{{ url_for('lists.index', code=event.code) }}" class="dash-card-link">{{ _("Voir les listes") }} →</a>
     {% endif %}
   </section>
+
+  {% if my_items %}
+  <section class="card dash-card" aria-labelledby="h-myitems">
+    <div class="dash-card-head">
+      <h2 id="h-myitems">{{ _("Mes items") }}</h2>
+      <span class="count-badge">{{ my_items|length }}</span>
+    </div>
+    <ul class="dash-mini-list dash-my-items">
+      {% for item, lst in my_items %}
+      <li>
+        <form method="post" action="{{ url_for('lists.toggle_item', code=event.code, list_id=lst.id, item_id=item.id) }}" class="dash-item-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="is_done" value="1">
+          <label class="dash-item-label">
+            <input type="checkbox" class="dash-item-check" onchange="this.form.submit()" aria-label="{{ _('Cocher') }}: {{ item.name }}">
+            <span class="dash-item-name">{{ item.name }}</span>
+          </label>
+        </form>
+        <span class="dash-item-list">{{ lst.title }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% if "lists" in enabled_modules %}
+    <a href="{{ url_for('lists.index', code=event.code) }}" class="dash-card-link">{{ _("Voir les listes") }} →</a>
+    {% endif %}
+  </section>
+  {% endif %}
 
   {% if "chat" in enabled_modules %}
   <section class="card dash-card" aria-labelledby="h-chat">

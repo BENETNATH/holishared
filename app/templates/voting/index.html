@@ -26,37 +26,37 @@
     <h3>
       <a href="{{ url_for('voting.detail', code=event.code, poll_id=poll.id) }}">{{ poll.question }}</a>
     </h3>
+
+    {% if guest %}
+    <div class="vote-options vote-options-inline" role="radiogroup" aria-label="{{ _('Votre vote') }}">
+      <form method="post" action="{{ url_for('voting.vote', code=event.code, poll_id=poll.id) }}" class="vote-form-inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% for r in res %}
+        <label class="vote-option vote-option-sm{% if guest_votes.get(poll.id) == r.option.id %} selected{% endif %}">
+          <input type="radio" name="option_id" value="{{ r.option.id }}"
+                 {% if guest_votes.get(poll.id) == r.option.id %}checked{% endif %}>
+          <span class="vote-option-label">{{ r.option.label }}</span>
+        </label>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary btn-small btn-vote-inline">{{ _("Voter") }}</button>
+      </form>
+    </div>
+    {% endif %}
+
     <ul class="poll-results" aria-label="{{ _('Résultats du sondage') }}">
       {% for r in res %}
         <li class="poll-option">
-          <span class="poll-option-label">{{ r.option.label }} — {{ r.count }} {{ _("vote(s)") }}</span>
+          <span class="poll-option-label">{{ r.option.label }}</span>
           <div class="poll-bar" role="progressbar"
                aria-valuenow="{{ r.percent }}" aria-valuemin="0" aria-valuemax="100"
                aria-label="{{ r.option.label }} : {{ r.percent }}%">
             <div class="poll-bar-fill" style="width: {{ r.percent }}%"></div>
           </div>
-          <span class="poll-percent">{{ r.percent }}%</span>
+          <span class="poll-count">{{ r.count }} ({{ r.percent }}%)</span>
         </li>
       {% endfor %}
     </ul>
     <p class="poll-total">{{ total }} {{ _("vote(s) au total") }}</p>
-
-    {% if guest %}
-      <form method="post" action="{{ url_for('voting.vote', code=event.code, poll_id=poll.id) }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <fieldset>
-          <legend class="sr-only">{{ _("Votre vote") }}</legend>
-          {% for r in res %}
-            <label>
-              <input type="radio" name="option_id" value="{{ r.option.id }}"
-                     {% if guest_votes.get(poll.id) == r.option.id %}checked{% endif %}>
-              {{ r.option.label }}
-            </label>
-          {% endfor %}
-        </fieldset>
-        <button type="submit" class="btn btn-primary">{{ _("Voter") }}</button>
-      </form>
-    {% endif %}
   </div>
 {% endfor %}
 

@@ -172,6 +172,10 @@ def index(code: str) -> str | Response | tuple[str, int]:
         {"category": c, "amount": a / 100.0} for c, a in _category_breakdown(expenses)
     ]
 
+    # Default ratio from first household (or fallback)
+    default_adult_weight = households[0].adult_weight if households else 1.0
+    default_child_weight = households[0].child_weight if households else 0.5
+
     return render_template("costs/index.html",
                            event=event, guest=guest, is_creator=is_creator,
                            households=households, expenses=expenses,
@@ -179,7 +183,9 @@ def index(code: str) -> str | Response | tuple[str, int]:
                            settlements=settlement_display, h_summary=h_summary,
                            total_expenses=total_expenses,
                            category_breakdown=category_breakdown,
-                           currencies=CURRENCIES)
+                           currencies=CURRENCIES,
+                           default_adult_weight=default_adult_weight,
+                           default_child_weight=default_child_weight)
 
 
 @costs_bp.route("/e/<code>/costs/households/new", methods=["GET", "POST"])
@@ -197,21 +203,15 @@ def add_household(code: str) -> str | Response | tuple[str, int]:
         name = request.form.get("name", "").strip()
         num_adults_raw = request.form.get("num_adults", "1")
         num_children_raw = request.form.get("num_children", "0")
-        adult_weight_raw = request.form.get("adult_weight", "1.0")
-        child_weight_raw = request.form.get("child_weight", "0.5")
 
         errors: list[str] = []
         if not name or len(name) < 2:
             errors.append("Nom du foyer requis (min 2 caractères).")
         num_adults = 0
         num_children = 0
-        adult_weight = 0.0
-        child_weight = 0.0
         try:
             num_adults = int(num_adults_raw)
             num_children = int(num_children_raw)
-            adult_weight = float(adult_weight_raw)
-            child_weight = float(child_weight_raw)
         except (ValueError, TypeError):
             errors.append("Valeurs numériques invalides.")
         if not errors:
@@ -219,8 +219,6 @@ def add_household(code: str) -> str | Response | tuple[str, int]:
                 errors.append("Adultes : entre 1 et 50.")
             if num_children < 0 or num_children > 50:
                 errors.append("Enfants : entre 0 et 50.")
-            if adult_weight <= 0 or adult_weight > 10 or child_weight < 0 or child_weight > 10:
-                errors.append("Poids invalides (0 < adulte ≤ 10, 0 ≤ enfant ≤ 10).")
 
         if errors:
             for e in errors:
@@ -230,8 +228,8 @@ def add_household(code: str) -> str | Response | tuple[str, int]:
                 name=name,
                 num_adults=num_adults,
                 num_children=num_children,
-                adult_weight=adult_weight,
-                child_weight=child_weight,
+                adult_weight=1.0,
+                child_weight=0.5,
                 event_id=event.id,
             )
             db.session.add(h)
@@ -567,4 +565,42 @@ def delete_payment_request(code: str, pr_id: str) -> Response | tuple[str, int]:
     log_action(db.session, event.id, actor_name, actor_type, "payment_request.deleted")
     db.session.commit()
     flash("Demande supprimée.", "success")
+    return redirect(url_for("costs.index", code=code))
+
+
+@costs_bp.route("/e/<code>/costs/ratio", methods=["POST"])
+def update_ratio(code: str) -> Response | tuple[str, int]:
+    """Update adult/child weights for all households in the event."""
+    event = _get_event_or_404(code)
+    if not event:
+        return "Not found", 404
+
+    guest, _is_creator, denied = _resolve_actor(event)
+    if denied:
+        return denied
+
+    adult_weight_raw = request.form.get("adult_weight", "1.0")
+    child_weight_raw = request.form.get("child_weight", "0.5")
+
+    try:
+        adult_weight = float(adult_weight_raw)
+        child_weight = float(child_weight_raw)
+    except (ValueError, TypeError):
+        flash("Valeurs invalides.", "danger")
+        return redirect(url_for("costs.index", code=code))
+
+    if adult_weight <= 0 or adult_weight > 10 or child_weight < 0 or child_weight > 10:
+        flash("Poids invalides (0 < adulte ≤ 10, 0 ≤ enfant ≤ 10).", "danger")
+        return redirect(url_for("costs.index", code=code))
+
+    households = event.households.all()
+    for h in households:
+        h.adult_weight = adult_weight
+        h.child_weight = child_weight
+
+    actor_name, actor_type = _actor(event, guest)
+    log_action(db.session, event.id, actor_name, actor_type,
+               "ratio.updated", details=f"adult={adult_weight}, child={child_weight}")
+    db.session.commit()
+    flash("Ratio appliqué à tous les foyers.", "success")
     return redirect(url_for("costs.index", code=code))

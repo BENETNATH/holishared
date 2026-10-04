@@ -2333,6 +2333,12 @@ tfoot td {
   display: flex;
   gap: var(--sp-2);
   margin-bottom: var(--sp-4);
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.quick-add input[type="hidden"] {
+  display: none;
 }
 
 .quick-add-input {
@@ -3226,4 +3232,176 @@ details.form-options .form-group {
   .landing-hero h1 {
     font-size: var(--text-xl);
   }
+}
+
+.meal-add-form {
+  display: flex;
+  gap: 2px;
+  margin-top: auto;
+}
+
+.meal-submit {
+  width: 1.75rem;
+  height: 1.75rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: 0.75rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.meal-add-form:focus-within .meal-submit,
+.meal-submit:hover {
+  opacity: 1;
+}
+
+/* --- Voting: clear vote card --- */
+.vote-card {
+  border: 2px solid var(--primary);
+  margin-bottom: var(--sp-4);
+}
+
+.vote-card-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  margin: 0 0 var(--sp-3);
+}
+
+.vote-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
+}
+
+.vote-option {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-3);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  font-size: var(--text-base);
+}
+
+.vote-option:hover {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.vote-option.selected {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.vote-option input[type="radio"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: var(--primary);
+  flex-shrink: 0;
+}
+
+.vote-option-label {
+  font-weight: 500;
+}
+
+.btn-vote {
+  width: 100%;
+  padding: var(--sp-3);
+  font-size: var(--text-base);
+  font-weight: 600;
+}
+
+.vote-confirmed {
+  margin: var(--sp-2) 0 0;
+  font-size: var(--text-sm);
+  color: var(--success);
+}
+
+/* --- Poll results --- */
+.poll-card-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  margin: 0 0 var(--sp-3);
+}
+
+.poll-count {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* --- List items: state indicators --- */
+.item-status {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.item-status-open {
+  border: 2px solid var(--border);
+  color: var(--text-muted);
+}
+
+.item-status-taken {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.item-row.mine {
+  background: var(--primary-soft);
+}
+
+.item-claim-form,
+.item-release-form,
+.item-delete-form {
+  display: contents;
+}
+
+.btn-claim {
+  white-space: nowrap;
+}
+
+.btn-release {
+  white-space: nowrap;
+  font-size: var(--text-xs);
+}
+
+.assigned-me {
+  font-weight: 700;
+}
+
+/* --- Voting: inline variant (index page) --- */
+.vote-options-inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-3);
+}
+
+.vote-form-inline {
+  display: contents;
+}
+
+.vote-option-sm {
+  padding: var(--sp-2) var(--sp-3);
+  font-size: var(--text-sm);
+}
+
+.btn-vote-inline {
+  align-self: center;
+  white-space: nowrap;
 }
