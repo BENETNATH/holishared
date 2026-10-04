@@ -11,6 +11,45 @@
     </div>
 </div>
 
+{# Meal grid: days × meal types #}
+<div class="meal-grid-wrap">
+  <h2>{{ _("Repas") }}</h2>
+  <div class="meal-grid">
+    <div class="meal-grid-header">
+      <span class="meal-grid-corner"></span>
+      <span>{{ _("Petit-déj") }}</span>
+      <span>{{ _("Déjeuner") }}</span>
+      <span>{{ _("Dîner") }}</span>
+    </div>
+    {% for day in event_days %}
+    <div class="meal-grid-row">
+      <span class="meal-grid-day">{{ day.strftime("%a %d/%m") }}</span>
+      {% for meal_type, time_range in [('breakfast', '06-11'), ('lunch', '11-15'), ('dinner', '18-23')] %}
+        {% set cell_acts = [] %}
+        {% for act in activities %}
+          {% if act.date == day and act.start_time %}
+            {% set h = act.start_time.hour %}
+            {% if meal_type == 'breakfast' and h >= 6 and h < 11 %}{% set _ = cell_acts.append(act) %}{% endif %}
+            {% if meal_type == 'lunch' and h >= 11 and h < 15 %}{% set _ = cell_acts.append(act) %}{% endif %}
+            {% if meal_type == 'dinner' and h >= 18 %}{% set _ = cell_acts.append(act) %}{% endif %}
+          {% endif %}
+        {% endfor %}
+        <div class="meal-cell">
+          {% if cell_acts %}
+            {% for act in cell_acts %}
+            <span class="meal-item" title="{{ act.title }}">{{ act.title }}</span>
+            {% endfor %}
+          {% else %}
+            <a href="{{ url_for('planning.create', code=event.code) }}?date={{ day.isoformat() }}&time={{ {'breakfast': '08:00', 'lunch': '12:00', 'dinner': '19:00'}[meal_type] }}" class="meal-add">+</a>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{# Activity list #}
 {% if not activities %}
   <div class="empty-state">
     <span class="empty-icon" aria-hidden="true">🗓️</span>

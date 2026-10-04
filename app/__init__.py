@@ -164,6 +164,29 @@ def create_app() -> Flask:
     def format_datetime_filter(value: object, fmt: str = "medium") -> str:
         return cast("str", babel_format_datetime(value, format=fmt))
 
+    @app.template_filter("add_days")
+    def add_days_filter(value: object, days: int) -> object:
+        from datetime import timedelta
+        from datetime import date as _date
+        if isinstance(value, _date):
+            return value + timedelta(days=days)
+        return value
+
+    @app.context_processor
+    def inject_event_days():
+        from flask import g as _g
+        from datetime import timedelta
+        from datetime import date as _date
+        ev = getattr(_g, "current_event", None)
+        if ev and ev.start_date and ev.end_date:
+            days = []
+            d = ev.start_date
+            while d <= ev.end_date:
+                days.append(d)
+                d += timedelta(days=1)
+            return {"event_days": days}
+        return {"event_days": []}
+
     # Core blueprints (always registered)
     from app.auth import auth_bp
     from app.events import events_bp

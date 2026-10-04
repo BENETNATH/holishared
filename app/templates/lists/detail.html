@@ -17,81 +17,51 @@
 </ul>
 {% endif %}
 
-<ul class="items" aria-label="{{ _('Articles de la liste') }}">
+{# Quick-add: single input, Enter to submit #}
+<form method="post" action="{{ url_for('lists.add_item', code=event.code, list_id=shared_list.id) }}" class="quick-add">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="text" name="name" required maxlength="300" placeholder="{{ _('Ajouter un article… (Enter)') }}"
+         class="quick-add-input" autofocus>
+  <button type="submit" class="btn btn-primary quick-add-btn" aria-label="{{ _('Ajouter') }}">+</button>
+</form>
+
+<ul class="items items-compact" aria-label="{{ _('Articles de la liste') }}">
   {% for item in items %}
-  <li class="card item{% if item.is_done %} done{% endif %}">
-    <form method="post" action="{{ url_for('lists.toggle_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <label for="done-{{ item.id }}">
-        <input type="checkbox" id="done-{{ item.id }}" name="is_done"
-               {% if item.is_done %}checked{% endif %}
-               onchange="this.form.submit()"
-               aria-label="{{ _('Marquer comme fait') }}: {{ item.name }}">
-        <span class="item-name">{{ item.name }}</span>
-      </label>
-    </form>
+  <li class="item-row{% if item.is_done %} done{% endif %}"
+      hx-post="{{ url_for('lists.toggle_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}"
+      hx-headers='{"csrf_token": "{{ csrf_token() }}"}'
+      hx-target="closest .item-row"
+      hx-swap="outerHTML">
+    <input type="hidden" name="is_done" value="{{ '0' if item.is_done else '1' }}">
+    <span class="item-check" aria-hidden="true">{% if item.is_done %}✓{% else %}&nbsp;{% endif %}</span>
+    <span class="item-name">{{ item.name }}</span>
     {% if item.quantity and item.quantity != "1" %}<span class="qty">{{ item.quantity }}</span>{% endif %}
     {% if item.section %}<span class="item-section">{{ item.section }}</span>{% endif %}
-
     {% if item.assigned_to %}
-      <span class="assigned">{{ _("À") }} : <strong>{{ item.assigned_to }}</strong></span>
-      {% if is_creator or item.assigned_to == actor_name %}
-      <form method="post" action="{{ url_for('lists.unclaim_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="btn btn-small btn-secondary">{{ _("Libérer") }}</button>
-      </form>
-      {% endif %}
-    {% else %}
-      <form method="post" action="{{ url_for('lists.claim_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="btn btn-small btn-primary">{{ _("Je m'occupe de ça") }}</button>
-      </form>
+      <span class="assigned">{{ item.assigned_to }}</span>
     {% endif %}
-
-    <form method="post" action="{{ url_for('lists.delete_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button type="submit" class="btn btn-small btn-danger"
-              aria-label="{{ _('Supprimer') }}: {{ item.name }}">{{ _("Supprimer") }}</button>
-    </form>
+    <span class="item-actions">
+      {% if not item.assigned_to %}
+      <button type="button" class="icon-btn" title="{{ _('Je m\'occupe de ça') }}"
+              hx-post="{{ url_for('lists.claim_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}"
+              hx-headers='{"csrf_token": "{{ csrf_token() }}"}'
+              hx-target="closest .item-row" hx-swap="outerHTML">✋</button>
+      {% elif is_creator or item.assigned_to == actor_name %}
+      <button type="button" class="icon-btn" title="{{ _('Libérer') }}"
+              hx-post="{{ url_for('lists.unclaim_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}"
+              hx-headers='{"csrf_token": "{{ csrf_token() }}"}'
+              hx-target="closest .item-row" hx-swap="outerHTML">✋</button>
+      {% endif %}
+      <button type="button" class="icon-btn icon-btn-danger" title="{{ _('Supprimer') }}"
+              hx-post="{{ url_for('lists.delete_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}"
+              hx-headers='{"csrf_token": "{{ csrf_token() }}"}'
+              hx-target="closest .item-row" hx-swap="outerHTML">×</button>
+    </span>
   </li>
   {% else %}
-  <li class="empty">{{ _("Aucun article dans cette liste. Ajoutez le premier ci-dessous.") }}</li>
+  <li class="empty">{{ _("Aucun article. Tapez ci-dessus et appuyez sur Enter.") }}</li>
   {% endfor %}
 </ul>
-
-<div class="card add-item-card">
-  <h2>{{ _("Ajouter un article") }}</h2>
-  <form method="post" action="{{ url_for('lists.add_item', code=event.code, list_id=shared_list.id) }}">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-    <div class="form-grid">
-      <div class="form-group field-wide">
-        <label for="name">{{ _("Nom") }} *</label>
-        <input type="text" id="name" name="name" required maxlength="300"
-               value="{{ form_data.get('name', '') }}" placeholder="{{ _('Ex : Pain, fromage…') }}">
-      </div>
-      <div class="form-group">
-        <label for="quantity">{{ _("Quantité") }}</label>
-        <input type="text" id="quantity" name="quantity" maxlength="50"
-               value="{{ form_data.get('quantity', '1') }}">
-      </div>
-      <div class="form-group">
-        <label for="section">{{ _("Section") }}</label>
-        <input type="text" id="section" name="section" maxlength="100"
-               value="{{ form_data.get('section', '') }}" placeholder="{{ _('Ex : Épicerie') }}">
-      </div>
-      <div class="form-group">
-        <label for="assigned_to">{{ _("Assigné à") }}</label>
-        <input type="text" id="assigned_to" name="assigned_to" maxlength="50"
-               value="{{ form_data.get('assigned_to', '') }}">
-      </div>
-    </div>
-
-    <div class="form-actions">
-      <button type="submit" class="btn btn-primary">{{ _("Ajouter") }}</button>
-    </div>
-  </form>
-</div>
 
 {% if is_creator %}
 <div class="danger-zone">
