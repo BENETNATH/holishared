@@ -14,13 +14,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install ruff mypy flask flask-sqlalchemy flask-login flask-babel
+      - run: pip install ruff mypy bandit flask flask-sqlalchemy flask-login flask-babel flask-limiter flask-wtf
       - name: Ruff check
         run: ruff check .
       - name: Ruff format
         run: ruff format --check .
       - name: Mypy
         run: mypy app/
+      - name: Bandit
+        run: bandit -r app/ -f txt --exit-zero
 
   test:
     runs-on: ubuntu-latest
