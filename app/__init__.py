@@ -265,6 +265,7 @@ def create_app() -> Flask:
     # Context processor
     @app.context_processor
     def inject_globals() -> dict[str, object]:
+        from flask import session as _session
         from flask_babel import get_locale as _get_locale
         loc = _get_locale()
         # Detect current event from URL for navbar integration
@@ -274,11 +275,21 @@ def create_app() -> Flask:
             parts = request.path.split("/")
             if len(parts) >= 3 and parts[2]:
                 current_event = _Event.query.filter_by(code=parts[2], is_active=True).first()
+        # Guest identity (presentational chip in the header)
+        current_guest = None
+        if current_event is not None:
+            guest_id = _session.get(f"guest_{current_event.code}")
+            if guest_id is not None:
+                from app.models import Guest as _Guest
+                current_guest = _Guest.query.filter_by(
+                    id=guest_id, event_id=current_event.id, is_active=True
+                ).first()
         return {
             "app_name": "holishared",
             "enabled_modules": app.config["ENABLED_MODULES"],
             "current_lang": loc.language if loc else None,
             "current_event": current_event,
+            "current_guest": current_guest,
         }
 
     # Error handlers

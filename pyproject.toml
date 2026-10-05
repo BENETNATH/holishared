@@ -37,6 +37,7 @@ build-backend = "setuptools.build_meta"
 target-version = "py312"
 line-length = 100
 src = ["app", "tests"]
+extend-exclude = [".swival"]
 
 [tool.ruff.lint]
 select = [
