@@ -211,6 +211,7 @@
     "app/static/manifest.json"
   ],
   "reviewed_files": [
+    ".github/workflows/ci.yml",
     ".pre-commit-config.yaml",
     "app/__init__.py",
     "app/auth/__init__.py",
@@ -221,6 +222,7 @@
     "app/freemium.py",
     "app/lists/__init__.py",
     "app/logistics/__init__.py",
+    "app/main/__init__.py",
     "app/meals/__init__.py",
     "app/media/__init__.py",
     "app/models.py",
@@ -228,12 +230,19 @@
     "app/static/js/alpine.min.js",
     "app/static/js/htmx.min.js",
     "app/static/js/service-worker.js",
+    "app/static/manifest.json",
+    "app/utils.py",
     "app/voting/__init__.py",
+    "docker-compose.yml",
     "manage.py",
+    "nginx/saas.conf",
     "pyproject.toml",
+    "scripts/backup.sh",
     "scripts/cleanup_media.py",
+    "scripts/extract_i18n.py",
     "scripts/translate_en.py",
     "tests/conftest.py",
+    "tests/test_auth.py",
     "tests/test_chat.py",
     "tests/test_costs.py",
     "tests/test_events.py",
@@ -242,6 +251,7 @@
     "tests/test_lists.py",
     "tests/test_logistics.py",
     "tests/test_meals.py",
+    "tests/test_media.py",
     "tests/test_models.py",
     "tests/test_module_gating.py",
     "tests/test_planning.py",
@@ -250,391 +260,471 @@
   "triage_records": {
     "app/chat/__init__.py": {
       "path": "app/chat/__init__.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Authorization and input validation are correctly scoped; no concrete attacker path identified",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 21",
+        "reached from entry point app/__init__.py",
+        "reached from entry point scripts/backup.sh"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "app/__init__.py": {
       "path": "app/__init__.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "App factory with proper secret validation, session hardening, and documented ProxyFix deployment assumption; no concrete attacker-exploitable code path found.",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 22",
+        "phase 1 entry point",
+        "reached from entry point manage.py"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "app/static/js/htmx.min.js": {
       "path": "app/static/js/htmx.min.js",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Standard unmodified htmx 1.9.12 static asset; no concrete security control failure or attacker-reachable vulnerability in this file",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 27"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "manage.py": {
       "path": "manage.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "trusted local CLI; no untrusted input reaches dangerous operations",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 24",
+        "phase 1 entry point",
+        "reached from entry point app/__init__.py"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "app/logistics/__init__.py": {
       "path": "app/logistics/__init__.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Standard CRUD blueprint with proper auth gates, ORM parameterization, and input validation; no concrete attacker path identified",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 21",
+        "reached from entry point app/__init__.py",
+        "reached from entry point scripts/backup.sh"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "app/meals/__init__.py": {
       "path": "app/meals/__init__.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Authorization and input validation are consistently applied; no concrete untrusted trigger yields attacker gain",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 21",
+        "reached from entry point app/__init__.py",
+        "reached from entry point scripts/backup.sh"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "app/planning/__init__.py": {
       "path": "app/planning/__init__.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Standard CRUD blueprint with proper authz, ORM queries, and input validation; no concrete attacker path identified",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 21",
+        "reached from entry point app/__init__.py",
+        "reached from entry point scripts/backup.sh"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "tests/test_events.py": {
       "path": "tests/test_events.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Test file for events blueprint; no production code or security control under test",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 18"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "app/lists/__init__.py": {
       "path": "app/lists/__init__.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Authorization scoped to event via guest session; referrer redirect low exploitability",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 21"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "app/voting/__init__.py": {
       "path": "app/voting/__init__.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Authorization and scoping checks correctly prevent cross-event IDOR; no concrete attacker trigger with security-relevant gain identified.",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 21",
+        "reached from entry point app/__init__.py",
+        "reached from entry point scripts/backup.sh"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "app/media/__init__.py": {
       "path": "app/media/__init__.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Media upload blueprint has solid controls: magic-byte validation, UUID filenames, rate limiting, send_from_directory, and proper authorization gating.",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 17",
+        "reached from entry point app/__init__.py",
+        "reached from entry point scripts/backup.sh"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "app/static/js/alpine.min.js": {
       "path": "app/static/js/alpine.min.js",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Third-party Alpine.js v3.17.4 minified static asset; no concrete security bug or untrusted-input path identified",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 16"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "tests/test_module_gating.py": {
       "path": "tests/test_module_gating.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Test file for feature-availability gating; no security control or untrusted input path",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 13"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "app/auth/__init__.py": {
       "path": "app/auth/__init__.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Standard auth blueprint with rate limiting and superadmin credential check; no concrete attacker path identified",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 13",
+        "reached from entry point manage.py"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "app/costs/__init__.py": {
       "path": "app/costs/__init__.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Standard cost-sharing CRUD with proper event scoping, auth checks, and input validation; no concrete attacker path",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 13"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "pyproject.toml": {
       "path": "pyproject.toml",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Project configuration file with no security control logic or trust boundary crossing",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 11"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "app/models.py": {
       "path": "app/models.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Schema-only model file; secrets module used correctly for tokens; no access-control or injection logic present",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 12",
+        "reached from entry point app/__init__.py"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "app/static/js/service-worker.js": {
       "path": "app/static/js/service-worker.js",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "standard service worker with no attacker-controllable security path",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 11"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "tests/test_hardening.py": {
       "path": "tests/test_hardening.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Pure test file verifying security headers and health endpoint; no executable attack surface or security control logic.",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 11"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "app/events/__init__.py": {
       "path": "app/events/__init__.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Well-structured auth, rate limits, and input validation; no concrete attacker-triggerable security flaw identified.",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 16"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     ".pre-commit-config.yaml": {
       "path": ".pre-commit-config.yaml",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Pre-commit dev-tooling YAML config with no runtime attack surface",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 9"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "tests/test_costs.py": {
       "path": "tests/test_costs.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Pure test file exercising costs blueprint; no production code or security control logic present",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 9"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "tests/test_chat.py": {
       "path": "tests/test_chat.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Test file with no production code or attacker-reachable security surface",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 9",
+        "reached from entry point manage.py"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "tests/test_meals.py": {
       "path": "tests/test_meals.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Test file for meals blueprint; no application logic or security control implemented",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 9"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "tests/test_logistics.py": {
       "path": "tests/test_logistics.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "pytest test file for logistics blueprint; no production code path, no security control, no untrusted input",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 9"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "tests/test_lists.py": {
       "path": "tests/test_lists.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Standard pytest test file for list CRUD; no production code path or attacker-reachable surface.",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 9"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "tests/test_voting.py": {
       "path": "tests/test_voting.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Test file for voting blueprint; no production code or security control exercised",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 9"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "tests/test_planning.py": {
       "path": "tests/test_planning.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Pure pytest test file with no production code path or security control",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 9"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "scripts/translate_en.py": {
       "path": "scripts/translate_en.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "developer-only translation utility with no untrusted input or security control involvement",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 8",
+        "reached from entry point app/__init__.py"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
     "app/extensions.py": {
       "path": "app/extensions.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Standard Flask extension init; no concrete security vulnerability in this file",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "attack-surface score 8"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
@@ -653,14 +743,18 @@
     },
     "tests/conftest.py": {
       "path": "tests/conftest.py",
-      "priority": "SKIP",
+      "priority": "ESCALATE_MEDIUM",
       "confidence": "high",
       "bug_classes": [],
       "summary": "Test-only pytest fixture file with no production attack surface or security control logic",
       "relevant_symbols": [],
       "suspicious_flows": [],
       "needs_followup": false,
-      "promotion_reasons": [],
+      "promotion_reasons": [
+        "reached from entry point manage.py",
+        "reached from entry point app/__init__.py",
+        "reached from entry point scripts/backup.sh"
+      ],
       "triage_failure_mode": null,
       "confirmation_outcome": null
     },
@@ -702,11 +796,250 @@
       "promotion_reasons": [],
       "triage_failure_mode": null,
       "confirmation_outcome": null
+    },
+    "nginx/saas.conf": {
+      "path": "nginx/saas.conf",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Standard Docker nginx proxy config; security headers, rate limiting, and body limits all present; no concrete attacker trigger identified",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "app/utils.py": {
+      "path": "app/utils.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Simple ActivityLog creation helper with no security control logic or untrusted input handling",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "tests/test_media.py": {
+      "path": "tests/test_media.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Test file verifying media access control; no production logic or security control implemented here",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "app/main/__init__.py": {
+      "path": "app/main/__init__.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "trivial landing page route with no user input, no security logic, no trust boundary crossing",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "tests/test_auth.py": {
+      "path": "tests/test_auth.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Test file with basic login assertions; no security control or untrusted input path",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    ".github/workflows/ci.yml": {
+      "path": ".github/workflows/ci.yml",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Standard CI workflow with lint and test jobs; no concrete attacker trigger or security-relevant gain identified",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "app/static/manifest.json": {
+      "path": "app/static/manifest.json",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "PWA web manifest with static icon references; no code, no trust boundary, no security control",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "docker-compose.yml": {
+      "path": "docker-compose.yml",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Standard docker-compose deployment config; no concrete attacker-controlled input path to a security-relevant outcome",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "scripts/extract_i18n.py": {
+      "path": "scripts/extract_i18n.py",
+      "priority": "ESCALATE_MEDIUM",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "developer-only i18n extraction script with no untrusted input path or security control",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [
+        "reached from entry point app/__init__.py"
+      ],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "scripts/backup.sh": {
+      "path": "scripts/backup.sh",
+      "priority": "ESCALATE_MEDIUM",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Admin cron backup script with no untrusted input path; sqlite3 quote injection requires local argument control by an operator who already has filesystem access",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [
+        "phase 1 entry point"
+      ],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
     }
   },
-  "candidate_files": [],
-  "deep_reviewed_files": [],
-  "proposed_findings": [],
+  "candidate_files": [
+    "app/chat/__init__.py",
+    "app/__init__.py",
+    "app/static/js/htmx.min.js",
+    "manage.py",
+    "app/logistics/__init__.py",
+    "app/meals/__init__.py",
+    "app/planning/__init__.py",
+    "tests/test_events.py",
+    "app/lists/__init__.py",
+    "app/voting/__init__.py",
+    "app/media/__init__.py",
+    "app/static/js/alpine.min.js",
+    "tests/test_module_gating.py",
+    "app/auth/__init__.py",
+    "app/costs/__init__.py",
+    "pyproject.toml",
+    "app/models.py",
+    "app/static/js/service-worker.js",
+    "tests/test_hardening.py",
+    "app/events/__init__.py",
+    ".pre-commit-config.yaml",
+    "tests/test_costs.py",
+    "tests/test_chat.py",
+    "tests/test_meals.py",
+    "tests/test_logistics.py",
+    "tests/test_lists.py",
+    "tests/test_voting.py",
+    "tests/test_planning.py",
+    "scripts/translate_en.py",
+    "app/extensions.py",
+    "tests/conftest.py",
+    "scripts/extract_i18n.py",
+    "scripts/backup.sh"
+  ],
+  "deep_reviewed_files": [
+    ".pre-commit-config.yaml",
+    "app/__init__.py",
+    "app/auth/__init__.py",
+    "app/chat/__init__.py",
+    "app/costs/__init__.py",
+    "app/events/__init__.py",
+    "app/extensions.py",
+    "app/lists/__init__.py",
+    "app/logistics/__init__.py",
+    "app/meals/__init__.py",
+    "app/media/__init__.py",
+    "app/models.py",
+    "app/planning/__init__.py",
+    "app/static/js/alpine.min.js",
+    "app/static/js/htmx.min.js",
+    "app/static/js/service-worker.js",
+    "app/voting/__init__.py",
+    "manage.py",
+    "pyproject.toml",
+    "scripts/backup.sh",
+    "scripts/extract_i18n.py",
+    "scripts/translate_en.py",
+    "tests/conftest.py",
+    "tests/test_chat.py",
+    "tests/test_costs.py",
+    "tests/test_events.py",
+    "tests/test_hardening.py",
+    "tests/test_lists.py",
+    "tests/test_logistics.py",
+    "tests/test_meals.py",
+    "tests/test_module_gating.py",
+    "tests/test_planning.py",
+    "tests/test_voting.py"
+  ],
+  "proposed_findings": [
+    {
+      "title": "Open redirect via unvalidated Referer header in toggle endpoints",
+      "finding_type": "open redirect",
+      "severity": "medium",
+      "locations": [
+        "app/lists/__init__.py:371"
+      ],
+      "preconditions": [
+        "victim has a valid guest or creator session for the target event"
+      ],
+      "proof": [
+        "attacker: attacker hosting a cross-origin form targeting an authenticated victim's session trigger: Referer header set to attacker URL during cross-origin form POST to toggle endpoint impact: victim redirected to attacker URL after state change, enabling phishing toggle_meal at line 371 and toggle_activity at line 390 call redirect(request.referrer or url_for(...)) after committing the state change. request.referrer is the raw HTTP Referer header, set by the victim's browser to the attacker's page URL during a cross-origin form POST. No domain allowlist, URL scheme check, or same-origin validation is performed before the redirect. The 302 Location header carries the attacker-controlled URL, and the victim's browser navigates there after the state change is persisted."
+      ],
+      "fix_outline": "validate the referrer host against the app origin, or replace with url_for for the redirect target",
+      "source_file": "app/lists/__init__.py",
+      "triage_decision": null,
+      "threat_model": ""
+    },
+    {
+      "title": "unbounded household creation enables event-wide DoS",
+      "finding_type": "denial of service",
+      "severity": "medium",
+      "locations": [
+        "app/costs/__init__.py:227"
+      ],
+      "preconditions": [
+        "valid event code and active guest session for that event"
+      ],
+      "proof": [
+        "attacker: authenticated guest participant of the target event trigger: repeated unthrottled POST to /e/<code>/costs/households/new impact: index page O(H\u00d7E) settlement loops degrade to unusable latency for all participants add_household (line 227) lacks @limiter.limit, unlike add_expense, add_transfer, add_payment_request (\"20 per hour\"). Each POST inserts one persistent Household row. unit: single POST with name/num_adults/num_children resource: one DB row; every index load runs _per_expense_shares and _settlement at O(H\u00d7E) limit: no cap on household count; sibling create routes are rate-limited gap: index has no household ceiling; inner loops iterate all H per expense E timing: rows persist; all subsequent index loads by any participant pay full O(H\u00d7E)"
+      ],
+      "fix_outline": "add @limiter.limit to add_household matching sibling routes",
+      "source_file": "app/costs/__init__.py",
+      "triage_decision": null,
+      "threat_model": ""
+    }
+  ],
   "verified_findings": [],
   "repo_profile": {
     "summary": "Flask SaaS for group vacation planning with modules for chat, voting, meals, costs, logistics, and media. Uses SQLite persistence, Redis caching, Waitress WSGI behind Nginx. Auth via Flask-Login with superadmin env credentials. French-default i18n via Flask-Babel. Dockerized with rate limiting, email validation, blocked-domain filtering, and Pillow-based image handling.",
@@ -3502,9 +3835,22 @@
     "tests/test_planning.py": 9,
     "tests/test_voting.py": 9
   },
-  "verification_state": {},
+  "verification_state": {
+    "c412a0606fca": {
+      "status": "discarded",
+      "attempts": 1,
+      "last_error": null,
+      "summary": "not reproduced"
+    },
+    "66a389be4290": {
+      "status": "verified",
+      "attempts": 1,
+      "last_error": null,
+      "summary": "verified by proof-of-concept reproduction"
+    }
+  },
   "artifact_state": {},
-  "phase": "triage",
+  "phase": "done",
   "metrics": {
     "parse_failures": 0,
     "parse_failures_profile": 0,
@@ -3514,7 +3860,7 @@
     "repair_successes": 0,
     "repair_failures": 0,
     "analytical_retries": 0,
-    "multiline_continuations": 0,
+    "multiline_continuations": 2,
     "lenient_corrections": 0,
     "verifier_no_verdict": 0,
     "phase45_lens_retries": 0,
@@ -3525,6 +3871,13 @@
   "select_all": false,
   "measure_triage": false,
   "measurement_escalated_paths": [],
-  "adjudication_discarded": [],
+  "adjudication_discarded": [
+    {
+      "title": "unbounded household creation enables event-wide DoS",
+      "severity": "medium",
+      "source_file": "app/costs/__init__.py",
+      "reason": "Small-group guest causes mild page slowdown; creator trivially remediates by deleting rows; negligible security impact in vacation-planning threat model.; Missing rate limit is real, but achievable H values add only milliseconds of O(H\u00d7E) latency; creator can delete; not a security DoS."
+    }
+  ],
   "truncated_files": {}
 }

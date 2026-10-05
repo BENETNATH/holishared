@@ -50,6 +50,9 @@
                     {% if "planning" in enabled_modules %}
                     <li><a href="{{ url_for('planning.index', code=current_event.code) }}" class="{% if request.endpoint and request.endpoint.startswith('planning') %}active{% endif %}">{{ _("Planning") }}</a></li>
                     {% endif %}
+                    {% if "meals" in enabled_modules %}
+                    <li><a href="{{ url_for('meals.index', code=current_event.code) }}" class="{% if request.endpoint and request.endpoint.startswith('meals') %}active{% endif %}">{{ _("Repas") }}</a></li>
+                    {% endif %}
                     {% if "lists" in enabled_modules %}
                     <li><a href="{{ url_for('lists.index', code=current_event.code) }}" class="{% if request.endpoint and request.endpoint.startswith('lists') %}active{% endif %}">{{ _("Listes") }}</a></li>
                     {% endif %}

@@ -174,7 +174,7 @@ def verify(token: str) -> str | Response:
     event = Event.query.filter_by(verification_token=token, is_active=True).first()
     if not event:
         flash("Lien invalide ou expiré.", "danger")
-        return redirect(url_for("main.landing"))
+        return redirect(url_for("main.index"))
     if event.verified_at is not None:
         # Already verified — log the creator in and go to dashboard.
         creator = Creator.query.get(event.creator_id)
