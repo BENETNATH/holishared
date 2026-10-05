@@ -296,6 +296,12 @@ def create_app() -> Flask:
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        # HTML pages: never serve stale content (session/lang-dependent).
+        # Static assets are cached by the service worker, so exclude them.
+        ctype = response.headers.get("Content-Type", "")
+        if "text/html" in ctype and "/static/" not in request.path:
+            response.headers["Cache-Control"] = "no-cache, must-revalidate"
+            response.headers["Pragma"] = "no-cache"
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
             "script-src 'self' 'unsafe-inline'; "  # Alpine.js inline
