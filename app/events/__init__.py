@@ -2,7 +2,8 @@
 
 import re
 from datetime import date, datetime, time
-from typing import cast
+from pathlib import Path
+from typing import Any, cast
 
 from flask import (
     Blueprint,
@@ -12,10 +13,11 @@ from flask import (
     redirect,
     render_template,
     request,
+    send_file,
     session,
     url_for,
 )
-from flask_login import current_user, login_required, login_user
+from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.wrappers import Response
 
 from app.auth import is_disposable_email
@@ -385,6 +387,154 @@ def members(code: str) -> str | Response:
 
     all_guests = Guest.query.filter_by(event_id=event.id, is_active=True).order_by(Guest.display_name).all()
     return render_template("events/members.html", event=event, guests=all_guests, is_creator=is_creator)
+
+
+def _is_event_creator(event: Event) -> bool:
+    """True if the current session belongs to the event's creator."""
+    return bool(current_user.is_authenticated and current_user.id == event.creator_id)
+
+
+@events_bp.route("/<code>/export")
+def export_event(code: str) -> Response:
+    """Creator-only: download a ZIP archive of the whole event (JSON + media)."""
+    import io
+    import json
+    import zipfile
+
+    from app.costs import _per_expense_shares, _settlement
+    from app.models import Activity, Expense, MediaItem, Poll, SharedList
+
+    event = Event.query.filter_by(code=code, is_active=True).first()
+    if not event:
+        flash("Événement introuvable.", "danger")
+        return redirect(url_for("events.index"))
+    if not _is_event_creator(event):
+        abort(403)
+
+    guests = event.guests.all()
+    households = Household.query.filter_by(event_id=event.id).all()
+    expenses = Expense.query.filter_by(event_id=event.id).all()
+    lists = SharedList.query.filter_by(event_id=event.id).all()
+    polls = Poll.query.filter_by(event_id=event.id).all()
+    activities = Activity.query.filter_by(event_id=event.id).all()
+
+    shares, paid = _per_expense_shares(households, expenses)
+    balances = {h.name: (paid[h.id] - shares[h.id]) / 100.0 for h in households}
+    settlements = [
+        {"from": f[0], "to": f[1], "amount": f[2] / 100.0} for f in _settlement(households, expenses, [])
+    ]
+
+    def _iso(value: Any) -> str | None:
+        return value.isoformat() if value is not None else None
+
+    data = {
+        "titre": event.title,
+        "lieu": event.location,
+        "description": event.description,
+        "date_debut": _iso(event.start_date),
+        "date_fin": _iso(event.end_date),
+        "invites": [
+            {"nom": g.display_name, "code": g.code, "email": g.email} for g in guests
+        ],
+        "foyers": [
+            {"nom": h.name, "adultes": h.num_adults, "enfants": h.num_children} for h in households
+        ],
+        "activites": [
+            {
+                "titre": a.title,
+                "date": _iso(a.date),
+                "heure": _iso(a.start_time),
+                "lieu": a.location,
+                "description": a.description,
+            }
+            for a in activities
+        ],
+        "depenses": [
+            {
+                "description": e.description,
+                "montant": e.amount,
+                "devise": e.currency,
+                "categorie": e.category,
+                "paye_par": e.paid_by.name if e.paid_by else None,
+                "date": _iso(e.date),
+            }
+            for e in expenses
+        ],
+        "soldes": balances,
+        "reglements": settlements,
+        "listes": [
+            {
+                "titre": lst.title,
+                "type": lst.list_type,
+                "articles": [
+                    {"nom": i.name, "fait": i.is_done, "assigne": i.assigned_to}
+                    for i in lst.items
+                ],
+            }
+            for lst in lists
+        ],
+        "sondages": [
+            {"question": p.question, "ferme": p.is_closed} for p in polls
+        ],
+    }
+
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr("evenement.json", json.dumps(data, ensure_ascii=False, indent=2))
+        media_dir = Path(current_app.instance_path) / "media" / event.code
+        if media_dir.exists():
+            for file in sorted(media_dir.iterdir()):
+                if file.is_file():
+                    item = MediaItem.query.filter_by(event_id=event.id, filename=file.name).first()
+                    arcname = f"medias/{item.original_name}" if (item and item.original_name) else f"medias/{file.name}"
+                    zf.write(file, arcname)
+    buf.seek(0)
+
+    from werkzeug.utils import secure_filename
+
+    safe_title = secure_filename(event.title) or "evenement"
+    return send_file(
+        buf,
+        mimetype="application/zip",
+        as_attachment=True,
+        download_name=f"holishared-{safe_title}-archive.zip",
+    )
+
+
+@events_bp.route("/<code>/delete", methods=["POST"])
+def delete_event(code: str) -> Response:
+    """Creator-only: permanently delete the event (DB cascade + media on disk)."""
+    import shutil
+
+    event = Event.query.filter_by(code=code, is_active=True).first()
+    if not event:
+        flash("Événement introuvable.", "danger")
+        return redirect(url_for("events.index"))
+    if not _is_event_creator(event):
+        abort(403)
+
+    event_code = event.code
+    event_title = event.title
+    try:
+        db.session.delete(event)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        flash("La suppression a échoué. Réessayez.", "danger")
+        return redirect(url_for("events.dashboard", code=event_code))
+
+    # Purge the media folder on disk.
+    media_dir = Path(current_app.instance_path) / "media" / event_code
+    if media_dir.exists():
+        shutil.rmtree(media_dir, ignore_errors=True)
+
+    # Clear the creator's session link to this event + log out the creator.
+    session.pop(f"guest_{event_code}", None)
+    if current_user.is_authenticated:
+        logout_user()
+
+    flash(f"Événement « {event_title} » et toutes ses données ont été définitivement supprimés.", "success")
+    return redirect(url_for("events.index"))
 
 
 @events_bp.route("/<code>/invite")

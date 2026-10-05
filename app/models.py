@@ -65,7 +65,7 @@ class Event(db.Model):  # type: ignore[misc,name-defined]
     # to a separate "account": any email can create an event.
     creator_email: Mapped[str | None] = db.Column(db.String(255), nullable=True)
 
-    guests = db.relationship("Guest", backref="event", lazy="dynamic")
+    guests = db.relationship("Guest", backref="event", lazy="dynamic", cascade="all, delete-orphan")
     activities = db.relationship(
         "Activity", backref="event", lazy="dynamic", cascade="all, delete-orphan"
     )
@@ -81,6 +81,10 @@ class Event(db.Model):  # type: ignore[misc,name-defined]
     )
     chat_messages = db.relationship(
         "ChatMessage", backref="event", lazy="dynamic", cascade="all, delete-orphan"
+    )
+    # Audit trail is purged with the event (right-to-be-forgotten).
+    activity_logs = db.relationship(
+        "ActivityLog", backref="event_log", lazy="dynamic", cascade="all, delete-orphan"
     )
 
     @property

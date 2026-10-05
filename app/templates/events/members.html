@@ -46,7 +46,11 @@
                 {% if g.email and not is_creator_guest %}<span class="member-email">{{ g.email }}</span>{% endif %}
             </div>
             <div class="member-code">
-                {% if is_creator_guest %}<span class="muted">—</span>{% else %}<code>{{ g.code }}</code>
+                {% if is_creator_guest %}<span class="muted">—</span>{% else %}
+                <code class="guest-code" data-code="{{ g.code }}">{{ g.code }}</code>
+                {% if is_creator %}
+                <button type="button" class="btn btn-small btn-ghost reveal-code" data-hide-label="{{ _('Masquer') }}">{{ _("Voir") }}</button>
+                {% endif %}
                 <button type="button" class="btn btn-small btn-ghost copy-code" data-code="{{ g.code }}">{{ _("Copier") }}</button>{% endif %}
             </div>
             {% if is_creator and not is_creator_guest %}

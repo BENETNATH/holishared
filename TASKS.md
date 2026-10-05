@@ -275,7 +275,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B016 — Refonte UI/UX
 
-**Statut** : ✅ (Lot 1 ✅, Lot 2 ✅, Lot 3 ✅)
+**Statut** : ✅ (Lot 1 ✅, Lot 2 ✅, Lot 3 ✅, Lot 4 ✅)
 
 ### Lot 1 — Design System, palette chaleureuse & shell mobile ✅
 | # | Tâche | Critère d'acceptation |
@@ -320,3 +320,20 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 - `feat(costs): carte solde + cartes de transfert + dépenses relevé`
 - `feat(lists): fade items cochés + confirmation "je m'occupe"`
 - `chore(i18n): chaînes frais/listes`
+
+### Lot 4 — Confidentialité "Privacy by Design" & RGPD ✅
+| # | Tâche | Critère d'acceptation |
+|---|-------|----------------------|
+| 19.1 | Badge + modale footer | 🛡️ cliquable sur toutes pages, 3 points RGPD |
+| 19.2 | Export ZIP (créateur) | GET /e/<code>/export → zip (evenement.json + medias/), 403 guest |
+| 19.3 | Suppression définitive (créateur) | POST /e/<code>/delete → cascade DB + purge disque, 403 guest |
+| 19.4 | Zone de gestion dashboard | Bouton export + bouton suppression + mention purge 30j |
+| 19.5 | Masquage codes invités | Texte masqué par défaut, toggle "Voir", "Copier" séparé |
+| 19.6 | Cascade delete-orphan guests+logs | Aucun orphelin à la suppression d'un événement |
+| 19.7 | i18n + tests | Chaînes en, .mo recompilés, 8 nouveaux tests privacy verts |
+
+**Commits** :
+- `feat(events): export ZIP + suppression définitive (privacy)`
+- `feat(ui): badge confidentialité + modale + codes masqués`
+- `chore(models): cascade guests + activity_logs`
+- `test(privacy): export/suppression + contrôle d'accès`

@@ -219,7 +219,45 @@
 
     <footer class="site-footer">
         holishared — {{ _("Planification de vacances en groupe") }}
+        <button type="button" class="privacy-badge" id="privacy-btn"
+                aria-haspopup="dialog" aria-controls="privacy-modal"
+                aria-label="{{ _('Confidentialité') }}">
+            🛡️ {{ _("Confidentialité garantie") }}
+        </button>
     </footer>
+
+    <div class="privacy-modal" id="privacy-modal" hidden role="dialog" aria-modal="true" aria-labelledby="privacy-title">
+        <div class="privacy-modal-card" role="document">
+            <button type="button" class="privacy-modal-close" id="privacy-close" aria-label="{{ _('Fermer') }}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <h2 id="privacy-title">🛡️ {{ _("Confidentialité garantie") }}</h2>
+            <p class="privacy-lede">{{ _("Holishared respecte ta vie privée : 0 cookie tiers, 0 pistage, 0 revente de données.") }}</p>
+            <ul class="privacy-points">
+                <li>
+                    <span class="pp-icon" aria-hidden="true">🚫</span>
+                    <div>
+                        <strong>{{ _("Aucun compte forcé") }}</strong>
+                        <p>{{ _("Les invités rejoignent avec un code, sans e-mail ni inscription.") }}</p>
+                    </div>
+                </li>
+                <li>
+                    <span class="pp-icon" aria-hidden="true">🍪</span>
+                    <div>
+                        <strong>{{ _("Aucun cookie tiers, aucun pistage") }}</strong>
+                        <p>{{ _("Aucun script tiers, aucune analyse publicitaire, aucune revente de données.") }}</p>
+                    </div>
+                </li>
+                <li>
+                    <span class="pp-icon" aria-hidden="true">🔐</span>
+                    <div>
+                        <strong>{{ _("Vos données restent vos données") }}</strong>
+                        <p>{{ _("Export complet en 1 clic, et effacement définitif (base + photos) quand vous voulez.") }}</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
 
     <script>
         // Service Worker registration (PWA)
@@ -297,6 +335,60 @@
                     f.classList.add('flash-out');
                     setTimeout(function() { f.remove(); }, 450);
                 }, 5000);
+            });
+        })();
+
+        // Privacy modal (footer badge)
+        (function() {
+            var btn = document.getElementById('privacy-btn');
+            var modal = document.getElementById('privacy-modal');
+            if (!btn || !modal) return;
+            function close() {
+                modal.hidden = true;
+                btn.setAttribute('aria-expanded', 'false');
+            }
+            btn.addEventListener('click', function() {
+                var open = modal.hidden;
+                modal.hidden = !open;
+                btn.setAttribute('aria-expanded', String(open));
+                if (open) {
+                    var c = document.getElementById('privacy-close');
+                    if (c) c.focus();
+                }
+            });
+            var c = document.getElementById('privacy-close');
+            if (c) c.addEventListener('click', close);
+            document.addEventListener('click', function(e) {
+                if (!modal.hidden && !modal.contains(e.target) && e.target !== btn) close();
+            });
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && !modal.hidden) close();
+            });
+        })();
+
+        // Masked guest codes: hidden by default (shoulder-surfing protection).
+        // Every guest code is masked; a "Voir" button (when present) toggles it.
+        (function() {
+            document.querySelectorAll('.guest-code[data-code]').forEach(function(codeEl) {
+                codeEl.classList.add('guest-code-masked');
+                codeEl.title = codeEl.textContent;
+                // Tapping the code itself also reveals it (progressive enhancement).
+                codeEl.setAttribute('role', 'button');
+                codeEl.setAttribute('tabindex', '0');
+                codeEl.addEventListener('click', function() { codeEl.classList.remove('guest-code-masked'); });
+                codeEl.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); codeEl.classList.remove('guest-code-masked'); }
+                });
+            });
+            document.querySelectorAll('.reveal-code').forEach(function(btn) {
+                var codeEl = btn.parentElement ? btn.parentElement.querySelector('.guest-code[data-code]') : null;
+                if (!codeEl) return;
+                btn.setAttribute('aria-pressed', 'false');
+                btn.addEventListener('click', function() {
+                    var masked = codeEl.classList.toggle('guest-code-masked');
+                    btn.textContent = masked ? (btn.dataset.hideLabel || 'Masquer') : 'Voir';
+                    btn.setAttribute('aria-pressed', String(!masked));
+                });
             });
         })();
 

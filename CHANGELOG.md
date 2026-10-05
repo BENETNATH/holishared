@@ -10,7 +10,7 @@ sous chaque lot.
 
 ## [Unreleased]
 
-### B016 — Refonte UI/UX (Design System, shell mobile, timeline, frais)
+### B016 — Refonte UI/UX (Design System, shell mobile, timeline, frais, confidentialité)
 
 #### Lot 1 — Design System, palette chaleureuse & shell mobile
 - [x] Design tokens : palette chaude terracotta/lin (#FAF8F5, #C25E38), rayons
@@ -58,6 +58,26 @@ sous chaque lot.
 - [x] i18n : chaînes frais/listes (en) + recompile .mo
 - [x] Algorithme de calcul (`_settlement` / `_per_expense_shares`) intact
 - [x] 238 tests passent (0 régression)
+
+#### Lot 4 — Confidentialité "Privacy by Design" & RGPD
+- [x] Badge "🛡️ Confidentialité garantie" dans le footer (toutes pages),
+      cliquable → modale 3 points (zéro compte forcé, zéro cookie/pistage,
+      export + effacement)
+- [x] Export ZIP (GET /e/<code>/export, créateur uniquement) :
+      `evenement.json` (titre, dates, invités, activités, dépenses, soldes,
+      listes, sondages) + dossier `medias/` (photos avec nom d'origine)
+- [x] Suppression définitive (POST /e/<code>/delete, créateur uniquement +
+      CSRF) : cascade SQL (invités, activités, repas, listes, frais, médias,
+      logs) + purge disque `instance/media/<code>/` + déconnexion
+- [x] Zone de gestion sur le dashboard (créateur) : bouton export ZIP +
+      bouton suppression (confirm()) + mention "purge 30 jours après fin"
+- [x] Masquage des codes invités (dashboard + membres) : texte masqué
+      par défaut (shoulder-surfing), bouton "Voir" pour révéler, "Copier"
+      reste séparé
+- [x] `Event.guests` et `Event.activity_logs` en cascade delete-orphan
+      (suppression complète sans orphelins)
+- [x] i18n : chaînes confidentialité/export/suppression (en) + recompile .mo
+- [x] 246 tests passent (0 régression, 8 nouveaux tests privacy)
 
 ### B008 — Frictions UX (code invité, auth, i18n, CSS, formulaires)
 - [x] Code invité : l'invité saisit son propre code (4-8 car.), toujours visible

@@ -29,7 +29,8 @@
 {% if guest %}
 <div class="code-box">
   <span class="code-label">{{ _("Ton code personnel") }} :</span>
-  <code class="guest-code">{{ guest.code }}</code>
+  <code class="guest-code" data-code="{{ guest.code }}" aria-label="{{ _('Code personnel') }}">{{ guest.code }}</code>
+  <button type="button" class="btn btn-small reveal-code" data-hide-label="{{ _('Masquer') }}">{{ _("Voir") }}</button>
   <button type="button" class="btn btn-small copy-code" data-code="{{ guest.code }}">{{ _("Copier") }}</button>
 </div>
 {% endif %}
@@ -215,6 +216,28 @@
   <a href="{{ url_for('planning.create', code=event.code) }}" class="btn btn-primary">{{ _("Ajouter une activité") }}</a>
   {% endif %}
 </div>
+{% endif %}
+
+{# Zone de gestion (créateur) : export ZIP + suppression définitive #}
+{% if is_creator %}
+<section class="card mgmt-zone" aria-labelledby="h-mgmt">
+  <div class="section-head">
+    <h2 id="h-mgmt">{{ _("Zone de gestion") }}</h2>
+    <span class="mgmt-retention">🕒 {{ _("Cet événement et ses photos seront purgés 30 jours après la fin du séjour.") }}</span>
+  </div>
+  <div class="mgmt-actions">
+    <a href="{{ url_for('events.export_event', code=event.code) }}" class="btn btn-secondary mgmt-export">
+      📦 {{ _("Télécharger l'archive complète (ZIP)") }}
+    </a>
+    <form method="POST" action="{{ url_for('events.delete_event', code=event.code) }}" class="mgmt-delete-form"
+          onsubmit="return confirm('{{ _("Supprimer définitivement cet événement et toutes ses données ?") }}')">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-danger mgmt-danger-btn">
+        🗑️ {{ _("Supprimer définitivement l'événement et toutes ses données") }}
+      </button>
+    </form>
+  </div>
+</section>
 {% endif %}
 {% endblock %}
 {% block scripts %}
