@@ -20,9 +20,8 @@ msgstr ""
 "Generated-By: Babel 2.18.0\n"
 
 #: app/chat/__init__.py:116
-#, fuzzy
 msgid "Message vide."
-msgstr "Message"
+msgstr "Empty message."
 
 #: app/chat/__init__.py:119
 msgid "Message trop long (max 2000)."
@@ -52,9 +51,8 @@ msgid "Liste créée."
 msgstr "List created."
 
 #: app/lists/__init__.py:201
-#, fuzzy
 msgid "Nom requis."
-msgstr "required"
+msgstr "Name required."
 
 #: app/lists/__init__.py:203
 msgid "Nom trop long (max 300)."
@@ -65,70 +63,60 @@ msgid "Quantité trop longue (max 50)."
 msgstr "Quantity too long (max 50)."
 
 #: app/lists/__init__.py:207
-#, fuzzy
 msgid "Section trop longue (max 100)."
-msgstr "One option per line (2 to 10)."
+msgstr "Section too long (max 100)."
 
 #: app/lists/__init__.py:209
 msgid "Nom trop long (max 50)."
 msgstr "Name too long (max 50)."
 
 #: app/lists/__init__.py:248
-#, fuzzy
 msgid "Article ajouté."
-msgstr "items"
+msgstr "Item added."
 
 #: app/lists/__init__.py:302
-#, fuzzy
 msgid "Article supprimé."
-msgstr "items"
+msgstr "Item deleted."
 
 #: app/lists/__init__.py:326
 msgid "Vous vous êtes attribué cet article."
 msgstr "You claimed this item."
 
 #: app/lists/__init__.py:353
-#, fuzzy
 msgid "Article libéré."
-msgstr "items"
+msgstr "Item released."
 
 #: app/lists/__init__.py:374
-#, fuzzy
 msgid "Liste supprimée."
-msgstr "Delete"
+msgstr "List deleted."
 
 #: app/logistics/__init__.py:95
-#, fuzzy
 msgid "Contenu requis."
-msgstr "Content"
+msgstr "Content required."
 
 #: app/logistics/__init__.py:97
 msgid "Contenu trop long (max 5000)."
 msgstr "Content too long (max 5000)."
 
 #: app/logistics/__init__.py:100
-#, fuzzy
 msgid "Catégorie invalide."
-msgstr "Category"
+msgstr "Invalid category."
 
 #: app/logistics/__init__.py:107
 msgid "Ordre invalide."
 msgstr "Invalid order."
 
 #: app/logistics/__init__.py:186
-#, fuzzy
 msgid "Info pratique créée."
-msgstr "Practical info"
+msgstr "Practical info created."
 
 #: app/logistics/__init__.py:244
-#, fuzzy
 msgid "Info pratique modifiée."
-msgstr "Practical info"
+msgstr "Practical info updated."
 
 #: app/logistics/__init__.py:267
-#, fuzzy
 msgid "Info pratique supprimée."
-msgstr "Practical info"
+msgstr "Practical info deleted."
 
 #: app/planning/__init__.py:114
 msgid "Description trop longue (max 2000)."
@@ -136,9 +124,8 @@ msgstr "Description too long (max 2000)."
 
 #: app/planning/__init__.py:118 app/planning/__init__.py:123
 #: app/planning/__init__.py:126
-#, fuzzy
 msgid "Date hors de la période de l'événement."
-msgstr "Event action history"
+msgstr "Date outside the event period."
 
 #: app/planning/__init__.py:131 app/planning/__init__.py:133
 msgid "Heure de fin avant heure de début."
@@ -157,33 +144,28 @@ msgid "Champ trop long (max 500)."
 msgstr "Field too long (max 500)."
 
 #: app/planning/__init__.py:256
-#, fuzzy
 msgid "Activité créée."
-msgstr "Activities"
+msgstr "Activity created."
 
 #: app/planning/__init__.py:320
-#, fuzzy
 msgid "Activité modifiée."
-msgstr "No activities scheduled"
+msgstr "Activity updated."
 
 #: app/planning/__init__.py:343
-#, fuzzy
 msgid "Activité supprimée."
-msgstr "Activities"
+msgstr "Activity deleted."
 
 #: app/planning/__init__.py:353
-#, fuzzy
 msgid "Le créateur ne fait pas de RSVP."
-msgstr "The creator can add you."
+msgstr "The creator does not RSVP."
 
 #: app/planning/__init__.py:369
 msgid "Statut invalide."
 msgstr "Invalid status."
 
 #: app/templates/_event_nav.html:5
-#, fuzzy
 msgid "Navigation de l'événement"
-msgstr "Join the event"
+msgstr "Event navigation"
 
 #: app/templates/_event_nav.html:6
 msgid "Accueil"
@@ -318,19 +300,16 @@ msgid "Nouveau foyer"
 msgstr "New household"
 
 #: app/templates/costs/household_form.html:6
-#, fuzzy
 msgid "Nouveau groupe"
-msgstr "New household"
+msgstr "New group"
 
 #: app/templates/costs/household_form.html:15
-#, fuzzy
 msgid "Nom du groupe"
-msgstr "Household name"
+msgstr "Group name"
 
 #: app/templates/costs/household_form.html:17
-#, fuzzy
 msgid "Ex : Famille Dupont, Alice + Bob"
-msgstr "E.g. Dupont family"
+msgstr "E.g. Dupont family, Alice + Bob"
 
 #: app/templates/costs/household_form.html:22
 msgid "Nombre d'adultes"
@@ -345,16 +324,14 @@ msgid "Le ratio adulte/enfant se définit sur la page des frais."
 msgstr "The adult/child ratio is set on the costs page."
 
 #: app/templates/costs/household_form.html:34
-#, fuzzy
 msgid "Ajouter le groupe"
-msgstr "Add household"
+msgstr "Add group"
 
 #: app/templates/costs/index.html:2 app/templates/costs/index.html:6
 msgid "Partage de frais"
 msgstr "Cost sharing"
 
 #: app/templates/costs/index.html:14
-#, fuzzy
 msgid "Ajouter un frais"
 msgstr "Add expense"
 
@@ -365,9 +342,8 @@ msgid "Description"
 msgstr "Description"
 
 #: app/templates/costs/index.html:20
-#, fuzzy
 msgid "Ex : Courses, essence…"
-msgstr "E.g. Saturday groceries"
+msgstr "E.g. Groceries, fuel…"
 
 #: app/templates/costs/index.html:23 app/templates/costs/index.html:172
 #: app/templates/costs/index.html:183 app/templates/costs/index.html:223
@@ -460,9 +436,8 @@ msgstr ""
 " on signup."
 
 #: app/templates/costs/index.html:105
-#, fuzzy
 msgid "+ Ajouter"
-msgstr "Add"
+msgstr "+ Add"
 
 #: app/templates/costs/index.html:110
 msgid "Répartition par foyer"
@@ -500,9 +475,8 @@ msgid "Actions"
 msgstr "Actions"
 
 #: app/templates/costs/index.html:151
-#, fuzzy
 msgid "Aucun groupe"
-msgstr "No households"
+msgstr "No groups"
 
 #: app/templates/costs/index.html:152
 msgid ""
@@ -513,9 +487,8 @@ msgstr ""
 "manually if needed."
 
 #: app/templates/costs/index.html:153
-#, fuzzy
 msgid "Ajouter un groupe"
-msgstr "Add household"
+msgstr "Add group"
 
 #: app/templates/costs/index.html:166
 msgid "Liste des frais"
@@ -654,9 +627,8 @@ msgid "Votre email"
 msgstr "Your email"
 
 #: app/templates/events/create.html:30 app/templates/events/recover.html:16
-#, fuzzy
 msgid "Ex : alice@mail.com"
-msgstr "E.g. Alice Martin"
+msgstr "E.g. alice@mail.com"
 
 #: app/templates/events/create.html:36 app/templates/lists/form.html:22
 #: app/templates/logistics/form.html:21 app/templates/planning/form.html:28
@@ -689,9 +661,8 @@ msgid "Options"
 msgstr "Options"
 
 #: app/templates/events/create.html:66
-#, fuzzy
 msgid "description"
-msgstr "Description"
+msgstr "description"
 
 #: app/templates/events/create.html:70
 msgid "Quelques mots pour situer le contexte…"
@@ -720,9 +691,8 @@ msgid "Copier"
 msgstr "Copy"
 
 #: app/templates/events/dashboard.html:38
-#, fuzzy
 msgid "Actions rapides"
-msgstr "Actions"
+msgstr "Quick actions"
 
 #: app/templates/events/dashboard.html:40
 msgid "Planifier les repas"
@@ -731,27 +701,24 @@ msgstr "Plan the meals"
 #: app/templates/events/dashboard.html:41
 #: app/templates/events/dashboard.html:200
 #: app/templates/planning/index.html:120
-#, fuzzy
 msgid "Ajouter une activité"
-msgstr "Add item"
+msgstr "Add activity"
 
 #: app/templates/events/dashboard.html:48
 msgid "Lien copié !"
 msgstr "Link copied!"
 
 #: app/templates/events/dashboard.html:48
-#, fuzzy
 msgid "Partager"
-msgstr "Cost sharing"
+msgstr "Share"
 
 #: app/templates/events/dashboard.html:55
 msgid "Aujourd'hui"
 msgstr "Today"
 
 #: app/templates/events/dashboard.html:70
-#, fuzzy
 msgid "Rien prévu aujourd'hui."
-msgstr "Today"
+msgstr "Nothing planned today."
 
 #: app/templates/events/dashboard.html:73
 msgid "Voir le planning"
@@ -762,19 +729,16 @@ msgid "Sondages ouverts"
 msgstr "Open polls"
 
 #: app/templates/events/dashboard.html:91
-#, fuzzy
 msgid "autres"
-msgstr "Adults"
+msgstr "other"
 
 #: app/templates/events/dashboard.html:94
-#, fuzzy
 msgid "Aucun sondage ouvert."
-msgstr "No polls"
+msgstr "No open polls."
 
 #: app/templates/events/dashboard.html:97
-#, fuzzy
 msgid "Voir les sondages"
-msgstr "All polls"
+msgstr "View polls"
 
 #: app/templates/events/dashboard.html:103
 msgid "À répartir"
@@ -790,24 +754,20 @@ msgstr "All split. 👌"
 
 #: app/templates/events/dashboard.html:112
 #: app/templates/events/dashboard.html:138
-#, fuzzy
 msgid "Voir les listes"
-msgstr "All lists"
+msgstr "View lists"
 
 #: app/templates/events/dashboard.html:119
-#, fuzzy
 msgid "Mes items"
-msgstr "My events"
+msgstr "My items"
 
 #: app/templates/events/dashboard.html:129
-#, fuzzy
 msgid "Cocher"
-msgstr "Copy"
+msgstr "Check"
 
 #: app/templates/events/dashboard.html:154
-#, fuzzy
 msgid "Chargement…"
-msgstr "Accommodation"
+msgstr "Loading…"
 
 #: app/templates/events/dashboard.html:156
 msgid "Ouvrir le chat"
@@ -918,9 +878,8 @@ msgid "Rejoindre"
 msgstr "Join"
 
 #: app/templates/events/join.html:18
-#, fuzzy
 msgid "Votre pseudo"
-msgstr "Your vote"
+msgstr "Your nickname"
 
 #: app/templates/events/join.html:20 app/templates/events/verify.html:23
 msgid "Ex : Alice, Bob…"
@@ -947,18 +906,16 @@ msgstr ""
 "device. 4 to 8 lowercase letters or digits."
 
 #: app/templates/events/join.html:35
-#, fuzzy
 msgid "Votre foyer"
-msgstr "Your vote"
+msgstr "Your household"
 
 #: app/templates/events/join.html:36
 msgid "Pour la répartition des frais."
 msgstr "For splitting costs."
 
 #: app/templates/events/join.html:50
-#, fuzzy
 msgid "Votre email (optionnel)"
-msgstr "Your email"
+msgstr "Your email (optional)"
 
 #: app/templates/events/join.html:55
 msgid "Rejoindre l'événement"
@@ -1089,9 +1046,8 @@ msgstr ""
 "email."
 
 #: app/templates/events/recover.html:14 app/templates/events/verify.html:49
-#, fuzzy
 msgid "Ton email"
-msgstr "Email"
+msgstr "Your email"
 
 #: app/templates/events/recover.html:23
 msgid ""
@@ -1102,22 +1058,20 @@ msgstr ""
 "to create a new event."
 
 #: app/templates/events/verify.html:6
-#, fuzzy
 msgid "Valider ton événement"
-msgstr "Create an event"
+msgstr "Validate your event"
 
 #: app/templates/events/verify.html:21
 msgid "Ton pseudo"
 msgstr "Your nickname"
 
 #: app/templates/events/verify.html:34
-#, fuzzy
 msgid ""
 "Ce code te sert à accéder à l'événement sur n'importe quel appareil. 4 à "
 "8 lettres minuscules ou chiffres."
 msgstr ""
-"Choose a code you'll remember: it will let you reconnect on another "
-"device. 4 to 8 lowercase letters or digits."
+"This code lets you access the event on any device. 4 to 8 lowercase "
+"letters or digits."
 
 #: app/templates/events/verify.html:38
 msgid "Inviter des proches (optionnel)"
@@ -1128,9 +1082,8 @@ msgid "Emails (séparés par des virgules)"
 msgstr "Emails (comma-separated)"
 
 #: app/templates/events/verify.html:43
-#, fuzzy
 msgid "Ex : alice@mail.com, bob@mail.fr"
-msgstr "E.g. Alice, Bob…"
+msgstr "E.g. alice@mail.com, bob@mail.fr"
 
 #: app/templates/events/verify.html:45
 msgid ""
@@ -1185,23 +1138,20 @@ msgstr ""
 
 #: app/templates/lists/detail.html:15 app/templates/lists/detail.html:99
 #: app/templates/planning/index.html:16
-#, fuzzy
 msgid "Repas"
-msgstr "Expenses"
+msgstr "Meals"
 
 #: app/templates/lists/detail.html:33
-#, fuzzy
 msgid "Ajouter un article… (Enter)"
-msgstr "Add item"
+msgstr "Add an item… (Enter)"
 
 #: app/templates/lists/detail.html:38
 msgid "Articles de la liste"
 msgstr "List items"
 
 #: app/templates/lists/detail.html:48
-#, fuzzy
 msgid "Je m'occupe"
-msgstr "I'll handle this"
+msgstr "I’ll handle it"
 
 #: app/templates/lists/detail.html:65
 msgid "Libérer"
@@ -1257,9 +1207,8 @@ msgstr ""
 "group."
 
 #: app/templates/lists/index.html:22
-#, fuzzy
 msgid "Listes de l'événement"
-msgstr "Join the event"
+msgstr "Event lists"
 
 #: app/templates/lists/index.html:33
 msgid "Progression"
@@ -1316,9 +1265,8 @@ msgid "Statut"
 msgstr "Status"
 
 #: app/templates/main/landing.html:6
-#, fuzzy
 msgid "Planifiez vos vacances en groupe"
-msgstr "Group vacation planning"
+msgstr "Plan your vacation in a group"
 
 #: app/templates/main/landing.html:7
 msgid "Repas, activités, listes, frais — tout le monde participe."
@@ -1329,9 +1277,8 @@ msgid "Vacances, week-end, projet…"
 msgstr "Vacation, week-end, project…"
 
 #: app/templates/main/landing.html:17
-#, fuzzy
 msgid "Accéder à mon événement"
-msgstr "Access the event"
+msgstr "Access my event"
 
 #: app/templates/main/landing.html:25
 msgid "Accéder"
@@ -1411,14 +1358,12 @@ msgid "Créer l'activité"
 msgstr "Create activity"
 
 #: app/templates/planning/index.html:20
-#, fuzzy
 msgid "Midi"
-msgstr "Media"
+msgstr "Midday"
 
 #: app/templates/planning/index.html:21
-#, fuzzy
 msgid "Soir"
-msgstr "Copy"
+msgstr "Evening"
 
 #: app/templates/planning/index.html:58
 msgid "Repas…"
@@ -1433,9 +1378,8 @@ msgstr ""
 "the quick-add below."
 
 #: app/templates/planning/index.html:87
-#, fuzzy
 msgid "Autres activités"
-msgstr "Activities"
+msgstr "Other activities"
 
 #: app/templates/planning/index.html:121
 msgid ""
@@ -1444,9 +1388,8 @@ msgid ""
 msgstr "Hike, pool, outing… (meals are entered in the grid above)"
 
 #: app/templates/planning/index.html:126
-#, fuzzy
 msgid "Ex : Randonnée, piscine, resto…"
-msgstr "E.g. Lake hike"
+msgstr "E.g. Hike, pool, restaurant…"
 
 #: app/templates/planning/index.html:130
 msgid "Heure"
@@ -1494,9 +1437,8 @@ msgid "Vous avez voté :"
 msgstr "You voted:"
 
 #: app/templates/voting/detail.html:40
-#, fuzzy
 msgid "Résultats"
-msgstr "Poll results"
+msgstr "Results"
 
 #: app/templates/voting/detail.html:41 app/templates/voting/index.html:46
 #: app/templates/voting/index.html:70
@@ -1570,33 +1512,28 @@ msgid "Au moins 2 options requises (une par ligne)."
 msgstr "At least 2 options required (one per line)."
 
 #: app/voting/__init__.py:98
-#, fuzzy
 msgid "Maximum 10 options (une par ligne)."
-msgstr "One option per line (2 to 10)."
+msgstr "Maximum 10 options (one per line)."
 
 #: app/voting/__init__.py:100
 msgid "Option trop longue (max 200 caractères)."
 msgstr "Option too long (max 200 characters)."
 
 #: app/voting/__init__.py:168
-#, fuzzy
 msgid "Sondage créé."
-msgstr "Closed poll"
+msgstr "Poll created."
 
 #: app/voting/__init__.py:209
-#, fuzzy
 msgid "Le créateur ne vote pas."
-msgstr "The creator can add you."
+msgstr "The creator does not vote."
 
 #: app/voting/__init__.py:228 app/voting/__init__.py:275
-#, fuzzy
 msgid "Sondage fermé."
-msgstr "Closed poll"
+msgstr "Poll closed."
 
 #: app/voting/__init__.py:249
-#, fuzzy
 msgid "Vote enregistré."
-msgstr "Save"
+msgstr "Vote recorded."
 
 #~ msgid "Organisez les activités du séjour"
 #~ msgstr "Organize the trip's activities"
