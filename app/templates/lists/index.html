@@ -6,17 +6,21 @@
         <h1>{{ _("Listes") }}</h1>
         <p class="page-sub">{{ event.title }} · {{ _("Courses, to-do, matériel…") }}</p>
     </div>
-    <div class="head-actions">
-        <a href="{{ url_for('lists.create', code=event.code) }}" class="btn btn-primary">{{ _("Nouvelle liste") }}</a>
-    </div>
 </div>
+
+<form method="post" action="{{ url_for('lists.index', code=event.code) }}" class="list-create-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="text" name="title" required minlength="2" maxlength="200"
+           value="{{ form_title }}" placeholder="{{ _('Nouvelle liste — ex : Courses du samedi') }}">
+    <button type="submit" class="btn btn-primary">{{ _("Créer") }}</button>
+</form>
+{% for e in errors %}<p class="field-error">{{ e }}</p>{% endfor %}
 
 {% if not lists %}
   <div class="empty-state">
     <span class="empty-icon" aria-hidden="true">📝</span>
-    <h3>{{ _("Aucune liste") }}</h3>
-    <p>{{ _("Créez une liste de courses, de to-do ou de matériel à partager avec le groupe.") }}</p>
-    <a href="{{ url_for('lists.create', code=event.code) }}" class="btn btn-primary">{{ _("Nouvelle liste") }}</a>
+    <h3>{{ _("Rien ici pour l'instant") }}</h3>
+    <p>{{ _("Créez votre première liste ci-dessus — courses, to-do, matériel — et partagez-la avec le groupe.") }}</p>
   </div>
 {% else %}
   <ul class="lists" aria-label="{{ _('Listes de l\'événement') }}">
@@ -27,7 +31,6 @@
       <a href="{{ url_for('lists.detail', code=event.code, list_id=lst.id) }}">
         <h3>{{ lst.title }}</h3>
       </a>
-      <span class="badge list-type">{{ _(lst.list_type) }}</span>
       <div class="list-progress">
         <div class="progress" role="progressbar" aria-valuenow="{{ done }}" aria-valuemin="0" aria-valuemax="{{ total }}"
              aria-label="{{ _('Progression') }} {{ done }}/{{ total }}">

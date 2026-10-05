@@ -22,9 +22,6 @@ from app.utils import log_action
 
 lists_bp = Blueprint("lists", __name__)
 
-LIST_TYPE_CHOICES = ["general", "shopping", "packing", "materials", "buffet", "todo"]
-LIST_TYPES = frozenset(LIST_TYPE_CHOICES)
-
 
 def _get_event_or_404(code: str) -> Event:
     """Load an active event by code or abort with 404."""
@@ -79,11 +76,11 @@ def _list_items(shared_list: SharedList) -> list[ListItem]:
     return cast("list[ListItem]", cast("Any", shared_list.items).order_by(ListItem.created_at.asc()).all())
 
 
-@lists_bp.route("/e/<code>/lists")
+@lists_bp.route("/e/<code>/lists", methods=["GET", "POST"])
 def index(code: str) -> Response | tuple[str, int] | str:
-    """List the event's shared lists."""
+    """List the event's shared lists + inline creation."""
     event = _get_event_or_404(code)
-    guest, _, denied = _resolve_actor(event, code)
+    guest, is_creator, denied = _resolve_actor(event, code)
     if denied is not None:
         return denied
 
@@ -92,94 +89,60 @@ def index(code: str) -> Response | tuple[str, int] | str:
         .order_by(SharedList.created_at.asc())
         .all()
     )
-    return render_template("lists/index.html", event=event, lists=lists, guest=guest)
-
-
-@lists_bp.route("/e/<code>/lists/new", methods=["GET", "POST"])
-def create(code: str) -> Response | tuple[str, int] | str:
-    """Create a new shared list."""
-    event = _get_event_or_404(code)
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
-
-    if request.method == "GET":
-        return render_template(
-            "lists/form.html",
-            event=event,
-            form_data={},
-            errors=[],
-            list_types=LIST_TYPE_CHOICES,
-        )
-
-    title = request.form.get("title", "").strip()
-    list_type = request.form.get("list_type", "").strip()
-    if list_type not in LIST_TYPES:
-        list_type = "general"
 
     errors: list[str] = []
-    if len(title) < 2:
-        errors.append(_("Titre requis (min 2 caractères)."))
-    elif len(title) > 200:
-        errors.append(_("Titre trop long (max 200)."))
+    form_title = ""
+    if request.method == "POST":
+        form_title = request.form.get("title", "").strip()
+        if len(form_title) < 2:
+            errors.append(_("Titre requis (min 2 caractères)."))
+        elif len(form_title) > 200:
+            errors.append(_("Titre trop long (max 200)."))
+        if not errors:
+            shared_list = SharedList(title=form_title, event_id=event.id)
+            db.session.add(shared_list)
+            actor_name, actor_type = _actor_name(guest, is_creator)
+            log_action(db.session, event.id, actor_name, actor_type, "list.created", target=form_title)
+            db.session.commit()
+            flash(_("Liste créée."))
+            return redirect(url_for("lists.index", code=code))
 
-    if errors:
-        return render_template(
-            "lists/form.html",
-            event=event,
-            form_data={"title": title, "list_type": list_type},
-            errors=errors,
-            list_types=LIST_TYPE_CHOICES,
-        )
+    return render_template(
+        "lists/index.html",
+        event=event,
+        lists=lists,
+        guest=guest,
+        errors=errors,
+        form_title=form_title,
+    )
 
-    shared_list = SharedList(title=title, list_type=list_type, event_id=event.id)
-    db.session.add(shared_list)
-    actor_name, actor_type = _actor_name(guest, is_creator)
-    log_action(db.session, event.id, actor_name, actor_type, "list.created", target=title)
-    db.session.commit()
 
-    flash(_("Liste créée."))
+@lists_bp.route("/e/<code>/lists/new")
+def create(code: str) -> Response:
+    """Legacy: creation is now inline on the index page."""
     return redirect(url_for("lists.index", code=code))
 
 
 def _list_side_panels(event: Event, shared_list: SharedList) -> dict[str, Any]:
     """Compute the meal/activity side panels for a list detail view.
 
-    An item is hidden from this list's panel once ANOTHER list has checked
-    it off (so you can track what's already been noted/bought).
+    All meals/activities of the event are returned. The template marks the
+    ones covered by this list and lets the user filter them out (instead of
+    auto-hiding them the moment they are checked).
     """
-    all_lists = SharedList.query.filter_by(event_id=event.id).all()
-    meal_covered_by: dict[str, set[str]] = {}
-    act_covered_by: dict[str, set[str]] = {}
-    for lst in all_lists:
-        for mid in (lst.covered_meals or []):
-            meal_covered_by.setdefault(mid, set()).add(lst.id)
-        for aid in (lst.covered_activities or []):
-            act_covered_by.setdefault(aid, set()).add(lst.id)
-
     meals = (
         Meal.query.filter_by(event_id=event.id)
         .order_by(Meal.date.asc(), Meal.slot.asc())
         .all()
     )
-    meal_acts = [
-        m for m in meals
-        if shared_list.id in meal_covered_by.get(m.id, set()) or not meal_covered_by.get(m.id)
-    ]
-
     activities = (
         Activity.query.filter_by(event_id=event.id)
         .order_by(Activity.date.asc(), Activity.start_time.asc().nulls_last())
         .all()
     )
-    act_acts = [
-        a for a in activities
-        if shared_list.id in act_covered_by.get(a.id, set()) or not act_covered_by.get(a.id)
-    ]
-
     return {
-        "meal_acts": meal_acts,
-        "act_acts": act_acts,
+        "meal_acts": meals,
+        "act_acts": activities,
         "covered_meal_ids": set(shared_list.covered_meals or []),
         "covered_act_ids": set(shared_list.covered_activities or []),
     }

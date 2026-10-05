@@ -20,8 +20,8 @@
     {% set num_days = (event.end_date - event.start_date).days + 1 %}
     {% for i in range(num_days) %}
     {% set day = event.start_date | add_days(i) %}
-    <div class="meal-grid-row">
-      <span class="meal-grid-day">{{ day | format_date('EEE') }}<br><strong>{{ day.strftime("%d/%m") }}</strong></span>
+    <div class="meal-grid-row{% if day == today %} is-today{% endif %}">
+      <span class="meal-grid-day{% if day == today %} is-today-label{% endif %}">{{ day | format_date('EEE') }}<br><strong>{{ day.strftime("%d/%m") }}</strong></span>
       {% for meal_type, slot in [('Midi', 'lunch'), ('Soir', 'dinner')] %}
         {% set meal = by_cell.get((day, slot)) %}
         <div class="meal-cell" data-date="{{ day.isoformat() }}" data-slot="{{ slot }}">
@@ -29,15 +29,18 @@
           <div class="meal-item" draggable="{{ 'true' if can_modify(meal) else 'false' }}" data-meal-id="{{ meal.id }}">
             <span class="meal-item-title">{{ meal.title }}</span>
             {% if can_modify(meal) %}
-            <div class="meal-item-menu" hidden>
+            <div class="meal-item-edit" hidden>
               <form method="post" action="{{ url_for('meals.edit', code=event.code, meal_id=meal.id) }}" class="meal-edit-form">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="text" name="title" value="{{ meal.title }}" class="meal-edit-input" maxlength="200" required minlength="2">
-                <button type="submit" class="btn btn-small btn-primary">{{ _("OK") }}</button>
+                <button type="submit" class="meal-edit-ok" aria-label="{{ _('OK') }}">✓</button>
               </form>
+            </div>
+            <div class="meal-item-icons">
+              <button type="button" class="meal-icon meal-icon-edit" aria-label="{{ _('Éditer') }}">✎</button>
               <form method="post" action="{{ url_for('meals.delete', code=event.code, meal_id=meal.id) }}" class="meal-delete-form">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="btn btn-small btn-danger">{{ _("Supprimer") }}</button>
+                <button type="submit" class="meal-icon meal-icon-delete" aria-label="{{ _('Supprimer') }}">✕</button>
               </form>
             </div>
             {% endif %}
@@ -66,29 +69,37 @@
   var grid = document.getElementById('meal-grid');
   if (!grid) return;
 
-  // Click on a filled meal toggles its edit/delete menu.
-  grid.addEventListener('click', function(e) {
-    var item = e.target.closest('.meal-item');
-    if (!item) return;
-    var menu = item.querySelector('.meal-item-menu');
-    if (!menu) return;
-    // Close any other open menu first.
-    grid.querySelectorAll('.meal-item-menu[hidden]').forEach(function(m) {
-      if (m !== menu) m.hidden = true;
+  function closeAllEdits() {
+    grid.querySelectorAll('.meal-item-edit:not([hidden])').forEach(function(el) {
+      el.hidden = true;
+      var t = el.parentElement.querySelector('.meal-item-title');
+      if (t) t.style.display = '';
+      var i = el.parentElement.querySelector('.meal-item-icons');
+      if (i) i.style.display = '';
     });
-    menu.hidden = !menu.hidden;
-    if (!menu.hidden) {
-      var input = menu.querySelector('.meal-edit-input');
-      if (input) input.focus();
-    }
+  }
+
+  // Pencil icon: toggle inline edit for that meal.
+  grid.addEventListener('click', function(e) {
+    var editBtn = e.target.closest('.meal-icon-edit');
+    if (!editBtn) return;
+    var item = editBtn.closest('.meal-item');
+    var edit = item.querySelector('.meal-item-edit');
+    var title = item.querySelector('.meal-item-title');
+    var icons = item.querySelector('.meal-item-icons');
+    closeAllEdits();
+    if (!edit.hidden) return; // was open, now closed
+    title.style.display = 'none';
+    icons.style.display = 'none';
+    edit.hidden = false;
+    var input = edit.querySelector('.meal-edit-input');
+    if (input) { input.focus(); input.select(); }
     e.stopPropagation();
   });
 
-  // Clicking elsewhere closes open menus.
+  // Clicking elsewhere closes open edits.
   document.addEventListener('click', function(e) {
-    if (!e.target.closest('.meal-item')) {
-      grid.querySelectorAll('.meal-item-menu').forEach(function(m) { m.hidden = true; });
-    }
+    if (!e.target.closest('.meal-item')) closeAllEdits();
   });
 
   // Drag & drop: move a meal to a cell (swap if occupied).

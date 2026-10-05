@@ -38,6 +38,16 @@ class TestMealsIndex:
         resp = client.get(f"/e/{event.code}/meals")
         assert resp.status_code == 200
         assert b"Roti de porc" in resp.data
+        assert b"meal-add-form" in resp.data  # inline per-cell add form renders
+
+    def test_today_row_highlighted(self, client, creator, event, db):
+        _login_creator(client, creator)
+        event.start_date = date.today()
+        event.end_date = date.today()
+        db.session.commit()
+        resp = client.get(f"/e/{event.code}/meals")
+        assert resp.status_code == 200
+        assert b"is-today" in resp.data
 
     def test_index_requires_auth(self, client, event):
         resp = client.get(f"/e/{event.code}/meals")

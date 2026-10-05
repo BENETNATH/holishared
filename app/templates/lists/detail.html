@@ -7,7 +7,6 @@
 <div class="page-head">
     <div>
         <h1>{{ shared_list.title }}</h1>
-        {% if shared_list.list_type %}<span class="tag">{{ _(shared_list.list_type) }}</span>{% endif %}
     </div>
     {% if meal_acts or act_acts %}
     <div class="head-actions">
@@ -106,6 +105,10 @@
     <aside class="list-sidebar list-sidebar-hidden" id="meal-panel" aria-label="{{ _('Repas planifiés') }}">
       <h2 class="sidebar-title">{{ _("Repas") }}</h2>
       <p class="sidebar-hint">{{ _("Cochez les repas dont vous avez noté les ingrédients.") }}</p>
+      <label class="filter-toggle">
+        <input type="checkbox" id="meal-filter-covered">
+        <span>{{ _("Masquer les repas cochés") }}</span>
+      </label>
       {% for day, day_meals in meal_acts | groupby("date") %}
       <div class="meal-group">
         <h3 class="meal-group-day">{{ day | format_date('full') }}</h3>
@@ -136,6 +139,10 @@
     <aside class="list-sidebar list-sidebar-hidden" id="act-panel" aria-label="{{ _("Activités") }}">
       <h2 class="sidebar-title">{{ _("Activités") }}</h2>
       <p class="sidebar-hint">{{ _("Cochez les activités déjà préparées.") }}</p>
+      <label class="filter-toggle">
+        <input type="checkbox" id="act-filter-covered">
+        <span>{{ _("Masquer les activités cochées") }}</span>
+      </label>
       {% for day, day_acts in act_acts | groupby("date") %}
       <div class="meal-group">
         <h3 class="meal-group-day">{{ day | format_date('full') }}</h3>
@@ -180,6 +187,26 @@
   }
   bind('toggle-meals', 'meal-panel');
   bind('toggle-acts', 'act-panel');
+
+  // Filter: hide/show the already-checked items in a panel.
+  function bindFilter(filterId, panelId) {
+    var filter = document.getElementById(filterId);
+    var panel = document.getElementById(panelId);
+    if (!filter || !panel) return;
+    filter.addEventListener('change', function() {
+      var hide = filter.checked;
+      panel.querySelectorAll('.meal-check-item.covered').forEach(function(el) {
+        el.style.display = hide ? 'none' : '';
+      });
+      // Hide day groups that end up empty.
+      panel.querySelectorAll('.meal-group').forEach(function(group) {
+        var hasVisible = group.querySelector('.meal-check-item:not(.covered)');
+        group.style.display = (hide && !hasVisible) ? 'none' : '';
+      });
+    });
+  }
+  bindFilter('meal-filter-covered', 'meal-panel');
+  bindFilter('act-filter-covered', 'act-panel');
 })();
 </script>
 {% endif %}

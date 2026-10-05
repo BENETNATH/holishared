@@ -81,30 +81,26 @@ class TestListsIndex:
 class TestCreateList:
     def test_create_list_success(self, client, creator, event, db):
         _login_creator(client, creator)
-        resp = client.post(f"/e/{event.code}/lists/new", data={
+        resp = client.post(f"/e/{event.code}/lists", data={
             "title": "Buffet",
-            "list_type": "buffet",
         })
         assert resp.status_code == 302
         sl = SharedList.query.filter_by(title="Buffet").first()
         assert sl is not None
-        assert sl.list_type == "buffet"
         assert sl.event_id == event.id
 
     def test_create_list_missing_title(self, client, creator, event):
         _login_creator(client, creator)
-        resp = client.post(f"/e/{event.code}/lists/new", data={
+        resp = client.post(f"/e/{event.code}/lists", data={
             "title": "",
-            "list_type": "general",
         })
         assert resp.status_code == 200
         assert b"Titre requis" in resp.data
 
     def test_create_list_logs(self, client, creator, event, db):
         _login_creator(client, creator)
-        client.post(f"/e/{event.code}/lists/new", data={
+        client.post(f"/e/{event.code}/lists", data={
             "title": "Logged List",
-            "list_type": "packing",
         })
         log = ActivityLog.query.filter_by(
             event_id=event.id, action="list.created"
@@ -124,6 +120,21 @@ class TestListDetail:
         assert resp.status_code == 200
         assert b"Milk" in resp.data
         assert b"Dairy" in resp.data
+        assert b"quick-add" in resp.data  # inline quick-add form renders
+
+    def test_detail_shows_meal_filter(self, client, creator, event, shared_list, db):
+        """Le toggle 'Masquer les cochés' apparaît quand l'événement a des repas."""
+        from datetime import date
+
+        from app.models import Meal
+
+        _login_creator(client, creator)
+        m = Meal(title="Déjeuner", date=date(2026, 12, 3), slot="lunch", event_id=event.id)
+        db.session.add(m)
+        db.session.commit()
+        resp = client.get(f"/e/{event.code}/lists/{shared_list.id}")
+        assert resp.status_code == 200
+        assert b"filter-toggle" in resp.data
 
 
 # === TestAddItem (3 tests) ===

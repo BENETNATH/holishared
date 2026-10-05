@@ -100,6 +100,7 @@ def index(code: str) -> Response | str:
         by_cell=by_cell,
         guest=guest,
         can_modify=can_modify,
+        today=date.today(),
     )
 
 
