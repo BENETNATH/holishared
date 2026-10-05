@@ -7,6 +7,9 @@
   {% if "planning" in enabled_modules %}
   <a href="{{ url_for('planning.index', code=event.code) }}">{{ _("Planning") }}</a>
   {% endif %}
+  {% if "meals" in enabled_modules %}
+  <a href="{{ url_for('meals.index', code=event.code) }}">{{ _("Repas") }}</a>
+  {% endif %}
   {% if "lists" in enabled_modules %}
   <a href="{{ url_for('lists.index', code=event.code) }}">{{ _("Listes") }}</a>
   {% endif %}

@@ -111,16 +111,6 @@ class TestPlanningIndex:
         resp = client.get(f"/e/{event.code}/planning")
         assert b"Aucune activit" in resp.data
 
-    def test_index_shows_confirmed_count(self, client, creator, event, activity, activity_rsvp):
-        _login_creator(client, creator)
-        resp = client.get(f"/e/{event.code}/planning")
-        assert b"1/3" in resp.data
-
-    def test_index_shows_insufficient_badge(self, client, creator, event, activity, activity_rsvp):
-        _login_creator(client, creator)
-        resp = client.get(f"/e/{event.code}/planning")
-        assert b"insufficient" in resp.data
-
     def test_index_shows_rsvp_status(self, client, event, guest, activity, activity_rsvp):
         _login_guest(client, event, guest)
         resp = client.get(f"/e/{event.code}/planning")

@@ -63,7 +63,7 @@ def create_app() -> Flask:
     app.config["MAX_DURATION_DAYS"] = int(os.environ.get("MAX_DURATION_DAYS", "30"))
     app.config["MAX_EVENTS_PER_CREATOR"] = int(os.environ.get("MAX_EVENTS_PER_CREATOR", "3"))
     app.config["ENABLED_MODULES"] = os.environ.get(
-        "ENABLED_MODULES", "planning,lists,logistics,voting,media,chat,costs"
+        "ENABLED_MODULES", "planning,meals,lists,logistics,voting,media,chat,costs"
     ).split(",")
 
     # Anti-abus
@@ -240,12 +240,14 @@ def create_app() -> Flask:
     from app.costs import costs_bp
     from app.lists import lists_bp
     from app.logistics import logistics_bp
+    from app.meals import meals_bp
     from app.media import media_bp
     from app.planning import planning_bp
     from app.voting import voting_bp
 
     module_blueprints = {
         "planning": planning_bp,
+        "meals": meals_bp,
         "lists": lists_bp,
         "logistics": logistics_bp,
         "voting": voting_bp,

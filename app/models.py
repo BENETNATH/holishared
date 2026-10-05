@@ -69,6 +69,9 @@ class Event(db.Model):  # type: ignore[misc,name-defined]
     activities = db.relationship(
         "Activity", backref="event", lazy="dynamic", cascade="all, delete-orphan"
     )
+    meals = db.relationship(
+        "Meal", backref="event", lazy="dynamic", cascade="all, delete-orphan"
+    )
     lists = db.relationship(
         "SharedList", backref="event", lazy="dynamic", cascade="all, delete-orphan"
     )
@@ -140,6 +143,27 @@ class Activity(db.Model):  # type: ignore[misc,name-defined]
         return sum(1 for r in self.rsvps if r.status == "yes")  # type: ignore[misc,attr-defined]
 
 
+class Meal(db.Model):  # type: ignore[misc,name-defined]
+    """A planned meal (lunch or dinner) in the meal grid.
+
+    One meal per (event, date, slot) — a grid cell. Moving a meal into an
+    occupied cell swaps the two meals.
+    """
+
+    __tablename__ = "meals"
+
+    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    title: Mapped[str] = db.Column(db.String(200), nullable=False)
+    date: Mapped[date] = db.Column(db.Date, nullable=False)
+    slot: Mapped[str] = db.Column(db.String(10), nullable=False)  # 'lunch' | 'dinner'
+    created_by: Mapped[str | None] = db.Column(db.String(32), db.ForeignKey("guests.id"), default=None)
+    created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
+
+    event_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False)
+
+    __table_args__ = (db.UniqueConstraint("event_id", "date", "slot", name="uq_meal_event_slot"),)
+
+
 class ActivityRSVP(db.Model):  # type: ignore[misc,name-defined]
     """RSVP for an activity."""
 
@@ -181,7 +205,8 @@ class SharedList(db.Model):  # type: ignore[misc,name-defined]
     id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
     title: Mapped[str] = db.Column(db.String(200), nullable=False)
     list_type: Mapped[str] = db.Column(db.String(50), default="general")  # shopping, packing, materials, buffet
-    covered_meals: Mapped[list] = db.Column(db.JSON, default=list)  # activity IDs checked off
+    covered_meals: Mapped[list] = db.Column(db.JSON, default=list)  # meal IDs checked off
+    covered_activities: Mapped[list] = db.Column(db.JSON, default=list)  # activity IDs checked off
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
 
     event_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False)

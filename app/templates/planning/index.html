@@ -11,81 +11,14 @@
     </div>
 </div>
 
-{# Meal grid: direct input in each cell #}
-<div class="meal-grid-wrap">
-  <h2>{{ _("Repas") }}</h2>
-  <div class="meal-grid">
-    <div class="meal-grid-header">
-      <span class="meal-grid-corner"></span>
-      <span>{{ _("Midi") }}</span>
-      <span>{{ _("Soir") }}</span>
-    </div>
-    {% set num_days = (event.end_date - event.start_date).days + 1 %}
-    {% for i in range(num_days) %}
-    {% set day = event.start_date | add_days(i) %}
-    <div class="meal-grid-row">
-      <span class="meal-grid-day">{{ day.strftime("%a") }}<br><strong>{{ day.strftime("%d/%m") }}</strong></span>
-      {% for meal_type, default_time in [('lunch', '12:00'), ('dinner', '19:00')] %}
-        {% set cell_acts = [] %}
-        {% for act in activities %}
-          {% if act.date == day and act.start_time %}
-            {% set h = act.start_time.hour %}
-            {% if meal_type == 'lunch' and h >= 11 and h < 15 %}{% set _ = cell_acts.append(act) %}{% endif %}
-            {% if meal_type == 'dinner' and h >= 18 %}{% set _ = cell_acts.append(act) %}{% endif %}
-          {% endif %}
-        {% endfor %}
-        <div class="meal-cell">
-          {% if cell_acts %}
-            {% for act in cell_acts %}
-            <div class="meal-item-wrap">
-              <span class="meal-item">{{ act.title }}</span>
-              <span class="badge-headcount meal-badge {% if act.confirmed_count >= act.min_headcount %}ok{% else %}insufficient{% endif %}">{{ act.confirmed_count }}/{{ act.min_headcount }}</span>
-              {% if can_modify(act) %}
-              <form method="post" action="{{ url_for('planning.delete', code=event.code, activity_id=act.id) }}" class="meal-delete-form">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="meal-delete-btn" title="{{ _('Supprimer') }}">&times;</button>
-              </form>
-              {% endif %}
-            </div>
-            {% endfor %}
-          {% endif %}
-          <form method="post" action="{{ url_for('planning.create', code=event.code) }}" class="meal-add-form">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <input type="hidden" name="date" value="{{ day.isoformat() }}">
-            <input type="hidden" name="start_time" value="{{ default_time }}">
-            <input type="hidden" name="min_headcount" value="1">
-            <input type="text" name="title" class="meal-input"
-                   placeholder="{{ _('Repas…') }}" maxlength="200" required minlength="2">
-            <button type="submit" class="meal-submit" aria-label="{{ _('Ajouter') }}">✓</button>
-          </form>
-        </div>
-      {% endfor %}
-    </div>
-    {% endfor %}
-  </div>
-</div>
-
+{# Activities (meals live on the dedicated Repas page) #}
 {% if not activities %}
-<p class="empty-hint">{{ _("Aucune activité planifiée. Ajoutez un repas dans la grille ci-dessus, ou une activité avec l'ajout rapide ci-dessous.") }}</p>
+<p class="empty-hint">{{ _("Aucune activité planifiée. Ajoutez-en une avec l'ajout rapide ci-dessous.") }}</p>
 {% endif %}
 
-{# Other activities (non-meal) #}
-{% set other_acts = [] %}
-{% for act in activities %}
-  {% if act.start_time %}
-    {% set h = act.start_time.hour %}
-    {% if (h < 6 or (h >= 11 and h < 18)) and not (h >= 6 and h < 11) and not (h >= 11 and h < 15) and not (h >= 18) %}
-      {% set _ = other_acts.append(act) %}
-    {% endif %}
-  {% else %}
-    {% set _ = other_acts.append(act) %}
-  {% endif %}
-{% endfor %}
-
-{% if other_acts %}
+{% if activities %}
 <div class="other-activities">
-  <h2>{{ _("Autres activités") }}</h2>
-  {% set grouped = other_acts | groupby("date") %}
+  {% set grouped = activities | groupby("date") %}
   {% for day, acts in grouped %}
     <h3 class="day-header{% if day == today %} today{% endif %}">{{ day | format_date('full') }}</h3>
     {% for act in acts %}
@@ -118,7 +51,7 @@
 {% set default_date = today if event.start_date <= today <= event.end_date else event.start_date %}
 <div class="quick-act" id="quick-activity">
   <h2>{{ _("Ajouter une activité") }}</h2>
-  <p class="hint">{{ _("Randonnée, piscine, sortie… (les repas se saisissent dans la grille ci-dessus)") }}</p>
+  <p class="hint">{{ _("Randonnée, piscine, sortie…") }}</p>
   <form method="post" action="{{ url_for('planning.create', code=event.code) }}" class="quick-act-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <input type="hidden" name="min_headcount" value="1">

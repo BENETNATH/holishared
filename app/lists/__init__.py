@@ -17,7 +17,7 @@ from flask_login import current_user
 from werkzeug.wrappers import Response
 
 from app.extensions import db, limiter
-from app.models import Event, Guest, ListItem, SharedList
+from app.models import Activity, Event, Guest, ListItem, Meal, SharedList
 from app.utils import log_action
 
 lists_bp = Blueprint("lists", __name__)
@@ -151,22 +151,40 @@ def detail(code: str, list_id: str) -> Response | tuple[str, int] | str:
     if denied is not None:
         return denied
 
-    # Meal plan (lunch + dinner activities) for the side panel
-    from app.models import Activity
+    # Side panels: meals + activities, with cross-list coverage.
+    # An item is hidden from this list's panel once ANOTHER list has checked
+    # it off (so you can track what's already been noted/bought).
+    all_lists = SharedList.query.filter_by(event_id=event.id).all()
+    meal_covered_by: dict[str, set[str]] = {}
+    act_covered_by: dict[str, set[str]] = {}
+    for lst in all_lists:
+        for mid in (lst.covered_meals or []):
+            meal_covered_by.setdefault(mid, set()).add(lst.id)
+        for aid in (lst.covered_activities or []):
+            act_covered_by.setdefault(aid, set()).add(lst.id)
+
     meals = (
-        Activity.query.filter(
-            Activity.event_id == event.id,
-            Activity.date >= event.start_date,
-            Activity.date <= event.end_date,
-        ).order_by(Activity.date.asc(), Activity.start_time.asc()).all()
+        Meal.query.filter_by(event_id=event.id)
+        .order_by(Meal.date.asc(), Meal.slot.asc())
+        .all()
     )
-    # Filter to meal-time slots only (lunch 11-15h, dinner 18h+)
-    meal_acts = []
-    for act in meals:
-        if act.start_time:
-            h = act.start_time.hour
-            if (11 <= h < 15) or (h >= 18):
-                meal_acts.append(act)
+    meal_acts = [
+        m for m in meals
+        if shared_list.id in meal_covered_by.get(m.id, set()) or not meal_covered_by.get(m.id)
+    ]
+
+    activities = (
+        Activity.query.filter_by(event_id=event.id)
+        .order_by(Activity.date.asc(), Activity.start_time.asc().nulls_last())
+        .all()
+    )
+    act_acts = [
+        a for a in activities
+        if shared_list.id in act_covered_by.get(a.id, set()) or not act_covered_by.get(a.id)
+    ]
+
+    covered_meal_ids = set(shared_list.covered_meals or [])
+    covered_act_ids = set(shared_list.covered_activities or [])
 
     return render_template(
         "lists/detail.html",
@@ -178,6 +196,9 @@ def detail(code: str, list_id: str) -> Response | tuple[str, int] | str:
         errors=[],
         form_data={},
         meal_acts=meal_acts,
+        act_acts=act_acts,
+        covered_meal_ids=covered_meal_ids,
+        covered_act_ids=covered_act_ids,
     )
 
 
@@ -375,8 +396,8 @@ def delete_list(code: str, list_id: str) -> Response | tuple[str, int] | str:
     return redirect(url_for("lists.index", code=code))
 
 
-@lists_bp.route("/e/<code>/lists/<list_id>/meals/<activity_id>/toggle", methods=["POST"])
-def toggle_meal(code: str, list_id: str, activity_id: str) -> Response:
+@lists_bp.route("/e/<code>/lists/<list_id>/meals/<meal_id>/toggle", methods=["POST"])
+def toggle_meal(code: str, list_id: str, meal_id: str) -> Response:
     """Toggle a meal as covered by this list."""
     event = _get_event_or_404(code)
     shared_list = _get_list_or_404(event, list_id)
@@ -385,10 +406,29 @@ def toggle_meal(code: str, list_id: str, activity_id: str) -> Response:
         return denied
 
     covered = shared_list.covered_meals or []
+    if meal_id in covered:
+        covered.remove(meal_id)
+    else:
+        covered.append(meal_id)
+    shared_list.covered_meals = covered
+    db.session.commit()
+    return redirect(request.referrer or url_for("lists.detail", code=code, list_id=list_id))
+
+
+@lists_bp.route("/e/<code>/lists/<list_id>/activities/<activity_id>/toggle", methods=["POST"])
+def toggle_activity(code: str, list_id: str, activity_id: str) -> Response:
+    """Toggle an activity as covered by this list."""
+    event = _get_event_or_404(code)
+    shared_list = _get_list_or_404(event, list_id)
+    _guest, _is_creator, denied = _resolve_actor(event, code)
+    if denied is not None:
+        return denied
+
+    covered = shared_list.covered_activities or []
     if activity_id in covered:
         covered.remove(activity_id)
     else:
         covered.append(activity_id)
-    shared_list.covered_meals = covered
+    shared_list.covered_activities = covered
     db.session.commit()
     return redirect(request.referrer or url_for("lists.detail", code=code, list_id=list_id))

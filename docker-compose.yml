@@ -51,7 +51,7 @@ services:
       - MAX_GUESTS_PER_EVENT=${MAX_GUESTS_PER_EVENT:-10}
       - MAX_DURATION_DAYS=${MAX_DURATION_DAYS:-30}
       - MAX_EVENTS_PER_CREATOR=${MAX_EVENTS_PER_CREATOR:-3}
-      - ENABLED_MODULES=${ENABLED_MODULES:-planning,lists,logistics,voting,media,chat,costs}
+      - ENABLED_MODULES=${ENABLED_MODULES:-planning,meals,lists,logistics,voting,media,chat,costs}
       - RATE_LIMIT_CREATE=${RATE_LIMIT_CREATE:-5/hour}
       - BLOCKED_EMAIL_DOMAINS=${BLOCKED_EMAIL_DOMAINS:-mailinator.com,temp-mail.com,10minutemail.com,guerrillamail.com,yopmail.com,throwaway.email}
       - SMTP_HOST=${SMTP_HOST:-}

@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Repas") }} — {{ event.title }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>{{ _("Repas") }}</h1>
+        <p class="page-sub">{{ event.title }} · {{ event.start_date.strftime("%d/%m") }} → {{ event.end_date.strftime("%d/%m") }}</p>
+    </div>
+</div>
+
+<p class="hint meal-hint">{{ _("Cliquez sur une case pour ajouter un repas. Glissez-déposez pour déplacer (swap si la case est occupée). Cliquez sur un repas pour l'éditer ou le supprimer.") }}</p>
+
+<div class="meal-grid-wrap">
+  <div class="meal-grid" id="meal-grid">
+    <div class="meal-grid-header">
+      <span class="meal-grid-corner"></span>
+      <span>{{ _("Midi") }}</span>
+      <span>{{ _("Soir") }}</span>
+    </div>
+    {% set num_days = (event.end_date - event.start_date).days + 1 %}
+    {% for i in range(num_days) %}
+    {% set day = event.start_date | add_days(i) %}
+    <div class="meal-grid-row">
+      <span class="meal-grid-day">{{ day | format_date('EEE') }}<br><strong>{{ day.strftime("%d/%m") }}</strong></span>
+      {% for meal_type, slot in [('Midi', 'lunch'), ('Soir', 'dinner')] %}
+        {% set meal = by_cell.get((day, slot)) %}
+        <div class="meal-cell" data-date="{{ day.isoformat() }}" data-slot="{{ slot }}">
+          {% if meal %}
+          <div class="meal-item" draggable="{{ 'true' if can_modify(meal) else 'false' }}" data-meal-id="{{ meal.id }}">
+            <span class="meal-item-title">{{ meal.title }}</span>
+            {% if can_modify(meal) %}
+            <div class="meal-item-menu" hidden>
+              <form method="post" action="{{ url_for('meals.edit', code=event.code, meal_id=meal.id) }}" class="meal-edit-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="text" name="title" value="{{ meal.title }}" class="meal-edit-input" maxlength="200" required minlength="2">
+                <button type="submit" class="btn btn-small btn-primary">{{ _("OK") }}</button>
+              </form>
+              <form method="post" action="{{ url_for('meals.delete', code=event.code, meal_id=meal.id) }}" class="meal-delete-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-small btn-danger">{{ _("Supprimer") }}</button>
+              </form>
+            </div>
+            {% endif %}
+          </div>
+          {% else %}
+          <form method="post" action="{{ url_for('meals.create', code=event.code) }}" class="meal-add-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="date" value="{{ day.isoformat() }}">
+            <input type="hidden" name="slot" value="{{ slot }}">
+            <input type="text" name="title" class="meal-input"
+                   placeholder="{{ _('Repas…') }}" maxlength="200" required minlength="2">
+            <button type="submit" class="meal-submit" aria-label="{{ _('Ajouter') }}">✓</button>
+          </form>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+  var grid = document.getElementById('meal-grid');
+  if (!grid) return;
+
+  // Click on a filled meal toggles its edit/delete menu.
+  grid.addEventListener('click', function(e) {
+    var item = e.target.closest('.meal-item');
+    if (!item) return;
+    var menu = item.querySelector('.meal-item-menu');
+    if (!menu) return;
+    // Close any other open menu first.
+    grid.querySelectorAll('.meal-item-menu[hidden]').forEach(function(m) {
+      if (m !== menu) m.hidden = true;
+    });
+    menu.hidden = !menu.hidden;
+    if (!menu.hidden) {
+      var input = menu.querySelector('.meal-edit-input');
+      if (input) input.focus();
+    }
+    e.stopPropagation();
+  });
+
+  // Clicking elsewhere closes open menus.
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.meal-item')) {
+      grid.querySelectorAll('.meal-item-menu').forEach(function(m) { m.hidden = true; });
+    }
+  });
+
+  // Drag & drop: move a meal to a cell (swap if occupied).
+  var draggedId = null;
+  grid.addEventListener('dragstart', function(e) {
+    var item = e.target.closest('.meal-item');
+    if (!item || item.getAttribute('draggable') !== 'true') { e.preventDefault(); return; }
+    draggedId = item.getAttribute('data-meal-id');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', draggedId);
+    item.classList.add('dragging');
+  });
+  grid.addEventListener('dragend', function(e) {
+    var item = e.target.closest('.meal-item');
+    if (item) item.classList.remove('dragging');
+    draggedId = null;
+  });
+  grid.querySelectorAll('.meal-cell').forEach(function(cell) {
+    cell.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      cell.classList.add('drop-target');
+    });
+    cell.addEventListener('dragleave', function() {
+      cell.classList.remove('drop-target');
+    });
+    cell.addEventListener('drop', function(e) {
+      e.preventDefault();
+      cell.classList.remove('drop-target');
+      var mealId = e.dataTransfer.getData('text/plain') || draggedId;
+      if (!mealId) return;
+      var date = cell.getAttribute('data-date');
+      var slot = cell.getAttribute('data-slot');
+      var form = document.createElement('form');
+      form.method = 'post';
+      form.action = "{{ url_for('meals.move', code=event.code) }}";
+      function field(name, value) {
+        var i = document.createElement('input');
+        i.type = 'hidden'; i.name = name; i.value = value;
+        form.appendChild(i);
+      }
+      field('csrf_token', "{{ csrf_token() }}");
+      field('meal_id', mealId);
+      field('date', date);
+      field('slot', slot);
+      document.body.appendChild(form);
+      form.submit();
+    });
+  });
+})();
+</script>
+{% endblock %}
