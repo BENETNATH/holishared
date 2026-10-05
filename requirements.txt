@@ -13,3 +13,4 @@ qrcode>=7.4
 cryptography>=42.0
 pillow>=10.0
 redis>=5.0
+rq>=1.16

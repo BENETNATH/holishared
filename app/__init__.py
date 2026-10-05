@@ -70,6 +70,9 @@ def create_app() -> Flask:
     app.config["RATE_LIMIT_CREATE"] = os.environ.get("RATE_LIMIT_CREATE", "5/hour")
     app.config["BLOCKED_EMAIL_DOMAINS"] = os.environ.get("BLOCKED_EMAIL_DOMAINS", "").split(",")
 
+    # Redis (rate limiter + RQ)
+    app.config["REDIS_URL"] = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+
     # Email
     app.config["SMTP_HOST"] = os.environ.get("SMTP_HOST", "")
     app.config["SMTP_PORT"] = int(os.environ.get("SMTP_PORT", "587"))

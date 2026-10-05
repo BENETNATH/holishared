@@ -142,18 +142,12 @@ def create(code: str) -> Response | tuple[str, int] | str:
     return redirect(url_for("lists.index", code=code))
 
 
-@lists_bp.route("/e/<code>/lists/<list_id>")
-def detail(code: str, list_id: str) -> Response | tuple[str, int] | str:
-    """Show a shared list with its items + meal plan side panel."""
-    event = _get_event_or_404(code)
-    shared_list = _get_list_or_404(event, list_id)
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
+def _list_side_panels(event: Event, shared_list: SharedList) -> dict[str, Any]:
+    """Compute the meal/activity side panels for a list detail view.
 
-    # Side panels: meals + activities, with cross-list coverage.
-    # An item is hidden from this list's panel once ANOTHER list has checked
-    # it off (so you can track what's already been noted/bought).
+    An item is hidden from this list's panel once ANOTHER list has checked
+    it off (so you can track what's already been noted/bought).
+    """
     all_lists = SharedList.query.filter_by(event_id=event.id).all()
     meal_covered_by: dict[str, set[str]] = {}
     act_covered_by: dict[str, set[str]] = {}
@@ -183,9 +177,24 @@ def detail(code: str, list_id: str) -> Response | tuple[str, int] | str:
         if shared_list.id in act_covered_by.get(a.id, set()) or not act_covered_by.get(a.id)
     ]
 
-    covered_meal_ids = set(shared_list.covered_meals or [])
-    covered_act_ids = set(shared_list.covered_activities or [])
+    return {
+        "meal_acts": meal_acts,
+        "act_acts": act_acts,
+        "covered_meal_ids": set(shared_list.covered_meals or []),
+        "covered_act_ids": set(shared_list.covered_activities or []),
+    }
 
+
+@lists_bp.route("/e/<code>/lists/<list_id>")
+def detail(code: str, list_id: str) -> Response | tuple[str, int] | str:
+    """Show a shared list with its items + meal plan side panel."""
+    event = _get_event_or_404(code)
+    shared_list = _get_list_or_404(event, list_id)
+    guest, is_creator, denied = _resolve_actor(event, code)
+    if denied is not None:
+        return denied
+
+    panels = _list_side_panels(event, shared_list)
     return render_template(
         "lists/detail.html",
         event=event,
@@ -195,10 +204,7 @@ def detail(code: str, list_id: str) -> Response | tuple[str, int] | str:
         is_creator=is_creator,
         errors=[],
         form_data={},
-        meal_acts=meal_acts,
-        act_acts=act_acts,
-        covered_meal_ids=covered_meal_ids,
-        covered_act_ids=covered_act_ids,
+        **panels,
     )
 
 
@@ -230,6 +236,7 @@ def add_item(code: str, list_id: str) -> Response | tuple[str, int] | str:
         errors.append(_("Nom trop long (max 50)."))
 
     if errors:
+        panels = _list_side_panels(event, shared_list)
         return render_template(
             "lists/detail.html",
             event=event,
@@ -244,6 +251,7 @@ def add_item(code: str, list_id: str) -> Response | tuple[str, int] | str:
                 "section": section,
                 "assigned_to": assigned_to,
             },
+            **panels,
         )
 
     item = ListItem(

@@ -32,6 +32,23 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  worker:
+    build: .
+    container_name: holishared-worker
+    command: rq worker default --url redis://redis:6379/0
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - saas_net
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   app:
     build: .
     container_name: holishared-app

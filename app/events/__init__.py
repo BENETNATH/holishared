@@ -548,100 +548,63 @@ def _get_current_guest(event: Event) -> Guest | None:
     return None
 
 
+def _rq_queue():
+    """Get the RQ queue (lazy import)."""
+    from rq import Queue
+    from redis import Redis
+    return Queue("default", connection=Redis.from_url(
+        current_app.config.get("REDIS_URL", "redis://localhost:6379/0")
+    ))
+
+
+def _smtp_cfg() -> tuple[str, int, str, str, str]:
+    """(host, port, user, password, from) from app config."""
+    c = current_app.config
+    return c["SMTP_HOST"], c["SMTP_PORT"], c["SMTP_USER"], c["SMTP_PASSWORD"], c["SMTP_FROM"]
+
+
 def _send_guest_invite_email(event: Event, email: str, display_name: str | None = None) -> None:
-    """Send a guest the invitation to create their personal code.
-
-    The guest chooses their own code (no code is generated or flashed); the
-    email only carries a link to the join page.
-    """
-    import smtplib
-    from email.mime.text import MIMEText
-
-    url = f"{current_app.config['APP_URL']}/e/{event.code}/join"
-    name = f" {display_name}" if display_name else ""
-    msg = MIMEText(f"""Bonjour{name},
-
-Tu es invité(e) à l'événement "{event.title}" sur holishared
-({event.start_date:%d/%m/%Y} → {event.end_date:%d/%m/%Y}).
-
-Pour rejoindre, crée ton code personnel (4 à 8 lettres/chiffres que tu
-retiendras) en suivant ce lien :
-
-{url}
-
-Ton code te servira à te reconnecter sur un autre appareil.
-
-— holishared
-""")
-    msg["Subject"] = f"Invitation : {event.title} - holishared"
-    msg["From"] = current_app.config["SMTP_FROM"]
-    msg["To"] = email
-
-    with smtplib.SMTP(current_app.config["SMTP_HOST"], current_app.config["SMTP_PORT"]) as s:
-        s.starttls()
-        s.login(current_app.config["SMTP_USER"], current_app.config["SMTP_PASSWORD"])
-        s.send_message(msg)
+    """Enqueue guest invite email (RQ)."""
+    from app import tasks
+    join_url = f"{current_app.config['APP_URL']}/e/{event.code}/join"
+    host, port, user, pw, frm = _smtp_cfg()
+    _rq_queue().enqueue(
+        tasks.send_guest_invite_email,
+        host, port, user, pw, frm, email,
+        event.title,
+        f"{event.start_date:%d/%m/%Y}",
+        f"{event.end_date:%d/%m/%Y}",
+        join_url,
+        display_name,
+    )
 
 
 def _send_verification_email(creator: Creator, event: Event, token: str) -> None:
-    """Send verification email with link to set code + nickname."""
-    import smtplib
-    from email.mime.text import MIMEText
-
+    """Enqueue verification email (RQ)."""
+    from app import tasks
     url = url_for("events.verify", token=token, _external=True)
     to_addr = event.creator_email or creator.email
-    msg = MIMEText(f"""Bonjour,
-
-Tu as créé l'événement "{event.title}" sur holishared.
-
-Pour finaliser, clique sur ce lien (valide 3 jours) :
-
-{url}
-
-Tu y définiras ton code personnel et ton pseudo, et tu pourras inviter tes proches.
-
-— holishared
-""")
-    msg["Subject"] = "Valide ton événement - holishared"
-    msg["From"] = current_app.config["SMTP_FROM"]
-    msg["To"] = to_addr
-
-    with smtplib.SMTP(current_app.config["SMTP_HOST"], current_app.config["SMTP_PORT"]) as s:
-        s.starttls()
-        s.login(current_app.config["SMTP_USER"], current_app.config["SMTP_PASSWORD"])
-        s.send_message(msg)
+    host, port, user, pw, frm = _smtp_cfg()
+    _rq_queue().enqueue(
+        tasks.send_verification_email,
+        host, port, user, pw, frm, to_addr, event.title, url,
+    )
 
 
 def _send_invite_email(to_addr: str, event: Event) -> None:
-    """Send an invite email to a guest (email NOT stored)."""
-    import smtplib
-    from email.mime.text import MIMEText
-
-    url = f"{current_app.config['APP_URL']}/e/{event.code}/join"
-    location_line = f"Lieu : {event.location}\n" if event.location else ""
-    body = f"""Bonjour,
-
-Tu es invité(e) à l'événement "{event.title}" sur holishared.
-
-Dates : {event.start_date.strftime('%d/%m/%Y')} → {event.end_date.strftime('%d/%m/%Y')}
-{location_line}
-Pour rejoindre, clique ici :
-
-{url}
-
-Tu choisiras ton pseudo et ton code personnel.
-
-— holishared
-"""
-    msg = MIMEText(body)
-    msg["Subject"] = f"Invitation : {event.title}"
-    msg["From"] = current_app.config["SMTP_FROM"]
-    msg["To"] = to_addr
-
-    with smtplib.SMTP(current_app.config["SMTP_HOST"], current_app.config["SMTP_PORT"]) as s:
-        s.starttls()
-        s.login(current_app.config["SMTP_USER"], current_app.config["SMTP_PASSWORD"])
-        s.send_message(msg)
+    """Enqueue invite email (RQ)."""
+    from app import tasks
+    join_url = f"{current_app.config['APP_URL']}/e/{event.code}/join"
+    host, port, user, pw, frm = _smtp_cfg()
+    _rq_queue().enqueue(
+        tasks.send_invite_email,
+        host, port, user, pw, frm, to_addr,
+        event.title,
+        event.start_date.strftime('%d/%m/%Y'),
+        event.end_date.strftime('%d/%m/%Y'),
+        event.location or "",
+        join_url,
+    )
 
 
 @events_bp.route("/<code>/log")
@@ -675,25 +638,15 @@ def recover_code() -> str | Response:
             flash("Aucun compte trouvé avec cet email. Si tu n'avais pas coché 'conserver mon email', le code est perdu.", "danger")
             return render_template("events/recover.html")
 
-        # Send recovery email with the code
+        # Send recovery email with the code (RQ)
         if current_app.config["SMTP_HOST"]:
-            import smtplib
-            from email.mime.text import MIMEText
-            msg = MIMEText(f"""Bonjour,
-
-Ton code personnel holishared est : {creator.personal_code}
-
-Pseudo : {creator.display_name}
-
-— holishared
-""")
-            msg["Subject"] = "Ton code holishared"
-            msg["From"] = current_app.config["SMTP_FROM"]
-            msg["To"] = email
-            with smtplib.SMTP(current_app.config["SMTP_HOST"], current_app.config["SMTP_PORT"]) as s:
-                s.starttls()
-                s.login(current_app.config["SMTP_USER"], current_app.config["SMTP_PASSWORD"])
-                s.send_message(msg)
+            from app import tasks
+            host, port, user, pw, frm = _smtp_cfg()
+            _rq_queue().enqueue(
+                tasks.send_recovery_email,
+                host, port, user, pw, frm, email,
+                creator.personal_code, creator.display_name,
+            )
             flash("Ton code a été envoyé par email.", "success")
         else:
             # Dev mode: show code directly

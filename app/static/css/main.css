@@ -726,25 +726,6 @@ select {
   flex: 1;
 }
 
-.flash-close {
-  margin-left: auto;
-  background: none;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-  font-size: var(--text-sm);
-  line-height: 1;
-  padding: var(--sp-1);
-  border-radius: var(--radius-sm);
-  opacity: 0.65;
-  flex-shrink: 0;
-}
-
-.flash-close:hover {
-  opacity: 1;
-  background: rgba(0, 0, 0, 0.08);
-}
-
 .flash-success {
   background: var(--success-soft);
   border-color: var(--success);
