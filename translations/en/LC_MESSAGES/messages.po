@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 14:40+0000\n"
+"POT-Creation-Date: 2026-10-05 09:58+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -19,398 +19,926 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-msgid "Accueil"
-msgstr "Home"
+#: app/chat/__init__.py:116
+#, fuzzy
+msgid "Message vide."
+msgstr "Message"
 
-msgid "Planning"
-msgstr "Schedule"
+#: app/chat/__init__.py:119
+msgid "Message trop long (max 2000)."
+msgstr "Message too long (max 2000)."
 
-msgid "Listes"
-msgstr "Lists"
-
-msgid "Infos pratiques"
-msgstr "Practical info"
-
-msgid "Sondages"
-msgstr "Polls"
-
-msgid "Frais"
-msgstr "Expenses"
-
-msgid "Media"
-msgstr "Media"
-
-msgid "Chat"
-msgstr "Chat"
-
-msgid "Inviter"
-msgstr "Invite"
-
-msgid "Journal"
-msgstr "Log"
-
-msgid "Infos"
-msgstr "Info"
-
-msgid "Mes événements"
-msgstr "My events"
-
-msgid "Déconnexion"
-msgstr "Log out"
-
-msgid "Créer un événement"
-msgstr "Create an event"
-
-msgid "Planification de vacances en groupe"
-msgstr "Group vacation planning"
-
-msgid "Modifier"
-msgstr "Edit"
-
-msgid "Nouvelle activité"
-msgstr "New activity"
-
-msgid "Modifier l'activité"
-msgstr "Edit activity"
-
-msgid "Titre"
-msgstr "Title"
-
-msgid "Description"
-msgstr "Description"
-
-msgid "Date"
-msgstr "Date"
-
-msgid "Lieu"
-msgstr "Location"
-
-msgid "Heure de début"
-msgstr "Start time"
-
-msgid "Heure de fin"
-msgstr "End time"
-
-msgid "Nombre minimum de participants"
-msgstr "Minimum number of participants"
-
-msgid "Apporter"
-msgstr "Bring"
-
-msgid "Enregistrer"
-msgstr "Save"
-
-msgid "Créer l'activité"
-msgstr "Create activity"
-
-msgid "Organisez les activités du séjour"
-msgstr "Organize the trip's activities"
-
-msgid "Aucune activité planifiée"
-msgstr "No activities scheduled"
-
-msgid "Ajoutez des activités pour structurer les journées du groupe."
-msgstr "Add activities to structure the group's days."
-
-msgid "jusqu'à"
-msgstr "up to"
-
-msgid "— insuffisant"
-msgstr "— insufficient"
-
-msgid "Oui"
-msgstr "Yes"
-
-msgid "Non"
-msgstr "No"
-
-msgid "Peut-être"
-msgstr "Maybe"
-
-msgid "Supprimer"
-msgstr "Delete"
-
+#: app/chat/__init__.py:161 app/lists/__init__.py:343 app/lists/__init__.py:366
+#: app/logistics/__init__.py:259 app/planning/__init__.py:271
+#: app/planning/__init__.py:335 app/voting/__init__.py:258
 msgid "Pas autorisé."
 msgstr "Not authorized."
 
-msgid "Page introuvable"
-msgstr "Page not found"
+#: app/chat/__init__.py:175
+msgid "Message supprimé."
+msgstr "Message deleted."
 
-msgid "La page que vous cherchez n'existe pas ou a été déplacée."
-msgstr "The page you're looking for doesn't exist or has been moved."
+#: app/lists/__init__.py:122 app/logistics/__init__.py:90
+#: app/planning/__init__.py:112
+msgid "Titre requis (min 2 caractères)."
+msgstr "Title required (min 2 characters)."
 
-msgid "Retour à l'accueil"
-msgstr "Back to home"
+#: app/lists/__init__.py:124 app/logistics/__init__.py:92
+msgid "Titre trop long (max 200)."
+msgstr "Title too long (max 200)."
 
-msgid "Retour à l'événement"
-msgstr "Back to event"
+#: app/lists/__init__.py:141
+msgid "Liste créée."
+msgstr "List created."
 
-msgid "À"
-msgstr "To"
+#: app/lists/__init__.py:201
+#, fuzzy
+msgid "Nom requis."
+msgstr "required"
 
-msgid "Libérer"
-msgstr "Release"
+#: app/lists/__init__.py:203
+msgid "Nom trop long (max 300)."
+msgstr "Name too long (max 300)."
 
-msgid "Je m'occupe de ça"
-msgstr "I'll handle this"
+#: app/lists/__init__.py:205
+msgid "Quantité trop longue (max 50)."
+msgstr "Quantity too long (max 50)."
 
-msgid "Aucun article dans cette liste. Ajoutez le premier ci-dessous."
-msgstr "No items in this list. Add the first one below."
+#: app/lists/__init__.py:207
+#, fuzzy
+msgid "Section trop longue (max 100)."
+msgstr "One option per line (2 to 10)."
 
-msgid "Ajouter un article"
-msgstr "Add item"
+#: app/lists/__init__.py:209
+msgid "Nom trop long (max 50)."
+msgstr "Name too long (max 50)."
 
-msgid "Nom"
-msgstr "Name"
-
-msgid "Quantité"
-msgstr "Quantity"
-
-msgid "Section"
-msgstr "Section"
-
-msgid "Assigné à"
-msgstr "Assigned to"
-
-msgid "Ajouter"
-msgstr "Add"
-
-msgid "Supprimer la liste"
-msgstr "Delete list"
-
-msgid "Nouvelle liste"
-msgstr "New list"
-
-msgid "Type de liste"
-msgstr "List type"
-
-msgid "Créer la liste"
-msgstr "Create list"
-
-msgid "Courses, to-do, matériel…"
-msgstr "Groceries, to-do, equipment…"
-
-msgid "Aucune liste"
-msgstr "No lists"
-
-msgid ""
-"Créez une liste de courses, de to-do ou de matériel à partager avec le "
-"groupe."
-msgstr ""
-"Create a shopping list, to-do list, or equipment list to share with the "
-"group."
-
-msgid "articles"
+#: app/lists/__init__.py:248
+#, fuzzy
+msgid "Article ajouté."
 msgstr "items"
 
+#: app/lists/__init__.py:302
+#, fuzzy
+msgid "Article supprimé."
+msgstr "items"
+
+#: app/lists/__init__.py:326
+msgid "Vous vous êtes attribué cet article."
+msgstr "You claimed this item."
+
+#: app/lists/__init__.py:353
+#, fuzzy
+msgid "Article libéré."
+msgstr "items"
+
+#: app/lists/__init__.py:374
+#, fuzzy
+msgid "Liste supprimée."
+msgstr "Delete"
+
+#: app/logistics/__init__.py:95
+#, fuzzy
+msgid "Contenu requis."
+msgstr "Content"
+
+#: app/logistics/__init__.py:97
+msgid "Contenu trop long (max 5000)."
+msgstr "Content too long (max 5000)."
+
+#: app/logistics/__init__.py:100
+#, fuzzy
+msgid "Catégorie invalide."
+msgstr "Category"
+
+#: app/logistics/__init__.py:107
+msgid "Ordre invalide."
+msgstr "Invalid order."
+
+#: app/logistics/__init__.py:186
+#, fuzzy
+msgid "Info pratique créée."
+msgstr "Practical info"
+
+#: app/logistics/__init__.py:244
+#, fuzzy
+msgid "Info pratique modifiée."
+msgstr "Practical info"
+
+#: app/logistics/__init__.py:267
+#, fuzzy
+msgid "Info pratique supprimée."
+msgstr "Practical info"
+
+#: app/planning/__init__.py:114
+msgid "Description trop longue (max 2000)."
+msgstr "Description too long (max 2000)."
+
+#: app/planning/__init__.py:118 app/planning/__init__.py:123
+#: app/planning/__init__.py:126
+#, fuzzy
+msgid "Date hors de la période de l'événement."
+msgstr "Event action history"
+
+#: app/planning/__init__.py:131 app/planning/__init__.py:133
+msgid "Heure de fin avant heure de début."
+msgstr "End time before start time."
+
+#: app/planning/__init__.py:136
+msgid "Lieu trop long (max 300)."
+msgstr "Location too long (max 300)."
+
+#: app/planning/__init__.py:143 app/planning/__init__.py:146
+msgid "Nombre entre 1 et 50."
+msgstr "Number between 1 and 50."
+
+#: app/planning/__init__.py:149
+msgid "Champ trop long (max 500)."
+msgstr "Field too long (max 500)."
+
+#: app/planning/__init__.py:256
+#, fuzzy
+msgid "Activité créée."
+msgstr "Activities"
+
+#: app/planning/__init__.py:320
+#, fuzzy
+msgid "Activité modifiée."
+msgstr "No activities scheduled"
+
+#: app/planning/__init__.py:343
+#, fuzzy
+msgid "Activité supprimée."
+msgstr "Activities"
+
+#: app/planning/__init__.py:353
+#, fuzzy
+msgid "Le créateur ne fait pas de RSVP."
+msgstr "The creator can add you."
+
+#: app/planning/__init__.py:369
+msgid "Statut invalide."
+msgstr "Invalid status."
+
+#: app/templates/_event_nav.html:5
+#, fuzzy
+msgid "Navigation de l'événement"
+msgstr "Join the event"
+
+#: app/templates/_event_nav.html:6
+msgid "Accueil"
+msgstr "Home"
+
+#: app/templates/_event_nav.html:8 app/templates/base.html:51
+#: app/templates/planning/index.html:2 app/templates/planning/index.html:6
+msgid "Planning"
+msgstr "Schedule"
+
+#: app/templates/_event_nav.html:11 app/templates/base.html:54
+#: app/templates/lists/detail.html:5 app/templates/lists/index.html:2
+#: app/templates/lists/index.html:6
+msgid "Listes"
+msgstr "Lists"
+
+#: app/templates/_event_nav.html:14 app/templates/logistics/index.html:2
+#: app/templates/logistics/index.html:6
+msgid "Infos pratiques"
+msgstr "Practical info"
+
+#: app/templates/_event_nav.html:17 app/templates/base.html:60
+#: app/templates/voting/index.html:2 app/templates/voting/index.html:6
+msgid "Sondages"
+msgstr "Polls"
+
+#: app/templates/_event_nav.html:20 app/templates/base.html:63
+#: app/templates/costs/index.html:161
+msgid "Frais"
+msgstr "Expenses"
+
+#: app/templates/_event_nav.html:23 app/templates/base.html:66
+#: app/templates/media/gallery.html:2 app/templates/media/gallery.html:6
+msgid "Media"
+msgstr "Media"
+
+#: app/templates/_event_nav.html:26 app/templates/base.html:69
+#: app/templates/chat/index.html:2 app/templates/chat/index.html:6
+#: app/templates/events/dashboard.html:146
+msgid "Chat"
+msgstr "Chat"
+
+#: app/templates/_event_nav.html:29 app/templates/events/dashboard.html:44
+msgid "Inviter"
+msgstr "Invite"
+
+#: app/templates/_event_nav.html:31 app/templates/events/log.html:2
+#: app/templates/events/log.html:6
+msgid "Journal"
+msgstr "Log"
+
+#: app/templates/base.html:37
+msgid "Navigation principale"
+msgstr "Main navigation"
+
+#: app/templates/base.html:57
+msgid "Infos"
+msgstr "Info"
+
+#: app/templates/base.html:73 app/templates/errors/404.html:11
+#: app/templates/events/index.html:2 app/templates/events/index.html:6
+msgid "Mes événements"
+msgstr "My events"
+
+#: app/templates/base.html:74
+msgid "Déconnexion"
+msgstr "Log out"
+
+#: app/templates/base.html:76 app/templates/events/index.html:28
+#: app/templates/main/landing.html:12
+msgid "Créer un événement"
+msgstr "Create an event"
+
+#: app/templates/base.html:108
+msgid "Fermer"
+msgstr "Close"
+
+#: app/templates/base.html:119
+msgid "Planification de vacances en groupe"
+msgstr "Group vacation planning"
+
+#: app/templates/auth/login.html:2 app/templates/auth/login.html:23
 msgid "Connexion"
 msgstr "Login"
 
+#: app/templates/auth/login.html:24
 msgid "Accédez à vos événements."
 msgstr "Access your events."
 
+#: app/templates/auth/login.html:28 app/templates/events/members.html:24
 msgid "Email"
 msgstr "Email"
 
+#: app/templates/auth/login.html:33
 msgid "Mot de passe"
 msgstr "Password"
 
+#: app/templates/auth/login.html:38
 msgid "Se connecter"
 msgstr "Log in"
 
-msgid "Discutez avec le groupe"
-msgstr "Chat with the group"
-
-msgid "Votre message"
-msgstr "Your message"
-
-msgid "Envoyer"
-msgstr "Send"
-
+#: app/templates/chat/_messages.html:5
 msgid "Aucun message"
 msgstr "No messages"
 
-msgid "Lancez la conversation avec le groupe !"
-msgstr "Start the conversation with the group!"
+#: app/templates/chat/_messages.html:6
+msgid "Lancez la conversation !"
+msgstr "Start the conversation!"
 
-msgid "Historique des actions de l'événement"
-msgstr "Event action history"
+#: app/templates/chat/_messages.html:21
+msgid "Supprimer le message de"
+msgstr "Delete message from"
 
-msgid "Journal des actions"
-msgstr "Action log"
+#: app/templates/chat/_messages.html:21 app/templates/costs/index.html:139
+#: app/templates/costs/index.html:189 app/templates/costs/index.html:241
+#: app/templates/costs/index.html:320 app/templates/lists/detail.html:77
+#: app/templates/logistics/index.html:34 app/templates/media/detail.html:28
+#: app/templates/planning/index.html:46 app/templates/planning/index.html:106
+msgid "Supprimer"
+msgstr "Delete"
 
-msgid "Quand"
-msgstr "When"
+#: app/templates/chat/index.html:24
+msgid "Votre message"
+msgstr "Your message"
 
-msgid "Qui"
-msgstr "Who"
+#: app/templates/chat/index.html:28
+msgid "Envoyer"
+msgstr "Send"
 
-msgid "Action"
-msgstr "Action"
+#: app/templates/costs/household_form.html:2
+msgid "Nouveau foyer"
+msgstr "New household"
 
-msgid "Cible"
+#: app/templates/costs/household_form.html:6
+#, fuzzy
+msgid "Nouveau groupe"
+msgstr "New household"
+
+#: app/templates/costs/household_form.html:15
+#, fuzzy
+msgid "Nom du groupe"
+msgstr "Household name"
+
+#: app/templates/costs/household_form.html:17
+#, fuzzy
+msgid "Ex : Famille Dupont, Alice + Bob"
+msgstr "E.g. Dupont family"
+
+#: app/templates/costs/household_form.html:22
+msgid "Nombre d'adultes"
+msgstr "Number of adults"
+
+#: app/templates/costs/household_form.html:26
+msgid "Nombre d'enfants"
+msgstr "Number of children"
+
+#: app/templates/costs/household_form.html:31
+msgid "Le ratio adulte/enfant se définit sur la page des frais."
+msgstr "The adult/child ratio is set on the costs page."
+
+#: app/templates/costs/household_form.html:34
+#, fuzzy
+msgid "Ajouter le groupe"
+msgstr "Add household"
+
+#: app/templates/costs/index.html:2 app/templates/costs/index.html:6
+msgid "Partage de frais"
+msgstr "Cost sharing"
+
+#: app/templates/costs/index.html:14
+#, fuzzy
+msgid "Ajouter un frais"
+msgstr "Add expense"
+
+#: app/templates/costs/index.html:19 app/templates/costs/index.html:170
+#: app/templates/costs/index.html:181 app/templates/events/create.html:68
+#: app/templates/planning/form.html:36
+msgid "Description"
+msgstr "Description"
+
+#: app/templates/costs/index.html:20
+#, fuzzy
+msgid "Ex : Courses, essence…"
+msgstr "E.g. Saturday groceries"
+
+#: app/templates/costs/index.html:23 app/templates/costs/index.html:172
+#: app/templates/costs/index.html:183 app/templates/costs/index.html:223
+#: app/templates/costs/index.html:234 app/templates/costs/index.html:275
+#: app/templates/costs/index.html:352
+msgid "Montant"
+msgstr "Amount"
+
+#: app/templates/costs/index.html:27 app/templates/costs/index.html:173
+#: app/templates/costs/index.html:184
+msgid "Payé par"
+msgstr "Paid by"
+
+#: app/templates/costs/index.html:35 app/templates/costs/index.html:171
+#: app/templates/costs/index.html:182 app/templates/logistics/form.html:33
+msgid "Catégorie"
+msgstr "Category"
+
+#: app/templates/costs/index.html:37
+msgid "Général"
+msgstr "General"
+
+#: app/templates/costs/index.html:38
+msgid "Nourriture"
+msgstr "Food"
+
+#: app/templates/costs/index.html:39
+msgid "Transport"
+msgstr "Transport"
+
+#: app/templates/costs/index.html:40
+msgid "Hébergement"
+msgstr "Accommodation"
+
+#: app/templates/costs/index.html:41
+msgid "Activités"
+msgstr "Activities"
+
+#: app/templates/costs/index.html:45 app/templates/costs/index.html:169
+#: app/templates/costs/index.html:180 app/templates/costs/index.html:225
+#: app/templates/costs/index.html:236 app/templates/costs/index.html:283
+#: app/templates/planning/form.html:43 app/templates/planning/index.html:129
+msgid "Date"
+msgstr "Date"
+
+#: app/templates/costs/index.html:49 app/templates/events/members.html:29
+#: app/templates/lists/detail.html:35 app/templates/planning/index.html:59
+#: app/templates/planning/index.html:131
+msgid "Ajouter"
+msgstr "Add"
+
+#: app/templates/costs/index.html:57 app/templates/costs/index.html:71
+msgid "Qui doit à qui"
+msgstr "Who owes whom"
+
+#: app/templates/costs/index.html:72
+msgid "Tout est réglé — aucun solde à compenser."
+msgstr "All settled — no balance to compensate."
+
+#: app/templates/costs/index.html:79
+msgid "Ratio de répartition"
+msgstr "Split ratio"
+
+#: app/templates/costs/index.html:80
+msgid "1 adulte = X parts, 1 enfant = Y parts. S'applique à tous les groupes."
+msgstr "1 adult = X shares, 1 child = Y shares. Applies to all groups."
+
+#: app/templates/costs/index.html:85
+msgid "Parts par adulte"
+msgstr "Shares per adult"
+
+#: app/templates/costs/index.html:89
+msgid "Parts par enfant"
+msgstr "Shares per child"
+
+#: app/templates/costs/index.html:93
+msgid "Appliquer à tous les groupes"
+msgstr "Apply to all groups"
+
+#: app/templates/costs/index.html:102
+msgid "Groupes"
+msgstr "Groups"
+
+#: app/templates/costs/index.html:103
+msgid ""
+"Un groupe = un foyer ou une personne qui partage les frais. Créé "
+"automatiquement à l'inscription."
+msgstr ""
+"A group = a household or a person who shares costs. Created automatically"
+" on signup."
+
+#: app/templates/costs/index.html:105
+#, fuzzy
+msgid "+ Ajouter"
+msgstr "Add"
+
+#: app/templates/costs/index.html:110
+msgid "Répartition par foyer"
+msgstr "Distribution by household"
+
+#: app/templates/costs/index.html:113 app/templates/costs/index.html:125
+msgid "Groupe"
+msgstr "Group"
+
+#: app/templates/costs/index.html:114 app/templates/costs/index.html:128
+#: app/templates/events/join.html:39
+msgid "Adultes"
+msgstr "Adults"
+
+#: app/templates/costs/index.html:115 app/templates/costs/index.html:129
+#: app/templates/events/join.html:43
+msgid "Enfants"
+msgstr "Children"
+
+#: app/templates/costs/index.html:116 app/templates/costs/index.html:130
+msgid "Part"
+msgstr "Share"
+
+#: app/templates/costs/index.html:117 app/templates/costs/index.html:131
+msgid "Payé"
+msgstr "Paid"
+
+#: app/templates/costs/index.html:118 app/templates/costs/index.html:132
+msgid "Solde"
+msgstr "Balance"
+
+#: app/templates/costs/index.html:119 app/templates/costs/index.html:174
+#: app/templates/costs/index.html:226
+msgid "Actions"
+msgstr "Actions"
+
+#: app/templates/costs/index.html:151
+#, fuzzy
+msgid "Aucun groupe"
+msgstr "No households"
+
+#: app/templates/costs/index.html:152
+msgid ""
+"Chaque invité crée son groupe automatiquement en rejoignant. Ajoutez-en "
+"un manuellement si besoin."
+msgstr ""
+"Each guest creates their group automatically when joining. Add one "
+"manually if needed."
+
+#: app/templates/costs/index.html:153
+#, fuzzy
+msgid "Ajouter un groupe"
+msgstr "Add household"
+
+#: app/templates/costs/index.html:166
+msgid "Liste des frais"
+msgstr "Expense list"
+
+#: app/templates/costs/index.html:197
+msgid "Total"
+msgstr "Total"
+
+#: app/templates/costs/index.html:204
+msgid "Aucun frais enregistré"
+msgstr "No expenses recorded"
+
+#: app/templates/costs/index.html:205
+msgid "Ajoutez les dépenses du séjour pour les répartir entre les foyers."
+msgstr "Add the trip's expenses to split them between households."
+
+#: app/templates/costs/index.html:213
+msgid "Transferts déjà effectués"
+msgstr "Transfers already made"
+
+#: app/templates/costs/index.html:218
+msgid "Liste des transferts"
+msgstr "Transfer list"
+
+#: app/templates/costs/index.html:221 app/templates/costs/index.html:232
+#: app/templates/costs/index.html:263 app/templates/costs/index.html:340
+msgid "De"
+msgstr "From"
+
+#: app/templates/costs/index.html:222 app/templates/costs/index.html:233
+#: app/templates/costs/index.html:269 app/templates/costs/index.html:346
+msgid "À"
 msgstr "To"
 
-msgid "Détails"
-msgstr "Details"
+#: app/templates/costs/index.html:224 app/templates/costs/index.html:235
+#: app/templates/costs/index.html:279
+msgid "Note"
+msgstr "Note"
 
-msgid "Aucune action enregistrée"
-msgstr "No actions recorded"
+#: app/templates/costs/index.html:241
+msgid "transfert"
+msgstr "transfer"
 
+#: app/templates/costs/index.html:253
+msgid "Aucun transfert enregistré"
+msgstr "No transfers recorded"
+
+#: app/templates/costs/index.html:254
+msgid "Enregistrez les remboursements déjà faits pour ajuster le solde."
+msgstr "Record reimbursements already made to adjust the balance."
+
+#: app/templates/costs/index.html:287
+msgid "Enregistrer le transfert"
+msgstr "Save transfer"
+
+#: app/templates/costs/index.html:295
+msgid "Demandes de paiement"
+msgstr "Payment requests"
+
+#: app/templates/costs/index.html:312
+msgid "Marquer réglé"
+msgstr "Mark as paid"
+
+#: app/templates/costs/index.html:315
+msgid "Réglé"
+msgstr "Settled"
+
+#: app/templates/costs/index.html:320
+msgid "demande de paiement"
+msgstr "payment request"
+
+#: app/templates/costs/index.html:330
+msgid "Aucune demande de paiement"
+msgstr "No payment requests"
+
+#: app/templates/costs/index.html:331
+msgid "Créez une demande pour demander un remboursement à un autre foyer."
+msgstr "Create a request to ask another household for reimbursement."
+
+#: app/templates/costs/index.html:356
+msgid "Message"
+msgstr "Message"
+
+#: app/templates/costs/index.html:360
+msgid "Créer la demande"
+msgstr "Create request"
+
+#: app/templates/costs/index.html:369
+msgid "Répartition par catégorie"
+msgstr "Distribution by category"
+
+#: app/templates/errors/403.html:2 app/templates/errors/403.html:6
+msgid "Accès refusé"
+msgstr "Access denied"
+
+#: app/templates/errors/403.html:7
 msgid ""
-"Les actions de l'événement (créations, modifications, votes…) "
-"apparaîtront ici."
-msgstr "Event actions (creations, modifications, votes…) will appear here."
+"Vous n'avez pas la permission d'accéder à cette page. Connectez-vous ou "
+"utilisez votre code personnel pour rejoindre l'événement."
+msgstr ""
+"You don't have permission to access this page. Log in or use your "
+"personal code to join the event."
 
-msgid "Ton code personnel"
-msgstr "Your personal code"
+#: app/templates/errors/403.html:9 app/templates/errors/404.html:9
+msgid "Retour à l'accueil"
+msgstr "Back to home"
 
-msgid "Copier"
-msgstr "Copy"
+#: app/templates/errors/404.html:2 app/templates/errors/404.html:6
+msgid "Page introuvable"
+msgstr "Page not found"
 
-msgid "Infos importantes"
-msgstr "Important info"
-
-msgid "+ Ajouter une info"
-msgstr "+ Add info"
-
-msgid "Aucune info pour l'instant"
-msgstr "No info yet"
-
-msgid "Adresse du gîte, code d'accès, horaires, documents… chacun peut compléter."
-msgstr "Cabin address, access code, schedule, documents… everyone can add."
-
-msgid "Ajouter une info"
-msgstr "Add info"
-
-msgid "Aujourd'hui"
-msgstr "Today"
-
-msgid "Voir le planning"
-msgstr "View schedule"
-
-msgid "Sondages ouverts"
-msgstr "Open polls"
-
-msgid "Tous les sondages"
-msgstr "All polls"
-
-msgid "À voter"
-msgstr "To vote"
-
-msgid "Listes & to-do"
-msgstr "Lists & to-do"
-
-msgid "Toutes les listes"
-msgstr "All lists"
-
-msgid "Rien à afficher pour l'instant"
-msgstr "Nothing to display yet"
-
+#: app/templates/errors/404.html:7
 msgid ""
-"Utilisez la navigation ci-dessus pour planifier, lister, voter, partager "
-"les frais…"
-msgstr "Use the navigation above to plan, list, vote, share costs…"
+"Cette page n'existe pas ou a été déplacée. Vérifiez le lien, ou retournez"
+" à votre événement."
+msgstr ""
+"This page doesn't exist or has been moved. Check the link, or go back to "
+"your event."
 
-msgid "Invitations"
-msgstr "Invitations"
-
-msgid "invités"
-msgstr "guests"
-
-msgid "Partager l'événement"
-msgstr "Share event"
-
-msgid "Lien d'invitation"
-msgstr "Invitation link"
-
-msgid "QR code d'invitation"
-msgstr "Invitation QR code"
-
-msgid "Scannez pour rejoindre l'événement et créer votre code personnel"
-msgstr "Scan to join the event and create your personal code"
-
-msgid "Inviter par email"
-msgstr "Invite by email"
-
-msgid "La personne reçoit un lien pour créer son code personnel."
-msgstr "The person receives a link to create their personal code."
-
-msgid "Adresse email de l'invité"
-msgstr "Guest email address"
-
-msgid "Envoyer l'invitation"
-msgstr "Send invitation"
-
-msgid "Invités"
-msgstr "Guests"
-
-msgid "Renvoyer"
-msgstr "Resend"
-
-msgid "pas d'email"
-msgstr "no email"
-
-msgid "Membres"
-msgstr "Members"
-
-msgid "membres"
-msgstr "members"
-
-msgid "Ajouter un membre"
-msgstr "Add member"
-
-msgid "optionnel"
-msgstr "optional"
-
-msgid "Liste des membres"
-msgstr "Member list"
-
-msgid "Retirer"
-msgstr "Remove"
-
-msgid "Aucun membre pour l'instant"
-msgstr "No members yet"
-
-msgid "Ajoutez des invités ci-dessus ou partagez le lien d'invitation."
-msgstr "Add guests above or share the invitation link."
-
-msgid "Le créateur peut vous ajouter."
-msgstr "The creator can add you."
-
+#: app/templates/events/create.html:2 app/templates/events/create.html:15
+#: app/templates/events/index.html:10
 msgid "Nouvel événement"
 msgstr "New event"
 
+#: app/templates/events/create.html:16
 msgid "Créez un événement et invitez vos proches à planifier ensemble."
 msgstr "Create an event and invite your loved ones to plan together."
 
-msgid "Date de début"
-msgstr "Start date"
+#: app/templates/events/create.html:24
+msgid "Basiques"
+msgstr "Basics"
 
-msgid "Date de fin"
-msgstr "End date"
-
+#: app/templates/events/create.html:27
 msgid "Votre email"
 msgstr "Your email"
 
-msgid "Sert à retrouver votre événement et à gérer les invitations."
-msgstr "Used to find your event and manage invitations."
+#: app/templates/events/create.html:30 app/templates/events/recover.html:16
+#, fuzzy
+msgid "Ex : alice@mail.com"
+msgstr "E.g. Alice Martin"
 
+#: app/templates/events/create.html:36 app/templates/lists/form.html:22
+#: app/templates/logistics/form.html:21 app/templates/planning/form.html:28
+#: app/templates/planning/index.html:126
+msgid "Titre"
+msgstr "Title"
+
+#: app/templates/events/create.html:38
+msgid "Ex : Anniversaire de Léa"
+msgstr "E.g. Léa's birthday"
+
+#: app/templates/events/create.html:45
+msgid "Date de début"
+msgstr "Start date"
+
+#: app/templates/events/create.html:52
+msgid "Date de fin"
+msgstr "End date"
+
+#: app/templates/events/create.html:59 app/templates/planning/form.html:51
+msgid "Lieu"
+msgstr "Location"
+
+#: app/templates/events/create.html:61
+msgid "Ex : Gîte de la Vallée, Annecy"
+msgstr "E.g. Gîte de la Vallée, Annecy"
+
+#: app/templates/events/create.html:66 app/templates/voting/form.html:27
+msgid "Options"
+msgstr "Options"
+
+#: app/templates/events/create.html:66
+#, fuzzy
+msgid "description"
+msgstr "Description"
+
+#: app/templates/events/create.html:70
+msgid "Quelques mots pour situer le contexte…"
+msgstr "A few words to set the context…"
+
+#: app/templates/events/create.html:75
+msgid ""
+"Un email de vérification vous sera envoyé pour activer l'événement (lien "
+"valide 3 jours). Il ne sera conservé que si vous le demandez à la "
+"validation."
+msgstr ""
+"A verification email will be sent to activate the event (link valid for 3"
+" days). It will only be kept if you request it at validation."
+
+#: app/templates/events/create.html:79
 msgid "Créer l'événement"
 msgstr "Create event"
 
+#: app/templates/events/dashboard.html:31 app/templates/events/verify.html:27
+msgid "Ton code personnel"
+msgstr "Your personal code"
+
+#: app/templates/events/dashboard.html:33 app/templates/events/invite.html:16
+#: app/templates/events/members.html:48
+msgid "Copier"
+msgstr "Copy"
+
+#: app/templates/events/dashboard.html:38
+#, fuzzy
+msgid "Actions rapides"
+msgstr "Actions"
+
+#: app/templates/events/dashboard.html:40
+msgid "Planifier les repas"
+msgstr "Plan the meals"
+
+#: app/templates/events/dashboard.html:41
+#: app/templates/events/dashboard.html:200
+#: app/templates/planning/index.html:120
+#, fuzzy
+msgid "Ajouter une activité"
+msgstr "Add item"
+
+#: app/templates/events/dashboard.html:48
+msgid "Lien copié !"
+msgstr "Link copied!"
+
+#: app/templates/events/dashboard.html:48
+#, fuzzy
+msgid "Partager"
+msgstr "Cost sharing"
+
+#: app/templates/events/dashboard.html:55
+msgid "Aujourd'hui"
+msgstr "Today"
+
+#: app/templates/events/dashboard.html:70
+#, fuzzy
+msgid "Rien prévu aujourd'hui."
+msgstr "Today"
+
+#: app/templates/events/dashboard.html:73
+msgid "Voir le planning"
+msgstr "View schedule"
+
+#: app/templates/events/dashboard.html:79
+msgid "Sondages ouverts"
+msgstr "Open polls"
+
+#: app/templates/events/dashboard.html:91
+#, fuzzy
+msgid "autres"
+msgstr "Adults"
+
+#: app/templates/events/dashboard.html:94
+#, fuzzy
+msgid "Aucun sondage ouvert."
+msgstr "No polls"
+
+#: app/templates/events/dashboard.html:97
+#, fuzzy
+msgid "Voir les sondages"
+msgstr "All polls"
+
+#: app/templates/events/dashboard.html:103
+msgid "À répartir"
+msgstr "To split"
+
+#: app/templates/events/dashboard.html:107
+msgid "articles sans responsable dans vos listes."
+msgstr "items without an owner in your lists."
+
+#: app/templates/events/dashboard.html:109
+msgid "Tout est réparti. 👌"
+msgstr "All split. 👌"
+
+#: app/templates/events/dashboard.html:112
+#: app/templates/events/dashboard.html:138
+#, fuzzy
+msgid "Voir les listes"
+msgstr "All lists"
+
+#: app/templates/events/dashboard.html:119
+#, fuzzy
+msgid "Mes items"
+msgstr "My events"
+
+#: app/templates/events/dashboard.html:129
+#, fuzzy
+msgid "Cocher"
+msgstr "Copy"
+
+#: app/templates/events/dashboard.html:154
+#, fuzzy
+msgid "Chargement…"
+msgstr "Accommodation"
+
+#: app/templates/events/dashboard.html:156
+msgid "Ouvrir le chat"
+msgstr "Open the chat"
+
+#: app/templates/events/dashboard.html:164
+msgid "Infos importantes"
+msgstr "Important info"
+
+#: app/templates/events/dashboard.html:166
+msgid "+ Ajouter une info"
+msgstr "+ Add info"
+
+#: app/templates/events/dashboard.html:177 app/templates/logistics/form.html:2
+#: app/templates/logistics/index.html:30 app/templates/planning/form.html:2
+#: app/templates/planning/index.html:103
+msgid "Modifier"
+msgstr "Edit"
+
+#: app/templates/events/dashboard.html:185
+msgid "Aucune info pour l'instant"
+msgstr "No info yet"
+
+#: app/templates/events/dashboard.html:186
+msgid "Adresse du gîte, code d'accès, horaires, documents… chacun peut compléter."
+msgstr "Cabin address, access code, schedule, documents… everyone can add."
+
+#: app/templates/events/dashboard.html:188 app/templates/logistics/form.html:2
+#: app/templates/logistics/form.html:6 app/templates/logistics/index.html:10
+#: app/templates/logistics/index.html:19
+msgid "Ajouter une info"
+msgstr "Add info"
+
+#: app/templates/events/dashboard.html:197
+msgid "Rien à afficher pour l'instant"
+msgstr "Nothing to display yet"
+
+#: app/templates/events/dashboard.html:198
+msgid "Commencez par ajouter une activité ou une info pratique."
+msgstr "Start by adding an activity or a practical info."
+
+#: app/templates/events/index.html:7
+msgid "Retrouvez vos événements et leurs invités."
+msgstr "Find your events and their guests."
+
+#: app/templates/events/index.html:19 app/templates/events/invite.html:7
+msgid "invités"
+msgstr "guests"
+
+#: app/templates/events/index.html:26
+msgid "Aucun événement"
+msgstr "No events"
+
+#: app/templates/events/index.html:27
+msgid "Créez votre premier événement pour commencer à planifier avec vos proches."
+msgstr "Create your first event to start planning with your loved ones."
+
+#: app/templates/events/invite.html:2 app/templates/events/invite.html:6
+msgid "Invitations"
+msgstr "Invitations"
+
+#: app/templates/events/invite.html:12
+msgid "Partager l'événement"
+msgstr "Share event"
+
+#: app/templates/events/invite.html:14
+msgid "Lien d'invitation"
+msgstr "Invitation link"
+
+#: app/templates/events/invite.html:20
+msgid "QR code d'invitation"
+msgstr "Invitation QR code"
+
+#: app/templates/events/invite.html:21
+msgid "Scannez pour rejoindre l'événement et créer votre code personnel"
+msgstr "Scan to join the event and create your personal code"
+
+#: app/templates/events/invite.html:26
+msgid "Inviter par email"
+msgstr "Invite by email"
+
+#: app/templates/events/invite.html:27
+msgid "La personne reçoit un lien pour créer son code personnel."
+msgstr "The person receives a link to create their personal code."
+
+#: app/templates/events/invite.html:31
+msgid "Adresse email de l'invité"
+msgstr "Guest email address"
+
+#: app/templates/events/invite.html:35
+msgid "Envoyer l'invitation"
+msgstr "Send invitation"
+
+#: app/templates/events/invite.html:42
+msgid "Invités"
+msgstr "Guests"
+
+#: app/templates/events/invite.html:51
+msgid "Renvoyer"
+msgstr "Resend"
+
+#: app/templates/events/invite.html:54
+msgid "pas d'email"
+msgstr "no email"
+
+#: app/templates/events/join.html:2 app/templates/events/join.html:6
 msgid "Rejoindre"
 msgstr "Join"
 
-msgid "Votre nom d'affichage"
-msgstr "Your display name"
+#: app/templates/events/join.html:18
+#, fuzzy
+msgid "Votre pseudo"
+msgstr "Your vote"
 
+#: app/templates/events/join.html:20 app/templates/events/verify.html:23
+msgid "Ex : Alice, Bob…"
+msgstr "E.g. Alice, Bob…"
+
+#: app/templates/events/join.html:24
 msgid "Votre code personnel"
 msgstr "Your personal code"
 
+#: app/templates/events/join.html:28 app/templates/events/verify.html:31
+msgid "Ex : alice42"
+msgstr "E.g. alice42"
+
+#: app/templates/events/join.html:29 app/templates/events/verify.html:32
 msgid "Générer"
 msgstr "Generate"
 
+#: app/templates/events/join.html:31
 msgid ""
 "Choisissez un code que vous retiendrez : il vous servira à vous "
 "reconnecter sur un autre appareil. 4 à 8 lettres minuscules ou chiffres."
@@ -418,373 +946,590 @@ msgstr ""
 "Choose a code you'll remember: it will let you reconnect on another "
 "device. 4 to 8 lowercase letters or digits."
 
-msgid "Votre email (optionnel, pour recevoir les invitations)"
-msgstr "Your email (optional, to receive invitations)"
+#: app/templates/events/join.html:35
+#, fuzzy
+msgid "Votre foyer"
+msgstr "Your vote"
 
+#: app/templates/events/join.html:36
+msgid "Pour la répartition des frais."
+msgstr "For splitting costs."
+
+#: app/templates/events/join.html:50
+#, fuzzy
+msgid "Votre email (optionnel)"
+msgstr "Your email"
+
+#: app/templates/events/join.html:55
 msgid "Rejoindre l'événement"
 msgstr "Join the event"
 
+#: app/templates/events/log.html:7
+msgid "Historique des actions de l'événement"
+msgstr "Event action history"
+
+#: app/templates/events/log.html:14
+msgid "Journal des actions"
+msgstr "Action log"
+
+#: app/templates/events/log.html:17 app/templates/events/log.html:27
+msgid "Quand"
+msgstr "When"
+
+#: app/templates/events/log.html:18 app/templates/events/log.html:28
+msgid "Qui"
+msgstr "Who"
+
+#: app/templates/events/log.html:19 app/templates/events/log.html:29
+msgid "Action"
+msgstr "Action"
+
+#: app/templates/events/log.html:20 app/templates/events/log.html:30
+msgid "Cible"
+msgstr "To"
+
+#: app/templates/events/log.html:21 app/templates/events/log.html:31
+msgid "Détails"
+msgstr "Details"
+
+#: app/templates/events/log.html:40
+msgid "Aucune action enregistrée"
+msgstr "No actions recorded"
+
+#: app/templates/events/log.html:41
+msgid ""
+"Les actions de l'événement (créations, modifications, votes…) "
+"apparaîtront ici."
+msgstr "Event actions (creations, modifications, votes…) will appear here."
+
+#: app/templates/events/members.html:2 app/templates/events/members.html:6
+msgid "Membres"
+msgstr "Members"
+
+#: app/templates/events/members.html:7
+msgid "membres"
+msgstr "members"
+
+#: app/templates/events/members.html:13
+msgid "Ajouter un membre"
+msgstr "Add member"
+
+#: app/templates/events/members.html:19
+msgid "Nom"
+msgstr "Name"
+
+#: app/templates/events/members.html:21
+msgid "Ex : Alice Martin"
+msgstr "E.g. Alice Martin"
+
+#: app/templates/events/members.html:24
+msgid "optionnel"
+msgstr "optional"
+
+#: app/templates/events/members.html:26
+msgid "alice@example.com"
+msgstr "alice@example.com"
+
+#: app/templates/events/members.html:37
+msgid "Liste des membres"
+msgstr "Member list"
+
+#: app/templates/events/members.html:56
+msgid "Retirer"
+msgstr "Remove"
+
+#: app/templates/events/members.html:65
+msgid "Aucun membre pour l'instant"
+msgstr "No members yet"
+
+#: app/templates/events/members.html:66
+msgid "Ajoutez des invités ci-dessus ou partagez le lien d'invitation."
+msgstr "Add guests above or share the invitation link."
+
+#: app/templates/events/members.html:66
+msgid "Le créateur peut vous ajouter."
+msgstr "The creator can add you."
+
+#: app/templates/events/mycode.html:2 app/templates/events/mycode.html:23
+#: app/templates/main/landing.html:21
 msgid "Votre code"
 msgstr "Your code"
 
+#: app/templates/events/mycode.html:25
 msgid "Saisissez votre code personnel pour accéder à l'événement."
 msgstr "Enter your personal code to access the event."
 
+#: app/templates/events/mycode.html:31
 msgid "Code personnel"
 msgstr "Personal code"
 
+#: app/templates/events/mycode.html:38
 msgid "Accéder à l'événement"
 msgstr "Access the event"
 
+#: app/templates/events/mycode.html:43
 msgid "Vous n'avez pas encore de code ?"
 msgstr "Don't have a code yet?"
 
+#: app/templates/events/mycode.html:44
 msgid "Créez votre code personnel"
 msgstr "Create your personal code"
 
-msgid "Retrouvez vos événements et leurs invités."
-msgstr "Find your events and their guests."
+#: app/templates/events/recover.html:2 app/templates/events/recover.html:6
+#: app/templates/events/recover.html:19
+msgid "Récupérer mon code"
+msgstr "Recover my code"
 
-msgid "Aucun événement"
-msgstr "No events"
+#: app/templates/events/recover.html:7
+msgid ""
+"Si tu avais coché « conserver mon email » à la création, ton code sera "
+"renvoyé par email."
+msgstr ""
+"If you checked 'keep my email' at creation, your code will be sent by "
+"email."
 
-msgid "Créez votre premier événement pour commencer à planifier avec vos proches."
-msgstr "Create your first event to start planning with your loved ones."
+#: app/templates/events/recover.html:14 app/templates/events/verify.html:49
+#, fuzzy
+msgid "Ton email"
+msgstr "Email"
 
-msgid "Nouveau foyer"
-msgstr "New household"
+#: app/templates/events/recover.html:23
+msgid ""
+"Si tu n'avais pas conservé ton email, le code est définitivement perdu. "
+"Il faudra créer un nouvel événement."
+msgstr ""
+"If you didn't keep your email, the code is permanently lost. You'll need "
+"to create a new event."
 
-msgid "Un foyer regroupe les personnes qui partagent les frais."
-msgstr "A household groups people who share costs."
+#: app/templates/events/verify.html:6
+#, fuzzy
+msgid "Valider ton événement"
+msgstr "Create an event"
 
-msgid "Nom du foyer"
-msgstr "Household name"
+#: app/templates/events/verify.html:21
+msgid "Ton pseudo"
+msgstr "Your nickname"
 
-msgid "Nombre d'adultes"
-msgstr "Number of adults"
+#: app/templates/events/verify.html:34
+#, fuzzy
+msgid ""
+"Ce code te sert à accéder à l'événement sur n'importe quel appareil. 4 à "
+"8 lettres minuscules ou chiffres."
+msgstr ""
+"Choose a code you'll remember: it will let you reconnect on another "
+"device. 4 to 8 lowercase letters or digits."
 
-msgid "Nombre d'enfants"
-msgstr "Number of children"
+#: app/templates/events/verify.html:38
+msgid "Inviter des proches (optionnel)"
+msgstr "Invite friends (optional)"
 
-msgid "Parts par adulte"
-msgstr "Shares per adult"
+#: app/templates/events/verify.html:40
+msgid "Emails (séparés par des virgules)"
+msgstr "Emails (comma-separated)"
 
-msgid "Parts par enfant"
-msgstr "Shares per child"
+#: app/templates/events/verify.html:43
+#, fuzzy
+msgid "Ex : alice@mail.com, bob@mail.fr"
+msgstr "E.g. Alice, Bob…"
 
-msgid "Ajouter le foyer"
-msgstr "Add household"
+#: app/templates/events/verify.html:45
+msgid ""
+"Ces emails ne servent qu'à envoyer l'invitation : ils ne sont PAS "
+"conservés."
+msgstr "These emails are only used to send the invitation: they are NOT kept."
 
-msgid "Partage de frais"
-msgstr "Cost sharing"
+#: app/templates/events/verify.html:52
+msgid "Conserver mon email pour récupérer mon code si perdu"
+msgstr "Keep my email to recover my code if lost"
 
-msgid "Suivez les dépenses et les remboursements"
-msgstr "Track expenses and reimbursements"
+#: app/templates/events/verify.html:54
+msgid ""
+"Si non coché, ton email est effacé après validation. Tu ne pourras pas "
+"récupérer ton code."
+msgstr ""
+"If unchecked, your email is erased after validation. You won't be able to"
+" recover your code."
 
-msgid "Total des frais"
-msgstr "Total expenses"
+#: app/templates/events/verify.html:58
+msgid "Confirmer et accéder"
+msgstr "Confirm and access"
 
-msgid "Foyers"
-msgstr "Households"
+#: app/templates/events/verify_sent.html:2
+#: app/templates/events/verify_sent.html:6
+msgid "Vérification envoyée"
+msgstr "Verification sent"
 
-msgid "Qui rembourse qui"
-msgstr "Who reimburses whom"
+#: app/templates/events/verify_sent.html:14
+msgid "Un email de vérification a été envoyé à"
+msgstr "A verification email has been sent to"
 
-msgid "+ Foyer"
-msgstr "+ Household"
+#: app/templates/events/verify_sent.html:16
+msgid "Un email de vérification a été envoyé."
+msgstr "A verification email has been sent."
 
-msgid "Répartition par foyer"
-msgstr "Distribution by household"
+#: app/templates/events/verify_sent.html:18
+msgid ""
+"Clique sur le lien pour définir ton code personnel et ton pseudo. Le lien"
+" est valide 3 jours."
+msgstr ""
+"Click the link to set your personal code and nickname. The link is valid "
+"for 3 days."
 
-msgid "Foyer"
-msgstr "Household"
+#: app/templates/events/verify_sent.html:19
+msgid ""
+"Sans vérification, l'événement sera supprimé automatiquement au bout de 3"
+" jours."
+msgstr ""
+"Without verification, the event will be automatically deleted after 3 "
+"days."
 
-msgid "Adultes"
-msgstr "Adults"
+#: app/templates/lists/detail.html:15 app/templates/lists/detail.html:99
+#: app/templates/planning/index.html:16
+#, fuzzy
+msgid "Repas"
+msgstr "Expenses"
 
-msgid "Enfants"
-msgstr "Children"
+#: app/templates/lists/detail.html:33
+#, fuzzy
+msgid "Ajouter un article… (Enter)"
+msgstr "Add item"
 
-msgid "Part"
-msgstr "Share"
+#: app/templates/lists/detail.html:38
+msgid "Articles de la liste"
+msgstr "List items"
 
-msgid "Payé"
-msgstr "Paid"
+#: app/templates/lists/detail.html:48
+#, fuzzy
+msgid "Je m'occupe"
+msgstr "I'll handle this"
 
-msgid "Solde"
-msgstr "Balance"
+#: app/templates/lists/detail.html:65
+msgid "Libérer"
+msgstr "Release"
 
-msgid "Actions"
-msgstr "Actions"
+#: app/templates/lists/detail.html:82
+msgid "Aucun article. Tapez ci-dessus et appuyez sur Enter."
+msgstr "No items. Type above and press Enter."
 
-msgid "Aucun foyer"
-msgstr "No households"
+#: app/templates/lists/detail.html:90
+msgid "Supprimer la liste"
+msgstr "Delete list"
 
-msgid "Ajoutez des foyers pour partager les frais entre les participants."
-msgstr "Add households to share costs among participants."
+#: app/templates/lists/detail.html:98
+msgid "Repas planifiés"
+msgstr "Planned meals"
 
-msgid "Ajouter un foyer"
-msgstr "Add household"
+#: app/templates/lists/detail.html:100
+msgid "Cochez les repas dont vous avez noté les ingrédients."
+msgstr "Check the meals whose ingredients you noted."
 
-msgid "Liste des frais"
-msgstr "Expense list"
+#: app/templates/lists/form.html:2 app/templates/lists/form.html:6
+#: app/templates/lists/index.html:10 app/templates/lists/index.html:19
+msgid "Nouvelle liste"
+msgstr "New list"
 
-msgid "Catégorie"
-msgstr "Category"
+#: app/templates/lists/form.html:24
+msgid "Ex : Courses du samedi"
+msgstr "E.g. Saturday groceries"
 
-msgid "Montant"
-msgstr "Amount"
+#: app/templates/lists/form.html:30
+msgid "Type de liste"
+msgstr "List type"
 
-msgid "Payé par"
-msgstr "Paid by"
+#: app/templates/lists/form.html:39
+msgid "Créer la liste"
+msgstr "Create list"
 
-msgid "Total"
-msgstr "Total"
+#: app/templates/lists/index.html:7
+msgid "Courses, to-do, matériel…"
+msgstr "Groceries, to-do, equipment…"
 
-msgid "Aucun frais enregistré"
-msgstr "No expenses recorded"
+#: app/templates/lists/index.html:17
+msgid "Aucune liste"
+msgstr "No lists"
 
-msgid "Enregistrez les dépenses pour les répartir entre les foyers."
-msgstr "Record expenses to distribute them among households."
+#: app/templates/lists/index.html:18
+msgid ""
+"Créez une liste de courses, de to-do ou de matériel à partager avec le "
+"groupe."
+msgstr ""
+"Create a shopping list, to-do list, or equipment list to share with the "
+"group."
 
-msgid "Devise"
-msgstr "Currency"
+#: app/templates/lists/index.html:22
+#, fuzzy
+msgid "Listes de l'événement"
+msgstr "Join the event"
 
-msgid "Taux (→ €)"
-msgstr "Rate (→ €)"
+#: app/templates/lists/index.html:33
+msgid "Progression"
+msgstr "Progress"
 
-msgid "Général"
-msgstr "General"
-
-msgid "Nourriture"
-msgstr "Food"
-
-msgid "Transport"
-msgstr "Transport"
-
-msgid "Hébergement"
-msgstr "Accommodation"
-
-msgid "Activités"
-msgstr "Activities"
-
-msgid "Ajouter le frais"
-msgstr "Add expense"
-
-msgid "Transferts déjà effectués"
-msgstr "Transfers already made"
-
-msgid "Liste des transferts"
-msgstr "Transfer list"
-
-msgid "De"
-msgstr "From"
-
-msgid "Note"
-msgstr "Note"
-
-msgid "Aucun transfert enregistré"
-msgstr "No transfers recorded"
-
-msgid "Enregistrez les remboursements déjà faits pour ajuster le solde."
-msgstr "Record reimbursements already made to adjust the balance."
-
-msgid "Enregistrer le transfert"
-msgstr "Save transfer"
-
-msgid "Demandes de paiement"
-msgstr "Payment requests"
-
-msgid "Marquer réglé"
-msgstr "Mark as paid"
-
-msgid "Réglé"
-msgstr "Settled"
-
-msgid "Aucune demande de paiement"
-msgstr "No payment requests"
-
-msgid "Créez une demande pour demander un remboursement à un autre foyer."
-msgstr "Create a request to ask another household for reimbursement."
-
-msgid "Message"
-msgstr "Message"
-
-msgid "Créer la demande"
-msgstr "Create request"
-
-msgid "Répartition par catégorie"
-msgstr "Distribution by category"
-
+#: app/templates/logistics/form.html:6
 msgid "Modifier l'info"
 msgstr "Edit info"
 
+#: app/templates/logistics/form.html:23
+msgid "Ex : Adresse du gîte"
+msgstr "E.g. Gite address"
+
+#: app/templates/logistics/form.html:27
 msgid "Contenu"
 msgstr "Content"
 
+#: app/templates/logistics/form.html:41
 msgid "Ordre d'affichage"
 msgstr "Display order"
 
+#: app/templates/logistics/form.html:47 app/templates/planning/form.html:88
+msgid "Enregistrer"
+msgstr "Save"
+
+#: app/templates/logistics/form.html:47
 msgid "Créer l'info"
 msgstr "Create info"
 
+#: app/templates/logistics/index.html:7
 msgid "Adresse, accès, horaires, documents…"
 msgstr "Address, access, schedule, documents…"
 
+#: app/templates/logistics/index.html:17
 msgid "Aucune info pratique"
 msgstr "No practical info"
 
+#: app/templates/logistics/index.html:18
 msgid ""
 "Ajoutez l'adresse, l'accès, les horaires… pour que tout le monde soit au "
 "courant."
 msgstr "Add the address, access, schedule… so everyone is informed."
 
-msgid "Retour aux sondages"
-msgstr "Back to polls"
-
-msgid "Sondage fermé"
-msgstr "Closed poll"
-
-msgid "vote(s)"
-msgstr "vote(s)"
-
-msgid "vote(s) au total"
-msgstr "vote(s) total"
-
-msgid "Votre vote"
-msgstr "Your vote"
-
-msgid "Voter"
-msgstr "Vote"
-
-msgid "Nouveau sondage"
-msgstr "New poll"
-
-msgid "Question"
-msgstr "Question"
-
-msgid "Options"
-msgstr "Options"
-
-msgid "Une option par ligne (2 à 10)."
-msgstr "One option per line (2 to 10)."
-
-msgid "Créer le sondage"
-msgstr "Create poll"
-
-msgid "Votez et décidez ensemble"
-msgstr "Vote and decide together"
-
-msgid "Aucun sondage"
-msgstr "No polls"
-
-msgid ""
-"Créez un sondage pour laisser le groupe choisir (menu, activité, "
-"horaires…)."
-msgstr "Create a poll to let the group choose (menu, activity, schedule…)."
-
-msgid "Galerie"
-msgstr "Gallery"
-
-msgid "Pris le"
-msgstr "Taken by"
-
-msgid "Photos et vidéos du séjour"
-msgstr "Photos and videos from the trip"
-
-msgid "Photo ou vidéo"
-msgstr "Photo or video"
-
-msgid "Légende"
-msgstr "Legend"
-
-msgid "Téléverser"
-msgstr "Upload"
-
-msgid "Aucun media"
-msgstr "No media"
-
-msgid "Partagez les photos et vidéos du séjour pour les retrouver tous ensemble."
-msgstr "Share photos and videos from the trip to find them all together."
-
-msgid "0,5 par défaut : un enfant compte pour une demi-part."
-msgstr "0.5 by default: a child counts as half a share."
-
-msgid "1 adulte compte pour 1 part par défaut."
-msgstr "1 adult counts as 1 share by default."
-
-msgid "Accès refusé"
-msgstr "Access denied"
-
-msgid "Ajoutez des foyers pour partager les frais."
-msgstr "Add households to split the costs."
-
-msgid "Ajoutez les dépenses du séjour pour les répartir entre les foyers."
-msgstr "Add the trip's expenses to split them between households."
-
-msgid "Articles de la liste"
-msgstr "List items"
-
+#: app/templates/main/dashboard.html:6
 msgid "Dashboard"
 msgstr "Dashboard"
 
-msgid "Ex : 2 chaises, 1 nappe"
-msgstr "E.g. 2 chairs, 1 tablecloth"
-
-msgid "Ex : Adresse du gîte"
-msgstr "E.g. Gite address"
-
-msgid "Ex : Alice Martin"
-msgstr "E.g. Alice Martin"
-
-msgid "Ex : Alice, Bob…"
-msgstr "E.g. Alice, Bob…"
-
-msgid "Ex : Anniversaire de Léa"
-msgstr "E.g. Léa's birthday"
-
-msgid "Ex : Courses du samedi"
-msgstr "E.g. Saturday groceries"
-
-msgid "Ex : Famille Dupont"
-msgstr "E.g. Dupont family"
-
-msgid "Ex : Gîte de la Vallée, Annecy"
-msgstr "E.g. Gîte de la Vallée, Annecy"
-
-msgid "Ex : Pain, fromage…"
-msgstr "E.g. Bread, cheese…"
-
-msgid "Ex : Quel menu pour samedi ?"
-msgstr "E.g. What menu for Saturday?"
-
-msgid "Ex : Randonnée au lac"
-msgstr "E.g. Lake hike"
-
-msgid "Ex : alice42"
-msgstr "E.g. alice42"
-
-msgid "Ex : Épicerie"
-msgstr "E.g. Grocery"
-
-msgid "Fermer"
-msgstr "Close"
-
-msgid "Lancez la conversation !"
-msgstr "Start the conversation!"
-
+#: app/templates/main/dashboard.html:7
 msgid "Le SaaS est opérationnel."
 msgstr "The SaaS is up and running."
 
-msgid "Marquer comme fait"
-msgstr "Mark as done"
+#: app/templates/main/dashboard.html:12
+msgid "Statut"
+msgstr "Status"
 
-msgid "Navigation principale"
-msgstr "Main navigation"
+#: app/templates/main/landing.html:6
+#, fuzzy
+msgid "Planifiez vos vacances en groupe"
+msgstr "Group vacation planning"
 
+#: app/templates/main/landing.html:7
+msgid "Repas, activités, listes, frais — tout le monde participe."
+msgstr "Meals, activities, lists, costs — everyone joins in."
+
+#: app/templates/main/landing.html:13
+msgid "Vacances, week-end, projet…"
+msgstr "Vacation, week-end, project…"
+
+#: app/templates/main/landing.html:17
+#, fuzzy
+msgid "Accéder à mon événement"
+msgstr "Access the event"
+
+#: app/templates/main/landing.html:25
+msgid "Accéder"
+msgstr "Access"
+
+#: app/templates/main/landing.html:31
+msgid "J'ai oublié mon code"
+msgstr "I forgot my code"
+
+#: app/templates/media/detail.html:4 app/templates/media/gallery.html:27
+msgid "Galerie"
+msgstr "Gallery"
+
+#: app/templates/media/detail.html:19
+msgid "Pris le"
+msgstr "Taken by"
+
+#: app/templates/media/gallery.html:7
+msgid "Photos et vidéos du séjour"
+msgstr "Photos and videos from the trip"
+
+#: app/templates/media/gallery.html:15
+msgid "Photo ou vidéo"
+msgstr "Photo or video"
+
+#: app/templates/media/gallery.html:19
+msgid "Légende"
+msgstr "Legend"
+
+#: app/templates/media/gallery.html:23
+msgid "Téléverser"
+msgstr "Upload"
+
+#: app/templates/media/gallery.html:44
+msgid "Aucun media"
+msgstr "No media"
+
+#: app/templates/media/gallery.html:45
 msgid "Partagez les photos et vidéos du séjour."
 msgstr "Share the trip photos and videos."
 
+#: app/templates/planning/form.html:2 app/templates/planning/form.html:6
+#: app/templates/planning/index.html:10
+msgid "Nouvelle activité"
+msgstr "New activity"
+
+#: app/templates/planning/form.html:6
+msgid "Modifier l'activité"
+msgstr "Edit activity"
+
+#: app/templates/planning/form.html:30
+msgid "Ex : Randonnée au lac"
+msgstr "E.g. Lake hike"
+
+#: app/templates/planning/form.html:60
+msgid "Heure de début"
+msgstr "Start time"
+
+#: app/templates/planning/form.html:64
+msgid "Heure de fin"
+msgstr "End time"
+
+#: app/templates/planning/form.html:73
+msgid "Nombre minimum de participants"
+msgstr "Minimum number of participants"
+
+#: app/templates/planning/form.html:79
+msgid "Apporter"
+msgstr "Bring"
+
+#: app/templates/planning/form.html:81
+msgid "Ex : 2 chaises, 1 nappe"
+msgstr "E.g. 2 chairs, 1 tablecloth"
+
+#: app/templates/planning/form.html:88
+msgid "Créer l'activité"
+msgstr "Create activity"
+
+#: app/templates/planning/index.html:20
+#, fuzzy
+msgid "Midi"
+msgstr "Media"
+
+#: app/templates/planning/index.html:21
+#, fuzzy
+msgid "Soir"
+msgstr "Copy"
+
+#: app/templates/planning/index.html:58
+msgid "Repas…"
+msgstr "Meal…"
+
+#: app/templates/planning/index.html:69
+msgid ""
+"Aucune activité planifiée. Ajoutez un repas dans la grille ci-dessus, ou "
+"une activité avec l'ajout rapide ci-dessous."
+msgstr ""
+"No activity planned. Add a meal in the grid above, or an activity with "
+"the quick-add below."
+
+#: app/templates/planning/index.html:87
+#, fuzzy
+msgid "Autres activités"
+msgstr "Activities"
+
+#: app/templates/planning/index.html:121
+msgid ""
+"Randonnée, piscine, sortie… (les repas se saisissent dans la grille ci-"
+"dessus)"
+msgstr "Hike, pool, outing… (meals are entered in the grid above)"
+
+#: app/templates/planning/index.html:126
+#, fuzzy
+msgid "Ex : Randonnée, piscine, resto…"
+msgstr "E.g. Lake hike"
+
+#: app/templates/planning/index.html:130
+msgid "Heure"
+msgstr "Time"
+
+#: app/templates/planning/index.html:133
+msgid "Plus d'options (description, lieu, effectif…) →"
+msgstr "More options (description, location, headcount…) →"
+
+#: app/templates/planning/index.html:139
+msgid "Indiquez votre participation"
+msgstr "Indicate your participation"
+
+#: app/templates/planning/index.html:149
+msgid "Oui"
+msgstr "Yes"
+
+#: app/templates/planning/index.html:150
+msgid "Peut-être"
+msgstr "Maybe"
+
+#: app/templates/planning/index.html:151
+msgid "Non"
+msgstr "No"
+
+#: app/templates/voting/detail.html:4
+msgid "Retour aux sondages"
+msgstr "Back to polls"
+
+#: app/templates/voting/detail.html:10 app/templates/voting/index.html:69
+msgid "Sondage fermé"
+msgstr "Closed poll"
+
+#: app/templates/voting/detail.html:18 app/templates/voting/detail.html:21
+#: app/templates/voting/index.html:31
+msgid "Votre vote"
+msgstr "Your vote"
+
+#: app/templates/voting/detail.html:30 app/templates/voting/index.html:41
+msgid "Voter"
+msgstr "Vote"
+
+#: app/templates/voting/detail.html:32
+msgid "Vous avez voté :"
+msgstr "You voted:"
+
+#: app/templates/voting/detail.html:40
+#, fuzzy
+msgid "Résultats"
+msgstr "Poll results"
+
+#: app/templates/voting/detail.html:41 app/templates/voting/index.html:46
+#: app/templates/voting/index.html:70
+msgid "Résultats du sondage"
+msgstr "Poll results"
+
+#: app/templates/voting/detail.html:50 app/templates/voting/index.html:73
+msgid "vote(s)"
+msgstr "vote(s)"
+
+#: app/templates/voting/detail.html:54 app/templates/voting/index.html:59
+#: app/templates/voting/index.html:83
+msgid "vote(s) au total"
+msgstr "vote(s) total"
+
+#: app/templates/voting/form.html:2 app/templates/voting/form.html:6
+#: app/templates/voting/index.html:10 app/templates/voting/index.html:19
+msgid "Nouveau sondage"
+msgstr "New poll"
+
+#: app/templates/voting/form.html:21
+msgid "Question"
+msgstr "Question"
+
+#: app/templates/voting/form.html:23
+msgid "Ex : Quel menu pour samedi ?"
+msgstr "E.g. What menu for Saturday?"
+
+#: app/templates/voting/form.html:28
+msgid "Une option par ligne (2 à 10)."
+msgstr "One option per line (2 to 10)."
+
+#: app/templates/voting/form.html:31
 msgid ""
 "Poisson\n"
 "Poulet\n"
@@ -794,33 +1539,181 @@ msgstr ""
 "Chicken\n"
 "Vegetarian"
 
-msgid "Quelques mots pour situer le contexte…"
-msgstr "A few words to set the context…"
+#: app/templates/voting/form.html:35
+msgid "Créer le sondage"
+msgstr "Create poll"
 
-msgid "Résultats du sondage"
-msgstr "Poll results"
+#: app/templates/voting/index.html:7
+msgid "Votez et décidez ensemble"
+msgstr "Vote and decide together"
 
-msgid "Résumé"
-msgstr "Summary"
+#: app/templates/voting/index.html:17
+msgid "Aucun sondage"
+msgstr "No polls"
 
-msgid "Statut"
-msgstr "Status"
+#: app/templates/voting/index.html:18
+msgid ""
+"Créez un sondage pour laisser le groupe choisir (menu, activité, "
+"horaires…)."
+msgstr "Create a poll to let the group choose (menu, activity, schedule…)."
 
-msgid "Supprimer le message de"
-msgstr "Delete message from"
+#: app/voting/__init__.py:90
+msgid "Question requise (min 2 caractères)."
+msgstr "Question required (min 2 characters)."
 
-msgid "alice@example.com"
-msgstr "alice@example.com"
+#: app/voting/__init__.py:92
+msgid "Question trop longue (max 300 caractères)."
+msgstr "Question too long (max 300 characters)."
 
-msgid "confirmés sur"
-msgstr "confirmed of"
+#: app/voting/__init__.py:96
+msgid "Au moins 2 options requises (une par ligne)."
+msgstr "At least 2 options required (one per line)."
 
-msgid "demande de paiement"
-msgstr "payment request"
+#: app/voting/__init__.py:98
+#, fuzzy
+msgid "Maximum 10 options (une par ligne)."
+msgstr "One option per line (2 to 10)."
 
-msgid "requis"
-msgstr "required"
+#: app/voting/__init__.py:100
+msgid "Option trop longue (max 200 caractères)."
+msgstr "Option too long (max 200 characters)."
 
-msgid "transfert"
-msgstr "transfer"
+#: app/voting/__init__.py:168
+#, fuzzy
+msgid "Sondage créé."
+msgstr "Closed poll"
+
+#: app/voting/__init__.py:209
+#, fuzzy
+msgid "Le créateur ne vote pas."
+msgstr "The creator can add you."
+
+#: app/voting/__init__.py:228 app/voting/__init__.py:275
+#, fuzzy
+msgid "Sondage fermé."
+msgstr "Closed poll"
+
+#: app/voting/__init__.py:249
+#, fuzzy
+msgid "Vote enregistré."
+msgstr "Save"
+
+#~ msgid "Organisez les activités du séjour"
+#~ msgstr "Organize the trip's activities"
+
+#~ msgid "Ajoutez des activités pour structurer les journées du groupe."
+#~ msgstr "Add activities to structure the group's days."
+
+#~ msgid "jusqu'à"
+#~ msgstr "up to"
+
+#~ msgid "— insuffisant"
+#~ msgstr "— insufficient"
+
+#~ msgid "La page que vous cherchez n'existe pas ou a été déplacée."
+#~ msgstr "The page you're looking for doesn't exist or has been moved."
+
+#~ msgid "Retour à l'événement"
+#~ msgstr "Back to event"
+
+#~ msgid "Aucun article dans cette liste. Ajoutez le premier ci-dessous."
+#~ msgstr "No items in this list. Add the first one below."
+
+#~ msgid "Quantité"
+#~ msgstr "Quantity"
+
+#~ msgid "Section"
+#~ msgstr "Section"
+
+#~ msgid "Assigné à"
+#~ msgstr "Assigned to"
+
+#~ msgid "Discutez avec le groupe"
+#~ msgstr "Chat with the group"
+
+#~ msgid "Lancez la conversation avec le groupe !"
+#~ msgstr "Start the conversation with the group!"
+
+#~ msgid "À voter"
+#~ msgstr "To vote"
+
+#~ msgid "Listes & to-do"
+#~ msgstr "Lists & to-do"
+
+#~ msgid ""
+#~ "Utilisez la navigation ci-dessus pour"
+#~ " planifier, lister, voter, partager les "
+#~ "frais…"
+#~ msgstr "Use the navigation above to plan, list, vote, share costs…"
+
+#~ msgid "Sert à retrouver votre événement et à gérer les invitations."
+#~ msgstr "Used to find your event and manage invitations."
+
+#~ msgid "Votre nom d'affichage"
+#~ msgstr "Your display name"
+
+#~ msgid "Votre email (optionnel, pour recevoir les invitations)"
+#~ msgstr "Your email (optional, to receive invitations)"
+
+#~ msgid "Un foyer regroupe les personnes qui partagent les frais."
+#~ msgstr "A household groups people who share costs."
+
+#~ msgid "Suivez les dépenses et les remboursements"
+#~ msgstr "Track expenses and reimbursements"
+
+#~ msgid "Total des frais"
+#~ msgstr "Total expenses"
+
+#~ msgid "Foyers"
+#~ msgstr "Households"
+
+#~ msgid "Qui rembourse qui"
+#~ msgstr "Who reimburses whom"
+
+#~ msgid "+ Foyer"
+#~ msgstr "+ Household"
+
+#~ msgid "Foyer"
+#~ msgstr "Household"
+
+#~ msgid "Ajoutez des foyers pour partager les frais entre les participants."
+#~ msgstr "Add households to share costs among participants."
+
+#~ msgid "Enregistrez les dépenses pour les répartir entre les foyers."
+#~ msgstr "Record expenses to distribute them among households."
+
+#~ msgid "Devise"
+#~ msgstr "Currency"
+
+#~ msgid "Taux (→ €)"
+#~ msgstr "Rate (→ €)"
+
+#~ msgid ""
+#~ "Partagez les photos et vidéos du "
+#~ "séjour pour les retrouver tous ensemble."
+#~ msgstr "Share photos and videos from the trip to find them all together."
+
+#~ msgid "0,5 par défaut : un enfant compte pour une demi-part."
+#~ msgstr "0.5 by default: a child counts as half a share."
+
+#~ msgid "1 adulte compte pour 1 part par défaut."
+#~ msgstr "1 adult counts as 1 share by default."
+
+#~ msgid "Ajoutez des foyers pour partager les frais."
+#~ msgstr "Add households to split the costs."
+
+#~ msgid "Ex : Pain, fromage…"
+#~ msgstr "E.g. Bread, cheese…"
+
+#~ msgid "Ex : Épicerie"
+#~ msgstr "E.g. Grocery"
+
+#~ msgid "Marquer comme fait"
+#~ msgstr "Mark as done"
+
+#~ msgid "Résumé"
+#~ msgstr "Summary"
+
+#~ msgid "confirmés sur"
+#~ msgstr "confirmed of"
 
