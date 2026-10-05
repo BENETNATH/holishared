@@ -8,6 +8,27 @@
     </div>
 </div>
 
+{# Storage gauge + soft upgrade (creator) #}
+{% if is_creator and gauge %}
+<div class="storage-gauge{% if gauge.exceeded %} storage-gauge-full{% endif %}">
+  <div class="sg-head">
+    <span class="sg-title">{{ _("Stockage photos") }}</span>
+    <span class="sg-values">{{ gauge.used }} / {{ gauge.max }}</span>
+  </div>
+  <div class="sg-bar" role="progressbar" aria-valuenow="{{ gauge.pct }}" aria-valuemin="0" aria-valuemax="100" aria-label="{{ _('Stockage utilisé') }}">
+    <div class="sg-fill" style="width: {{ gauge.pct }}%"></div>
+  </div>
+  {% if gauge.exceeded %}
+  <div class="sg-upgrade" role="note">
+    <p>{{ _("Vous avez atteint votre quota gratuit. Passez à Vacances+ pour garder toute la galerie.") }}</p>
+    <button type="button" class="btn btn-primary sg-cta" data-upgrade-target="#upgrade-modal">{{ _("Passer à Vacances+") }}</button>
+  </div>
+  {% elif gauge.pct >= 75 %}
+  <div class="sg-hint">{{ _("Espace presque plein — passez à Vacances+ pour 50 Go.") }}</div>
+  {% endif %}
+</div>
+{% endif %}
+
 <form method="post" action="{{ url_for('media.upload', code=event.code) }}" enctype="multipart/form-data" class="expense-form">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <div class="form-grid">
@@ -44,5 +65,37 @@
   <h3>{{ _("Aucun media") }}</h3>
   <p>{{ _("Partagez les photos et vidéos du séjour.") }}</p>
 </div>
+{% endif %}
+
+{% if is_creator %}
+{% include "freemium/_upgrade_modal.html" %}
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if is_creator %}
+<script>
+// Open the shared upgrade modal from any [data-upgrade-target] button.
+(function() {
+    var modal = document.getElementById('upgrade-modal');
+    if (!modal) return;
+    function close() { modal.hidden = true; }
+    document.querySelectorAll('[data-upgrade-target]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            modal.hidden = false;
+            var c = modal.querySelector('[data-upgrade-close]');
+            if (c) c.focus();
+        });
+    });
+    var c = modal.querySelector('[data-upgrade-close]');
+    if (c) c.addEventListener('click', close);
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && !modal.hidden) close(); });
+    var cta = modal.querySelector('[data-upgrade-cta]');
+    if (cta) cta.addEventListener('click', function() {
+        cta.disabled = true;
+        cta.textContent = '✓ ' + cta.textContent; // Stripe / LemonSqueezy hook
+    });
+})();
+</script>
 {% endif %}
 {% endblock %}

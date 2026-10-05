@@ -900,6 +900,304 @@ main.container {
   letter-spacing: 0.15em;
 }
 
+/* ---------- Freemium: storage & guest gauges ---------- */
+.storage-gauge,
+.guest-gauge {
+  margin: 0 0 var(--sp-4);
+  padding: var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.sg-head,
+.gg-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-2);
+}
+
+.sg-title,
+.gg-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.sg-values,
+.gg-values {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-2);
+}
+
+.gg-unlimited {
+  color: var(--accent-sage);
+}
+
+.sg-bar,
+.gg-bar {
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: var(--surface-subtle);
+  overflow: hidden;
+}
+
+.sg-fill,
+.gg-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--primary), var(--accent-sage));
+  transition: width 0.4s ease;
+}
+
+.storage-gauge-full .sg-fill,
+.guest-gauge-full .gg-fill {
+  background: var(--danger);
+}
+
+.sg-upgrade,
+.gg-upgrade {
+  margin-top: var(--sp-3);
+  padding: var(--sp-3);
+  border-radius: var(--radius-md);
+  background: var(--primary-subtle);
+  border: 1px solid var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+.sg-upgrade p,
+.gg-upgrade p {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--primary-hover);
+  flex: 1;
+  min-width: 12rem;
+}
+
+.sg-hint,
+.gg-hint {
+  margin-top: var(--sp-2);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.gg-hint {
+  color: var(--accent-sage);
+  font-weight: 600;
+}
+
+/* ---------- Freemium: upgrade modal ---------- */
+.upgrade-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-5);
+  background: rgba(35, 32, 29, 0.45);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.upgrade-modal[hidden] {
+  display: none;
+}
+
+.upgrade-modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 26rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--sp-5);
+}
+
+.upgrade-modal-close {
+  position: absolute;
+  top: var(--sp-3);
+  right: var(--sp-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--surface-hover);
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.upgrade-modal-close:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+.upgrade-head {
+  text-align: center;
+  margin-bottom: var(--sp-4);
+}
+
+.upgrade-badge {
+  font-size: 1.75rem;
+}
+
+.upgrade-head h2 {
+  margin-bottom: var(--sp-1);
+}
+
+.upgrade-tag {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.upgrade-advantages {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+
+.upgrade-advantages li {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: flex-start;
+}
+
+.upgrade-advantages .ua-icon {
+  font-size: 1.25rem;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.upgrade-advantages li strong {
+  display: block;
+  font-size: var(--text-sm);
+  margin-bottom: 0.125rem;
+}
+
+.upgrade-advantages li p {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.upgrade-cta {
+  width: 100%;
+  font-size: var(--text-base);
+  font-weight: 700;
+}
+
+.upgrade-fineprint {
+  margin-top: var(--sp-2);
+  text-align: center;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* ---------- Freemium: paywall page ---------- */
+.paywall {
+  display: flex;
+  justify-content: center;
+  padding-top: var(--sp-5);
+}
+
+.paywall-card {
+  width: 100%;
+  max-width: 28rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--sp-6);
+  text-align: center;
+}
+
+.paywall-icon {
+  font-size: 2rem;
+}
+
+.paywall-card h1 {
+  margin-bottom: var(--sp-2);
+}
+
+.paywall-lede {
+  color: var(--text-2);
+  font-size: var(--text-sm);
+  margin-bottom: var(--sp-4);
+}
+
+.paywall-feature .pff-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--radius-full);
+  background: var(--primary-subtle);
+  color: var(--primary-hover);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.paywall-upgrade {
+  margin: var(--sp-4) 0;
+  text-align: left;
+}
+
+.paywall-upgrade .upgrade-modal {
+  position: static;
+  inset: auto;
+  background: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  padding: 0;
+}
+
+.paywall-upgrade .upgrade-modal-card {
+  box-shadow: none;
+  border: none;
+  background: var(--surface-subtle);
+  padding: var(--sp-3);
+}
+
+.paywall-upgrade .upgrade-modal-close {
+  display: none;
+}
+
+.paywall-upgrade .upgrade-modal[hidden] {
+  display: block;
+}
+
+.paywall-back {
+  margin-top: var(--sp-3);
+}
+
+.paywall-fineprint {
+  margin-top: var(--sp-2);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.pdf-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  align-items: center;
+  margin-bottom: var(--sp-3);
+}
+
 /* ---------- Mobile: room for the fixed tabbar ---------- */
 @media (max-width: 768px) {
   main.container {

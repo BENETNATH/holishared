@@ -8,6 +8,33 @@
     </div>
 </div>
 
+{# Guest-cap gauge + premium state (Lot 5) #}
+{% if guest_gauge %}
+<div class="guest-gauge{% if guest_gauge.at_limit %} guest-gauge-full{% endif %}">
+    <div class="gg-head">
+        <span class="gg-title">{{ _("Invités") }}</span>
+        {% if guest_gauge.unlimited %}
+        <span class="gg-values gg-unlimited">∞ {{ _("illimité") }}</span>
+        {% else %}
+        <span class="gg-values">{{ guest_gauge.count }} / {{ guest_gauge.max }}</span>
+        {% endif %}
+    </div>
+    {% if not guest_gauge.unlimited %}
+    <div class="gg-bar" role="progressbar" aria-valuenow="{{ guest_gauge.pct }}" aria-valuemin="0" aria-valuemax="100" aria-label="{{ _('Invités utilisés') }}">
+        <div class="gg-fill" style="width: {{ guest_gauge.pct }}%"></div>
+    </div>
+    {% endif %}
+    {% if guest_gauge.at_limit %}
+    <div class="gg-upgrade" role="note">
+        <p>{{ _("Vous avez atteint le maximum d'invités du plan gratuit. Passez à Vacances+ pour en inviter autant que vous voulez.") }}</p>
+        <button type="button" class="btn btn-primary gg-cta" data-upgrade-target="#upgrade-modal">{{ _("Passer à Vacances+") }}</button>
+    </div>
+    {% elif guest_gauge.unlimited %}
+    <div class="gg-hint">✓ {{ _("Participants illimités (Vacances+)") }}</div>
+    {% endif %}
+</div>
+{% endif %}
+
 <div class="invite-box">
   <h2>{{ _("Partager l'événement") }}</h2>
   <div class="url-row">
@@ -50,12 +77,39 @@
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button type="submit" class="btn btn-small btn-secondary">{{ _("Renvoyer") }}</button>
       </form>
-      {% else %}
-      <span class="hint">{{ _("pas d'email") }}</span>
-      {% endif %}
-    </li>
-    {% endfor %}
-  </ul>
+       {% else %}
+       <span class="hint">{{ _("pas d'email") }}</span>
+       {% endif %}
+     </li>
+     {% endfor %}
+   </ul>
 </div>
 {% endif %}
+
+{% include "freemium/_upgrade_modal.html" %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    var modal = document.getElementById('upgrade-modal');
+    if (!modal) return;
+    function close() { modal.hidden = true; }
+    document.querySelectorAll('[data-upgrade-target]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            modal.hidden = false;
+            var c = modal.querySelector('[data-upgrade-close]');
+            if (c) c.focus();
+        });
+    });
+    var c = modal.querySelector('[data-upgrade-close]');
+    if (c) c.addEventListener('click', close);
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && !modal.hidden) close(); });
+    var cta = modal.querySelector('[data-upgrade-cta]');
+    if (cta) cta.addEventListener('click', function() {
+        cta.disabled = true;
+        cta.textContent = '✓ ' + cta.textContent; // Stripe / LemonSqueezy hook
+    });
+})();
+</script>
 {% endblock %}

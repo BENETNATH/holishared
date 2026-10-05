@@ -10,7 +10,7 @@ sous chaque lot.
 
 ## [Unreleased]
 
-### B016 — Refonte UI/UX (Design System, shell mobile, timeline, frais, confidentialité)
+### B016 — Refonte UI/UX (Design System, shell mobile, timeline, frais, confidentialité, freemium)
 
 #### Lot 1 — Design System, palette chaleureuse & shell mobile
 - [x] Design tokens : palette chaude terracotta/lin (#FAF8F5, #C25E38), rayons
@@ -78,6 +78,24 @@ sous chaque lot.
       (suppression complète sans orphelins)
 - [x] i18n : chaînes confidentialité/export/suppression (en) + recompile .mo
 - [x] 246 tests passent (0 régression, 8 nouveaux tests privacy)
+
+#### Lot 5 — Architecture Freemium propre & Paywall élégant
+- [x] API déclarative dans `app/freemium.py` : `get_tier`, `has_feature`,
+      `require_tier("pro")` (soft paywall → teaser, pas de 400/403 brut),
+      tiers `free`/`pro`/`unlimited`, features `pdf_export`/`unlimited_guests`/
+      `hd_video`. Fonctions existantes (can_add_guest, quotas média) intactes.
+- [x] `Creator.tier` (colonne, défaut "free") — distinct de `MediaQuota.tier`
+- [x] Route `GET /e/<code>/export/pdf` : free → paywall ; pro+ → vue PDF
+      (hook Stripe/LemonSqueezy prêt)
+- [x] Modale "Holishared Vacances+" (partial `_upgrade_modal.html`) : 50 Go,
+      Export PDF certifié, Participants illimités, CTA factice
+- [x] Paywall page `freemium/paywall.html` (aperçu d'upgrade soigné)
+- [x] Galerie média : jauge de stockage (usage/quotas) + incitation douce
+      (carte upgrade au quota atteint, hint à 75 %)
+- [x] Page invitation : jauge d'invités (count/max) + état premium
+      ("illimité ✓" / carte upgrade au plafond)
+- [x] Zéro régression : `ENABLED_MODULES`, tests freemium & module-gating intacts
+- [x] 256 tests passent (0 régression, 10 nouveaux tests freemium)
 
 ### B008 — Frictions UX (code invité, auth, i18n, CSS, formulaires)
 - [x] Code invité : l'invité saisit son propre code (4-8 car.), toujours visible

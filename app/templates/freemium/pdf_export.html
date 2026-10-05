@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Export PDF") }} — {{ event.title }}{% endblock %}
+{% block content %}
+<div class="paywall paywall-success">
+  <div class="paywall-card">
+    <span class="paywall-icon" aria-hidden="true">🧾</span>
+    <h1>{{ _("Export PDF des comptes") }}</h1>
+    <p class="paywall-lede">{{ _("Votre document comptable pour « {{ event.title }} » est prêt.") }}</p>
+    <div class="pdf-actions">
+      <button type="button" class="btn btn-primary" data-pdf-cta>📄 {{ _("Générer le PDF (PDF certifié)") }}</button>
+      <a class="btn btn-secondary" href="{{ url_for('events.export_event', code=event.code) }}">📦 {{ _("Version ZIP") }}</a>
+    </div>
+    <p class="paywall-fineprint">{{ _("Généré par Holishared Vacances+ — prêt à partager ou à comptabiliser.") }}</p>
+  </div>
+</div>
+{% endblock %}

@@ -275,7 +275,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B016 — Refonte UI/UX
 
-**Statut** : ✅ (Lot 1 ✅, Lot 2 ✅, Lot 3 ✅, Lot 4 ✅)
+**Statut** : ✅ (Lot 1 ✅, Lot 2 ✅, Lot 3 ✅, Lot 4 ✅, Lot 5 ✅)
 
 ### Lot 1 — Design System, palette chaleureuse & shell mobile ✅
 | # | Tâche | Critère d'acceptation |
@@ -337,3 +337,21 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 - `feat(ui): badge confidentialité + modale + codes masqués`
 - `chore(models): cascade guests + activity_logs`
 - `test(privacy): export/suppression + contrôle d'accès`
+
+### Lot 5 — Architecture Freemium propre & Paywall élégant ✅
+| # | Tâche | Critère d'acceptation |
+|---|-------|----------------------|
+| 20.1 | API déclarative freemium.py | get_tier/has_feature/require_tier, tiers free/pro/unlimited |
+| 20.2 | Creator.tier colonne | Défaut "free", distinct de MediaQuota.tier |
+| 20.3 | require_tier soft paywall | free → teaser (pas 400/403 brut), guest non redirigé |
+| 20.4 | Route export_pdf gated | GET /e/<code>/export/pdf : free→paywall, pro+→vue PDF |
+| 20.5 | Modale "Vacances+" (partial) | 50Go / Export PDF certifié / Participants illimités, CTA hook |
+| 20.6 | Jauge stockage (média) | usage/quotas + incitation douce (75 % + quota atteint) |
+| 20.7 | Jauge invités (invite) | count/max + état premium (illimité ✓ / carte upgrade) |
+| 20.8 | i18n + tests | Chaînes en, .mo, 10 nouveaux tests freemium verts |
+| 20.9 | Zéro régression | ENABLED_MODULES + tests freemium/module-gating intacts |
+
+**Commits** :
+- `feat(freemium): API déclarative tiers + require_tier soft paywall`
+- `feat(ui): modale Vacances+ + jauges stockage/invités`
+- `test(freemium): tiers, has_feature, require_tier (export_pdf)`

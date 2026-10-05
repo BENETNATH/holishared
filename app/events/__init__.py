@@ -22,7 +22,7 @@ from werkzeug.wrappers import Response
 
 from app.auth import is_disposable_email
 from app.extensions import db, limiter
-from app.freemium import can_add_guest, max_duration_days
+from app.freemium import can_add_guest, max_duration_days, require_tier
 from app.models import Creator, Event, Guest, Household, generate_guest_code
 from app.utils import ensure_creator_guest
 
@@ -537,6 +537,21 @@ def delete_event(code: str) -> Response:
     return redirect(url_for("events.index"))
 
 
+@events_bp.route("/<code>/export/pdf")
+@login_required  # type: ignore[untyped-decorator]
+@require_tier("pro")
+def export_pdf(code: str) -> Response | str:
+    """Gated accountancy PDF export (pro feature).
+
+    Free tier → soft paywall (no raw 400/403). Pro+ → a placeholder response;
+    the real PDF generation is a Stripe/LemonSqueezy-locked hook.
+    """
+    from flask_login import current_user as _cu
+
+    event = Event.query.filter_by(code=code, creator_id=_cu.id, is_active=True).first_or_404()
+    return render_template("freemium/pdf_export.html", event=event, code=code)
+
+
 @events_bp.route("/<code>/invite")
 @login_required  # type: ignore[untyped-decorator]
 def invite(code: str) -> str | Response:
@@ -549,7 +564,23 @@ def invite(code: str) -> str | Response:
     invite_url = f"{current_app.config['APP_URL']}/e/{code}/join"
     guests = Guest.query.filter_by(event_id=event.id, is_active=True)\
         .order_by(Guest.display_name.asc()).all()
-    return render_template("events/invite.html", event=event, invite_url=invite_url, guests=guests)
+
+    # Guest-cap gauge + premium state (Lot 5 freemium).
+    max_guests = int(current_app.config.get("MAX_GUESTS_PER_EVENT", 10))
+    from app.freemium import has_feature
+
+    unlimited = has_feature(current_user, "unlimited_guests")
+    count = len(guests)
+    pct = min(100, round(count / max_guests * 100)) if max_guests else 0
+    guest_gauge = {
+        "count": count,
+        "max": max_guests,
+        "pct": pct,
+        "unlimited": unlimited,
+        "at_limit": (not unlimited) and count >= max_guests,
+    }
+    return render_template("events/invite.html", event=event, invite_url=invite_url,
+                           guests=guests, guest_gauge=guest_gauge)
 
 
 @events_bp.route("/<code>/invite/qr")

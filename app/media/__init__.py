@@ -153,8 +153,40 @@ def gallery(code: str) -> str | Response:
         return denied
 
     items = event.media.order_by(MediaItem.uploaded_at.desc()).all()
+
+    # Storage gauge context (creator sees their quota + soft upgrade).
+    from app.freemium import get_media_quota
+
+    def _human(nbytes: float) -> str:
+        value = nbytes
+        unit = "o"
+        for u in ("Ko", "Mo", "Go", "To"):
+            if value >= 1024:
+                value /= 1024
+                unit = u
+            else:
+                break
+        if value >= 10:
+            value = round(value)
+        else:
+            value = round(value, 1)
+        return f"{value} {unit}"
+
+    quota = None
+    gauge = None
+    if is_creator:
+        quota = get_media_quota(event.creator)
+        used = quota.used_bytes
+        pct = min(100.0, (used / quota.max_bytes * 100.0)) if quota.max_bytes else 0.0
+        gauge = {
+            "used": _human(used),
+            "max": _human(quota.max_bytes),
+            "pct": round(pct),
+            "exceeded": quota.is_exceeded,
+        }
+
     return render_template("media/gallery.html", event=event, items=items,
-                           guest=guest, is_creator=is_creator)
+                           guest=guest, is_creator=is_creator, gauge=gauge)
 
 
 @media_bp.route("/e/<code>/media/upload", methods=["POST"])

@@ -1,0 +1,43 @@
+{# Shared "Holishared Vacances+" upgrade modal. Include wherever you need the
+   paywall. Toggle with data-upgrade-target="#upgrade-modal" buttons. #}
+<div class="upgrade-modal" id="upgrade-modal" hidden role="dialog" aria-modal="true" aria-labelledby="upgrade-title">
+    <div class="upgrade-modal-card" role="document">
+        <button type="button" class="upgrade-modal-close" data-upgrade-close aria-label="{{ _('Fermer') }}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <div class="upgrade-head">
+            <span class="upgrade-badge" aria-hidden="true">✨</span>
+            <h2 id="upgrade-title">{{ _("Holishared Vacances+") }}</h2>
+            <p class="upgrade-tag">{{ _("Tout pour profiter du séjour, sans compter.") }}</p>
+        </div>
+        <ul class="upgrade-advantages">
+            <li>
+                <span class="ua-icon" aria-hidden="true">📸</span>
+                <div>
+                    <strong>{{ _("Stockage photos 50 Go") }}</strong>
+                    <p>{{ _("Gardez toute la galerie du séjour, en haute qualité.") }}</p>
+                </div>
+            </li>
+            <li>
+                <span class="ua-icon" aria-hidden="true">🧾</span>
+                <div>
+                    <strong>{{ _("Export PDF des comptes certifié") }}</strong>
+                    <p>{{ _("Partagez la répartition des frais en un document pro.") }}</p>
+                </div>
+            </li>
+            <li>
+                <span class="ua-icon" aria-hidden="true">👥</span>
+                <div>
+                    <strong>{{ _("Participants illimités") }}</strong>
+                    <p>{{ _("Invitez tout le monde, sans plafond.") }}</p>
+                </div>
+            </li>
+        </ul>
+        {# Fake CTA — hook ready for Stripe / LemonSqueezy. #}
+        <button type="button" class="btn btn-primary upgrade-cta" data-upgrade-cta
+                aria-label="{{ _('Passer à Vacances+') }}">
+            {{ _("Passer à Vacances+") }}
+        </button>
+        <p class="upgrade-fineprint">{{ _("Essai de 14 jours, sans carte. Annulable à tout moment.") }}</p>
+    </div>
+</div>

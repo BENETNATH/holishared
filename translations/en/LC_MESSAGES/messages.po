@@ -4,10 +4,10 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
 #
 msgid ""
-msgstr ""
+msgstr "You have hit the free-plan guest limit. Upgrade to Vacation+ to invite as many as you like."Holishared Vacation+" pack. It is not available on the free plan - but everything else is."
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 20:01+0200\n"
+"POT-Creation-Date: 2026-10-05 20:19+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -235,6 +235,7 @@ msgid "Plus"
 msgstr "More"
 
 #: app/templates/base.html:196 app/templates/base.html:231
+#: app/templates/freemium/_upgrade_modal.html:5
 msgid "Fermer"
 msgstr "Close"
 
@@ -274,8 +275,7 @@ msgstr "No third-party cookies, no tracking"
 msgid ""
 "Aucun script tiers, aucune analyse publicitaire, aucune revente de "
 "données."
-msgstr ""
-"No third-party scripts, no ad analytics, no data resale."
+msgstr "No third-party scripts, no ad analytics, no data resale."
 
 #: app/templates/base.html:254
 msgid "Vos données restent vos données"
@@ -709,7 +709,7 @@ msgstr "Hide"
 msgid "Voir"
 msgstr "Show"
 
-#: app/templates/events/dashboard.html:34 app/templates/events/invite.html:16
+#: app/templates/events/dashboard.html:34 app/templates/events/invite.html:43
 #: app/templates/events/members.html:54
 msgid "Copier"
 msgstr "Copy"
@@ -908,47 +908,73 @@ msgstr "Create your first event to start planning with your loved ones."
 msgid "Invitations"
 msgstr "Invitations"
 
-#: app/templates/events/invite.html:12
-msgid "Partager l'événement"
-msgstr "Share event"
-
-#: app/templates/events/invite.html:14
-msgid "Lien d'invitation"
-msgstr "Invitation link"
-
-#: app/templates/events/invite.html:20
-msgid "QR code d'invitation"
-msgstr "Invitation QR code"
-
-#: app/templates/events/invite.html:21
-msgid "Scannez pour rejoindre l'événement et créer votre code personnel"
-msgstr "Scan to join the event and create your personal code"
-
-#: app/templates/events/invite.html:26
-msgid "Inviter par email"
-msgstr "Invite by email"
-
-#: app/templates/events/invite.html:27
-msgid "La personne reçoit un lien pour créer son code personnel."
-msgstr "The person receives a link to create their personal code."
-
-#: app/templates/events/invite.html:31
-msgid "Adresse email de l'invité"
-msgstr "Guest email address"
-
-#: app/templates/events/invite.html:35
-msgid "Envoyer l'invitation"
-msgstr "Send invitation"
-
-#: app/templates/events/invite.html:42
+#: app/templates/events/invite.html:15 app/templates/events/invite.html:69
 msgid "Invités"
 msgstr "Guests"
 
-#: app/templates/events/invite.html:51
+#: app/templates/events/invite.html:17
+msgid "illimité"
+msgstr "unlimited"
+
+#: app/templates/events/invite.html:23
+#, fuzzy
+msgid "Invités utilisés"
+msgstr "Guests used"
+
+#: app/templates/events/invite.html:29
+msgid ""
+"Vous avez atteint le maximum d'invités du plan gratuit. Passez à "
+"Vacances+ pour en inviter autant que vous voulez."
+msgstr ""
+
+#: app/templates/events/invite.html:30
+#: app/templates/freemium/_upgrade_modal.html:38
+#: app/templates/freemium/_upgrade_modal.html:39
+#: app/templates/media/gallery.html:24
+msgid "Passer à Vacances+"
+msgstr "Upgrade to Vacation+"
+
+#: app/templates/events/invite.html:33
+msgid "Participants illimités (Vacances+)"
+msgstr "Unlimited participants (Vacation+)"
+
+#: app/templates/events/invite.html:39
+msgid "Partager l'événement"
+msgstr "Share event"
+
+#: app/templates/events/invite.html:41
+msgid "Lien d'invitation"
+msgstr "Invitation link"
+
+#: app/templates/events/invite.html:47
+msgid "QR code d'invitation"
+msgstr "Invitation QR code"
+
+#: app/templates/events/invite.html:48
+msgid "Scannez pour rejoindre l'événement et créer votre code personnel"
+msgstr "Scan to join the event and create your personal code"
+
+#: app/templates/events/invite.html:53
+msgid "Inviter par email"
+msgstr "Invite by email"
+
+#: app/templates/events/invite.html:54
+msgid "La personne reçoit un lien pour créer son code personnel."
+msgstr "The person receives a link to create their personal code."
+
+#: app/templates/events/invite.html:58
+msgid "Adresse email de l'invité"
+msgstr "Guest email address"
+
+#: app/templates/events/invite.html:62
+msgid "Envoyer l'invitation"
+msgstr "Send invitation"
+
+#: app/templates/events/invite.html:78
 msgid "Renvoyer"
 msgstr "Resend"
 
-#: app/templates/events/invite.html:54
+#: app/templates/events/invite.html:81
 msgid "pas d'email"
 msgstr "no email"
 
@@ -1237,6 +1263,87 @@ msgstr ""
 "Without verification, the event will be automatically deleted after 3 "
 "days."
 
+#: app/templates/freemium/_upgrade_modal.html:10
+#: app/templates/freemium/paywall.html:2
+msgid "Holishared Vacances+"
+msgstr "Holishared Vacation+"
+
+#: app/templates/freemium/_upgrade_modal.html:11
+msgid "Tout pour profiter du séjour, sans compter."
+msgstr "Everything to enjoy the trip, without keeping score."
+
+#: app/templates/freemium/_upgrade_modal.html:17
+msgid "Stockage photos 50 Go"
+msgstr "50 GB photo storage"
+
+#: app/templates/freemium/_upgrade_modal.html:18
+msgid "Gardez toute la galerie du séjour, en haute qualité."
+msgstr "Keep the whole trip gallery in high quality."
+
+#: app/templates/freemium/_upgrade_modal.html:24
+msgid "Export PDF des comptes certifié"
+msgstr "Certified accountancy PDF export"
+
+#: app/templates/freemium/_upgrade_modal.html:25
+#, fuzzy
+msgid "Partagez la répartition des frais en un document pro."
+msgstr "Share the cost split in one professional document."
+
+#: app/templates/freemium/_upgrade_modal.html:31
+msgid "Participants illimités"
+msgstr "Unlimited participants"
+
+#: app/templates/freemium/_upgrade_modal.html:32
+msgid "Invitez tout le monde, sans plafond."
+msgstr "Invite everyone, no cap."
+
+#: app/templates/freemium/_upgrade_modal.html:41
+msgid "Essai de 14 jours, sans carte. Annulable à tout moment."
+msgstr "14-day trial, no card. Cancel anytime."
+
+#: app/templates/freemium/paywall.html:7
+msgid "Fonctionnalité Vacances+"
+msgstr "Vacation+ feature"
+
+#: app/templates/freemium/paywall.html:8
+msgid ""
+"Cette fonctionnalité fait partie du pack « Holishared Vacances+ ». Elle "
+"n'est pas disponible sur le plan gratuit — mais tout le reste l'est."
+msgstr ""
+
+#: app/templates/freemium/paywall.html:9
+msgid "Fonctionnalité demandée"
+msgstr "Requested feature"
+
+#: app/templates/freemium/paywall.html:16
+#, fuzzy
+msgid "Retour à mes événements"
+msgstr "Back to my events"
+
+#: app/templates/freemium/pdf_export.html:2
+msgid "Export PDF"
+msgstr "PDF export"
+
+#: app/templates/freemium/pdf_export.html:7
+msgid "Export PDF des comptes"
+msgstr "Accountancy PDF export"
+
+#: app/templates/freemium/pdf_export.html:8
+msgid "Votre document comptable pour « {{ event.title }} » est prêt."
+msgstr ""
+
+#: app/templates/freemium/pdf_export.html:10
+msgid "Générer le PDF (PDF certifié)"
+msgstr "Generate the PDF (certified)"
+
+#: app/templates/freemium/pdf_export.html:11
+msgid "Version ZIP"
+msgstr "ZIP version"
+
+#: app/templates/freemium/pdf_export.html:13
+msgid "Généré par Holishared Vacances+ — prêt à partager ou à comptabiliser."
+msgstr "Generated by Holishared Vacation+ - ready to share or bookkeep."
+
 #: app/templates/lists/detail.html:14 app/templates/lists/detail.html:129
 #: app/templates/lists/detail.html:130
 msgid "Activités"
@@ -1414,7 +1521,7 @@ msgstr "Invite"
 msgid "Repas…"
 msgstr "Meal…"
 
-#: app/templates/media/detail.html:4 app/templates/media/gallery.html:27
+#: app/templates/media/detail.html:4 app/templates/media/gallery.html:48
 msgid "Galerie"
 msgstr "Gallery"
 
@@ -1427,22 +1534,40 @@ msgid "Photos et vidéos du séjour"
 msgstr "Photos and videos from the trip"
 
 #: app/templates/media/gallery.html:15
+msgid "Stockage photos"
+msgstr "Photo storage"
+
+#: app/templates/media/gallery.html:18
+msgid "Stockage utilisé"
+msgstr "Storage used"
+
+#: app/templates/media/gallery.html:23
+msgid ""
+"Vous avez atteint votre quota gratuit. Passez à Vacances+ pour garder "
+"toute la galerie."
+msgstr ""
+
+#: app/templates/media/gallery.html:27
+msgid "Espace presque plein — passez à Vacances+ pour 50 Go."
+msgstr "Almost full - upgrade to Vacation+ for 50 GB."
+
+#: app/templates/media/gallery.html:36
 msgid "Photo ou vidéo"
 msgstr "Photo or video"
 
-#: app/templates/media/gallery.html:19
+#: app/templates/media/gallery.html:40
 msgid "Légende"
 msgstr "Legend"
 
-#: app/templates/media/gallery.html:23
+#: app/templates/media/gallery.html:44
 msgid "Téléverser"
 msgstr "Upload"
 
-#: app/templates/media/gallery.html:44
+#: app/templates/media/gallery.html:65
 msgid "Aucun media"
 msgstr "No media"
 
-#: app/templates/media/gallery.html:45
+#: app/templates/media/gallery.html:66
 msgid "Partagez les photos et vidéos du séjour."
 msgstr "Share the trip photos and videos."
 

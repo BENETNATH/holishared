@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Holishared Vacances+") }}{% endblock %}
+{% block content %}
+<div class="paywall">
+  <div class="paywall-card">
+    <span class="paywall-icon" aria-hidden="true">🔒</span>
+    <h1>{{ _("Fonctionnalité Vacances+") }}</h1>
+    <p class="paywall-lede">{{ _("Cette fonctionnalité fait partie du pack « Holishared Vacances+ ». Elle n'est pas disponible sur le plan gratuit — mais tout le reste l'est.") }}</p>
+    <div class="paywall-feature" aria-label="{{ _('Fonctionnalité demandée') }}">
+      <span class="pff-badge">✨ {{ feature_label }}</span>
+    </div>
+    <div class="paywall-upgrade">
+      {% include "freemium/_upgrade_modal.html" %}
+    </div>
+    <p class="paywall-back">
+      <a href="{{ url_for('events.index') }}" class="btn btn-secondary">← {{ _("Retour à mes événements") }}</a>
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Auto-open the upgrade modal on the paywall page, wire CTA + close.
+(function() {
+    var modal = document.getElementById('upgrade-modal');
+    if (!modal) return;
+    modal.hidden = false;
+    var cta = modal.querySelector('[data-upgrade-cta]');
+    if (cta) {
+        cta.addEventListener('click', function() {
+            // Hook point: open Stripe / LemonSqueezy checkout here.
+            cta.disabled = true;
+            cta.textContent = '✓ ' + cta.textContent;
+        });
+    }
+    var close = modal.querySelector('[data-upgrade-close]');
+    function hide() { modal.hidden = true; }
+    if (close) close.addEventListener('click', hide);
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && !modal.hidden) hide();
+    });
+})();
+</script>
+{% endblock %}

@@ -35,6 +35,9 @@ class Creator(UserMixin, db.Model):  # type: ignore[misc,name-defined]
     verification_sent_at: Mapped[datetime | None] = db.Column(db.DateTime, nullable=True)
     display_name: Mapped[str] = db.Column(db.String(100), default="")
     personal_code: Mapped[str] = db.Column(db.String(8), unique=True, nullable=True, default=None)
+    # Freemium feature tier: "free", "pro", "unlimited".
+    # (Distinct from MediaQuota.tier, which is the storage-storage tier.)
+    tier: Mapped[str] = db.Column(db.String(20), nullable=False, default="free", server_default="free")
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
 
     events = db.relationship("Event", backref="creator", lazy="dynamic")
