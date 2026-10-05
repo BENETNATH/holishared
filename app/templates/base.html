@@ -130,8 +130,17 @@
             var btn = document.getElementById('lang-btn');
             var dd = document.getElementById('lang-dropdown');
             if (!btn || !dd) return;
+            var mq = window.matchMedia('(max-width: 768px)');
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
+                if (mq.matches) {
+                    // On mobile the nav is a horizontal scroll container
+                    // (overflow-x: auto) that clips the absolutely-positioned
+                    // dropdown, so switch language directly in one tap.
+                    var current = (document.documentElement.lang || 'fr').toLowerCase();
+                    window.location.href = '?lang=' + (current === 'en' ? 'fr' : 'en');
+                    return;
+                }
                 dd.hidden = !dd.hidden;
                 btn.setAttribute('aria-expanded', String(!dd.hidden));
             });
