@@ -2501,7 +2501,7 @@ tfoot td {
 
 .meal-grid {
   display: grid;
-  grid-template-columns: 5rem repeat(3, 1fr);
+  grid-template-columns: 5rem repeat(2, 1fr);
   gap: 2px;
   background: var(--border);
   border-radius: var(--radius);
@@ -2670,7 +2670,7 @@ tfoot td {
 
 @media (max-width: 640px) {
   .meal-grid {
-    grid-template-columns: 3.5rem repeat(3, 1fr);
+    grid-template-columns: 3.5rem repeat(2, 1fr);
   }
 
   .meal-grid-day {
