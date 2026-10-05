@@ -107,6 +107,40 @@ class TestAnonymousCreationFlow:
         assert creator is not None
         assert creator.email == "keep@test.com"
 
+    def test_verify_creates_creator_participant_identity(self, client, db):
+        """Verifying the event gives the creator a participant identity
+        (Guest + Household) so they can vote and appear in the groups."""
+        resp = client.post("/e/new", data={
+            "title": "Weekend",
+            "start_date": "2026-12-01",
+            "end_date": "2026-12-03",
+            "email": "creator@test.com",
+        }, follow_redirects=False)
+        assert resp.status_code == 302
+        from app.models import Creator, Event, Guest, Household
+        event = Event.query.filter_by(creator_email="creator@test.com").first()
+        token = event.verification_token
+        resp = client.post(f"/e/verify/{token}", data={
+            "display_name": "Creator",
+            "personal_code": "creat42x",
+            "num_adults": "2",
+            "num_children": "1",
+        }, follow_redirects=False)
+        assert resp.status_code == 302
+
+        creator = Creator.query.filter_by(display_name="Creator").first()
+        # The creator's participant Guest record is linked via creator_id.
+        creator_guest = Guest.query.filter_by(creator_id=creator.id, event_id=event.id).first()
+        assert creator_guest is not None
+        assert creator_guest.display_name == "Creator"
+        # The creator's Household reflects the composition they indicated.
+        household = Household.query.filter_by(guest_id=creator_guest.id, event_id=event.id).first()
+        assert household is not None
+        assert household.num_adults == 2
+        assert household.num_children == 1
+        # The creator appears in the event's groups.
+        assert household in event.households.all()
+
 
 class TestGuestAccess:
     def test_join_page_renders(self, client, event):

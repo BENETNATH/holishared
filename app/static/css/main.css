@@ -812,6 +812,11 @@ select {
   color: var(--warning);
 }
 
+.badge-creator {
+  background: var(--primary-soft, var(--surface-hover));
+  color: var(--primary);
+}
+
 .tag {
   display: inline-block;
   padding: 0.125rem 0.5rem;

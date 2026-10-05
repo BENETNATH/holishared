@@ -38,16 +38,18 @@
     {% if guests %}
     <div class="members-grid">
         {% for g in guests %}
+        {% set is_creator_guest = g.creator_id == event.creator_id %}
         <div class="card member-card">
             <div class="member-info">
                 <span class="member-name">{{ g.display_name }}</span>
-                {% if g.email %}<span class="member-email">{{ g.email }}</span>{% endif %}
+                {% if is_creator_guest %}<span class="badge badge-creator">{{ _("Créateur") }}</span>{% endif %}
+                {% if g.email and not is_creator_guest %}<span class="member-email">{{ g.email }}</span>{% endif %}
             </div>
             <div class="member-code">
-                <code>{{ g.code }}</code>
-                <button type="button" class="btn btn-small btn-ghost copy-code" data-code="{{ g.code }}">{{ _("Copier") }}</button>
+                {% if is_creator_guest %}<span class="muted">—</span>{% else %}<code>{{ g.code }}</code>
+                <button type="button" class="btn btn-small btn-ghost copy-code" data-code="{{ g.code }}">{{ _("Copier") }}</button>{% endif %}
             </div>
-            {% if is_creator %}
+            {% if is_creator and not is_creator_guest %}
             <form method="POST" class="member-remove">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="action" value="remove">

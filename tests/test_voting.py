@@ -6,7 +6,7 @@ Ces tests DOIVENT échouer avant le codage (TDD).
 
 import pytest
 
-from app.models import ActivityLog, Poll, PollOption, PollVote
+from app.models import ActivityLog, Guest, Poll, PollOption, PollVote
 
 # === Fixtures locales (complètent conftest.py) ===
 
@@ -167,12 +167,19 @@ class TestVote:
         assert len(votes) == 1
         assert votes[0].option_id == options[1].id
 
-    def test_vote_forbidden_for_creator(self, client, creator, event, poll):
+    def test_vote_success_for_creator(self, client, creator, event, poll, db):
+        """The creator is a participant in their own event: they can vote."""
         _login_creator(client, creator)
         option = _options(poll)[0]
         resp = client.post(f"/e/{event.code}/voting/{poll.id}/vote", data={"option_id": option.id})
-        assert resp.status_code == 403
-        assert PollVote.query.count() == 0
+        assert resp.status_code == 302
+        assert "/voting" in resp.headers["Location"]
+        # The vote is recorded under the creator's participant Guest record.
+        creator_guest = Guest.query.filter_by(creator_id=creator.id, event_id=event.id).first()
+        assert creator_guest is not None
+        votes = PollVote.query.filter_by(guest_id=creator_guest.id).all()
+        assert len(votes) == 1
+        assert votes[0].option_id == option.id
 
     def test_vote_404_invalid_poll(self, client, event, guest):
         _login_guest(client, event, guest)

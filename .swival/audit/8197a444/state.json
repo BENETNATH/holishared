@@ -1,0 +1,3530 @@
+{
+  "run_id": "8197a444",
+  "scope": {
+    "branch": "main",
+    "commit": "7583db9c55a45bf505f4c07f563f3dd1b581e894",
+    "tracked_files": [
+      ".dockerignore",
+      ".env.example",
+      ".github/workflows/ci.yml",
+      ".gitignore",
+      ".pre-commit-config.yaml",
+      "AGENTS.md",
+      "AUDIT_REPORT.md",
+      "AUDIT_REPORT_V2.md",
+      "CHANGELOG.md",
+      "DEV_LOG.md",
+      "Dockerfile",
+      "README.md",
+      "TASKS.md",
+      "adr/001-sqlite.md",
+      "adr/002-htmx-alpine.md",
+      "adr/003-zero-pii-guests.md",
+      "adr/004-activity-log.md",
+      "app/__init__.py",
+      "app/auth/__init__.py",
+      "app/chat/__init__.py",
+      "app/costs/__init__.py",
+      "app/events/__init__.py",
+      "app/extensions.py",
+      "app/freemium.py",
+      "app/lists/__init__.py",
+      "app/logistics/__init__.py",
+      "app/main/__init__.py",
+      "app/meals/__init__.py",
+      "app/media/__init__.py",
+      "app/models.py",
+      "app/planning/__init__.py",
+      "app/static/css/main.css",
+      "app/static/icons/icon-192.png",
+      "app/static/icons/icon-512.png",
+      "app/static/js/alpine.min.js",
+      "app/static/js/htmx.min.js",
+      "app/static/js/service-worker.js",
+      "app/static/manifest.json",
+      "app/templates/_event_nav.html",
+      "app/templates/auth/login.html",
+      "app/templates/base.html",
+      "app/templates/chat/_messages.html",
+      "app/templates/chat/index.html",
+      "app/templates/costs/household_form.html",
+      "app/templates/costs/index.html",
+      "app/templates/errors/403.html",
+      "app/templates/errors/404.html",
+      "app/templates/events/create.html",
+      "app/templates/events/dashboard.html",
+      "app/templates/events/index.html",
+      "app/templates/events/invite.html",
+      "app/templates/events/join.html",
+      "app/templates/events/log.html",
+      "app/templates/events/members.html",
+      "app/templates/events/mycode.html",
+      "app/templates/events/recover.html",
+      "app/templates/events/verify.html",
+      "app/templates/events/verify_sent.html",
+      "app/templates/lists/detail.html",
+      "app/templates/lists/form.html",
+      "app/templates/lists/index.html",
+      "app/templates/logistics/form.html",
+      "app/templates/logistics/index.html",
+      "app/templates/main/dashboard.html",
+      "app/templates/main/landing.html",
+      "app/templates/meals/index.html",
+      "app/templates/media/detail.html",
+      "app/templates/media/gallery.html",
+      "app/templates/planning/form.html",
+      "app/templates/planning/index.html",
+      "app/templates/voting/detail.html",
+      "app/templates/voting/form.html",
+      "app/templates/voting/index.html",
+      "app/utils.py",
+      "app/voting/__init__.py",
+      "babel.cfg",
+      "docker-compose.yml",
+      "manage.py",
+      "nginx/saas.conf",
+      "pyproject.toml",
+      "requirements.txt",
+      "scripts/backup.sh",
+      "scripts/cleanup_media.py",
+      "scripts/extract_i18n.py",
+      "scripts/translate_en.py",
+      "specs/B003-planning.md",
+      "specs/B008-chat.md",
+      "specs/B015-hardening.md",
+      "systemd/saas.service",
+      "tests/conftest.py",
+      "tests/test_auth.py",
+      "tests/test_chat.py",
+      "tests/test_costs.py",
+      "tests/test_events.py",
+      "tests/test_freemium.py",
+      "tests/test_hardening.py",
+      "tests/test_lists.py",
+      "tests/test_logistics.py",
+      "tests/test_meals.py",
+      "tests/test_media.py",
+      "tests/test_models.py",
+      "tests/test_module_gating.py",
+      "tests/test_planning.py",
+      "tests/test_voting.py",
+      "translations/en/LC_MESSAGES/messages.mo",
+      "translations/en/LC_MESSAGES/messages.po",
+      "translations/fr/LC_MESSAGES/messages.mo",
+      "translations/fr/LC_MESSAGES/messages.po",
+      "translations/messages.pot"
+    ],
+    "mandatory_files": [
+      ".github/workflows/ci.yml",
+      ".pre-commit-config.yaml",
+      "app/__init__.py",
+      "app/auth/__init__.py",
+      "app/chat/__init__.py",
+      "app/costs/__init__.py",
+      "app/events/__init__.py",
+      "app/extensions.py",
+      "app/freemium.py",
+      "app/lists/__init__.py",
+      "app/logistics/__init__.py",
+      "app/main/__init__.py",
+      "app/meals/__init__.py",
+      "app/media/__init__.py",
+      "app/models.py",
+      "app/planning/__init__.py",
+      "app/static/js/alpine.min.js",
+      "app/static/js/htmx.min.js",
+      "app/static/js/service-worker.js",
+      "app/static/manifest.json",
+      "app/utils.py",
+      "app/voting/__init__.py",
+      "docker-compose.yml",
+      "manage.py",
+      "nginx/saas.conf",
+      "pyproject.toml",
+      "scripts/backup.sh",
+      "scripts/cleanup_media.py",
+      "scripts/extract_i18n.py",
+      "scripts/translate_en.py",
+      "tests/conftest.py",
+      "tests/test_auth.py",
+      "tests/test_chat.py",
+      "tests/test_costs.py",
+      "tests/test_events.py",
+      "tests/test_freemium.py",
+      "tests/test_hardening.py",
+      "tests/test_lists.py",
+      "tests/test_logistics.py",
+      "tests/test_meals.py",
+      "tests/test_media.py",
+      "tests/test_models.py",
+      "tests/test_module_gating.py",
+      "tests/test_planning.py",
+      "tests/test_voting.py"
+    ],
+    "focus": []
+  },
+  "queued_files": [
+    "app/static/js/htmx.min.js",
+    "manage.py",
+    "app/__init__.py",
+    "app/chat/__init__.py",
+    "app/lists/__init__.py",
+    "app/logistics/__init__.py",
+    "app/meals/__init__.py",
+    "app/planning/__init__.py",
+    "app/voting/__init__.py",
+    "tests/test_events.py",
+    "app/media/__init__.py",
+    "app/events/__init__.py",
+    "app/static/js/alpine.min.js",
+    "app/auth/__init__.py",
+    "app/costs/__init__.py",
+    "tests/test_module_gating.py",
+    "app/models.py",
+    "app/static/js/service-worker.js",
+    "pyproject.toml",
+    "tests/test_hardening.py",
+    ".pre-commit-config.yaml",
+    "tests/test_chat.py",
+    "tests/test_costs.py",
+    "tests/test_lists.py",
+    "tests/test_logistics.py",
+    "tests/test_meals.py",
+    "tests/test_planning.py",
+    "tests/test_voting.py",
+    "app/extensions.py",
+    "scripts/translate_en.py",
+    "nginx/saas.conf",
+    "scripts/cleanup_media.py",
+    "app/freemium.py",
+    "app/utils.py",
+    "tests/conftest.py",
+    "tests/test_freemium.py",
+    "tests/test_media.py",
+    "tests/test_models.py",
+    ".github/workflows/ci.yml",
+    "app/main/__init__.py",
+    "tests/test_auth.py",
+    "docker-compose.yml",
+    "scripts/backup.sh",
+    "scripts/extract_i18n.py",
+    "app/static/manifest.json"
+  ],
+  "reviewed_files": [
+    ".pre-commit-config.yaml",
+    "app/__init__.py",
+    "app/auth/__init__.py",
+    "app/chat/__init__.py",
+    "app/costs/__init__.py",
+    "app/events/__init__.py",
+    "app/extensions.py",
+    "app/freemium.py",
+    "app/lists/__init__.py",
+    "app/logistics/__init__.py",
+    "app/meals/__init__.py",
+    "app/media/__init__.py",
+    "app/models.py",
+    "app/planning/__init__.py",
+    "app/static/js/alpine.min.js",
+    "app/static/js/htmx.min.js",
+    "app/static/js/service-worker.js",
+    "app/voting/__init__.py",
+    "manage.py",
+    "pyproject.toml",
+    "scripts/cleanup_media.py",
+    "scripts/translate_en.py",
+    "tests/conftest.py",
+    "tests/test_chat.py",
+    "tests/test_costs.py",
+    "tests/test_events.py",
+    "tests/test_freemium.py",
+    "tests/test_hardening.py",
+    "tests/test_lists.py",
+    "tests/test_logistics.py",
+    "tests/test_meals.py",
+    "tests/test_models.py",
+    "tests/test_module_gating.py",
+    "tests/test_planning.py",
+    "tests/test_voting.py"
+  ],
+  "triage_records": {
+    "app/chat/__init__.py": {
+      "path": "app/chat/__init__.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Authorization and input validation are correctly scoped; no concrete attacker path identified",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "app/__init__.py": {
+      "path": "app/__init__.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "App factory with proper secret validation, session hardening, and documented ProxyFix deployment assumption; no concrete attacker-exploitable code path found.",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "app/static/js/htmx.min.js": {
+      "path": "app/static/js/htmx.min.js",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Standard unmodified htmx 1.9.12 static asset; no concrete security control failure or attacker-reachable vulnerability in this file",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "manage.py": {
+      "path": "manage.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "trusted local CLI; no untrusted input reaches dangerous operations",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "app/logistics/__init__.py": {
+      "path": "app/logistics/__init__.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Standard CRUD blueprint with proper auth gates, ORM parameterization, and input validation; no concrete attacker path identified",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "app/meals/__init__.py": {
+      "path": "app/meals/__init__.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Authorization and input validation are consistently applied; no concrete untrusted trigger yields attacker gain",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "app/planning/__init__.py": {
+      "path": "app/planning/__init__.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Standard CRUD blueprint with proper authz, ORM queries, and input validation; no concrete attacker path identified",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "tests/test_events.py": {
+      "path": "tests/test_events.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Test file for events blueprint; no production code or security control under test",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "app/lists/__init__.py": {
+      "path": "app/lists/__init__.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Authorization scoped to event via guest session; referrer redirect low exploitability",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "app/voting/__init__.py": {
+      "path": "app/voting/__init__.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Authorization and scoping checks correctly prevent cross-event IDOR; no concrete attacker trigger with security-relevant gain identified.",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "app/media/__init__.py": {
+      "path": "app/media/__init__.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Media upload blueprint has solid controls: magic-byte validation, UUID filenames, rate limiting, send_from_directory, and proper authorization gating.",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "app/static/js/alpine.min.js": {
+      "path": "app/static/js/alpine.min.js",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Third-party Alpine.js v3.17.4 minified static asset; no concrete security bug or untrusted-input path identified",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "tests/test_module_gating.py": {
+      "path": "tests/test_module_gating.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Test file for feature-availability gating; no security control or untrusted input path",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "app/auth/__init__.py": {
+      "path": "app/auth/__init__.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Standard auth blueprint with rate limiting and superadmin credential check; no concrete attacker path identified",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "app/costs/__init__.py": {
+      "path": "app/costs/__init__.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Standard cost-sharing CRUD with proper event scoping, auth checks, and input validation; no concrete attacker path",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "pyproject.toml": {
+      "path": "pyproject.toml",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Project configuration file with no security control logic or trust boundary crossing",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "app/models.py": {
+      "path": "app/models.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Schema-only model file; secrets module used correctly for tokens; no access-control or injection logic present",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "app/static/js/service-worker.js": {
+      "path": "app/static/js/service-worker.js",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "standard service worker with no attacker-controllable security path",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "tests/test_hardening.py": {
+      "path": "tests/test_hardening.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Pure test file verifying security headers and health endpoint; no executable attack surface or security control logic.",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "app/events/__init__.py": {
+      "path": "app/events/__init__.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Well-structured auth, rate limits, and input validation; no concrete attacker-triggerable security flaw identified.",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    ".pre-commit-config.yaml": {
+      "path": ".pre-commit-config.yaml",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Pre-commit dev-tooling YAML config with no runtime attack surface",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "tests/test_costs.py": {
+      "path": "tests/test_costs.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Pure test file exercising costs blueprint; no production code or security control logic present",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "tests/test_chat.py": {
+      "path": "tests/test_chat.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Test file with no production code or attacker-reachable security surface",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "tests/test_meals.py": {
+      "path": "tests/test_meals.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Test file for meals blueprint; no application logic or security control implemented",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "tests/test_logistics.py": {
+      "path": "tests/test_logistics.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "pytest test file for logistics blueprint; no production code path, no security control, no untrusted input",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "tests/test_lists.py": {
+      "path": "tests/test_lists.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Standard pytest test file for list CRUD; no production code path or attacker-reachable surface.",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "tests/test_voting.py": {
+      "path": "tests/test_voting.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Test file for voting blueprint; no production code or security control exercised",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "tests/test_planning.py": {
+      "path": "tests/test_planning.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Pure pytest test file with no production code path or security control",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "scripts/translate_en.py": {
+      "path": "scripts/translate_en.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "developer-only translation utility with no untrusted input or security control involvement",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "app/extensions.py": {
+      "path": "app/extensions.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Standard Flask extension init; no concrete security vulnerability in this file",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "scripts/cleanup_media.py": {
+      "path": "scripts/cleanup_media.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Operator-run maintenance script with no untrusted input path; TOCTOU between list and unlink is a correctness race, not an exploitable security bug.",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "tests/conftest.py": {
+      "path": "tests/conftest.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Test-only pytest fixture file with no production attack surface or security control logic",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "app/freemium.py": {
+      "path": "app/freemium.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Business-logic helpers for freemium tiers; no untrusted input path or security-control failure identified",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "tests/test_freemium.py": {
+      "path": "tests/test_freemium.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "test file for freemium guest/event count limits; no security-relevant logic",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    },
+    "tests/test_models.py": {
+      "path": "tests/test_models.py",
+      "priority": "SKIP",
+      "confidence": "high",
+      "bug_classes": [],
+      "summary": "Unit test file exercising code generation and model creation; no security surface.",
+      "relevant_symbols": [],
+      "suspicious_flows": [],
+      "needs_followup": false,
+      "promotion_reasons": [],
+      "triage_failure_mode": null,
+      "confirmation_outcome": null
+    }
+  },
+  "candidate_files": [],
+  "deep_reviewed_files": [],
+  "proposed_findings": [],
+  "verified_findings": [],
+  "repo_profile": {
+    "summary": "Flask SaaS for group vacation planning with modules for chat, voting, meals, costs, logistics, and media. Uses SQLite persistence, Redis caching, Waitress WSGI behind Nginx. Auth via Flask-Login with superadmin env credentials. French-default i18n via Flask-Babel. Dockerized with rate limiting, email validation, blocked-domain filtering, and Pillow-based image handling.",
+    "languages": [
+      "python",
+      "javascript",
+      "shell"
+    ],
+    "frameworks": [
+      "flask",
+      "waitress",
+      "flask-sqlalchemy",
+      "flask-login",
+      "flask-wtf",
+      "flask-babel",
+      "flask-limiter",
+      "redis",
+      "nginx",
+      "docker-compose",
+      "pytest",
+      "ruff",
+      "mypy"
+    ],
+    "entry_points": [
+      "manage.py",
+      "app/__init__.py",
+      "scripts/backup.sh"
+    ],
+    "trust_boundaries": [
+      "user HTTP forms and chat input",
+      "user-uploaded media files",
+      "smtp outbound email",
+      "redis shared cache state",
+      "nginx reverse proxy routing",
+      "qr code output"
+    ],
+    "persistence_layers": [
+      "sqlite /app/instance/holishared.db",
+      "redis 64mb allkeys-lru",
+      "filesystem /app/logs"
+    ],
+    "auth_surfaces": [
+      "flask-login session",
+      "superadmin env credentials",
+      "secret_key session signing",
+      "rate limit create 5/hour"
+    ],
+    "dangerous_operations": [
+      "image upload and processing",
+      "smtp email send",
+      "shell backup script",
+      "cryptography key handling",
+      "redis cache read/write"
+    ]
+  },
+  "import_index": {
+    ".github/workflows/ci.yml": [],
+    ".pre-commit-config.yaml": [],
+    "app/__init__.py": [
+      "os",
+      "shutil",
+      "time",
+      "datetime",
+      "pathlib",
+      "typing",
+      "dotenv",
+      "flask",
+      "werkzeug.wrappers",
+      "flask_wtf",
+      "werkzeug.middleware.proxy_fix",
+      "app.extensions",
+      "app",
+      "sqlalchemy",
+      "datetime",
+      "app.models",
+      "logging",
+      "flask",
+      "flask_babel",
+      "flask_babel",
+      "datetime",
+      "datetime",
+      "datetime",
+      "flask",
+      "app.auth",
+      "app.events",
+      "app.main",
+      "app.chat",
+      "app.costs",
+      "app.lists",
+      "app.logistics",
+      "app.meals",
+      "app.media",
+      "app.planning",
+      "app.voting",
+      "flask_babel",
+      "app.models",
+      "flask",
+      "flask"
+    ],
+    "app/auth/__init__.py": [
+      "typing",
+      "flask",
+      "flask_login",
+      "werkzeug.wrappers",
+      "app.extensions",
+      "app.models"
+    ],
+    "app/chat/__init__.py": [
+      "flask",
+      "flask_babel",
+      "flask_login",
+      "werkzeug.wrappers",
+      "app.extensions",
+      "app.models",
+      "app.utils"
+    ],
+    "app/costs/__init__.py": [
+      "datetime",
+      "typing",
+      "flask",
+      "flask_login",
+      "werkzeug.wrappers",
+      "app.extensions",
+      "app.models",
+      "app.utils",
+      "datetime"
+    ],
+    "app/events/__init__.py": [
+      "re",
+      "datetime",
+      "typing",
+      "flask",
+      "flask_login",
+      "werkzeug.wrappers",
+      "app.auth",
+      "app.extensions",
+      "app.freemium",
+      "app.models",
+      "email_validator",
+      "app.models",
+      "secrets",
+      "flask_babel",
+      "app.logistics",
+      "app.models",
+      "io",
+      "qrcode"
+    ],
+    "app/extensions.py": [
+      "os",
+      "typing",
+      "flask_babel",
+      "flask_limiter",
+      "flask_limiter.util",
+      "flask_login",
+      "flask_sqlalchemy"
+    ],
+    "app/freemium.py": [
+      "typing",
+      "flask",
+      "app.models",
+      "app.extensions",
+      "app.extensions",
+      "app.extensions",
+      "app.extensions"
+    ],
+    "app/lists/__init__.py": [
+      "typing",
+      "flask",
+      "flask_babel",
+      "flask_login",
+      "werkzeug.wrappers",
+      "app.extensions",
+      "app.models",
+      "app.utils"
+    ],
+    "app/logistics/__init__.py": [
+      "flask",
+      "flask_babel",
+      "flask_login",
+      "werkzeug.wrappers",
+      "app.extensions",
+      "app.models",
+      "app.utils"
+    ],
+    "app/main/__init__.py": [
+      "flask"
+    ],
+    "app/meals/__init__.py": [
+      "datetime",
+      "flask",
+      "flask_babel",
+      "flask_login",
+      "werkzeug.wrappers",
+      "app.extensions",
+      "app.models",
+      "app.utils"
+    ],
+    "app/media/__init__.py": [
+      "os",
+      "uuid",
+      "datetime",
+      "pathlib",
+      "typing",
+      "flask",
+      "flask_login",
+      "werkzeug.datastructures",
+      "werkzeug.wrappers",
+      "app.extensions",
+      "app.freemium",
+      "app.models",
+      "io",
+      "PIL",
+      "app.models",
+      "app.models"
+    ],
+    "app/models.py": [
+      "secrets",
+      "string",
+      "datetime",
+      "typing",
+      "flask_login",
+      "sqlalchemy.orm",
+      "app.extensions",
+      "json"
+    ],
+    "app/planning/__init__.py": [
+      "dataclasses",
+      "datetime",
+      "flask",
+      "flask_babel",
+      "flask_login",
+      "sqlalchemy.exc",
+      "werkzeug.wrappers",
+      "app.extensions",
+      "app.models",
+      "app.utils"
+    ],
+    "app/static/js/alpine.min.js": [],
+    "app/static/js/htmx.min.js": [],
+    "app/static/js/service-worker.js": [],
+    "app/static/manifest.json": [],
+    "app/utils.py": [
+      "flask_sqlalchemy.session",
+      "sqlalchemy.orm",
+      "app.models"
+    ],
+    "app/voting/__init__.py": [
+      "flask",
+      "flask_babel",
+      "flask_login",
+      "werkzeug.wrappers",
+      "app.extensions",
+      "app.models",
+      "app.utils"
+    ],
+    "docker-compose.yml": [],
+    "manage.py": [
+      "os",
+      "secrets",
+      "signal",
+      "subprocess",
+      "sys",
+      "time",
+      "pathlib",
+      "stat",
+      "base64",
+      "cryptography.hazmat.primitives",
+      "cryptography.hazmat.primitives.asymmetric",
+      "smtplib",
+      "ssl",
+      "secrets"
+    ],
+    "nginx/saas.conf": [],
+    "pyproject.toml": [],
+    "scripts/backup.sh": [],
+    "scripts/cleanup_media.py": [
+      "argparse",
+      "sys",
+      "pathlib",
+      "app",
+      "app.extensions",
+      "app.models"
+    ],
+    "scripts/extract_i18n.py": [
+      "re",
+      "pathlib"
+    ],
+    "scripts/translate_en.py": [
+      "pathlib",
+      "babel.messages.pofile"
+    ],
+    "tests/conftest.py": [
+      "pytest",
+      "app",
+      "app.extensions",
+      "app.models",
+      "datetime"
+    ],
+    "tests/test_auth.py": [],
+    "tests/test_chat.py": [
+      "datetime",
+      "pytest",
+      "app.models"
+    ],
+    "tests/test_costs.py": [
+      "app.models",
+      "app.models",
+      "app.models",
+      "app.models",
+      "app.models",
+      "app.models",
+      "app.models"
+    ],
+    "tests/test_events.py": [
+      "app.models",
+      "app.models",
+      "app.models",
+      "flask",
+      "app.extensions"
+    ],
+    "tests/test_freemium.py": [
+      "datetime",
+      "app.models",
+      "app.freemium",
+      "app.freemium",
+      "app.freemium",
+      "app.freemium"
+    ],
+    "tests/test_hardening.py": [],
+    "tests/test_lists.py": [
+      "pytest",
+      "app.models"
+    ],
+    "tests/test_logistics.py": [
+      "pytest",
+      "app.models",
+      "datetime",
+      "app.models"
+    ],
+    "tests/test_meals.py": [
+      "datetime",
+      "pytest",
+      "app.models",
+      "app.extensions",
+      "app.extensions",
+      "app.models"
+    ],
+    "tests/test_media.py": [
+      "app.models"
+    ],
+    "tests/test_models.py": [
+      "app.models"
+    ],
+    "tests/test_module_gating.py": [
+      "pytest",
+      "app.extensions",
+      "app",
+      "datetime",
+      "app.models",
+      "re"
+    ],
+    "tests/test_planning.py": [
+      "datetime",
+      "pytest",
+      "app.models",
+      "app.extensions"
+    ],
+    "tests/test_voting.py": [
+      "pytest",
+      "app.models"
+    ]
+  },
+  "caller_index": {
+    ".github/workflows/ci.yml": [
+      "app/auth/__init__.py",
+      "manage.py",
+      "scripts/extract_i18n.py",
+      "scripts/translate_en.py",
+      "tests/conftest.py"
+    ],
+    ".pre-commit-config.yaml": [
+      "app/auth/__init__.py",
+      "app/media/__init__.py"
+    ],
+    "app/__init__.py": [
+      "app/chat/__init__.py",
+      "app/logistics/__init__.py",
+      "app/meals/__init__.py",
+      "app/media/__init__.py",
+      "app/models.py",
+      "app/planning/__init__.py",
+      "app/voting/__init__.py",
+      "manage.py",
+      "scripts/extract_i18n.py",
+      "scripts/translate_en.py",
+      "tests/conftest.py"
+    ],
+    "app/auth/__init__.py": [
+      "app/chat/__init__.py",
+      "app/costs/__init__.py",
+      "app/events/__init__.py",
+      "app/lists/__init__.py",
+      "app/logistics/__init__.py",
+      "app/main/__init__.py",
+      "app/meals/__init__.py",
+      "app/models.py",
+      "app/planning/__init__.py",
+      "app/voting/__init__.py",
+      "tests/conftest.py"
+    ],
+    "app/chat/__init__.py": [
+      "app/models.py",
+      "app/utils.py",
+      "tests/conftest.py",
+      "tests/test_chat.py"
+    ],
+    "app/costs/__init__.py": [
+      "app/chat/__init__.py",
+      "app/events/__init__.py",
+      "app/logistics/__init__.py",
+      "app/meals/__init__.py",
+      "app/media/__init__.py",
+      "app/models.py",
+      "app/planning/__init__.py",
+      "app/utils.py",
+      "tests/conftest.py",
+      "tests/test_chat.py"
+    ],
+    "app/events/__init__.py": [
+      "app/auth/__init__.py",
+      "app/freemium.py",
+      "app/models.py",
+      "manage.py",
+      "scripts/extract_i18n.py",
+      "scripts/translate_en.py",
+      "tests/conftest.py"
+    ],
+    "app/extensions.py": [
+      "app/auth/__init__.py",
+      "tests/conftest.py"
+    ],
+    "app/freemium.py": [
+      "app/events/__init__.py",
+      "app/lists/__init__.py",
+      "app/logistics/__init__.py",
+      "app/meals/__init__.py",
+      "app/media/__init__.py",
+      "app/models.py",
+      "app/planning/__init__.py",
+      "app/voting/__init__.py",
+      "tests/conftest.py"
+    ],
+    "app/lists/__init__.py": [
+      "app/chat/__init__.py",
+      "app/logistics/__init__.py",
+      "app/meals/__init__.py",
+      "app/media/__init__.py",
+      "app/models.py",
+      "app/planning/__init__.py",
+      "app/utils.py",
+      "tests/conftest.py",
+      "tests/test_lists.py",
+      "tests/test_meals.py",
+      "tests/test_planning.py"
+    ],
+    "app/logistics/__init__.py": [
+      "app/models.py",
+      "app/utils.py",
+      "tests/conftest.py"
+    ],
+    "app/main/__init__.py": [
+      "app/events/__init__.py",
+      "app/lists/__init__.py",
+      "app/logistics/__init__.py",
+      "app/meals/__init__.py",
+      "app/planning/__init__.py",
+      "app/voting/__init__.py",
+      "manage.py",
+      "scripts/extract_i18n.py",
+      "scripts/translate_en.py",
+      "tests/conftest.py"
+    ],
+    "app/meals/__init__.py": [
+      "app/models.py",
+      "app/utils.py",
+      "tests/conftest.py",
+      "tests/test_meals.py"
+    ],
+    "app/media/__init__.py": [
+      "app/events/__init__.py",
+      "app/freemium.py",
+      "app/lists/__init__.py",
+      "app/logistics/__init__.py",
+      "app/meals/__init__.py",
+      "app/models.py",
+      "app/planning/__init__.py",
+      "app/voting/__init__.py",
+      "tests/conftest.py"
+    ],
+    "app/models.py": [
+      "app/chat/__init__.py",
+      "app/costs/__init__.py",
+      "app/events/__init__.py",
+      "app/lists/__init__.py",
+      "app/logistics/__init__.py",
+      "app/main/__init__.py",
+      "app/meals/__init__.py",
+      "app/media/__init__.py",
+      "app/planning/__init__.py",
+      "app/voting/__init__.py",
+      "tests/conftest.py",
+      "tests/test_chat.py",
+      "tests/test_meals.py",
+      "tests/test_planning.py",
+      "tests/test_voting.py"
+    ],
+    "app/planning/__init__.py": [
+      "app/models.py",
+      "app/utils.py",
+      "tests/conftest.py",
+      "tests/test_planning.py"
+    ],
+    "app/static/js/alpine.min.js": [
+      "app/chat/__init__.py",
+      "app/costs/__init__.py",
+      "app/events/__init__.py",
+      "app/lists/__init__.py",
+      "app/logistics/__init__.py",
+      "app/main/__init__.py",
+      "app/meals/__init__.py",
+      "app/media/__init__.py",
+      "app/planning/__init__.py",
+      "app/voting/__init__.py",
+      "manage.py",
+      "tests/conftest.py",
+      "tests/test_chat.py"
+    ],
+    "app/static/js/htmx.min.js": [
+      "app/chat/__init__.py",
+      "app/lists/__init__.py",
+      "app/logistics/__init__.py",
+      "app/meals/__init__.py",
+      "app/media/__init__.py",
+      "app/planning/__init__.py",
+      "app/voting/__init__.py",
+      "tests/conftest.py",
+      "tests/test_chat.py",
+      "tests/test_voting.py"
+    ],
+    "app/static/js/service-worker.js": [
+      "app/chat/__init__.py",
+      "app/logistics/__init__.py",
+      "app/meals/__init__.py",
+      "app/media/__init__.py",
+      "app/planning/__init__.py",
+      "manage.py",
+      "scripts/extract_i18n.py",
+      "scripts/translate_en.py",
+      "tests/conftest.py"
+    ],
+    "app/utils.py": [
+      "app/models.py",
+      "tests/conftest.py"
+    ],
+    "app/voting/__init__.py": [
+      "app/chat/__init__.py",
+      "app/logistics/__init__.py",
+      "app/meals/__init__.py",
+      "app/media/__init__.py",
+      "app/models.py",
+      "app/planning/__init__.py",
+      "app/utils.py",
+      "tests/conftest.py",
+      "tests/test_voting.py"
+    ],
+    "docker-compose.yml": [
+      "app/media/__init__.py",
+      "tests/conftest.py"
+    ],
+    "manage.py": [
+      "app/__init__.py",
+      "app/auth/__init__.py",
+      "tests/conftest.py",
+      "tests/test_chat.py"
+    ],
+    "nginx/saas.conf": [
+      "app/media/__init__.py",
+      "tests/conftest.py"
+    ],
+    "pyproject.toml": [
+      "app/auth/__init__.py",
+      "app/media/__init__.py",
+      "tests/conftest.py"
+    ],
+    "scripts/backup.sh": [
+      "app/chat/__init__.py",
+      "app/logistics/__init__.py",
+      "app/meals/__init__.py",
+      "app/media/__init__.py",
+      "app/planning/__init__.py",
+      "app/voting/__init__.py",
+      "tests/conftest.py"
+    ],
+    "scripts/cleanup_media.py": [
+      "app/__init__.py",
+      "app/media/__init__.py",
+      "app/models.py",
+      "manage.py",
+      "scripts/extract_i18n.py",
+      "scripts/translate_en.py",
+      "tests/conftest.py"
+    ],
+    "scripts/extract_i18n.py": [
+      "tests/conftest.py"
+    ],
+    "scripts/translate_en.py": [
+      "app/events/__init__.py",
+      "app/lists/__init__.py",
+      "app/logistics/__init__.py",
+      "app/meals/__init__.py",
+      "app/models.py",
+      "app/planning/__init__.py",
+      "app/voting/__init__.py",
+      "tests/conftest.py",
+      "tests/test_chat.py",
+      "tests/test_planning.py",
+      "tests/test_voting.py"
+    ],
+    "tests/conftest.py": [
+      "app/__init__.py",
+      "app/models.py"
+    ],
+    "tests/test_auth.py": [
+      "app/auth/__init__.py",
+      "tests/conftest.py"
+    ],
+    "tests/test_chat.py": [
+      "app/auth/__init__.py",
+      "app/chat/__init__.py",
+      "app/logistics/__init__.py",
+      "app/meals/__init__.py",
+      "app/media/__init__.py",
+      "app/models.py",
+      "app/planning/__init__.py",
+      "tests/conftest.py"
+    ],
+    "tests/test_costs.py": [
+      "app/chat/__init__.py",
+      "app/logistics/__init__.py",
+      "app/meals/__init__.py",
+      "app/media/__init__.py",
+      "app/models.py",
+      "app/planning/__init__.py",
+      "tests/conftest.py",
+      "tests/test_chat.py"
+    ],
+    "tests/test_events.py": [
+      "app/chat/__init__.py",
+      "app/events/__init__.py",
+      "app/models.py",
+      "tests/conftest.py"
+    ],
+    "tests/test_freemium.py": [
+      "app/freemium.py",
+      "app/models.py",
+      "tests/conftest.py"
+    ],
+    "tests/test_hardening.py": [
+      "tests/conftest.py"
+    ],
+    "tests/test_lists.py": [
+      "app/auth/__init__.py",
+      "app/chat/__init__.py",
+      "app/logistics/__init__.py",
+      "app/meals/__init__.py",
+      "app/media/__init__.py",
+      "app/models.py",
+      "app/planning/__init__.py",
+      "tests/conftest.py"
+    ],
+    "tests/test_logistics.py": [
+      "app/auth/__init__.py",
+      "app/chat/__init__.py",
+      "app/costs/__init__.py",
+      "app/events/__init__.py",
+      "app/lists/__init__.py",
+      "app/logistics/__init__.py",
+      "app/main/__init__.py",
+      "app/meals/__init__.py",
+      "app/media/__init__.py",
+      "app/models.py",
+      "app/planning/__init__.py",
+      "app/voting/__init__.py",
+      "tests/conftest.py"
+    ],
+    "tests/test_meals.py": [
+      "app/chat/__init__.py",
+      "app/events/__init__.py",
+      "app/lists/__init__.py",
+      "app/logistics/__init__.py",
+      "app/meals/__init__.py",
+      "app/media/__init__.py",
+      "app/models.py",
+      "app/planning/__init__.py",
+      "app/voting/__init__.py",
+      "tests/conftest.py"
+    ],
+    "tests/test_media.py": [
+      "app/chat/__init__.py",
+      "app/logistics/__init__.py",
+      "app/meals/__init__.py",
+      "app/media/__init__.py",
+      "app/models.py",
+      "app/planning/__init__.py",
+      "tests/conftest.py"
+    ],
+    "tests/test_models.py": [
+      "app/models.py",
+      "tests/conftest.py",
+      "tests/test_planning.py"
+    ],
+    "tests/test_module_gating.py": [
+      "app/__init__.py",
+      "app/models.py",
+      "manage.py",
+      "scripts/extract_i18n.py",
+      "scripts/translate_en.py",
+      "tests/conftest.py"
+    ],
+    "tests/test_planning.py": [
+      "app/auth/__init__.py",
+      "app/chat/__init__.py",
+      "app/costs/__init__.py",
+      "app/events/__init__.py",
+      "app/lists/__init__.py",
+      "app/logistics/__init__.py",
+      "app/main/__init__.py",
+      "app/meals/__init__.py",
+      "app/media/__init__.py",
+      "app/models.py",
+      "app/planning/__init__.py",
+      "app/voting/__init__.py",
+      "tests/conftest.py"
+    ],
+    "tests/test_voting.py": [
+      "app/auth/__init__.py",
+      "app/models.py",
+      "app/voting/__init__.py",
+      "tests/conftest.py"
+    ]
+  },
+  "symbol_spans_index": {
+    "app/__init__.py": {
+      "create_app": {
+        "start": 18,
+        "end": 342,
+        "render_end": 317,
+        "kind": "function",
+        "truncated": "span-cap"
+      }
+    },
+    "app/auth/__init__.py": {
+      "is_disposable_email": {
+        "start": 23,
+        "end": 27,
+        "render_end": 27,
+        "kind": "function",
+        "truncated": ""
+      },
+      "load_user": {
+        "start": 30,
+        "end": 32,
+        "render_end": 32,
+        "kind": "function",
+        "truncated": ""
+      },
+      "login": {
+        "start": 35,
+        "end": 54,
+        "render_end": 54,
+        "kind": "function",
+        "truncated": ""
+      },
+      "logout": {
+        "start": 57,
+        "end": 61,
+        "render_end": 61,
+        "kind": "function",
+        "truncated": ""
+      }
+    },
+    "app/chat/__init__.py": {
+      "_get_event_or_404": {
+        "start": 27,
+        "end": 32,
+        "render_end": 32,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_resolve_actor": {
+        "start": 35,
+        "end": 48,
+        "render_end": 48,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_actor_name": {
+        "start": 51,
+        "end": 57,
+        "render_end": 57,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_recent_messages": {
+        "start": 60,
+        "end": 68,
+        "render_end": 68,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_can_delete": {
+        "start": 71,
+        "end": 75,
+        "render_end": 75,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_is_htmx": {
+        "start": 78,
+        "end": 79,
+        "render_end": 79,
+        "kind": "function",
+        "truncated": ""
+      },
+      "index": {
+        "start": 82,
+        "end": 102,
+        "render_end": 102,
+        "kind": "function",
+        "truncated": ""
+      },
+      "send": {
+        "start": 105,
+        "end": 147,
+        "render_end": 147,
+        "kind": "function",
+        "truncated": ""
+      },
+      "delete": {
+        "start": 150,
+        "end": 176,
+        "render_end": 176,
+        "kind": "function",
+        "truncated": ""
+      }
+    },
+    "app/costs/__init__.py": {
+      "_get_event_or_404": {
+        "start": 19,
+        "end": 23,
+        "render_end": 23,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_household_in_event": {
+        "start": 26,
+        "end": 30,
+        "render_end": 30,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_resolve_actor": {
+        "start": 33,
+        "end": 42,
+        "render_end": 42,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_actor": {
+        "start": 45,
+        "end": 46,
+        "render_end": 46,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_base_cents": {
+        "start": 49,
+        "end": 51,
+        "render_end": 51,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_per_expense_shares": {
+        "start": 54,
+        "end": 78,
+        "render_end": 78,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_settlement": {
+        "start": 81,
+        "end": 118,
+        "render_end": 118,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_category_breakdown": {
+        "start": 121,
+        "end": 128,
+        "render_end": 128,
+        "kind": "function",
+        "truncated": ""
+      },
+      "index": {
+        "start": 133,
+        "end": 188,
+        "render_end": 188,
+        "kind": "function",
+        "truncated": ""
+      },
+      "add_household": {
+        "start": 191,
+        "end": 243,
+        "render_end": 243,
+        "kind": "function",
+        "truncated": ""
+      },
+      "add_expense": {
+        "start": 246,
+        "end": 320,
+        "render_end": 320,
+        "kind": "function",
+        "truncated": ""
+      },
+      "delete_expense": {
+        "start": 323,
+        "end": 348,
+        "render_end": 348,
+        "kind": "function",
+        "truncated": ""
+      },
+      "delete_household": {
+        "start": 351,
+        "end": 376,
+        "render_end": 376,
+        "kind": "function",
+        "truncated": ""
+      },
+      "add_transfer": {
+        "start": 379,
+        "end": 438,
+        "render_end": 438,
+        "kind": "function",
+        "truncated": ""
+      },
+      "delete_transfer": {
+        "start": 441,
+        "end": 464,
+        "render_end": 464,
+        "kind": "function",
+        "truncated": ""
+      },
+      "add_payment_request": {
+        "start": 467,
+        "end": 517,
+        "render_end": 517,
+        "kind": "function",
+        "truncated": ""
+      },
+      "resolve_payment_request": {
+        "start": 520,
+        "end": 542,
+        "render_end": 542,
+        "kind": "function",
+        "truncated": ""
+      },
+      "delete_payment_request": {
+        "start": 545,
+        "end": 568,
+        "render_end": 568,
+        "kind": "function",
+        "truncated": ""
+      },
+      "update_ratio": {
+        "start": 571,
+        "end": 606,
+        "render_end": 606,
+        "kind": "function",
+        "truncated": ""
+      }
+    },
+    "app/events/__init__.py": {
+      "_valid_email": {
+        "start": 27,
+        "end": 34,
+        "render_end": 34,
+        "kind": "function",
+        "truncated": ""
+      },
+      "index": {
+        "start": 41,
+        "end": 46,
+        "render_end": 46,
+        "kind": "function",
+        "truncated": ""
+      },
+      "access_by_code": {
+        "start": 49,
+        "end": 65,
+        "render_end": 65,
+        "kind": "function",
+        "truncated": ""
+      },
+      "create": {
+        "start": 68,
+        "end": 158,
+        "render_end": 158,
+        "kind": "function",
+        "truncated": ""
+      },
+      "verify_sent": {
+        "start": 161,
+        "end": 167,
+        "render_end": 167,
+        "kind": "function",
+        "truncated": ""
+      },
+      "verify": {
+        "start": 170,
+        "end": 230,
+        "render_end": 230,
+        "kind": "function",
+        "truncated": ""
+      },
+      "dashboard": {
+        "start": 233,
+        "end": 268,
+        "render_end": 268,
+        "kind": "function",
+        "truncated": ""
+      },
+      "members": {
+        "start": 271,
+        "end": 323,
+        "render_end": 323,
+        "kind": "function",
+        "truncated": ""
+      },
+      "invite": {
+        "start": 326,
+        "end": 338,
+        "render_end": 338,
+        "kind": "function",
+        "truncated": ""
+      },
+      "invite_qr": {
+        "start": 341,
+        "end": 365,
+        "render_end": 365,
+        "kind": "function",
+        "truncated": ""
+      },
+      "invite_email": {
+        "start": 368,
+        "end": 390,
+        "render_end": 390,
+        "kind": "function",
+        "truncated": ""
+      },
+      "invite_resend": {
+        "start": 393,
+        "end": 406,
+        "render_end": 406,
+        "kind": "function",
+        "truncated": ""
+      },
+      "guest_access": {
+        "start": 411,
+        "end": 490,
+        "render_end": 490,
+        "kind": "function",
+        "truncated": ""
+      },
+      "my_code": {
+        "start": 493,
+        "end": 510,
+        "render_end": 510,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_get_current_guest": {
+        "start": 515,
+        "end": 520,
+        "render_end": 520,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_send_guest_invite_email": {
+        "start": 523,
+        "end": 555,
+        "render_end": 555,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_send_verification_email": {
+        "start": 558,
+        "end": 584,
+        "render_end": 584,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_send_invite_email": {
+        "start": 587,
+        "end": 616,
+        "render_end": 616,
+        "kind": "function",
+        "truncated": ""
+      },
+      "log": {
+        "start": 619,
+        "end": 632,
+        "render_end": 632,
+        "kind": "function",
+        "truncated": ""
+      },
+      "recover_code": {
+        "start": 635,
+        "end": 676,
+        "render_end": 676,
+        "kind": "function",
+        "truncated": ""
+      }
+    },
+    "app/extensions.py": {
+      "_create_limiter": {
+        "start": 19,
+        "end": 31,
+        "render_end": 31,
+        "kind": "function",
+        "truncated": ""
+      }
+    },
+    "app/freemium.py": {
+      "can_add_guest": {
+        "start": 10,
+        "end": 13,
+        "render_end": 13,
+        "kind": "function",
+        "truncated": ""
+      },
+      "can_create_event": {
+        "start": 16,
+        "end": 20,
+        "render_end": 20,
+        "kind": "function",
+        "truncated": ""
+      },
+      "max_duration_days": {
+        "start": 23,
+        "end": 25,
+        "render_end": 25,
+        "kind": "function",
+        "truncated": ""
+      },
+      "is_module_enabled": {
+        "start": 28,
+        "end": 30,
+        "render_end": 30,
+        "kind": "function",
+        "truncated": ""
+      },
+      "get_limits": {
+        "start": 33,
+        "end": 41,
+        "render_end": 41,
+        "kind": "function",
+        "truncated": ""
+      },
+      "get_media_quota": {
+        "start": 53,
+        "end": 66,
+        "render_end": 66,
+        "kind": "function",
+        "truncated": ""
+      },
+      "can_upload_media": {
+        "start": 69,
+        "end": 72,
+        "render_end": 72,
+        "kind": "function",
+        "truncated": ""
+      },
+      "consume_media_quota": {
+        "start": 75,
+        "end": 80,
+        "render_end": 80,
+        "kind": "function",
+        "truncated": ""
+      },
+      "release_media_quota": {
+        "start": 83,
+        "end": 88,
+        "render_end": 88,
+        "kind": "function",
+        "truncated": ""
+      },
+      "set_media_tier": {
+        "start": 91,
+        "end": 99,
+        "render_end": 99,
+        "kind": "function",
+        "truncated": ""
+      }
+    },
+    "app/lists/__init__.py": {
+      "_get_event_or_404": {
+        "start": 29,
+        "end": 34,
+        "render_end": 34,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_resolve_actor": {
+        "start": 37,
+        "end": 50,
+        "render_end": 50,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_actor_name": {
+        "start": 53,
+        "end": 59,
+        "render_end": 59,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_get_list_or_404": {
+        "start": 62,
+        "end": 67,
+        "render_end": 67,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_get_item_or_404": {
+        "start": 70,
+        "end": 75,
+        "render_end": 75,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_list_items": {
+        "start": 78,
+        "end": 79,
+        "render_end": 79,
+        "kind": "function",
+        "truncated": ""
+      },
+      "index": {
+        "start": 82,
+        "end": 95,
+        "render_end": 95,
+        "kind": "function",
+        "truncated": ""
+      },
+      "create": {
+        "start": 98,
+        "end": 142,
+        "render_end": 142,
+        "kind": "function",
+        "truncated": ""
+      },
+      "detail": {
+        "start": 145,
+        "end": 202,
+        "render_end": 202,
+        "kind": "function",
+        "truncated": ""
+      },
+      "add_item": {
+        "start": 205,
+        "end": 270,
+        "render_end": 270,
+        "kind": "function",
+        "truncated": ""
+      },
+      "toggle_item": {
+        "start": 273,
+        "end": 296,
+        "render_end": 296,
+        "kind": "function",
+        "truncated": ""
+      },
+      "delete_item": {
+        "start": 299,
+        "end": 324,
+        "render_end": 324,
+        "kind": "function",
+        "truncated": ""
+      },
+      "claim_item": {
+        "start": 327,
+        "end": 348,
+        "render_end": 348,
+        "kind": "function",
+        "truncated": ""
+      },
+      "unclaim_item": {
+        "start": 351,
+        "end": 375,
+        "render_end": 375,
+        "kind": "function",
+        "truncated": ""
+      },
+      "delete_list": {
+        "start": 378,
+        "end": 396,
+        "render_end": 396,
+        "kind": "function",
+        "truncated": ""
+      },
+      "toggle_meal": {
+        "start": 399,
+        "end": 415,
+        "render_end": 415,
+        "kind": "function",
+        "truncated": ""
+      },
+      "toggle_activity": {
+        "start": 418,
+        "end": 434,
+        "render_end": 434,
+        "kind": "function",
+        "truncated": ""
+      }
+    },
+    "app/logistics/__init__.py": {
+      "_get_event_or_404": {
+        "start": 38,
+        "end": 43,
+        "render_end": 43,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_resolve_actor": {
+        "start": 46,
+        "end": 59,
+        "render_end": 59,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_actor_name": {
+        "start": 62,
+        "end": 68,
+        "render_end": 68,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_category_labels": {
+        "start": 71,
+        "end": 73,
+        "render_end": 73,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_validate_form": {
+        "start": 76,
+        "end": 115,
+        "render_end": 115,
+        "kind": "function",
+        "truncated": ""
+      },
+      "index": {
+        "start": 118,
+        "end": 139,
+        "render_end": 139,
+        "kind": "function",
+        "truncated": ""
+      },
+      "create": {
+        "start": 142,
+        "end": 187,
+        "render_end": 187,
+        "kind": "function",
+        "truncated": ""
+      },
+      "edit": {
+        "start": 190,
+        "end": 245,
+        "render_end": 245,
+        "kind": "function",
+        "truncated": ""
+      },
+      "delete": {
+        "start": 248,
+        "end": 268,
+        "render_end": 268,
+        "kind": "function",
+        "truncated": ""
+      }
+    },
+    "app/main/__init__.py": {
+      "index": {
+        "start": 8,
+        "end": 11,
+        "render_end": 11,
+        "kind": "function",
+        "truncated": ""
+      }
+    },
+    "app/meals/__init__.py": {
+      "_get_event_or_404": {
+        "start": 28,
+        "end": 33,
+        "render_end": 33,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_resolve_actor": {
+        "start": 36,
+        "end": 49,
+        "render_end": 49,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_can_modify": {
+        "start": 52,
+        "end": 56,
+        "render_end": 56,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_actor_name": {
+        "start": 59,
+        "end": 65,
+        "render_end": 65,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_parse_date": {
+        "start": 68,
+        "end": 74,
+        "render_end": 74,
+        "kind": "function",
+        "truncated": ""
+      },
+      "index": {
+        "start": 77,
+        "end": 103,
+        "render_end": 103,
+        "kind": "function",
+        "truncated": ""
+      },
+      "create": {
+        "start": 106,
+        "end": 150,
+        "render_end": 150,
+        "kind": "function",
+        "truncated": ""
+      },
+      "edit": {
+        "start": 153,
+        "end": 181,
+        "render_end": 181,
+        "kind": "function",
+        "truncated": ""
+      },
+      "delete": {
+        "start": 184,
+        "end": 205,
+        "render_end": 205,
+        "kind": "function",
+        "truncated": ""
+      },
+      "move": {
+        "start": 208,
+        "end": 257,
+        "render_end": 257,
+        "kind": "function",
+        "truncated": ""
+      }
+    },
+    "app/media/__init__.py": {
+      "_validate_magic_bytes": {
+        "start": 46,
+        "end": 63,
+        "render_end": 63,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_media_dir": {
+        "start": 77,
+        "end": 81,
+        "render_end": 81,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_resolve_actor": {
+        "start": 84,
+        "end": 93,
+        "render_end": 93,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_extract_exif": {
+        "start": 96,
+        "end": 133,
+        "render_end": 133,
+        "kind": "function",
+        "truncated": ""
+      },
+      "file": {
+        "start": 136,
+        "end": 144,
+        "render_end": 144,
+        "kind": "function",
+        "truncated": ""
+      },
+      "gallery": {
+        "start": 147,
+        "end": 157,
+        "render_end": 157,
+        "kind": "function",
+        "truncated": ""
+      },
+      "upload": {
+        "start": 160,
+        "end": 242,
+        "render_end": 242,
+        "kind": "function",
+        "truncated": ""
+      },
+      "detail": {
+        "start": 245,
+        "end": 255,
+        "render_end": 255,
+        "kind": "function",
+        "truncated": ""
+      },
+      "delete": {
+        "start": 258,
+        "end": 294,
+        "render_end": 294,
+        "kind": "function",
+        "truncated": ""
+      }
+    },
+    "app/models.py": {
+      "generate_event_code": {
+        "start": 14,
+        "end": 17,
+        "render_end": 17,
+        "kind": "function",
+        "truncated": ""
+      },
+      "generate_guest_code": {
+        "start": 20,
+        "end": 23,
+        "render_end": 23,
+        "kind": "function",
+        "truncated": ""
+      },
+      "Creator": {
+        "start": 26,
+        "end": 43,
+        "render_end": 43,
+        "kind": "class",
+        "truncated": ""
+      },
+      "Event": {
+        "start": 46,
+        "end": 92,
+        "render_end": 92,
+        "kind": "class",
+        "truncated": ""
+      },
+      "Guest": {
+        "start": 95,
+        "end": 115,
+        "render_end": 115,
+        "kind": "class",
+        "truncated": ""
+      },
+      "Activity": {
+        "start": 118,
+        "end": 143,
+        "render_end": 143,
+        "kind": "class",
+        "truncated": ""
+      },
+      "Meal": {
+        "start": 146,
+        "end": 164,
+        "render_end": 164,
+        "kind": "class",
+        "truncated": ""
+      },
+      "ActivityRSVP": {
+        "start": 167,
+        "end": 181,
+        "render_end": 181,
+        "kind": "class",
+        "truncated": ""
+      },
+      "ActivityLog": {
+        "start": 184,
+        "end": 197,
+        "render_end": 197,
+        "kind": "class",
+        "truncated": ""
+      },
+      "SharedList": {
+        "start": 200,
+        "end": 216,
+        "render_end": 216,
+        "kind": "class",
+        "truncated": ""
+      },
+      "ListItem": {
+        "start": 219,
+        "end": 233,
+        "render_end": 233,
+        "kind": "class",
+        "truncated": ""
+      },
+      "Poll": {
+        "start": 236,
+        "end": 250,
+        "render_end": 250,
+        "kind": "class",
+        "truncated": ""
+      },
+      "PollOption": {
+        "start": 253,
+        "end": 264,
+        "render_end": 264,
+        "kind": "class",
+        "truncated": ""
+      },
+      "PollVote": {
+        "start": 267,
+        "end": 278,
+        "render_end": 278,
+        "kind": "class",
+        "truncated": ""
+      },
+      "LogisticsItem": {
+        "start": 281,
+        "end": 293,
+        "render_end": 293,
+        "kind": "class",
+        "truncated": ""
+      },
+      "MediaItem": {
+        "start": 296,
+        "end": 334,
+        "render_end": 334,
+        "kind": "class",
+        "truncated": ""
+      },
+      "ChatMessage": {
+        "start": 337,
+        "end": 349,
+        "render_end": 349,
+        "kind": "class",
+        "truncated": ""
+      },
+      "MediaQuota": {
+        "start": 352,
+        "end": 375,
+        "render_end": 375,
+        "kind": "class",
+        "truncated": ""
+      },
+      "Household": {
+        "start": 378,
+        "end": 404,
+        "render_end": 404,
+        "kind": "class",
+        "truncated": ""
+      },
+      "Expense": {
+        "start": 407,
+        "end": 450,
+        "render_end": 450,
+        "kind": "class",
+        "truncated": ""
+      },
+      "Transfer": {
+        "start": 453,
+        "end": 476,
+        "render_end": 476,
+        "kind": "class",
+        "truncated": ""
+      },
+      "PaymentRequest": {
+        "start": 479,
+        "end": 497,
+        "render_end": 497,
+        "kind": "class",
+        "truncated": ""
+      }
+    },
+    "app/planning/__init__.py": {
+      "ActivityFields": {
+        "start": 30,
+        "end": 41,
+        "render_end": 41,
+        "kind": "class",
+        "truncated": ""
+      },
+      "_get_event_or_404": {
+        "start": 44,
+        "end": 49,
+        "render_end": 49,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_resolve_actor": {
+        "start": 52,
+        "end": 65,
+        "render_end": 65,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_can_modify": {
+        "start": 68,
+        "end": 72,
+        "render_end": 72,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_actor_name": {
+        "start": 75,
+        "end": 81,
+        "render_end": 81,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_parse_time": {
+        "start": 84,
+        "end": 91,
+        "render_end": 91,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_validate_form": {
+        "start": 94,
+        "end": 171,
+        "render_end": 171,
+        "kind": "function",
+        "truncated": ""
+      },
+      "index": {
+        "start": 174,
+        "end": 204,
+        "render_end": 204,
+        "kind": "function",
+        "truncated": ""
+      },
+      "create": {
+        "start": 207,
+        "end": 257,
+        "render_end": 257,
+        "kind": "function",
+        "truncated": ""
+      },
+      "edit": {
+        "start": 260,
+        "end": 321,
+        "render_end": 321,
+        "kind": "function",
+        "truncated": ""
+      },
+      "delete": {
+        "start": 324,
+        "end": 344,
+        "render_end": 344,
+        "kind": "function",
+        "truncated": ""
+      },
+      "rsvp": {
+        "start": 347,
+        "end": 393,
+        "render_end": 393,
+        "kind": "function",
+        "truncated": ""
+      }
+    },
+    "app/utils.py": {
+      "log_action": {
+        "start": 9,
+        "end": 32,
+        "render_end": 32,
+        "kind": "function",
+        "truncated": ""
+      }
+    },
+    "app/voting/__init__.py": {
+      "_get_event_or_404": {
+        "start": 29,
+        "end": 34,
+        "render_end": 34,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_resolve_actor": {
+        "start": 37,
+        "end": 50,
+        "render_end": 50,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_actor_name": {
+        "start": 53,
+        "end": 59,
+        "render_end": 59,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_poll_results": {
+        "start": 62,
+        "end": 77,
+        "render_end": 77,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_validate_poll_form": {
+        "start": 80,
+        "end": 103,
+        "render_end": 103,
+        "kind": "function",
+        "truncated": ""
+      },
+      "index": {
+        "start": 106,
+        "end": 131,
+        "render_end": 131,
+        "kind": "function",
+        "truncated": ""
+      },
+      "create": {
+        "start": 134,
+        "end": 169,
+        "render_end": 169,
+        "kind": "function",
+        "truncated": ""
+      },
+      "detail": {
+        "start": 172,
+        "end": 200,
+        "render_end": 200,
+        "kind": "function",
+        "truncated": ""
+      },
+      "vote": {
+        "start": 203,
+        "end": 250,
+        "render_end": 250,
+        "kind": "function",
+        "truncated": ""
+      },
+      "close": {
+        "start": 253,
+        "end": 276,
+        "render_end": 276,
+        "kind": "function",
+        "truncated": ""
+      }
+    },
+    "manage.py": {
+      "load_env": {
+        "start": 23,
+        "end": 40,
+        "render_end": 40,
+        "kind": "function",
+        "truncated": ""
+      },
+      "venv_python": {
+        "start": 43,
+        "end": 47,
+        "render_end": 47,
+        "kind": "function",
+        "truncated": ""
+      },
+      "venv_pip": {
+        "start": 50,
+        "end": 54,
+        "render_end": 54,
+        "kind": "function",
+        "truncated": ""
+      },
+      "run": {
+        "start": 57,
+        "end": 61,
+        "render_end": 61,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_generate_vapid_keys": {
+        "start": 66,
+        "end": 88,
+        "render_end": 88,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_test_smtp": {
+        "start": 91,
+        "end": 115,
+        "render_end": 115,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_interactive_env": {
+        "start": 118,
+        "end": 258,
+        "render_end": 258,
+        "kind": "function",
+        "truncated": ""
+      },
+      "cmd_init": {
+        "start": 261,
+        "end": 290,
+        "render_end": 290,
+        "kind": "function",
+        "truncated": ""
+      },
+      "cmd_run": {
+        "start": 293,
+        "end": 298,
+        "render_end": 298,
+        "kind": "function",
+        "truncated": ""
+      },
+      "cmd_start": {
+        "start": 301,
+        "end": 320,
+        "render_end": 320,
+        "kind": "function",
+        "truncated": ""
+      },
+      "cmd_stop": {
+        "start": 323,
+        "end": 339,
+        "render_end": 339,
+        "kind": "function",
+        "truncated": ""
+      },
+      "cmd_status": {
+        "start": 342,
+        "end": 349,
+        "render_end": 349,
+        "kind": "function",
+        "truncated": ""
+      },
+      "cmd_db_init": {
+        "start": 352,
+        "end": 363,
+        "render_end": 363,
+        "kind": "function",
+        "truncated": ""
+      },
+      "cmd_db_shell": {
+        "start": 366,
+        "end": 370,
+        "render_end": 370,
+        "kind": "function",
+        "truncated": ""
+      },
+      "cmd_migrate": {
+        "start": 373,
+        "end": 416,
+        "render_end": 416,
+        "kind": "function",
+        "truncated": ""
+      },
+      "cmd_deploy": {
+        "start": 419,
+        "end": 450,
+        "render_end": 450,
+        "kind": "function",
+        "truncated": ""
+      },
+      "cmd_logs": {
+        "start": 453,
+        "end": 459,
+        "render_end": 459,
+        "kind": "function",
+        "truncated": ""
+      },
+      "cmd_reset_admin": {
+        "start": 462,
+        "end": 476,
+        "render_end": 476,
+        "kind": "function",
+        "truncated": ""
+      },
+      "get_pid": {
+        "start": 481,
+        "end": 484,
+        "render_end": 484,
+        "kind": "function",
+        "truncated": ""
+      },
+      "is_running": {
+        "start": 487,
+        "end": 495,
+        "render_end": 495,
+        "kind": "function",
+        "truncated": ""
+      },
+      "main": {
+        "start": 515,
+        "end": 533,
+        "render_end": 533,
+        "kind": "function",
+        "truncated": ""
+      }
+    },
+    "scripts/cleanup_media.py": {
+      "find_orphans": {
+        "start": 22,
+        "end": 41,
+        "render_end": 41,
+        "kind": "function",
+        "truncated": ""
+      },
+      "main": {
+        "start": 44,
+        "end": 74,
+        "render_end": 74,
+        "kind": "function",
+        "truncated": ""
+      }
+    },
+    "scripts/extract_i18n.py": {
+      "extract_templates": {
+        "start": 17,
+        "end": 26,
+        "render_end": 26,
+        "kind": "function",
+        "truncated": ""
+      },
+      "main": {
+        "start": 29,
+        "end": 52,
+        "render_end": 52,
+        "kind": "function",
+        "truncated": ""
+      }
+    },
+    "scripts/translate_en.py": {
+      "main": {
+        "start": 216,
+        "end": 236,
+        "render_end": 236,
+        "kind": "function",
+        "truncated": ""
+      }
+    },
+    "tests/conftest.py": {
+      "app": {
+        "start": 10,
+        "end": 35,
+        "render_end": 35,
+        "kind": "function",
+        "truncated": ""
+      },
+      "db": {
+        "start": 38,
+        "end": 40,
+        "render_end": 40,
+        "kind": "function",
+        "truncated": ""
+      },
+      "client": {
+        "start": 43,
+        "end": 45,
+        "render_end": 45,
+        "kind": "function",
+        "truncated": ""
+      },
+      "creator": {
+        "start": 48,
+        "end": 58,
+        "render_end": 58,
+        "kind": "function",
+        "truncated": ""
+      },
+      "event": {
+        "start": 61,
+        "end": 77,
+        "render_end": 77,
+        "kind": "function",
+        "truncated": ""
+      },
+      "guest": {
+        "start": 80,
+        "end": 90,
+        "render_end": 90,
+        "kind": "function",
+        "truncated": ""
+      }
+    },
+    "tests/test_auth.py": {
+      "TestLogin": {
+        "start": 4,
+        "end": 21,
+        "render_end": 21,
+        "kind": "class",
+        "truncated": ""
+      }
+    },
+    "tests/test_chat.py": {
+      "_login_creator": {
+        "start": 14,
+        "end": 18,
+        "render_end": 18,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_login_guest": {
+        "start": 21,
+        "end": 24,
+        "render_end": 24,
+        "kind": "function",
+        "truncated": ""
+      },
+      "other_guest": {
+        "start": 27,
+        "end": 37,
+        "render_end": 37,
+        "kind": "function",
+        "truncated": ""
+      },
+      "message": {
+        "start": 40,
+        "end": 52,
+        "render_end": 52,
+        "kind": "function",
+        "truncated": ""
+      },
+      "TestChatIndex": {
+        "start": 58,
+        "end": 81,
+        "render_end": 81,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestChatSend": {
+        "start": 87,
+        "end": 137,
+        "render_end": 137,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestChatDelete": {
+        "start": 143,
+        "end": 165,
+        "render_end": 165,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestChatHistory": {
+        "start": 171,
+        "end": 192,
+        "render_end": 192,
+        "kind": "class",
+        "truncated": ""
+      }
+    },
+    "tests/test_costs.py": {
+      "_login_creator": {
+        "start": 6,
+        "end": 9,
+        "render_end": 9,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_login_guest": {
+        "start": 12,
+        "end": 14,
+        "render_end": 14,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_make_household": {
+        "start": 17,
+        "end": 24,
+        "render_end": 24,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_make_expense": {
+        "start": 27,
+        "end": 34,
+        "render_end": 34,
+        "kind": "function",
+        "truncated": ""
+      },
+      "TestCostsIndex": {
+        "start": 37,
+        "end": 57,
+        "render_end": 57,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestHouseholds": {
+        "start": 60,
+        "end": 112,
+        "render_end": 112,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestExpenses": {
+        "start": 115,
+        "end": 175,
+        "render_end": 175,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestSettlement": {
+        "start": 178,
+        "end": 229,
+        "render_end": 229,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestTransfers": {
+        "start": 232,
+        "end": 283,
+        "render_end": 283,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestPaymentRequests": {
+        "start": 286,
+        "end": 326,
+        "render_end": 326,
+        "kind": "class",
+        "truncated": ""
+      }
+    },
+    "tests/test_events.py": {
+      "TestEventCreation": {
+        "start": 4,
+        "end": 33,
+        "render_end": 33,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestAnonymousCreationFlow": {
+        "start": 36,
+        "end": 108,
+        "render_end": 108,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestGuestAccess": {
+        "start": 111,
+        "end": 162,
+        "render_end": 162,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestMyCode": {
+        "start": 165,
+        "end": 188,
+        "render_end": 188,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestInviteEmail": {
+        "start": 191,
+        "end": 241,
+        "render_end": 241,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestInviteQr": {
+        "start": 244,
+        "end": 257,
+        "render_end": 257,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestI18n": {
+        "start": 260,
+        "end": 284,
+        "render_end": 284,
+        "kind": "class",
+        "truncated": ""
+      }
+    },
+    "tests/test_freemium.py": {
+      "TestGuestLimit": {
+        "start": 8,
+        "end": 20,
+        "render_end": 20,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestEventLimit": {
+        "start": 23,
+        "end": 40,
+        "render_end": 40,
+        "kind": "class",
+        "truncated": ""
+      }
+    },
+    "tests/test_hardening.py": {
+      "TestHealthCheck": {
+        "start": 4,
+        "end": 18,
+        "render_end": 18,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestSecurityHeaders": {
+        "start": 21,
+        "end": 71,
+        "render_end": 71,
+        "kind": "class",
+        "truncated": ""
+      }
+    },
+    "tests/test_lists.py": {
+      "shared_list": {
+        "start": 14,
+        "end": 20,
+        "render_end": 20,
+        "kind": "function",
+        "truncated": ""
+      },
+      "list_item": {
+        "start": 23,
+        "end": 35,
+        "render_end": 35,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_login_creator": {
+        "start": 38,
+        "end": 42,
+        "render_end": 42,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_login_guest": {
+        "start": 45,
+        "end": 48,
+        "render_end": 48,
+        "kind": "function",
+        "truncated": ""
+      },
+      "TestListsIndex": {
+        "start": 54,
+        "end": 75,
+        "render_end": 75,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestCreateList": {
+        "start": 81,
+        "end": 114,
+        "render_end": 114,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestListDetail": {
+        "start": 120,
+        "end": 126,
+        "render_end": 126,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestAddItem": {
+        "start": 132,
+        "end": 167,
+        "render_end": 167,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestToggleItem": {
+        "start": 173,
+        "end": 192,
+        "render_end": 192,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestDeleteItem": {
+        "start": 198,
+        "end": 214,
+        "render_end": 214,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestDeleteList": {
+        "start": 220,
+        "end": 246,
+        "render_end": 246,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestClaim": {
+        "start": 252,
+        "end": 312,
+        "render_end": 312,
+        "kind": "class",
+        "truncated": ""
+      }
+    },
+    "tests/test_logistics.py": {
+      "_login_creator": {
+        "start": 12,
+        "end": 16,
+        "render_end": 16,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_login_guest": {
+        "start": 19,
+        "end": 22,
+        "render_end": 22,
+        "kind": "function",
+        "truncated": ""
+      },
+      "logistics_item": {
+        "start": 25,
+        "end": 37,
+        "render_end": 37,
+        "kind": "function",
+        "truncated": ""
+      },
+      "TestLogisticsIndex": {
+        "start": 43,
+        "end": 119,
+        "render_end": 119,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestCreateLogistics": {
+        "start": 125,
+        "end": 253,
+        "render_end": 253,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestEditLogistics": {
+        "start": 259,
+        "end": 333,
+        "render_end": 333,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestDeleteLogistics": {
+        "start": 339,
+        "end": 364,
+        "render_end": 364,
+        "kind": "class",
+        "truncated": ""
+      }
+    },
+    "tests/test_meals.py": {
+      "meal": {
+        "start": 10,
+        "end": 21,
+        "render_end": 21,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_login_creator": {
+        "start": 24,
+        "end": 27,
+        "render_end": 27,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_login_guest": {
+        "start": 30,
+        "end": 32,
+        "render_end": 32,
+        "kind": "function",
+        "truncated": ""
+      },
+      "TestMealsIndex": {
+        "start": 35,
+        "end": 52,
+        "render_end": 52,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestCreateMeal": {
+        "start": 55,
+        "end": 93,
+        "render_end": 93,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestEditMeal": {
+        "start": 96,
+        "end": 114,
+        "render_end": 114,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestDeleteMeal": {
+        "start": 117,
+        "end": 127,
+        "render_end": 127,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestMoveMeal": {
+        "start": 130,
+        "end": 165,
+        "render_end": 165,
+        "kind": "class",
+        "truncated": ""
+      },
+      "other_guest": {
+        "start": 168,
+        "end": 174,
+        "render_end": 174,
+        "kind": "function",
+        "truncated": ""
+      }
+    },
+    "tests/test_media.py": {
+      "_login_creator": {
+        "start": 6,
+        "end": 9,
+        "render_end": 9,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_login_guest": {
+        "start": 12,
+        "end": 14,
+        "render_end": 14,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_make_item": {
+        "start": 17,
+        "end": 30,
+        "render_end": 30,
+        "kind": "function",
+        "truncated": ""
+      },
+      "TestMediaAccess": {
+        "start": 33,
+        "end": 77,
+        "render_end": 77,
+        "kind": "class",
+        "truncated": ""
+      }
+    },
+    "tests/test_models.py": {
+      "TestCodeGeneration": {
+        "start": 10,
+        "end": 29,
+        "render_end": 29,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestEvent": {
+        "start": 32,
+        "end": 40,
+        "render_end": 40,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestActivityLog": {
+        "start": 43,
+        "end": 55,
+        "render_end": 55,
+        "kind": "class",
+        "truncated": ""
+      }
+    },
+    "tests/test_module_gating.py": {
+      "gated_app": {
+        "start": 13,
+        "end": 27,
+        "render_end": 27,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_seed": {
+        "start": 30,
+        "end": 45,
+        "render_end": 45,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_client": {
+        "start": 48,
+        "end": 53,
+        "render_end": 53,
+        "kind": "function",
+        "truncated": ""
+      },
+      "test_disabled_module_returns_404": {
+        "start": 56,
+        "end": 62,
+        "render_end": 62,
+        "kind": "function",
+        "truncated": ""
+      },
+      "test_nav_hides_disabled_modules": {
+        "start": 65,
+        "end": 76,
+        "render_end": 76,
+        "kind": "function",
+        "truncated": ""
+      }
+    },
+    "tests/test_planning.py": {
+      "other_guest": {
+        "start": 15,
+        "end": 25,
+        "render_end": 25,
+        "kind": "function",
+        "truncated": ""
+      },
+      "activity": {
+        "start": 28,
+        "end": 44,
+        "render_end": 44,
+        "kind": "function",
+        "truncated": ""
+      },
+      "activity_rsvp": {
+        "start": 47,
+        "end": 57,
+        "render_end": 57,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_login_creator": {
+        "start": 60,
+        "end": 64,
+        "render_end": 64,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_login_guest": {
+        "start": 67,
+        "end": 70,
+        "render_end": 70,
+        "kind": "function",
+        "truncated": ""
+      },
+      "TestPlanningIndex": {
+        "start": 76,
+        "end": 125,
+        "render_end": 125,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestCreateActivity": {
+        "start": 131,
+        "end": 265,
+        "render_end": 265,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestEditActivity": {
+        "start": 271,
+        "end": 348,
+        "render_end": 348,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestDeleteActivity": {
+        "start": 354,
+        "end": 395,
+        "render_end": 395,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestRSVP": {
+        "start": 401,
+        "end": 482,
+        "render_end": 482,
+        "kind": "class",
+        "truncated": ""
+      }
+    },
+    "tests/test_voting.py": {
+      "poll": {
+        "start": 14,
+        "end": 27,
+        "render_end": 27,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_login_creator": {
+        "start": 30,
+        "end": 34,
+        "render_end": 34,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_login_guest": {
+        "start": 37,
+        "end": 40,
+        "render_end": 40,
+        "kind": "function",
+        "truncated": ""
+      },
+      "_options": {
+        "start": 43,
+        "end": 44,
+        "render_end": 44,
+        "kind": "function",
+        "truncated": ""
+      },
+      "TestVotingIndex": {
+        "start": 50,
+        "end": 84,
+        "render_end": 84,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestCreatePoll": {
+        "start": 90,
+        "end": 146,
+        "render_end": 146,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestVote": {
+        "start": 152,
+        "end": 196,
+        "render_end": 196,
+        "kind": "class",
+        "truncated": ""
+      },
+      "TestClosePoll": {
+        "start": 202,
+        "end": 223,
+        "render_end": 223,
+        "kind": "class",
+        "truncated": ""
+      }
+    }
+  },
+  "attack_scores": {
+    ".github/workflows/ci.yml": 4,
+    ".pre-commit-config.yaml": 9,
+    "app/__init__.py": 22,
+    "app/auth/__init__.py": 13,
+    "app/chat/__init__.py": 21,
+    "app/costs/__init__.py": 13,
+    "app/events/__init__.py": 16,
+    "app/extensions.py": 8,
+    "app/freemium.py": 6,
+    "app/lists/__init__.py": 21,
+    "app/logistics/__init__.py": 21,
+    "app/main/__init__.py": 4,
+    "app/meals/__init__.py": 21,
+    "app/media/__init__.py": 17,
+    "app/models.py": 12,
+    "app/planning/__init__.py": 21,
+    "app/static/js/alpine.min.js": 16,
+    "app/static/js/htmx.min.js": 27,
+    "app/static/js/service-worker.js": 11,
+    "app/static/manifest.json": 0,
+    "app/utils.py": 6,
+    "app/voting/__init__.py": 21,
+    "docker-compose.yml": 3,
+    "manage.py": 24,
+    "nginx/saas.conf": 7,
+    "pyproject.toml": 11,
+    "scripts/backup.sh": 3,
+    "scripts/cleanup_media.py": 7,
+    "scripts/extract_i18n.py": 2,
+    "scripts/translate_en.py": 8,
+    "tests/conftest.py": 6,
+    "tests/test_auth.py": 4,
+    "tests/test_chat.py": 9,
+    "tests/test_costs.py": 9,
+    "tests/test_events.py": 18,
+    "tests/test_freemium.py": 6,
+    "tests/test_hardening.py": 11,
+    "tests/test_lists.py": 9,
+    "tests/test_logistics.py": 9,
+    "tests/test_meals.py": 9,
+    "tests/test_media.py": 6,
+    "tests/test_models.py": 6,
+    "tests/test_module_gating.py": 13,
+    "tests/test_planning.py": 9,
+    "tests/test_voting.py": 9
+  },
+  "verification_state": {},
+  "artifact_state": {},
+  "phase": "triage",
+  "metrics": {
+    "parse_failures": 0,
+    "parse_failures_profile": 0,
+    "parse_failures_triage": 0,
+    "parse_failures_finding": 0,
+    "parse_failures_expansion": 0,
+    "repair_successes": 0,
+    "repair_failures": 0,
+    "analytical_retries": 0,
+    "multiline_continuations": 0,
+    "lenient_corrections": 0,
+    "verifier_no_verdict": 0,
+    "phase45_lens_retries": 0,
+    "truncated_calls": 0,
+    "empty_response_retries": 0,
+    "high_none_retries": 0
+  },
+  "select_all": false,
+  "measure_triage": false,
+  "measurement_escalated_paths": [],
+  "adjudication_discarded": [],
+  "truncated_files": {}
+}

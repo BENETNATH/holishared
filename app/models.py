@@ -107,6 +107,10 @@ class Guest(db.Model):  # type: ignore[misc,name-defined]
     joined_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
 
     event_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False)
+    # Set when this Guest is the event creator's own participant identity
+    # (the creator is a participant in their own event: they can vote, RSVP,
+    # and appear in the groups). Null for regular invited guests.
+    creator_id: Mapped[str | None] = db.Column(db.String(32), db.ForeignKey("creators.id"), nullable=True)
 
     # Unique constraint: one code per event
     __table_args__ = (db.UniqueConstraint("event_id", "code", name="uq_guest_event_code"),)

@@ -22,6 +22,7 @@ from app.auth import is_disposable_email
 from app.extensions import db, limiter
 from app.freemium import can_add_guest, max_duration_days
 from app.models import Creator, Event, Guest, Household, generate_guest_code
+from app.utils import ensure_creator_guest
 
 
 def _valid_email(email: str) -> bool:
@@ -186,6 +187,8 @@ def verify(token: str) -> str | Response:
         personal_code = request.form.get("personal_code", "").strip().lower()
         invite_emails_raw = request.form.get("invite_emails", "").strip()
         store_creator_email = request.form.get("store_creator_email", "") == "1"
+        num_adults_raw = request.form.get("num_adults", "1")
+        num_children_raw = request.form.get("num_children", "0")
 
         errors = []
         if not display_name or len(display_name) < 2:
@@ -195,11 +198,23 @@ def verify(token: str) -> str | Response:
         elif not re.fullmatch(r"[a-z0-9]+", personal_code):
             errors.append("Code : lettres minuscules et chiffres uniquement.")
 
+        # Household fields (the creator is a participant in their own event).
+        try:
+            num_adults = max(1, min(20, int(num_adults_raw)))
+        except (ValueError, TypeError):
+            num_adults = 1
+        try:
+            num_children = max(0, min(20, int(num_children_raw)))
+        except (ValueError, TypeError):
+            num_children = 0
+
         if errors:
             return render_template("events/verify.html", event=event, token=token, errors=errors,
                                    form_data={"display_name": display_name,
                                               "personal_code": personal_code,
-                                              "invite_emails": invite_emails_raw})
+                                              "invite_emails": invite_emails_raw,
+                                              "num_adults": num_adults,
+                                              "num_children": num_children})
 
         # Update creator
         creator = Creator.query.get(event.creator_id)
@@ -213,6 +228,13 @@ def verify(token: str) -> str | Response:
         # Verify the event
         event.verified_at = datetime.utcnow()
         event.verification_token = None  # single-use
+
+        # The creator is a participant in their own event: give them a
+        # participant identity (Guest + Household) so they can vote, RSVP,
+        # and appear in the groups.
+        if creator:
+            ensure_creator_guest(event, creator, num_adults, num_children)
+
         db.session.commit()
 
         # Send invite emails (NOT stored unless requested)
@@ -243,6 +265,12 @@ def dashboard(code: str) -> str | Response:
     guest = _get_current_guest(event)
     if not guest and not (current_user.is_authenticated and current_user.id == event.creator_id):
         return redirect(url_for("events.my_code", code=code))
+
+    # The creator is a participant in their own event: ensure their participant
+    # identity (Guest + Household) exists so they can vote and appear in the
+    # groups. Idempotent — a no-op once created (at verification).
+    if current_user.is_authenticated and current_user.id == event.creator_id:
+        ensure_creator_guest(event, current_user)
 
     # Load data
     activities = event.activities.filter_by(date=date.today()).all()

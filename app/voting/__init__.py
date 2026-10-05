@@ -16,7 +16,7 @@ from werkzeug.wrappers import Response
 
 from app.extensions import db, limiter
 from app.models import Event, Guest, Poll, PollOption, PollVote
-from app.utils import log_action
+from app.utils import ensure_creator_guest, log_action
 
 voting_bp = Blueprint("voting", __name__)
 
@@ -39,9 +39,14 @@ def _resolve_actor(event: Event, code: str) -> tuple[Guest | None, bool, Respons
 
     Returns (guest, is_creator, denied). ``denied`` is a redirect to the
     mycode page when neither the creator nor a guest session matches.
+
+    The creator is a participant in their own event: their participant
+    ``Guest`` record (created lazily) is returned so they can vote like any
+    other participant.
     """
     if current_user.is_authenticated and current_user.id == event.creator_id:
-        return None, True, None
+        creator_guest = ensure_creator_guest(event, current_user)
+        return creator_guest, True, None
     guest_id = session.get(f"guest_{code}")
     if guest_id:
         guest = Guest.query.filter_by(id=guest_id, event_id=event.id, is_active=True).first()
@@ -202,16 +207,11 @@ def detail(code: str, poll_id: str) -> Response | tuple[str, int] | str:
 
 @voting_bp.route("/e/<code>/voting/<poll_id>/vote", methods=["POST"])
 def vote(code: str, poll_id: str) -> Response | tuple[str, int] | str:
-    """Cast (or replace) the guest's vote on a poll."""
+    """Cast (or replace) the actor's vote on a poll (creator or guest)."""
     event = _get_event_or_404(code)
-
-    if current_user.is_authenticated and current_user.id == event.creator_id:
-        return _("Le créateur ne vote pas."), 403
-
-    guest_id = session.get(f"guest_{code}")
-    guest = None
-    if guest_id:
-        guest = Guest.query.filter_by(id=guest_id, event_id=event.id, is_active=True).first()
+    guest, is_creator, denied = _resolve_actor(event, code)
+    if denied is not None:
+        return denied
     if guest is None:
         return redirect(url_for("events.my_code", code=code))
 
@@ -228,18 +228,19 @@ def vote(code: str, poll_id: str) -> Response | tuple[str, int] | str:
         flash(_("Sondage fermé."), "warning")
         return redirect(url_for("voting.index", code=code))
 
-    # One vote per guest per poll: remove any previous vote, then add the new one.
+    # One vote per actor per poll: remove any previous vote, then add the new one.
     option_ids = [opt.id for opt in poll.options.all()]
     for old_vote in PollVote.query.filter(
         PollVote.guest_id == guest.id, PollVote.option_id.in_(option_ids)
     ).all():
         db.session.delete(old_vote)
     db.session.add(PollVote(option_id=option.id, guest_id=guest.id))
+    actor_name, actor_type = _actor_name(guest, is_creator)
     log_action(
         db.session,
         event.id,
-        guest.display_name,
-        "guest",
+        actor_name,
+        actor_type,
         "poll.voted",
         target=poll.question,
         details=option.label,
