@@ -10,7 +10,9 @@ sous chaque lot.
 
 ## [Unreleased]
 
-### B016 — Refonte UI/UX Lot 1 (Design System, palette chaleureuse, shell mobile)
+### B016 — Refonte UI/UX (Design System, shell mobile, timeline, frais)
+
+#### Lot 1 — Design System, palette chaleureuse & shell mobile
 - [x] Design tokens : palette chaude terracotta/lin (#FAF8F5, #C25E38), rayons
       6/12/18/9999px, ombres card/hover, `--accent-sage` pour les statuts positifs
 - [x] Typographie : stack system + Inter, titres h1–h3 en 650 / -0.02em
@@ -38,6 +40,24 @@ sous chaque lot.
 - [x] i18n : chaînes timeline + pastilles (en) + recompile .mo
 - [x] 238 tests passent (0 régression ; un test obsolète sur l'ancien toggle
       repas remplacé par une assertion sur les pastilles)
+
+#### Lot 3 — Frais "Splitwise-like" & Listes Fluides
+- [x] Carte "Ton solde" héro en haut : fond sauge (on te doit X€) / ocre
+      (tu dois X€) / neutre ("Tu es quitte ! 👌"), grand chiffre tabular-nums,
+      détail de qui doit à qui pour l'acteur courant
+- [x] "Qui doit à qui" : liste textuelle remplacée par des cartes de transfert
+      (avatars initiales, flèche, montant net en grand) + bouton "Rembourser"
+      pré-remplissant un transfert
+- [x] Foyers : tableau lourd remplacé par des cartes compactes avec statut
+      visuel (reçoit / doit / réglé)
+- [x] Dépenses du séjour : relevé typé (pastille catégorie 🍔🚗🏡🎟️, payeur +
+      date en sous-titre gris, montant à droite), suppression discrète
+- [x] Quick-Add : formulaire compact, sélecteurs + chips de catégories à icônes
+- [x] Listes de courses : article coché se barre en douceur (opacité 0.5 +
+      transition), bouton "Je m'occupe" avec pastille de confirmation immédiate
+- [x] i18n : chaînes frais/listes (en) + recompile .mo
+- [x] Algorithme de calcul (`_settlement` / `_per_expense_shares`) intact
+- [x] 238 tests passent (0 régression)
 
 ### B008 — Frictions UX (code invité, auth, i18n, CSS, formulaires)
 - [x] Code invité : l'invité saisit son propre code (4-8 car.), toujours visible

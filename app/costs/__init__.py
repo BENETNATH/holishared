@@ -172,6 +172,32 @@ def index(code: str) -> str | Response | tuple[str, int]:
         {"category": c, "amount": a / 100.0} for c, a in _category_breakdown(expenses)
     ]
 
+    # Personal balance for the acting user (guest or creator), derived from the
+    # existing household + settlement data (no change to the algorithm).
+    my_household = None
+    if guest is not None:
+        my_household = next((h for h in households if h.guest_id == guest.id), None)
+    elif is_creator:
+        creator_guest = Guest.query.filter_by(
+            creator_id=event.creator_id, event_id=event.id
+        ).first()
+        if creator_guest is not None:
+            my_household = next((h for h in households if h.guest_id == creator_guest.id), None)
+    my_balance: float | None = None
+    i_owe: list[dict[str, object]] = []
+    owed_to_me: list[dict[str, object]] = []
+    if my_household is not None:
+        my_balance = next(
+            (s["balance"] for s in h_summary if s["household"].id == my_household.id), None
+        )
+        for s in settlement_display:
+            src = cast("Household | None", s["from"])
+            dst = cast("Household | None", s["to"])
+            if src is not None and src.id == my_household.id and dst is not None:
+                i_owe.append({"to": dst, "amount": s["amount"]})
+            if dst is not None and dst.id == my_household.id and src is not None:
+                owed_to_me.append({"from": src, "amount": s["amount"]})
+
     # Default ratio from first household (or fallback)
     default_adult_weight = households[0].adult_weight if households else 1.0
     default_child_weight = households[0].child_weight if households else 0.5
@@ -185,7 +211,11 @@ def index(code: str) -> str | Response | tuple[str, int]:
                            category_breakdown=category_breakdown,
                            currencies=CURRENCIES,
                            default_adult_weight=default_adult_weight,
-                           default_child_weight=default_child_weight)
+                           default_child_weight=default_child_weight,
+                           my_household=my_household,
+                           my_balance=my_balance,
+                           i_owe=i_owe,
+                           owed_to_me=owed_to_me)
 
 
 @costs_bp.route("/e/<code>/costs/households/new", methods=["GET", "POST"])

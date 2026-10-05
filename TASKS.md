@@ -275,7 +275,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B016 — Refonte UI/UX
 
-**Statut** : ✅ (Lot 1 ✅, Lot 2 ✅)
+**Statut** : ✅ (Lot 1 ✅, Lot 2 ✅, Lot 3 ✅)
 
 ### Lot 1 — Design System, palette chaleureuse & shell mobile ✅
 | # | Tâche | Critère d'acceptation |
@@ -304,3 +304,19 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 - `feat(events): timeline du jour unissant repas et activités`
 - `feat(lists): panneau repas → pastilles horizontales (mobile)`
 - `chore(i18n): chaînes timeline + pastilles`
+
+### Lot 3 — Frais "Splitwise-like" & Listes Fluides ✅
+| # | Tâche | Critère d'acceptation |
+|---|-------|----------------------|
+| 18.1 | Carte "Ton solde" héro | my_household + i_owe/owed_to_me → bandeau sauge/ocre/neutre |
+| 18.2 | "Qui doit à qui" en cartes | .settlement/who-owes-card (avatars, flèche, montant net, "Rembourser") |
+| 18.3 | Foyers en cartes compactes | .group-card avec statut visuel (reçoit/doit/réglé) |
+| 18.4 | Dépenses relevé + quick-add | .expense-row + pastilles catégorie ; formulaire compact icônes |
+| 18.5 | Listes fluides | article coché → barre + opacité 0.5 ; "Je m'occupe" = pastille immédiate |
+| 18.6 | i18n + recompile .mo | Chaînes en traduites, .mo recompilés |
+| 18.7 | Zéro régression algo | _settlement/_per_expense_shares intacts ; tests verts |
+
+**Commits** :
+- `feat(costs): carte solde + cartes de transfert + dépenses relevé`
+- `feat(lists): fade items cochés + confirmation "je m'occupe"`
+- `chore(i18n): chaînes frais/listes`

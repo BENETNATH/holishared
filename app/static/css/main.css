@@ -1873,6 +1873,685 @@ tfoot td {
 }
 
 /* ============================================================
+   Costs — Splitwise-like (Lot 3)
+   ============================================================ */
+
+/* --- Avatar pill (initials) --- */
+.avatar-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-full);
+  background: var(--accent-sage);
+  color: #fff;
+  font-weight: 700;
+  font-size: var(--text-sm);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* --- Personal balance hero --- */
+.user-balance-hero {
+  border-radius: var(--radius-lg);
+  padding: var(--sp-5);
+  margin-bottom: var(--sp-5);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+
+.user-balance-hero .ubh-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-2);
+}
+
+.user-balance-hero .ubh-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.user-balance-hero .ubh-household {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.user-balance-hero .ubh-amount {
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.user-balance-hero .ubh-state {
+  display: inline-block;
+  margin-top: var(--sp-1);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+}
+
+.user-balance-hero .ubh-detail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+}
+
+.user-balance-hero .ubh-who {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  font-size: var(--text-sm);
+  color: var(--text-2);
+}
+
+.user-balance-hero .ubh-who .avatar-pill {
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: var(--text-xs);
+}
+
+.hero-positive {
+  background: var(--accent-sage-soft);
+  border-color: var(--accent-sage);
+}
+.hero-positive .ubh-amount,
+.hero-positive .ubh-state {
+  color: var(--accent-sage);
+}
+.positive-badge {
+  background: color-mix(in srgb, var(--accent-sage) 16%, transparent);
+}
+
+.hero-negative {
+  background: var(--warning-soft);
+  border-color: var(--warning);
+}
+.hero-negative .ubh-amount,
+.hero-negative .ubh-state {
+  color: var(--warning);
+}
+.negative-badge {
+  background: color-mix(in srgb, var(--warning) 16%, transparent);
+}
+
+.hero-neutral {
+  background: var(--surface-subtle);
+}
+.neutral-badge {
+  background: var(--surface-hover);
+  color: var(--text-2);
+}
+
+/* --- "Qui doit à qui" settlement cards --- */
+.who-owes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.who-owes-card {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.who-owes-card .woc-main {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.who-owes-card .woc-name {
+  font-weight: 600;
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 14ch;
+}
+
+.who-owes-card .woc-arrow {
+  color: var(--text-muted);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.who-owes-card .woc-avatar-in {
+  background: var(--primary);
+}
+
+.who-owes-card .woc-amount {
+  font-weight: 700;
+  font-size: 1.125rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.who-owes-card .woc-btn {
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .who-owes-card {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "main amount"
+      "main btn";
+    row-gap: var(--sp-2);
+  }
+  .who-owes-card .woc-main { grid-area: main; }
+  .who-owes-card .woc-amount { grid-area: amount; text-align: right; }
+  .who-owes-card .woc-btn { grid-area: btn; justify-self: end; }
+  .who-owes-card .woc-name { max-width: 9ch; }
+}
+
+/* --- Household / group compact cards --- */
+.group-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--sp-3);
+}
+
+.group-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.group-card .gc-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.group-card .gc-avatar {
+  width: 2rem;
+  height: 2rem;
+}
+
+.group-card .gc-name {
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.group-card .gc-delete {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: var(--sp-1);
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+}
+.group-card .gc-delete:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.group-card .gc-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.group-card .gc-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+}
+
+.group-card .gc-state {
+  font-weight: 600;
+}
+
+.group-card .gc-amount {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.group-card .gc-positive {
+  background: var(--accent-sage-soft);
+  color: var(--accent-sage);
+}
+.group-card .gc-negative {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+.group-card .gc-zero {
+  background: var(--surface-subtle);
+  color: var(--text-muted);
+}
+.group-card .gc-state-zero {
+  color: var(--accent-sage);
+  font-weight: 700;
+}
+
+/* --- Expenses list (elegant statement style) --- */
+.total-badge {
+  font-weight: 700;
+  font-size: var(--text-sm);
+  color: var(--primary-hover);
+  background: var(--primary-subtle);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-variant-numeric: tabular-nums;
+}
+
+.expense-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.expense-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.expense-row:last-child {
+  border-bottom: none;
+}
+
+.expense-row .expense-cat {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  background: var(--surface-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.expense-row .expense-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.expense-row .expense-title {
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.expense-row .expense-sub {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.expense-row .expense-amount {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.expense-row .exp-cur {
+  font-weight: 500;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.expense-row .expense-del {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: var(--sp-1);
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.expense-row .expense-del:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* --- Compact expense form + category chips --- */
+.expense-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
+}
+
+@media (max-width: 420px) {
+  .expense-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.expense-form-grid .ef-main {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+}
+
+.expense-form-grid .ef-cat {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.expense-form-grid .ef-label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.cat-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.cat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.cat-chip input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.cat-chip:hover {
+  border-color: var(--border-focus);
+}
+
+.cat-chip.active {
+  background: var(--primary-subtle);
+  border-color: var(--primary);
+  color: var(--primary-hover);
+}
+
+.cat-chip .cat-chip-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* --- Ratio card --- */
+.ratio-card {
+  margin-top: var(--sp-4);
+}
+
+.ratio-toggle summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: var(--text-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.ratio-cur {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  background: var(--surface-subtle);
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--radius-full);
+}
+
+.ratio-form {
+  margin-top: var(--sp-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.ratio-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-3);
+}
+
+/* --- Transfers list --- */
+.transfer-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.transfer-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.transfer-row .tf-arrow {
+  flex: 1;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  min-width: 0;
+}
+
+.transfer-row .tf-arrow .arrow {
+  color: var(--text-muted);
+}
+
+.transfer-row .tf-amount {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.transfer-row .tf-amount .cur {
+  font-weight: 500;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.transfer-row .tfr-del {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: var(--sp-1);
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+}
+.transfer-row .tfr-del:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* --- Add transfer / payment request forms --- */
+.add-transfer-form,
+.add-pr-form {
+  margin-top: var(--sp-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.add-transfer-form .atf-row,
+.add-pr-form .aprf-row,
+.add-household-form .ahf-row {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.add-transfer-form select,
+.add-pr-form select,
+.add-household-form input[type="text"] {
+  flex: 1;
+  min-width: 6rem;
+}
+
+/* --- Payment requests (head variant) --- */
+.pr-item.pr-resolved {
+  opacity: 0.65;
+}
+
+.pr-item .pr-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.pr-item .pr-arrow {
+  font-weight: 500;
+  min-width: 0;
+}
+
+.pr-item .pr-arrow .arrow {
+  color: var(--text-muted);
+}
+
+.pr-item .pr-amount {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pr-item .pr-amount .cur {
+  font-weight: 500;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.pr-item .pr-status {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--radius-full);
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.pr-item.pr-resolved .pr-status {
+  background: var(--accent-sage-soft);
+  color: var(--accent-sage);
+}
+
+.pr-item .pr-note {
+  width: 100%;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: var(--sp-1);
+}
+
+.pr-item .pr-btn {
+  white-space: nowrap;
+}
+
+.pr-item .pr-del {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: var(--sp-1);
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+}
+.pr-item .pr-del:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* --- Category breakdown (compact) --- */
+.insight-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.insight-cat {
+  display: grid;
+  grid-template-columns: 90px 1fr auto;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.insight-cat .ic-name {
+  font-size: var(--text-sm);
+  color: var(--text-2);
+}
+
+.insight-cat .ic-bar {
+  height: 8px;
+  background: var(--surface-subtle);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.insight-cat .ic-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: var(--radius-full);
+}
+
+.insight-cat .ic-val {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ============================================================
    Dashboard
    ============================================================ */
 .section-head {
@@ -2741,11 +3420,15 @@ tfoot td {
   padding: var(--sp-2) var(--sp-3);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s, opacity 0.3s ease;
 }
 
 .item-row:hover {
   background: var(--surface-hover);
+}
+
+.item-row.done {
+  opacity: 0.5;
 }
 
 .item-row.done .item-name {
@@ -3993,6 +4676,12 @@ details.form-options .form-group {
 
 .btn-claim {
   white-space: nowrap;
+}
+
+.btn-claim.btn-claim-confirmed {
+  background: var(--success);
+  border-color: var(--success);
+  color: #fff;
 }
 
 .btn-release {

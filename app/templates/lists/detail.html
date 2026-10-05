@@ -162,6 +162,18 @@
 </div>
 {% endblock %}
 {% block scripts %}
+<script>
+// "Je m'occupe" — immediate confirmation pill before the form submits.
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('.btn-claim');
+  if (!btn || btn.dataset.confirmed) return;
+  btn.dataset.confirmed = '1';
+  var original = btn.textContent;
+  btn.classList.add('btn-claim-confirmed');
+  btn.textContent = '✓ C\u2019est not\u00e9';
+  setTimeout(function() { btn.textContent = original; }, 1200);
+});
+</script>
 {% if act_acts %}
 <script>
 (function() {

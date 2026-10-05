@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 19:28+0200\n"
+"POT-Creation-Date: 2026-10-05 19:38+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -193,7 +193,6 @@ msgid "Sondages"
 msgstr "Polls"
 
 #: app/templates/base.html:100 app/templates/base.html:151
-#: app/templates/costs/index.html:161
 msgid "Frais"
 msgstr "Expenses"
 
@@ -275,9 +274,9 @@ msgstr "Start the conversation!"
 msgid "Supprimer le message de"
 msgstr "Delete message from"
 
-#: app/templates/chat/_messages.html:21 app/templates/costs/index.html:139
-#: app/templates/costs/index.html:189 app/templates/costs/index.html:241
-#: app/templates/costs/index.html:320 app/templates/lists/detail.html:107
+#: app/templates/chat/_messages.html:21 app/templates/costs/index.html:176
+#: app/templates/costs/index.html:229 app/templates/costs/index.html:292
+#: app/templates/costs/index.html:348 app/templates/lists/detail.html:107
 #: app/templates/logistics/index.html:34 app/templates/meals/index.html:43
 #: app/templates/media/detail.html:28 app/templates/planning/index.html:39
 msgid "Supprimer"
@@ -287,7 +286,7 @@ msgstr "Delete"
 msgid "Votre message"
 msgstr "Your message"
 
-#: app/templates/chat/index.html:28
+#: app/templates/chat/index.html:28 app/templates/costs/index.html:325
 msgid "Envoyer"
 msgstr "Send"
 
@@ -323,260 +322,230 @@ msgstr "The adult/child ratio is set on the costs page."
 msgid "Ajouter le groupe"
 msgstr "Add group"
 
-#: app/templates/costs/index.html:2 app/templates/costs/index.html:6
+#: app/templates/costs/index.html:5
 msgid "Partage de frais"
 msgstr "Cost sharing"
 
-#: app/templates/costs/index.html:14
-msgid "Ajouter un frais"
-msgstr "Add expense"
+#: app/templates/costs/index.html:6
+msgid "Suivi des dépenses partagées par foyer et des soldes entre membres."
+msgstr "Track shared expenses by household and balances between members."
 
-#: app/templates/costs/index.html:19 app/templates/costs/index.html:170
-#: app/templates/costs/index.html:181 app/templates/events/create.html:68
+#: app/templates/costs/index.html:13
+msgid "Ton solde"
+msgstr "Your balance"
+
+#: app/templates/costs/index.html:18
+msgid "On te doit de l'argent"
+msgstr "The group owes you"
+
+#: app/templates/costs/index.html:28
+msgid "Tu dois de l'argent au groupe"
+msgstr "You owe the group"
+
+#: app/templates/costs/index.html:38
+msgid "Tu es quitte ! 👌"
+msgstr "You're all squared away! 👌"
+
+#: app/templates/costs/index.html:45
+#, fuzzy
+msgid "Ajouter une dépense"
+msgstr "Add info"
+
+#: app/templates/costs/index.html:47
+msgid "Ajoute d'abord un foyer pour pouvoir ajouter des dépenses."
+msgstr "Add a household first to be able to add expenses."
+
+#: app/templates/costs/index.html:53 app/templates/events/create.html:68
 #: app/templates/planning/form.html:36
 msgid "Description"
 msgstr "Description"
 
-#: app/templates/costs/index.html:20
-msgid "Ex : Courses, essence…"
+#: app/templates/costs/index.html:55
+#, fuzzy
+msgid "Ex : Supermarché, essence…"
 msgstr "E.g. Groceries, fuel…"
 
-#: app/templates/costs/index.html:23 app/templates/costs/index.html:172
-#: app/templates/costs/index.html:183 app/templates/costs/index.html:223
-#: app/templates/costs/index.html:234 app/templates/costs/index.html:275
-#: app/templates/costs/index.html:352
+#: app/templates/costs/index.html:58 app/templates/costs/index.html:278
+#: app/templates/costs/index.html:322
 msgid "Montant"
 msgstr "Amount"
 
-#: app/templates/costs/index.html:27 app/templates/costs/index.html:173
-#: app/templates/costs/index.html:184
-msgid "Payé par"
-msgstr "Paid by"
+#: app/templates/costs/index.html:62
+msgid "Devise"
+msgstr "Currency"
 
-#: app/templates/costs/index.html:35 app/templates/costs/index.html:171
-#: app/templates/costs/index.html:182 app/templates/logistics/form.html:33
+#: app/templates/costs/index.html:68 app/templates/costs/index.html:69
+#: app/templates/logistics/form.html:33
 msgid "Catégorie"
 msgstr "Category"
 
-#: app/templates/costs/index.html:37
-msgid "Général"
-msgstr "General"
+#: app/templates/costs/index.html:80
+msgid "Payé par"
+msgstr "Paid by"
 
-#: app/templates/costs/index.html:38
-msgid "Nourriture"
-msgstr "Food"
-
-#: app/templates/costs/index.html:39
-msgid "Transport"
-msgstr "Transport"
-
-#: app/templates/costs/index.html:40
-msgid "Hébergement"
-msgstr "Accommodation"
-
-#: app/templates/costs/index.html:41 app/templates/lists/detail.html:14
-#: app/templates/lists/detail.html:129 app/templates/lists/detail.html:130
-msgid "Activités"
-msgstr "Activities"
-
-#: app/templates/costs/index.html:45 app/templates/costs/index.html:169
-#: app/templates/costs/index.html:180 app/templates/costs/index.html:225
-#: app/templates/costs/index.html:236 app/templates/costs/index.html:283
-#: app/templates/planning/form.html:43 app/templates/planning/index.html:62
-msgid "Date"
-msgstr "Date"
-
-#: app/templates/costs/index.html:49 app/templates/events/members.html:29
-#: app/templates/lists/detail.html:65 app/templates/meals/index.html:55
-#: app/templates/planning/index.html:64
+#: app/templates/costs/index.html:86 app/templates/costs/index.html:159
+#: app/templates/events/members.html:29 app/templates/lists/detail.html:65
+#: app/templates/meals/index.html:55 app/templates/planning/index.html:64
 msgid "Ajouter"
 msgstr "Add"
 
-#: app/templates/costs/index.html:57 app/templates/costs/index.html:71
-msgid "Qui doit à qui"
-msgstr "Who owes whom"
-
-#: app/templates/costs/index.html:72
-msgid "Tout est réglé — aucun solde à compenser."
-msgstr "All settled — no balance to compensate."
-
-#: app/templates/costs/index.html:79
+#: app/templates/costs/index.html:95
 msgid "Ratio de répartition"
 msgstr "Split ratio"
 
-#: app/templates/costs/index.html:80
+#: app/templates/costs/index.html:96
 msgid "1 adulte = X parts, 1 enfant = Y parts. S'applique à tous les groupes."
 msgstr "1 adult = X shares, 1 child = Y shares. Applies to all groups."
 
-#: app/templates/costs/index.html:85
+#: app/templates/costs/index.html:101
 msgid "Parts par adulte"
 msgstr "Shares per adult"
 
-#: app/templates/costs/index.html:89
+#: app/templates/costs/index.html:105
 msgid "Parts par enfant"
 msgstr "Shares per child"
 
-#: app/templates/costs/index.html:93
+#: app/templates/costs/index.html:109
 msgid "Appliquer à tous les groupes"
 msgstr "Apply to all groups"
 
-#: app/templates/costs/index.html:102
-msgid "Groupes"
-msgstr "Groups"
+#: app/templates/costs/index.html:119
+msgid "Qui doit à qui"
+msgstr "Who owes whom"
 
-#: app/templates/costs/index.html:103
-msgid ""
-"Un groupe = un foyer ou une personne qui partage les frais. Créé "
-"automatiquement à l'inscription."
-msgstr ""
-"A group = a household or a person who shares costs. Created automatically"
-" on signup."
+#: app/templates/costs/index.html:136
+msgid "Marquer comme remboursé"
+msgstr "Mark as repaid"
 
-#: app/templates/costs/index.html:105
-msgid "+ Ajouter"
-msgstr "+ Add"
+#: app/templates/costs/index.html:137
+msgid "Rembourser"
+msgstr "Repay"
 
-#: app/templates/costs/index.html:110
-msgid "Répartition par foyer"
-msgstr "Distribution by household"
-
-#: app/templates/costs/index.html:113 app/templates/costs/index.html:125
-msgid "Groupe"
-msgstr "Group"
-
-#: app/templates/costs/index.html:114 app/templates/costs/index.html:128
-#: app/templates/events/join.html:39 app/templates/events/verify.html:53
-msgid "Adultes"
-msgstr "Adults"
-
-#: app/templates/costs/index.html:115 app/templates/costs/index.html:129
-#: app/templates/events/join.html:43 app/templates/events/verify.html:58
-msgid "Enfants"
-msgstr "Children"
-
-#: app/templates/costs/index.html:116 app/templates/costs/index.html:130
-msgid "Part"
-msgstr "Share"
-
-#: app/templates/costs/index.html:117 app/templates/costs/index.html:131
-msgid "Payé"
-msgstr "Paid"
-
-#: app/templates/costs/index.html:118 app/templates/costs/index.html:132
-msgid "Solde"
-msgstr "Balance"
-
-#: app/templates/costs/index.html:119 app/templates/costs/index.html:174
-#: app/templates/costs/index.html:226
-msgid "Actions"
-msgstr "Actions"
+#: app/templates/costs/index.html:148
+#, fuzzy
+msgid "Foyers"
+msgstr "Households"
 
 #: app/templates/costs/index.html:151
-msgid "Aucun groupe"
-msgstr "No groups"
+#, fuzzy
+msgid "Ajouter un foyer"
+msgstr "Add info"
 
-#: app/templates/costs/index.html:152
-msgid ""
-"Chaque invité crée son groupe automatiquement en rejoignant. Ajoutez-en "
-"un manuellement si besoin."
-msgstr ""
-"Each guest creates their group automatically when joining. Add one "
-"manually if needed."
+#: app/templates/costs/index.html:155
+#, fuzzy
+msgid "Nom du foyer"
+msgstr "New household"
 
-#: app/templates/costs/index.html:153
-msgid "Ajouter un groupe"
-msgstr "Add group"
+#: app/templates/costs/index.html:174
+#, fuzzy
+msgid "Supprimer ce foyer ?"
+msgstr "Delete this household?"
 
-#: app/templates/costs/index.html:166
-msgid "Liste des frais"
-msgstr "Expense list"
+#: app/templates/costs/index.html:187
+msgid "part"
+msgstr "share"
 
-#: app/templates/costs/index.html:197
-msgid "Total"
-msgstr "Total"
+#: app/templates/costs/index.html:189
+msgid "payé"
+msgstr "paid"
 
-#: app/templates/costs/index.html:204
-msgid "Aucun frais enregistré"
-msgstr "No expenses recorded"
+#: app/templates/costs/index.html:193
+msgid "reçoit"
+msgstr "is owed"
 
-#: app/templates/costs/index.html:205
-msgid "Ajoutez les dépenses du séjour pour les répartir entre les foyers."
-msgstr "Add the trip's expenses to split them between households."
+#: app/templates/costs/index.html:196
+#, fuzzy
+msgid "doit"
+msgstr "owes"
+
+#: app/templates/costs/index.html:199
+#, fuzzy
+msgid "réglé"
+msgstr "Settled"
+
+#: app/templates/costs/index.html:206
+msgid "Aucun foyer encore. Ajoutez le vôtre pour commencer."
+msgstr "No household yet. Add yours to get started."
 
 #: app/templates/costs/index.html:213
-msgid "Transferts déjà effectués"
-msgstr "Transfers already made"
+msgid "Dépenses du séjour"
+msgstr "Trip expenses"
 
-#: app/templates/costs/index.html:218
-msgid "Liste des transferts"
-msgstr "Transfer list"
+#: app/templates/costs/index.html:227
+#, fuzzy
+msgid "Supprimer cette dépense ?"
+msgstr "Delete this expense?"
 
-#: app/templates/costs/index.html:221 app/templates/costs/index.html:232
-#: app/templates/costs/index.html:263 app/templates/costs/index.html:340
+#: app/templates/costs/index.html:240
+msgid "Aucune dépense enregistrée pour le moment."
+msgstr "No expenses recorded yet."
+
+#: app/templates/costs/index.html:247
+msgid "Répartition par catégorie"
+msgstr "Distribution by category"
+
+#: app/templates/costs/index.html:264
+msgid "Remboursements effectués"
+msgstr "Completed settlements"
+
+#: app/templates/costs/index.html:266
+#, fuzzy
+msgid "Transfert"
+msgstr "transfer"
+
+#: app/templates/costs/index.html:271 app/templates/costs/index.html:315
 msgid "De"
 msgstr "From"
 
-#: app/templates/costs/index.html:222 app/templates/costs/index.html:233
-#: app/templates/costs/index.html:269 app/templates/costs/index.html:346
+#: app/templates/costs/index.html:275 app/templates/costs/index.html:319
 msgid "À"
 msgstr "To"
 
-#: app/templates/costs/index.html:224 app/templates/costs/index.html:235
-#: app/templates/costs/index.html:279
-msgid "Note"
-msgstr "Note"
+#: app/templates/costs/index.html:280 app/templates/costs/index.html:324
+#, fuzzy
+msgid "Note (optionnel)"
+msgstr "Note (optional)"
 
-#: app/templates/costs/index.html:241
-msgid "transfert"
-msgstr "transfer"
+#: app/templates/costs/index.html:281 app/templates/logistics/form.html:47
+#: app/templates/planning/form.html:88
+msgid "Enregistrer"
+msgstr "Save"
 
-#: app/templates/costs/index.html:253
-msgid "Aucun transfert enregistré"
-msgstr "No transfers recorded"
+#: app/templates/costs/index.html:291
+#, fuzzy
+msgid "Supprimer ce transfert ?"
+msgstr "Delete this transfer?"
 
-#: app/templates/costs/index.html:254
-msgid "Enregistrez les remboursements déjà faits pour ajuster le solde."
-msgstr "Record reimbursements already made to adjust the balance."
-
-#: app/templates/costs/index.html:287
-msgid "Enregistrer le transfert"
-msgstr "Save transfer"
-
-#: app/templates/costs/index.html:295
+#: app/templates/costs/index.html:308
 msgid "Demandes de paiement"
 msgstr "Payment requests"
 
-#: app/templates/costs/index.html:312
-msgid "Marquer réglé"
-msgstr "Mark as paid"
+#: app/templates/costs/index.html:310
+#, fuzzy
+msgid "Demande"
+msgstr "Create request"
 
-#: app/templates/costs/index.html:315
+#: app/templates/costs/index.html:336
 msgid "Réglé"
 msgstr "Settled"
 
-#: app/templates/costs/index.html:320
-msgid "demande de paiement"
-msgstr "payment request"
+#: app/templates/costs/index.html:336
+msgid "En attente"
+msgstr "Pending"
 
-#: app/templates/costs/index.html:330
-msgid "Aucune demande de paiement"
+#: app/templates/costs/index.html:341
+msgid "Marquer réglé"
+msgstr "Mark as paid"
+
+#: app/templates/costs/index.html:347
+#, fuzzy
+msgid "Supprimer cette demande ?"
+msgstr "Delete this request?"
+
+#: app/templates/costs/index.html:359
+#, fuzzy
+msgid "Aucune demande de paiement pour le moment."
 msgstr "No payment requests"
-
-#: app/templates/costs/index.html:331
-msgid "Créez une demande pour demander un remboursement à un autre foyer."
-msgstr "Create a request to ask another household for reimbursement."
-
-#: app/templates/costs/index.html:356
-msgid "Message"
-msgstr "Message"
-
-#: app/templates/costs/index.html:360
-msgid "Créer la demande"
-msgstr "Create request"
-
-#: app/templates/costs/index.html:369
-msgid "Répartition par catégorie"
-msgstr "Distribution by category"
 
 #: app/templates/errors/403.html:2 app/templates/errors/403.html:6
 msgid "Accès refusé"
@@ -944,6 +913,14 @@ msgstr "Your household"
 msgid "Pour la répartition des frais."
 msgstr "For splitting costs."
 
+#: app/templates/events/join.html:39 app/templates/events/verify.html:53
+msgid "Adultes"
+msgstr "Adults"
+
+#: app/templates/events/join.html:43 app/templates/events/verify.html:58
+msgid "Enfants"
+msgstr "Children"
+
 #: app/templates/events/join.html:50
 msgid "Votre email (optionnel)"
 msgstr "Your email (optional)"
@@ -1185,6 +1162,11 @@ msgstr ""
 "Without verification, the event will be automatically deleted after 3 "
 "days."
 
+#: app/templates/lists/detail.html:14 app/templates/lists/detail.html:129
+#: app/templates/lists/detail.html:130
+msgid "Activités"
+msgstr "Activities"
+
 #: app/templates/lists/detail.html:31
 msgid "Repas planifiés"
 msgstr "Planned meals"
@@ -1278,10 +1260,6 @@ msgstr "Content"
 #: app/templates/logistics/form.html:41
 msgid "Ordre d'affichage"
 msgstr "Display order"
-
-#: app/templates/logistics/form.html:47 app/templates/planning/form.html:88
-msgid "Enregistrer"
-msgstr "Save"
 
 #: app/templates/logistics/form.html:47
 msgid "Créer l'info"
@@ -1405,6 +1383,10 @@ msgstr "Edit activity"
 #: app/templates/planning/form.html:30
 msgid "Ex : Randonnée au lac"
 msgstr "E.g. Lake hike"
+
+#: app/templates/planning/form.html:43 app/templates/planning/index.html:62
+msgid "Date"
+msgstr "Date"
 
 #: app/templates/planning/form.html:60
 msgid "Heure de début"
@@ -1731,4 +1713,97 @@ msgstr "Vote recorded."
 
 #~ msgid "Masquer les repas cochés"
 #~ msgstr "Plan the meals"
+
+#~ msgid "Ajouter un frais"
+#~ msgstr "Add expense"
+
+#~ msgid "Général"
+#~ msgstr "General"
+
+#~ msgid "Nourriture"
+#~ msgstr "Food"
+
+#~ msgid "Transport"
+#~ msgstr "Transport"
+
+#~ msgid "Hébergement"
+#~ msgstr "Accommodation"
+
+#~ msgid "Tout est réglé — aucun solde à compenser."
+#~ msgstr "All settled — no balance to compensate."
+
+#~ msgid "Groupes"
+#~ msgstr "Groups"
+
+#~ msgid ""
+#~ "Un groupe = un foyer ou une "
+#~ "personne qui partage les frais. Créé "
+#~ "automatiquement à l'inscription."
+#~ msgstr ""
+#~ "A group = a household or a "
+#~ "person who shares costs. Created "
+#~ "automatically on signup."
+
+#~ msgid "+ Ajouter"
+#~ msgstr "+ Add"
+
+#~ msgid "Répartition par foyer"
+#~ msgstr "Distribution by household"
+
+#~ msgid "Groupe"
+#~ msgstr "Group"
+
+#~ msgid "Actions"
+#~ msgstr "Actions"
+
+#~ msgid "Aucun groupe"
+#~ msgstr "No groups"
+
+#~ msgid ""
+#~ "Chaque invité crée son groupe "
+#~ "automatiquement en rejoignant. Ajoutez-en "
+#~ "un manuellement si besoin."
+#~ msgstr ""
+#~ "Each guest creates their group "
+#~ "automatically when joining. Add one "
+#~ "manually if needed."
+
+#~ msgid "Ajouter un groupe"
+#~ msgstr "Add group"
+
+#~ msgid "Liste des frais"
+#~ msgstr "Expense list"
+
+#~ msgid "Total"
+#~ msgstr "Total"
+
+#~ msgid "Aucun frais enregistré"
+#~ msgstr "No expenses recorded"
+
+#~ msgid "Ajoutez les dépenses du séjour pour les répartir entre les foyers."
+#~ msgstr "Add the trip's expenses to split them between households."
+
+#~ msgid "Transferts déjà effectués"
+#~ msgstr "Transfers already made"
+
+#~ msgid "Liste des transferts"
+#~ msgstr "Transfer list"
+
+#~ msgid "Note"
+#~ msgstr "Note"
+
+#~ msgid "Aucun transfert enregistré"
+#~ msgstr "No transfers recorded"
+
+#~ msgid "Enregistrez les remboursements déjà faits pour ajuster le solde."
+#~ msgstr "Record reimbursements already made to adjust the balance."
+
+#~ msgid "demande de paiement"
+#~ msgstr "payment request"
+
+#~ msgid "Créez une demande pour demander un remboursement à un autre foyer."
+#~ msgstr "Create a request to ask another household for reimbursement."
+
+#~ msgid "Message"
+#~ msgstr "Message"
 
