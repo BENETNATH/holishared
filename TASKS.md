@@ -270,3 +270,37 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 | 14.5 | Health check | GET /health → 200 + db check |
 | 14.6 | Backup DB | Script cron SQLite backup |
 | 14.7 | Monitoring | Uptime check + alert |
+
+---
+
+## B016 — Refonte UI/UX
+
+**Statut** : ✅ (Lot 1 ✅, Lot 2 ✅)
+
+### Lot 1 — Design System, palette chaleureuse & shell mobile ✅
+| # | Tâche | Critère d'acceptation |
+|---|-------|----------------------|
+| 16.1 | Tokens palette + rayons + ombres | Variables --bg/--surface/--primary/--accent-sage, radius 6/12/18/9999 |
+| 16.2 | Dark mode réchauffé | data-theme=dark + prefers-color-scheme alignés |
+| 16.3 | Contraste AA | ≥4.5:1 texte, ≥3:1 UI sur --primary |
+| 16.4 | Shell mobile tabbar | Barre fixe bas, blur, 4-5 actions, menu Plus |
+| 16.5 | Header discret | Logo + titre événement + avatar/code, main padding 5rem |
+| 16.6 | i18n + manifest | Chaînes en, .mo recompilés, theme_color aligné |
+
+**Commits** :
+- `style(css): design system chaleureux terracotta + palette AA`
+- `feat(ui): shell mobile tabbar + header événement + chip invité`
+- `chore(i18n): chaînes nav mobile + recompile .mo`
+
+### Lot 2 — Timeline du jour & ergonomie Repas ↔ Courses ✅
+| # | Tâche | Critère d'acceptation |
+|---|-------|----------------------|
+| 17.1 | Dashboard : repas du jour | today_meals (Midi/Soir) + activités ordonnés chronologiquement |
+| 17.2 | Statut courses par repas | covered_meal_ids alimente un badge "Listed / À lister" |
+| 17.3 | Chips repas en liste de courses | Rangée horizontale défilable, ≥44px, coche en 1 tap |
+| 17.4 | i18n + recompile .mo | Chaînes en traduites, .mo recompilés |
+
+**Commits** :
+- `feat(events): timeline du jour unissant repas et activités`
+- `feat(lists): panneau repas → pastilles horizontales (mobile)`
+- `chore(i18n): chaînes timeline + pastilles`

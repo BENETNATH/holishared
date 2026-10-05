@@ -8,18 +8,11 @@
     <div>
         <h1>{{ shared_list.title }}</h1>
     </div>
-    {% if meal_acts or act_acts %}
+    {% if act_acts %}
     <div class="head-actions">
-      {% if meal_acts %}
-      <button type="button" class="btn btn-small btn-secondary" id="toggle-meals" aria-expanded="false">
-        🍽️ {{ _("Repas") }}
-      </button>
-      {% endif %}
-      {% if act_acts %}
       <button type="button" class="btn btn-small btn-secondary" id="toggle-acts" aria-expanded="false">
         📋 {{ _("Activités") }}
       </button>
-      {% endif %}
     </div>
     {% endif %}
 </div>
@@ -33,6 +26,37 @@
 <div class="list-layout">
   {# === Left: list items === #}
   <div class="list-main">
+    {# Meals as a compact horizontal chip strip (tap to check off). #}
+    {% if meal_acts %}
+    <section class="meal-chips" aria-label="{{ _('Repas planifiés') }}">
+      <div class="meal-chips-head">
+        <span class="meal-chips-title">🍽️ {{ _("Repas") }}</span>
+        <span class="meal-chips-hint">{{ _("Cochez un repas quand ses ingrédients sont en liste.") }}</span>
+      </div>
+      <div class="meal-chips-row" role="list">
+        {% for day, day_meals in meal_acts | groupby("date") %}
+        {% for m in day_meals %}
+        <form method="post" action="{{ url_for('lists.toggle_meal', code=event.code, list_id=shared_list.id, meal_id=m.id) }}" class="meal-chip-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <label class="meal-chip{% if m.id in covered_meal_ids %} covered{% endif %}"
+                 role="listitem" for="mealchip-{{ m.id }}"
+                 title="{{ day | format_date('full') }} — {{ _('Soir') if m.slot == 'dinner' else _('Midi') }}">
+            <input type="checkbox" id="mealchip-{{ m.id }}" class="meal-chip-input"
+                   onchange="this.form.submit()" aria-label="{{ m.title }} — {{ day | format_date('full') }}"
+                   {% if m.id in covered_meal_ids %}checked{% endif %}>
+            <span class="meal-chip-check" aria-hidden="true">{% if m.id in covered_meal_ids %}✓{% else %}+{% endif %}</span>
+            <span class="meal-chip-label">
+              <span class="meal-chip-slot">{{ _("Soir") if m.slot == 'dinner' else _("Midi") }}</span>
+              <span class="meal-chip-title">{{ m.title }}</span>
+            </span>
+          </label>
+        </form>
+        {% endfor %}
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
     {# Quick-add #}
     <form method="post" action="{{ url_for('lists.add_item', code=event.code, list_id=shared_list.id) }}" class="quick-add">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -101,40 +125,6 @@
 
   {# === Right: side panels (hidden by default, toggled) === #}
   <div class="list-sidebar-col">
-    {% if meal_acts %}
-    <aside class="list-sidebar list-sidebar-hidden" id="meal-panel" aria-label="{{ _('Repas planifiés') }}">
-      <h2 class="sidebar-title">{{ _("Repas") }}</h2>
-      <p class="sidebar-hint">{{ _("Cochez les repas dont vous avez noté les ingrédients.") }}</p>
-      <label class="filter-toggle">
-        <input type="checkbox" id="meal-filter-covered">
-        <span>{{ _("Masquer les repas cochés") }}</span>
-      </label>
-      {% for day, day_meals in meal_acts | groupby("date") %}
-      <div class="meal-group">
-        <h3 class="meal-group-day">{{ day | format_date('full') }}</h3>
-        <ul class="meal-check-list">
-          {% for m in day_meals %}
-          <li class="meal-check-item{% if m.id in covered_meal_ids %} covered{% endif %}">
-            <form method="post" action="{{ url_for('lists.toggle_meal', code=event.code, list_id=shared_list.id, meal_id=m.id) }}" class="meal-check-form">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <label class="meal-check-label" for="meal-{{ m.id }}">
-                <input type="checkbox" id="meal-{{ m.id }}" class="meal-check-input"
-                       onchange="this.form.submit()" {% if m.id in covered_meal_ids %}checked{% endif %}>
-                <span class="meal-check-box" aria-hidden="true">{% if m.id in covered_meal_ids %}✓{% else %}&nbsp;{% endif %}</span>
-              </label>
-              <span class="meal-check-name">
-                {% if m.slot == 'dinner' %}<span class="meal-check-time">{{ _("Soir") }}</span>{% else %}<span class="meal-check-time">{{ _("Midi") }}</span>{% endif %}
-                {{ m.title }}
-              </span>
-            </form>
-          </li>
-          {% endfor %}
-        </ul>
-      </div>
-      {% endfor %}
-    </aside>
-    {% endif %}
-
     {% if act_acts %}
     <aside class="list-sidebar list-sidebar-hidden" id="act-panel" aria-label="{{ _("Activités") }}">
       <h2 class="sidebar-title">{{ _("Activités") }}</h2>
@@ -172,41 +162,31 @@
 </div>
 {% endblock %}
 {% block scripts %}
-{% if meal_acts or act_acts %}
+{% if act_acts %}
 <script>
 (function() {
-  function bind(btnId, panelId) {
-    var btn = document.getElementById(btnId);
-    var panel = document.getElementById(panelId);
-    if (btn && panel) {
-      btn.addEventListener('click', function() {
-        var hidden = panel.classList.toggle('list-sidebar-hidden');
-        btn.setAttribute('aria-expanded', String(!hidden));
-      });
-    }
+  var btn = document.getElementById('toggle-acts');
+  var panel = document.getElementById('act-panel');
+  if (btn && panel) {
+    btn.addEventListener('click', function() {
+      var hidden = panel.classList.toggle('list-sidebar-hidden');
+      btn.setAttribute('aria-expanded', String(!hidden));
+    });
   }
-  bind('toggle-meals', 'meal-panel');
-  bind('toggle-acts', 'act-panel');
-
-  // Filter: hide/show the already-checked items in a panel.
-  function bindFilter(filterId, panelId) {
-    var filter = document.getElementById(filterId);
-    var panel = document.getElementById(panelId);
-    if (!filter || !panel) return;
+  // Filter: hide/show the already-checked activities in the panel.
+  var filter = document.getElementById('act-filter-covered');
+  if (filter && panel) {
     filter.addEventListener('change', function() {
       var hide = filter.checked;
       panel.querySelectorAll('.meal-check-item.covered').forEach(function(el) {
         el.style.display = hide ? 'none' : '';
       });
-      // Hide day groups that end up empty.
       panel.querySelectorAll('.meal-group').forEach(function(group) {
         var hasVisible = group.querySelector('.meal-check-item:not(.covered)');
         group.style.display = (hide && !hasVisible) ? 'none' : '';
       });
     });
   }
-  bindFilter('meal-filter-covered', 'meal-panel');
-  bindFilter('act-filter-covered', 'act-panel');
 })();
 </script>
 {% endif %}

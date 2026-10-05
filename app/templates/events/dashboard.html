@@ -53,19 +53,34 @@
   <section class="card dash-card" aria-labelledby="h-today">
     <div class="dash-card-head">
       <h2 id="h-today">{{ _("Aujourd'hui") }}</h2>
-      {% if activities %}<span class="count-badge">{{ activities|length }}</span>{% endif %}
+      {% if timeline %}<span class="count-badge">{{ timeline|length }}</span>{% endif %}
     </div>
-    {% if activities %}
-    <ul class="dash-mini-list">
-      {% for act in activities %}
-      <li>
-        {% if act.start_time %}<span class="time">{{ act.start_time.strftime("%H:%M") }}</span>{% endif %}
-        {% if "planning" in enabled_modules %}
-        <a href="{{ url_for('planning.index', code=event.code) }}">{{ act.title }}</a>
-        {% else %}<span>{{ act.title }}</span>{% endif %}
+    {% if timeline %}
+    <ol class="dash-timeline" aria-label="{{ _("Programme du jour") }}">
+      {% for entry in timeline %}
+      <li class="tl-item{% if entry.kind == 'meal' %} tl-meal{% endif %}">
+        <span class="time">{{ entry.time.strftime("%H:%M") }}</span>
+        <div class="tl-body">
+          {% if entry.kind == 'meal' %}
+          <span class="tl-meal-slot">{{ _("Soir") if entry.slot == 'dinner' else _("Midi") }}</span>
+          {% if "planning" in enabled_modules %}
+          <a href="{{ url_for('meals.index', code=event.code) }}">{{ entry.title }}</a>
+          {% else %}<span class="tl-title">{{ entry.title }}</span>{% endif %}
+          {% if entry.covered %}
+          <span class="meal-course-badge covered" title="{{ _("Ingrédients dans la liste de courses") }}">✓ {{ _("Courses notées") }}</span>
+          {% else %}
+          <span class="meal-course-badge" title="{{ _("Ingrédients pas encore en liste de courses") }}">{{ _("À lister") }}</span>
+          {% endif %}
+          {% else %}
+          {% if "planning" in enabled_modules %}
+          <a href="{{ url_for('planning.index', code=event.code) }}">{{ entry.title }}</a>
+          {% else %}<span class="tl-title">{{ entry.title }}</span>{% endif %}
+          {% if entry.location %}<span class="tl-meta">📍 {{ entry.location }}</span>{% endif %}
+          {% endif %}
+        </div>
       </li>
       {% endfor %}
-    </ul>
+    </ol>
     {% else %}
     <p class="dash-empty">{{ _("Rien prévu aujourd'hui.") }}</p>
     {% endif %}

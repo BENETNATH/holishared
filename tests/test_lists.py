@@ -122,8 +122,8 @@ class TestListDetail:
         assert b"Dairy" in resp.data
         assert b"quick-add" in resp.data  # inline quick-add form renders
 
-    def test_detail_shows_meal_filter(self, client, creator, event, shared_list, db):
-        """Le toggle 'Masquer les cochés' apparaît quand l'événement a des repas."""
+    def test_detail_shows_meal_chips(self, client, creator, event, shared_list, db):
+        """Le panneau de repas s'affiche en pastilles quand l'événement a des repas."""
         from datetime import date
 
         from app.models import Meal
@@ -134,7 +134,8 @@ class TestListDetail:
         db.session.commit()
         resp = client.get(f"/e/{event.code}/lists/{shared_list.id}")
         assert resp.status_code == 200
-        assert b"filter-toggle" in resp.data
+        assert b"meal-chips" in resp.data
+        assert "Déjeuner".encode() in resp.data
 
 
 # === TestAddItem (3 tests) ===

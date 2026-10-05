@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 19:23+0200\n"
+"POT-Creation-Date: 2026-10-05 19:28+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -172,8 +172,8 @@ msgid "Planning"
 msgstr "Schedule"
 
 #: app/templates/base.html:88 app/templates/base.html:192
-#: app/templates/lists/detail.html:15 app/templates/lists/detail.html:106
-#: app/templates/meals/index.html:2 app/templates/meals/index.html:6
+#: app/templates/lists/detail.html:33 app/templates/meals/index.html:2
+#: app/templates/meals/index.html:6
 msgid "Repas"
 msgstr "Meals"
 
@@ -204,7 +204,7 @@ msgstr "Media"
 
 #: app/templates/base.html:106 app/templates/base.html:174
 #: app/templates/chat/index.html:2 app/templates/chat/index.html:6
-#: app/templates/events/dashboard.html:146
+#: app/templates/events/dashboard.html:161
 msgid "Chat"
 msgstr "Chat"
 
@@ -277,7 +277,7 @@ msgstr "Delete message from"
 
 #: app/templates/chat/_messages.html:21 app/templates/costs/index.html:139
 #: app/templates/costs/index.html:189 app/templates/costs/index.html:241
-#: app/templates/costs/index.html:320 app/templates/lists/detail.html:83
+#: app/templates/costs/index.html:320 app/templates/lists/detail.html:107
 #: app/templates/logistics/index.html:34 app/templates/meals/index.html:43
 #: app/templates/media/detail.html:28 app/templates/planning/index.html:39
 msgid "Supprimer"
@@ -374,8 +374,8 @@ msgstr "Transport"
 msgid "Hébergement"
 msgstr "Accommodation"
 
-#: app/templates/costs/index.html:41 app/templates/lists/detail.html:20
-#: app/templates/lists/detail.html:139 app/templates/lists/detail.html:140
+#: app/templates/costs/index.html:41 app/templates/lists/detail.html:14
+#: app/templates/lists/detail.html:129 app/templates/lists/detail.html:130
 msgid "Activités"
 msgstr "Activities"
 
@@ -387,7 +387,7 @@ msgid "Date"
 msgstr "Date"
 
 #: app/templates/costs/index.html:49 app/templates/events/members.html:29
-#: app/templates/lists/detail.html:41 app/templates/meals/index.html:55
+#: app/templates/lists/detail.html:65 app/templates/meals/index.html:55
 #: app/templates/planning/index.html:64
 msgid "Ajouter"
 msgstr "Add"
@@ -695,7 +695,7 @@ msgid "Planifier les repas"
 msgstr "Plan the meals"
 
 #: app/templates/events/dashboard.html:41
-#: app/templates/events/dashboard.html:200 app/templates/planning/index.html:53
+#: app/templates/events/dashboard.html:215 app/templates/planning/index.html:53
 msgid "Ajouter une activité"
 msgstr "Add activity"
 
@@ -715,96 +715,128 @@ msgstr "Share"
 msgid "Aujourd'hui"
 msgstr "Today"
 
+#: app/templates/events/dashboard.html:59
+msgid "Programme du jour"
+msgstr "Today's programme"
+
+#: app/templates/events/dashboard.html:65 app/templates/lists/detail.html:43
+#: app/templates/lists/detail.html:49 app/templates/meals/index.html:18
+msgid "Soir"
+msgstr "Evening"
+
+#: app/templates/events/dashboard.html:65 app/templates/lists/detail.html:43
+#: app/templates/lists/detail.html:49 app/templates/meals/index.html:17
+msgid "Midi"
+msgstr "Midday"
+
 #: app/templates/events/dashboard.html:70
+msgid "Ingrédients dans la liste de courses"
+msgstr "Ingredients in the shopping list"
+
+#: app/templates/events/dashboard.html:70
+#, fuzzy
+msgid "Courses notées"
+msgstr "Listed"
+
+#: app/templates/events/dashboard.html:72
+msgid "Ingrédients pas encore en liste de courses"
+msgstr "Ingredients not yet in the shopping list"
+
+#: app/templates/events/dashboard.html:72
+#, fuzzy
+msgid "À lister"
+msgstr "To list"
+
+#: app/templates/events/dashboard.html:85
 msgid "Rien prévu aujourd'hui."
 msgstr "Nothing planned today."
 
-#: app/templates/events/dashboard.html:73
+#: app/templates/events/dashboard.html:88
 msgid "Voir le planning"
 msgstr "View schedule"
 
-#: app/templates/events/dashboard.html:79
+#: app/templates/events/dashboard.html:94
 msgid "Sondages ouverts"
 msgstr "Open polls"
 
-#: app/templates/events/dashboard.html:91
+#: app/templates/events/dashboard.html:106
 msgid "autres"
 msgstr "other"
 
-#: app/templates/events/dashboard.html:94
+#: app/templates/events/dashboard.html:109
 msgid "Aucun sondage ouvert."
 msgstr "No open polls."
 
-#: app/templates/events/dashboard.html:97
+#: app/templates/events/dashboard.html:112
 msgid "Voir les sondages"
 msgstr "View polls"
 
-#: app/templates/events/dashboard.html:103
+#: app/templates/events/dashboard.html:118
 msgid "À répartir"
 msgstr "To split"
 
-#: app/templates/events/dashboard.html:107
+#: app/templates/events/dashboard.html:122
 msgid "articles sans responsable dans vos listes."
 msgstr "items without an owner in your lists."
 
-#: app/templates/events/dashboard.html:109
+#: app/templates/events/dashboard.html:124
 msgid "Tout est réparti. 👌"
 msgstr "All split. 👌"
 
-#: app/templates/events/dashboard.html:112
-#: app/templates/events/dashboard.html:138
+#: app/templates/events/dashboard.html:127
+#: app/templates/events/dashboard.html:153
 msgid "Voir les listes"
 msgstr "View lists"
 
-#: app/templates/events/dashboard.html:119
+#: app/templates/events/dashboard.html:134
 msgid "Mes items"
 msgstr "My items"
 
-#: app/templates/events/dashboard.html:129
+#: app/templates/events/dashboard.html:144
 msgid "Cocher"
 msgstr "Check"
 
-#: app/templates/events/dashboard.html:154
+#: app/templates/events/dashboard.html:169
 msgid "Chargement…"
 msgstr "Loading…"
 
-#: app/templates/events/dashboard.html:156
+#: app/templates/events/dashboard.html:171
 msgid "Ouvrir le chat"
 msgstr "Open the chat"
 
-#: app/templates/events/dashboard.html:164
+#: app/templates/events/dashboard.html:179
 msgid "Infos importantes"
 msgstr "Important info"
 
-#: app/templates/events/dashboard.html:166
+#: app/templates/events/dashboard.html:181
 msgid "+ Ajouter une info"
 msgstr "+ Add info"
 
-#: app/templates/events/dashboard.html:177 app/templates/logistics/form.html:2
+#: app/templates/events/dashboard.html:192 app/templates/logistics/form.html:2
 #: app/templates/logistics/index.html:30 app/templates/planning/form.html:2
 #: app/templates/planning/index.html:36
 msgid "Modifier"
 msgstr "Edit"
 
-#: app/templates/events/dashboard.html:185
+#: app/templates/events/dashboard.html:200
 msgid "Aucune info pour l'instant"
 msgstr "No info yet"
 
-#: app/templates/events/dashboard.html:186
+#: app/templates/events/dashboard.html:201
 msgid "Adresse du gîte, code d'accès, horaires, documents… chacun peut compléter."
 msgstr "Cabin address, access code, schedule, documents… everyone can add."
 
-#: app/templates/events/dashboard.html:188 app/templates/logistics/form.html:2
+#: app/templates/events/dashboard.html:203 app/templates/logistics/form.html:2
 #: app/templates/logistics/form.html:6 app/templates/logistics/index.html:10
 #: app/templates/logistics/index.html:19
 msgid "Ajouter une info"
 msgstr "Add info"
 
-#: app/templates/events/dashboard.html:197
+#: app/templates/events/dashboard.html:212
 msgid "Rien à afficher pour l'instant"
 msgstr "Nothing to display yet"
 
-#: app/templates/events/dashboard.html:198
+#: app/templates/events/dashboard.html:213
 msgid "Commencez par ajouter une activité ou une info pratique."
 msgstr "Start by adding an activity or a practical info."
 
@@ -1153,56 +1185,44 @@ msgstr ""
 "Without verification, the event will be automatically deleted after 3 "
 "days."
 
-#: app/templates/lists/detail.html:39
-msgid "Ajouter un article… (Enter)"
-msgstr "Add an item… (Enter)"
-
-#: app/templates/lists/detail.html:44
-msgid "Articles de la liste"
-msgstr "List items"
-
-#: app/templates/lists/detail.html:54
-msgid "Je m'occupe"
-msgstr "I’ll handle it"
-
-#: app/templates/lists/detail.html:71
-msgid "Libérer"
-msgstr "Release"
-
-#: app/templates/lists/detail.html:88
-msgid "Aucun article. Tapez ci-dessus et appuyez sur Enter."
-msgstr "No items. Type above and press Enter."
-
-#: app/templates/lists/detail.html:96
-msgid "Supprimer la liste"
-msgstr "Delete list"
-
-#: app/templates/lists/detail.html:105
+#: app/templates/lists/detail.html:31
 msgid "Repas planifiés"
 msgstr "Planned meals"
 
-#: app/templates/lists/detail.html:107
-msgid "Cochez les repas dont vous avez noté les ingrédients."
+#: app/templates/lists/detail.html:34
+#, fuzzy
+msgid "Cochez un repas quand ses ingrédients sont en liste."
 msgstr "Check the meals whose ingredients you noted."
 
-#: app/templates/lists/detail.html:110
-#, fuzzy
-msgid "Masquer les repas cochés"
-msgstr "Plan the meals"
+#: app/templates/lists/detail.html:63
+msgid "Ajouter un article… (Enter)"
+msgstr "Add an item… (Enter)"
 
-#: app/templates/lists/detail.html:126 app/templates/meals/index.html:18
-msgid "Soir"
-msgstr "Evening"
+#: app/templates/lists/detail.html:68
+msgid "Articles de la liste"
+msgstr "List items"
 
-#: app/templates/lists/detail.html:126 app/templates/meals/index.html:17
-msgid "Midi"
-msgstr "Midday"
+#: app/templates/lists/detail.html:78
+msgid "Je m'occupe"
+msgstr "I’ll handle it"
 
-#: app/templates/lists/detail.html:141
+#: app/templates/lists/detail.html:95
+msgid "Libérer"
+msgstr "Release"
+
+#: app/templates/lists/detail.html:112
+msgid "Aucun article. Tapez ci-dessus et appuyez sur Enter."
+msgstr "No items. Type above and press Enter."
+
+#: app/templates/lists/detail.html:120
+msgid "Supprimer la liste"
+msgstr "Delete list"
+
+#: app/templates/lists/detail.html:131
 msgid "Cochez les activités déjà préparées."
 msgstr ""
 
-#: app/templates/lists/detail.html:144
+#: app/templates/lists/detail.html:134
 #, fuzzy
 msgid "Masquer les activités cochées"
 msgstr "Other activities"
@@ -1708,4 +1728,7 @@ msgstr "Vote recorded."
 
 #~ msgid "Le créateur ne vote pas."
 #~ msgstr "The creator does not vote."
+
+#~ msgid "Masquer les repas cochés"
+#~ msgstr "Plan the meals"
 

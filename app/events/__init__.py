@@ -1,7 +1,7 @@
 """Events blueprint - creation, invites, guest access."""
 
 import re
-from datetime import date, datetime
+from datetime import date, datetime, time
 from typing import cast
 
 from flask import (
@@ -273,7 +273,9 @@ def dashboard(code: str) -> str | Response:
         ensure_creator_guest(event, current_user)
 
     # Load data
-    activities = event.activities.filter_by(date=date.today()).all()
+    today = date.today()
+    activities = event.activities.filter_by(date=today).all()
+    today_meals = event.meals.filter_by(date=today).all()
     lists = event.lists.all()
     polls = event.polls.filter_by(is_closed=False).all()
 
@@ -289,9 +291,43 @@ def dashboard(code: str) -> str | Response:
     )
     category_labels = {k: _tr(v) for k, v in CATEGORY_LABELS.items()}
 
+    # Courses status: a meal is "covered" when its ingredients are already
+    # checked off in any of the event's shared lists.
+    covered_meal_ids: set[str] = set()
+    for lst in event.lists:
+        covered_meal_ids.update(lst.covered_meals or [])
+
+    # Build a single chronological timeline of today's meals + activities.
+    # Meals have no clock time, so each slot maps to a canonical hour
+    # (lunch → 12:00, dinner → 20:00); activities with no start_time sort last.
+    slot_hour = {"lunch": (12, 0), "dinner": (20, 0)}
+    timeline: list[dict[str, object]] = []
+    for act in activities:
+        timeline.append({
+            "kind": "activity",
+            "time": act.start_time or time(23, 59),
+            "title": act.title,
+            "location": act.location,
+            "obj": act,
+        })
+    for meal in today_meals:
+        h, m = slot_hour.get(meal.slot, (12, 0))
+        timeline.append({
+            "kind": "meal",
+            "time": time(h, m),
+            "title": meal.title,
+            "slot": meal.slot,
+            "covered": meal.id in covered_meal_ids,
+            "obj": meal,
+        })
+    timeline.sort(key=lambda e: cast("time", e["time"]))
+
     return render_template("events/dashboard.html",
                            event=event, guest=guest,
-                           activities=activities, lists=lists, polls=polls,
+                           activities=activities, today_meals=today_meals,
+                           timeline=timeline,
+                           covered_meal_ids=covered_meal_ids,
+                           lists=lists, polls=polls,
                            logistics_items=logistics_items,
                            category_labels=category_labels)
 

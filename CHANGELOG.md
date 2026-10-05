@@ -10,6 +10,35 @@ sous chaque lot.
 
 ## [Unreleased]
 
+### B016 — Refonte UI/UX Lot 1 (Design System, palette chaleureuse, shell mobile)
+- [x] Design tokens : palette chaude terracotta/lin (#FAF8F5, #C25E38), rayons
+      6/12/18/9999px, ombres card/hover, `--accent-sage` pour les statuts positifs
+- [x] Typographie : stack system + Inter, titres h1–h3 en 650 / -0.02em
+- [x] Dark mode réchauffé (charbon + terracotta doux)
+- [x] Contraste WCAG 2.1 AA : textes/boutons solides sur `--primary-hover`
+      (≥4.5:1), `--primary` réservé aux surfaces/contours/icônes (≥3:1)
+- [x] Shell mobile : header discret (logo + titre événement + avatar/code)
+      + barre tactile fixe en bas (Hub, Planning, Listes, Frais, Plus) avec
+      `backdrop-filter: blur(12px)` et menu "Plus" (Media, Chat, Sondages, Infos, Repas)
+- [x] `padding-bottom: 5rem` sur `<main>` mobile ; icônes SVG inline ;
+      conteneur centré 960px ; nav desktop en pilules
+- [x] Chip identité invité dans le header (initiale sage + nom/code)
+- [x] i18n : chaînes "Accueil/Plus/Navigation/Fermer" (en) + recompile .mo
+- [x] manifest.json + theme-color alignés sur la palette
+- [x] 238 tests passent (0 régression)
+
+#### Lot 2 — Timeline du jour & ergonomie Repas ↔ Courses
+- [x] Dashboard "Aujourd'hui" : timeline chronologique unifiée (repas Midi/Soir
+      + activités), chaque entrée horodatée
+- [x] Passerelle Repas → Courses : badge de statut sur chaque repas du dashboard
+      ("Listed" si les ingrédients sont cochés dans une liste, "À lister" sinon)
+- [x] Liste de courses : le panneau latéral de repas devient une rangée de
+      pastilles horizontales (chips) défilables, ≥44px, coche en un tap sans
+      masquer les articles
+- [x] i18n : chaînes timeline + pastilles (en) + recompile .mo
+- [x] 238 tests passent (0 régression ; un test obsolète sur l'ancien toggle
+      repas remplacé par une assertion sur les pastilles)
+
 ### B008 — Frictions UX (code invité, auth, i18n, CSS, formulaires)
 - [x] Code invité : l'invité saisit son propre code (4-8 car.), toujours visible
       sur le dashboard (plus de flash) ; reconnexion via /mycode
