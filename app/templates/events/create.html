@@ -19,12 +19,18 @@
 
 <form method="post" action="{{ url_for('events.create') }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  {# The user is already logged in with a verified email: pre-fill it as a
-     hidden field (the backend still requires it in the form data). #}
-  <input type="hidden" name="email" value="{{ current_user.email }}">
 
   <fieldset class="form-section">
     <legend>{{ _("Basiques") }}</legend>
+
+    <div class="form-group">
+      <label for="email">{{ _("Votre email") }} *</label>
+      <input type="email" id="email" name="email" required
+             value="{{ form.email if form else (current_user.email if current_user.is_authenticated else '') }}"
+             placeholder="{{ _('Ex : alice@mail.com') }}"
+             {% if field_errors['email'] %}aria-invalid="true" aria-describedby="err-email"{% endif %}>
+      {% for e in field_errors['email'] %}<p class="field-error" id="err-email">{{ e }}</p>{% endfor %}
+    </div>
 
     <div class="form-group">
       <label for="title">{{ _("Titre") }} *</label>
@@ -66,9 +72,7 @@
   </details>
 
   <p class="hint">
-    {{ _("Votre email") }} : <strong>{{ current_user.email }}</strong> —
-    {{ _("sert à retrouver votre événement et à gérer les invitations.") }}
-    {% for e in field_errors['email'] %}<span class="field-error">{{ e }}</span>{% endfor %}
+    {{ _("Un email de vérification vous sera envoyé pour activer l'événement (lien valide 3 jours). Il ne sera conservé que si vous le demandez à la validation.") }}
   </p>
 
   <div class="form-actions">

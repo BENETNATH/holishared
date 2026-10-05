@@ -398,6 +398,20 @@ with app.app_context():
 
     add_col("guests", "email", "VARCHAR(255)")
     add_col("events", "creator_email", "VARCHAR(255)")
+
+    # creators.email: NOT NULL -> NULL (opt-out of storing the creator email).
+    # SQLite cannot ALTER a column's nullability, so rebuild the table.
+    # (SQL kept on single lines: this whole block is a -c string literal.)
+    creators_cols = {c["name"]: c for c in insp.get_columns("creators")}
+    if creators_cols.get("email", {}).get("nullable") is False:
+        with db.engine.begin() as conn:
+            conn.execute(text("CREATE TABLE creators_new (id VARCHAR(32) NOT NULL, email VARCHAR(255), email_verified BOOLEAN, verification_token VARCHAR(64), verification_sent_at DATETIME, display_name VARCHAR(100), personal_code VARCHAR(8), created_at DATETIME, PRIMARY KEY (id), UNIQUE (email), UNIQUE (personal_code))"))
+            conn.execute(text("INSERT INTO creators_new SELECT id, email, email_verified, verification_token, verification_sent_at, display_name, personal_code, created_at FROM creators"))
+            conn.execute(text("DROP TABLE creators"))
+            conn.execute(text("ALTER TABLE creators_new RENAME TO creators"))
+        print("[OK] creators.email made nullable (table rebuilt)")
+    else:
+        print("[skip] creators.email already nullable")
     print("[OK] Migrations applied")
 """])
 

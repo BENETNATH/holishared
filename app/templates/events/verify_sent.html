@@ -9,7 +9,12 @@
 </div>
 
 <div class="card">
-  <p>{{ _("Un email de vérification a été envoyé à") }} <strong>{{ event.creator_email }}</strong>.</p>
+  {% set ce = event.creator_email or '' %}
+  {% if ce %}
+  <p>{{ _("Un email de vérification a été envoyé à") }} <strong>{{ ce[0] }}***@{{ ce.split('@')[-1] }}</strong>.</p>
+  {% else %}
+  <p>{{ _("Un email de vérification a été envoyé.") }}</p>
+  {% endif %}
   <p>{{ _("Clique sur le lien pour définir ton code personnel et ton pseudo. Le lien est valide 3 jours.") }}</p>
   <p class="hint">{{ _("Sans vérification, l'événement sera supprimé automatiquement au bout de 3 jours.") }}</p>
 </div>

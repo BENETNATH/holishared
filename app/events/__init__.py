@@ -109,13 +109,13 @@ def create() -> str | Response:
                       "location": location, "email": email},
             )
 
-        # Auto-create or reuse Creator from email.
+        # Auto-create or reuse Creator from email. personal_code is set later,
+        # at verification (not generated here — it would be a phantom identity).
         creator = Creator.query.filter_by(email=email).first()
         if not creator:
             creator = Creator(
                 email=email,
                 display_name=email.split("@")[0].title(),
-                personal_code=generate_guest_code(),
             )
             db.session.add(creator)
             db.session.flush()
@@ -142,12 +142,17 @@ def create() -> str | Response:
         db.session.add(event)
         db.session.commit()
 
-        # Send verification email (if SMTP configured).
+        # Send verification email (if SMTP configured); otherwise show the
+        # link directly (dev mode, no SMTP).
         if current_app.config["SMTP_HOST"]:
             _send_verification_email(creator, event, token)
-
-        session["creator_id"] = creator.id
-        flash("Un email de vérification a été envoyé.", "success")
+            flash("Un email de vérification a été envoyé.", "success")
+        else:
+            flash(
+                "Mode dev (pas de SMTP) — clique sur le lien de vérification : "
+                + url_for("events.verify", token=token, _external=True),
+                "warning",
+            )
         return redirect(url_for("events.verify_sent", code=event.code))
 
     return render_template("events/create.html")
@@ -170,8 +175,10 @@ def verify(token: str) -> str | Response:
         flash("Lien invalide ou expiré.", "danger")
         return redirect(url_for("main.landing"))
     if event.verified_at is not None:
-        # Already verified — go to dashboard.
-        session["creator_id"] = event.creator_id
+        # Already verified — log the creator in and go to dashboard.
+        creator = Creator.query.get(event.creator_id)
+        if creator:
+            login_user(creator)
         return redirect(url_for("events.dashboard", code=event.code))
 
     if request.method == "POST":
@@ -215,7 +222,8 @@ def verify(token: str) -> str | Response:
                 if _valid_email(ie) and not is_disposable_email(ie):
                     _send_invite_email(ie, event)
 
-        session["creator_id"] = event.creator_id
+        if creator:
+            login_user(creator)
         flash("Événement confirmé !", "success")
         return redirect(url_for("events.dashboard", code=event.code))
 
@@ -552,7 +560,7 @@ def _send_verification_email(creator: Creator, event: Event, token: str) -> None
     import smtplib
     from email.mime.text import MIMEText
 
-    url = f"{current_app.config['APP_URL']}/verify/{token}"
+    url = url_for("events.verify", token=token, _external=True)
     to_addr = event.creator_email or creator.email
     msg = MIMEText(f"""Bonjour,
 

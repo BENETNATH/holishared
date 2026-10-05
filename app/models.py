@@ -29,7 +29,7 @@ class Creator(UserMixin, db.Model):  # type: ignore[misc,name-defined]
     __tablename__ = "creators"
 
     id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
-    email: Mapped[str] = db.Column(db.String(255), unique=True, nullable=False)
+    email: Mapped[str | None] = db.Column(db.String(255), unique=True, nullable=True)
     email_verified: Mapped[bool] = db.Column(db.Boolean, default=False)
     verification_token: Mapped[str] = db.Column(db.String(64), default=lambda: secrets.token_hex(32))
     verification_sent_at: Mapped[datetime | None] = db.Column(db.DateTime, nullable=True)

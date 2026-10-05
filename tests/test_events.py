@@ -33,6 +33,81 @@ class TestEventCreation:
         assert b"Titre" in resp.data
 
 
+class TestAnonymousCreationFlow:
+    """The creator is NOT logged in: they enter their email on /e/new,
+    follow the verification link, verify, and reach the dashboard."""
+
+    def test_create_page_shows_visible_email_field(self, client):
+        resp = client.get("/e/new")
+        assert resp.status_code == 200
+        # A visible email input (not a hidden field).
+        assert b'type="email"' in resp.data
+        assert b'name="email"' in resp.data
+
+    def test_full_anonymous_flow_email_opt_out(self, client, db):
+        # 1. Anonymous creates the event (no session at all).
+        resp = client.post("/e/new", data={
+            "title": "Weekend",
+            "start_date": "2026-12-01",
+            "end_date": "2026-12-03",
+            "location": "Lyon",
+            "email": "anon@test.com",
+        }, follow_redirects=False)
+        assert resp.status_code == 302
+        assert "/e/new/sent/" in resp.headers["Location"]
+
+        # 2. Fetch the verification token from the DB.
+        from app.models import Creator, Event
+        event = Event.query.filter_by(creator_email="anon@test.com").first()
+        assert event is not None
+        token = event.verification_token
+        assert token
+
+        # 3. The verify link lives at /e/verify/<token> (not /verify/<token>).
+        resp = client.get(f"/e/verify/{token}")
+        assert resp.status_code == 200
+        assert b"Valider" in resp.data
+
+        # 4. Verify WITHOUT storing the creator email (opt-out, the default).
+        resp = client.post(f"/e/verify/{token}", data={
+            "display_name": "Anon",
+            "personal_code": "anon42x",
+        }, follow_redirects=False)
+        assert resp.status_code == 302
+        assert f"/e/{event.code}" in resp.headers["Location"]
+
+        # 5. Email erased (opt-out) without an IntegrityError; code set.
+        creator = Creator.query.filter_by(display_name="Anon").first()
+        assert creator is not None
+        assert creator.email is None
+        assert creator.personal_code == "anon42x"
+
+        # 6. The creator is now logged in and can reach the dashboard.
+        resp = client.get(f"/e/{event.code}")
+        assert resp.status_code == 200
+
+    def test_full_anonymous_flow_email_kept(self, client, db):
+        resp = client.post("/e/new", data={
+            "title": "Weekend",
+            "start_date": "2026-12-01",
+            "end_date": "2026-12-03",
+            "email": "keep@test.com",
+        }, follow_redirects=False)
+        assert resp.status_code == 302
+        from app.models import Creator, Event
+        event = Event.query.filter_by(creator_email="keep@test.com").first()
+        token = event.verification_token
+        resp = client.post(f"/e/verify/{token}", data={
+            "display_name": "Keeper",
+            "personal_code": "keep42x",
+            "store_creator_email": "1",
+        }, follow_redirects=False)
+        assert resp.status_code == 302
+        creator = Creator.query.filter_by(display_name="Keeper").first()
+        assert creator is not None
+        assert creator.email == "keep@test.com"
+
+
 class TestGuestAccess:
     def test_join_page_renders(self, client, event):
         resp = client.get(f"/e/{event.code}/join")
