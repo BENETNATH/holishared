@@ -19,7 +19,7 @@ qui code sur ce repo DOIT respecter ces règles.
   [footer optionnel — BREAKING CHANGE, refs]
   ```
 - Types : `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `perf`, `style`, `ci`
-- Scopes : `auth`, `events`, `planning`, `lists`, `logistics`, `voting`, `chat`, `models`, `infra`, `i18n`, `pwa`, `css`
+- Scopes : `auth`, `events`, `planning`, `lists`, `logistics`, `voting`, `chat`, `models`, `infra`, `i18n`, `pwa`, `css`, `meals`, `costs`, `media`, `context`, `ui`
 - Exemples :
   ```
   feat(planning): ajouter création d'activité avec RSVP
