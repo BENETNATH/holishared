@@ -124,6 +124,7 @@ def create_app() -> Flask:
                 cursor = dbapi_conn.cursor()
                 cursor.execute("PRAGMA journal_mode=WAL")
                 cursor.execute("PRAGMA busy_timeout=5000")
+                cursor.execute("PRAGMA foreign_keys=ON")  # cascades ON DELETE (B023)
                 cursor.close()
         db.create_all()
 
@@ -165,6 +166,9 @@ def create_app() -> Flask:
                 from app.migrations import run_meals_migration
 
                 run_meals_migration(app)  # avant la purge : elle charge les repas en cascade
+                from app.migrations import run_lists_migration
+
+                run_lists_migration(app)  # avant la purge : elle charge les articles (created_by)
             _purge_expired_events()
             if os.environ.get("SKIP_STARTUP_MIGRATION") != "1":
                 from app.migrations import run_identity_migration

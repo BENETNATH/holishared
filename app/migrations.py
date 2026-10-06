@@ -3,6 +3,7 @@
 Idempotentes : une seconde exécution ne fait rien et ne crée aucune sauvegarde.
 """
 
+import json
 import logging
 import os
 import secrets
@@ -33,6 +34,7 @@ logger = logging.getLogger(__name__)
 
 BACKUP_PREFIX = "pre-identity-"
 MEALS_BACKUP_PREFIX = "pre-meals-"
+LISTS_BACKUP_PREFIX = "pre-lists-"
 _KEYS = (
     "creator_guests_reactivated",
     "creator_guests_created",
@@ -329,14 +331,19 @@ def migrate_meals_schema(engine: Any) -> dict[str, int]:
     if not plan["meals_rebuild"]:
         return plan
     with engine.connect() as conn:
-        conn.exec_driver_sql("BEGIN")
+        # Reconstruction de table SQLite : clés étrangères suspendues (sans effet dans une transaction).
+        conn.exec_driver_sql("PRAGMA foreign_keys=OFF")
         try:
-            for statement in _MEALS_REBUILD:
-                conn.exec_driver_sql(statement)
-            conn.commit()
-        except Exception:
-            conn.rollback()
-            raise
+            conn.exec_driver_sql("BEGIN")
+            try:
+                for statement in _MEALS_REBUILD:
+                    conn.exec_driver_sql(statement)
+                conn.commit()
+            except Exception:
+                conn.rollback()
+                raise
+        finally:
+            conn.exec_driver_sql("PRAGMA foreign_keys=ON")
     return plan
 
 
@@ -353,6 +360,127 @@ def run_meals_migration(app: Flask) -> dict[str, int]:
         prune_backups(app.instance_path)
     result = migrate_meals_schema(db.engine)
     logger.info("meals migration %s backup=%s", result, backup or "-")
+    return result
+
+
+def _legacy_ids(raw: Any) -> list[str]:
+    """Identifiants d'un tableau JSON historique (texte SQLite ou liste) ; valeurs invalides ignorées."""
+    if isinstance(raw, str):
+        try:
+            raw = json.loads(raw)
+        except ValueError:
+            return []
+    if not isinstance(raw, list):
+        return []
+    return list(dict.fromkeys(i for i in raw if isinstance(i, str)))
+
+
+def _lists_state(conn: Any) -> dict[str, Any]:
+    """Calcul à blanc B023 : colonne `created_by` manquante, couvertures JSON à transférer."""
+    columns = {row[1] for row in conn.exec_driver_sql("PRAGMA table_info(list_items)")}
+    column_missing = bool(columns) and "created_by" not in columns
+    valid = {
+        "meal": {r[0] for r in conn.exec_driver_sql("SELECT id FROM meals")},
+        "activity": {r[0] for r in conn.exec_driver_sql("SELECT id FROM activities")},
+    }
+    existing = {
+        "meal": set(
+            conn.exec_driver_sql("SELECT list_id, meal_id FROM list_meal_coverages").fetchall()
+        ),
+        "activity": set(
+            conn.exec_driver_sql(
+                "SELECT list_id, activity_id FROM list_activity_coverages"
+            ).fetchall()
+        ),
+    }
+    inserts: dict[str, list[tuple[str, str]]] = {"meal": [], "activity": []}
+    orphans = 0
+    to_clear: list[str] = []
+    for list_id, raw_meals, raw_acts in conn.exec_driver_sql(
+        "SELECT id, covered_meals, covered_activities FROM shared_lists"
+    ).fetchall():
+        ids = {"meal": _legacy_ids(raw_meals), "activity": _legacy_ids(raw_acts)}
+        if (
+            ids["meal"]
+            or ids["activity"]
+            or raw_meals not in (None, "[]")
+            or raw_acts not in (None, "[]")
+        ):
+            to_clear.append(list_id)
+        for kind, values in ids.items():
+            for target in values:
+                if target not in valid[kind]:
+                    orphans += 1
+                elif (list_id, target) not in existing[kind]:
+                    inserts[kind].append((list_id, target))
+    return {
+        "column_missing": column_missing,
+        "inserts": inserts,
+        "orphans": orphans,
+        "to_clear": to_clear,
+    }
+
+
+def _lists_plan(state: dict[str, Any]) -> dict[str, int]:
+    return {
+        "list_items_created_by_column": int(state["column_missing"]),
+        "meal_coverages": len(state["inserts"]["meal"]),
+        "activity_coverages": len(state["inserts"]["activity"]),
+        "orphans_ignored": state["orphans"],
+        "json_cleared": len(state["to_clear"]),
+    }
+
+
+def plan_lists_migration(engine: Any) -> dict[str, int]:
+    """Calcul à blanc B023 (aucune écriture)."""
+    with engine.connect() as conn:
+        return _lists_plan(_lists_state(conn))
+
+
+def migrate_lists(engine: Any) -> dict[str, int]:
+    """Colonne `list_items.created_by` + tableaux JSON de couverture -> tables d'association.
+
+    Une seule transaction ; les tableaux JSON sont vidés une fois transférés (sinon une
+    seconde exécution rétablirait une couverture décochée entre-temps).
+    """
+    with engine.begin() as conn:
+        state = _lists_state(conn)
+        plan = _lists_plan(state)
+        if not any(plan.values()):
+            return plan
+        if state["column_missing"]:
+            conn.exec_driver_sql(
+                "ALTER TABLE list_items ADD COLUMN created_by VARCHAR(32) REFERENCES guests (id)"
+            )
+        now = datetime.now(UTC).replace(tzinfo=None).isoformat(sep=" ")
+        for kind, table, column in (
+            ("meal", "list_meal_coverages", "meal_id"),
+            ("activity", "list_activity_coverages", "activity_id"),
+        ):
+            for list_id, target in state["inserts"][kind]:
+                conn.exec_driver_sql(
+                    f"INSERT INTO {table} (list_id, {column}, covered_at) VALUES (?, ?, ?)",  # noqa: S608 - identifiants constants
+                    (list_id, target, now),
+                )
+        for list_id in state["to_clear"]:
+            conn.exec_driver_sql(
+                "UPDATE shared_lists SET covered_meals = '[]', covered_activities = '[]' WHERE id = ?",
+                (list_id,),
+            )
+    return plan
+
+
+def run_lists_migration(app: Flask) -> dict[str, int]:
+    """Migration des listes au démarrage : sauvegarde seulement si des écritures sont prévues."""
+    plan = plan_lists_migration(db.engine)
+    if not any(plan.values()):
+        return plan
+    backup = backup_sqlite_database(
+        app.config["SQLALCHEMY_DATABASE_URI"], app.instance_path, LISTS_BACKUP_PREFIX
+    )
+    prune_backups(app.instance_path)
+    result = migrate_lists(db.engine)
+    logger.info("lists migration %s backup=%s", result, backup or "-")
     return result
 
 

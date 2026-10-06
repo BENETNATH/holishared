@@ -414,8 +414,9 @@ with app.app_context():
         print("[OK] creators.email made nullable (table rebuilt)")
     else:
         print("[skip] creators.email already nullable")
-    from app.migrations import prune_backups, run_identity_migration, run_meals_migration
+    from app.migrations import prune_backups, run_identity_migration, run_lists_migration, run_meals_migration
     print('[OK] meals', run_meals_migration(app))
+    print('[OK] lists', run_lists_migration(app))
     print('[OK] identity', run_identity_migration(app))
     print('[OK] backups pruned', prune_backups(app.instance_path))
     print("[OK] Migrations applied")

@@ -231,8 +231,10 @@ class SharedList(db.Model):  # type: ignore[misc,name-defined]
     id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
     title: Mapped[str] = db.Column(db.String(200), nullable=False)
     list_type: Mapped[str] = db.Column(db.String(50), default="general")  # shopping, packing, materials, buffet
-    covered_meals: Mapped[list] = db.Column(db.JSON, default=list)  # meal IDs checked off
-    covered_activities: Mapped[list] = db.Column(db.JSON, default=list)  # activity IDs checked off
+    # Colonnes JSON historiques : ni lues ni écrites depuis B023 (remplacées par ListMealCoverage /
+    # ListActivityCoverage, migrées par app.migrations) ; suppression physique prévue en B028.
+    covered_meals: Mapped[list] = db.Column(db.JSON, default=list)
+    covered_activities: Mapped[list] = db.Column(db.JSON, default=list)
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
 
     event_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False)
@@ -255,8 +257,43 @@ class ListItem(db.Model):  # type: ignore[misc,name-defined]
     is_done: Mapped[bool] = db.Column(db.Boolean, default=False)
     section: Mapped[str] = db.Column(db.String(100), default="")  # category within the list
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
+    created_by: Mapped[str | None] = db.Column(db.String(32), db.ForeignKey("guests.id"), default=None)
 
     list_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("shared_lists.id"), nullable=False)
+
+
+class ListMealCoverage(db.Model):  # type: ignore[misc,name-defined]
+    """« Cette liste prend en compte ce repas » (B023) ; supprimée en cascade avec la liste ou le repas."""
+
+    __tablename__ = "list_meal_coverages"
+
+    list_id: Mapped[str] = db.Column(
+        db.String(32), db.ForeignKey("shared_lists.id", ondelete="CASCADE"), primary_key=True
+    )
+    meal_id: Mapped[str] = db.Column(
+        db.String(32), db.ForeignKey("meals.id", ondelete="CASCADE"), primary_key=True
+    )
+    covered_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
+    covered_by: Mapped[str | None] = db.Column(
+        db.String(32), db.ForeignKey("guests.id", ondelete="SET NULL"), default=None
+    )
+
+
+class ListActivityCoverage(db.Model):  # type: ignore[misc,name-defined]
+    """« Cette liste prend en compte cette activité » (B023) ; supprimée en cascade."""
+
+    __tablename__ = "list_activity_coverages"
+
+    list_id: Mapped[str] = db.Column(
+        db.String(32), db.ForeignKey("shared_lists.id", ondelete="CASCADE"), primary_key=True
+    )
+    activity_id: Mapped[str] = db.Column(
+        db.String(32), db.ForeignKey("activities.id", ondelete="CASCADE"), primary_key=True
+    )
+    covered_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
+    covered_by: Mapped[str | None] = db.Column(
+        db.String(32), db.ForeignKey("guests.id", ondelete="SET NULL"), default=None
+    )
 
 
 class Poll(db.Model):  # type: ignore[misc,name-defined]
