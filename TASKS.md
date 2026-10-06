@@ -383,7 +383,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B017 — Socle Tailwind, shell mobile & outillage UI
 
-**Statut** : ⬜ · **Réf.** N1–N9, I3, V10, F20
+**Statut** : ✅ (2026-10-06) · **Réf.** N1–N9, I3, V10, F20
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|

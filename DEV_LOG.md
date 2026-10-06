@@ -182,6 +182,20 @@ Fonctions dans `app/freemium.py` :
 | — | **Media + quota** | `app/models.py` (MediaItem, MediaQuota), `app/freemium.py` | Partage photos/vidéos + GPS + datation, quota par tier |
 | — | **B003 Planning** | `app/planning/__init__.py`, `app/utils.py`, `app/models.py` (ActivityLog), `app/templates/planning/` | 5 routes (index/create/edit/delete/rsvp), helper log_action(), 45 tests verts |
 
+### 2026-10-06 — B017 Socle Tailwind, shell mobile & outillage UI
+
+| Action | Fichier(s) | Détail |
+|--------|------------|--------|
+| Build Tailwind v4 | `package.json`, `app/static/src/*.css`, `app/static/css/app.css` | CSS compilé commité ; `main.css` → `src/legacy.css` (couche `legacy`) |
+| Tokens, kit `ui-*`, icônes | `theme.css`, `base.css`, `components.css`, `app/icons.py`, `app/ui.py`, `_components/ui.html` | 71 icônes Lucide, macros `field`/`sheet`/`empty_state` |
+| Shell + JS partagé | `app/templates/base.html`, `app/static/js/ui/*.js` | Barre du bas, feuille « Plus », barre latérale, toasts, thème sans flash, `JS_STRINGS` |
+| Sécurité | `events/members.html`, `app/ui.py` | Codes personnels visibles du créateur seul ; « Participants » créateur seul |
+| PWA | `/sw.js`, `/offline`, `manifest.json`, `pwa.js` | Cache versionné par empreinte, page hors ligne autonome |
+| Catalogue | `/_ui`, `main/ui_catalog.html` | Dev uniquement (`UI_CATALOG_ENABLED`) |
+| Outillage | `scripts/ui/*` | Graine, serveur de démo, garde CDP (`ui:check`), auto-contrôle (`ui:selftest`) |
+
+Écarts de spec : textes de démonstration du catalogue traduits au commit du catalogue (pas au commit i18n) ; `.meal-chip` passe en `position: relative` (cause réelle du débordement des pastilles repas : l'input masqué absolu échappait au défilement interne) ; `ruff format --check .` et `mypy app/` n'étaient déjà pas verts sur le dépôt avant le lot (27 fichiers historiques non formatés, 17 erreurs mypy, inchangées par le lot) : seuls les fichiers du lot sont tenus propres.
+
 ### À faire (backlog)
 
 | Priorité | Tâche | Statut |

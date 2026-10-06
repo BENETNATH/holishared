@@ -10,6 +10,19 @@ sous chaque lot.
 
 ## [Unreleased]
 
+### B017 — Socle Tailwind, shell mobile & outillage UI
+
+- `chore(infra)` : build Tailwind CSS v4.3.3 (`npm run build:css`, CSS compilé commité), ancien `main.css` isolé en couche `legacy` (`app/static/src/legacy.css`), job CI `frontend`.
+- `feat(css)` : design tokens clair/sombre (contrastes AA mesurés), couche `base`, kit de composants `ui-*`, jeu d'icônes Lucide unique (71), helpers `asset_url`/`icon`, macros `field`/`sheet`/`empty_state`, thème sans flash (F31).
+- `chore(i18n)` : chaînes du shell, des dialogues et de la page hors ligne (FR/EN) ; « Créer » corrigé, « Créateur » traduit.
+- `feat(css)` : shell responsive (en-tête sobre, barre du bas à 5 destinations + feuille « Plus », navigation hors événement, barre latérale ≥ 1024 px, pastille d'identité), modules JS partagés (thème, feuilles, toasts, copie, révélation, confirmation, anti double envoi), registre `JS_STRINGS`/`#ui-strings`, fin du JS inline de `base.html`.
+- `fix(sécurité)` : `events/members.html` ne rend plus les codes personnels qu'au créateur ; l'entrée « Participants » n'est proposée qu'au créateur.
+- `refactor(costs)` : confirmations via `data-confirm` (plus de `confirm()` natif).
+- `feat(pwa)` : service worker servi à la racine (`/sw.js`, cache versionné par empreinte), page `/offline` autonome, manifest corrigé, mise à jour annoncée par toast ; Alpine (jamais chargé) supprimé.
+- `feat(css)` : catalogue de composants `/_ui` (dev uniquement, `UI_CATALOG_ENABLED`).
+- `feat(infra)` : outillage `scripts/ui/` (graine de démo jetable, serveur de démo, captures, garde CDP `npm run ui:check`, auto-contrôle `npm run ui:selftest`).
+- `fix(css)` : débordements horizontaux de page des pages historiques (N2).
+
 ### B016 — Refonte UI/UX (Design System, shell mobile, timeline, frais, confidentialité, freemium)
 
 #### Lot 1 — Design System, palette chaleureuse & shell mobile
