@@ -129,13 +129,39 @@ def _populate_rich(db: Any, models: Any, rich: Any, creator_guest: Any) -> dict[
     db.session.add(shopping)
     db.session.flush()
     for item in (
-        {"name": "Pâtes", "quantity": "2"},
-        {"name": "Fromage à raclette"},
-        {"name": "Pain"},
-        {"name": "Vin rouge", "assigned_to": "Antoine", "assigned_to_id": antoine.id},
-        {"name": "Sel", "is_done": True},
+        {"name": "Pâtes", "quantity": "2", "section": "Épicerie", "created_by": antoine.id},
+        {"name": "Fromage à raclette", "section": "Crèmerie", "created_by": chloe.id},
+        {"name": "Pain", "section": "Boulangerie", "created_by": antoine.id},
+        {
+            "name": "Vin rouge",
+            "assigned_to": "Antoine",
+            "assigned_to_id": antoine.id,
+            "created_by": antoine.id,
+        },
+        {"name": "Sel", "is_done": True, "section": "Épicerie", "created_by": chloe.id},
     ):
         db.session.add(m.ListItem(list_id=shopping.id, **item))
+    # Couverture (B023) : la liste de courses prend en compte les trois premiers repas et une activité.
+    first_meals = (
+        m.Meal.query.filter_by(event_id=rich.id).order_by(*m.Meal.ordering()).limit(3).all()
+    )
+    for meal in first_meals:
+        db.session.add(
+            m.ListMealCoverage(list_id=shopping.id, meal_id=meal.id, covered_by=antoine.id)
+        )
+    first_activity = m.Activity.query.filter_by(event_id=rich.id).order_by(m.Activity.date).first()
+    db.session.add(
+        m.ListActivityCoverage(
+            list_id=shopping.id, activity_id=first_activity.id, covered_by=antoine.id
+        )
+    )
+
+    # Liste annexe (B023) : les scènes qui modifient des articles (cocher, supprimer puis annuler) s'y limitent.
+    packing = m.SharedList(title="Valise", list_type="packing", event_id=rich.id)
+    db.session.add(packing)
+    db.session.flush()
+    for name in ("Maillot de bain", "Crème solaire"):
+        db.session.add(m.ListItem(list_id=packing.id, name=name, created_by=antoine.id))
 
     poll = m.Poll(question="Quel jour pour la grande randonnée ?", event_id=rich.id)
     db.session.add(poll)
@@ -199,7 +225,7 @@ def _populate_rich(db: Any, models: Any, rich: Any, creator_guest: Any) -> dict[
             )
         )
     db.session.commit()
-    return {"antoine": antoine, "chloe": chloe, "list": shopping, "poll": poll}
+    return {"antoine": antoine, "chloe": chloe, "list": shopping, "packing": packing, "poll": poll}
 
 
 def seed(out_dir: Path, port: int = 8499) -> dict[str, Any]:
@@ -291,6 +317,7 @@ def seed(out_dir: Path, port: int = 8499) -> dict[str, Any]:
         }
         placeholders = {f"event.{key}": ev.code for key, ev in events.items()}
         placeholders["list.rich"] = objects["list"].id
+        placeholders["list.packing"] = objects["packing"].id
         placeholders["poll.rich"] = objects["poll"].id
         placeholders["token.unverified"] = events["unverified"].verification_token
 

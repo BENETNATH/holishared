@@ -343,7 +343,7 @@
     },
     {
       "id": "lists",
-      "lot": "B017",
+      "lot": "B023",
       "role": "guest_household",
       "path": "/e/{event.rich}/lists",
       "scope": "shell",
@@ -351,12 +351,25 @@
         "nav": "event"
       },
       "langs": [
-        "fr"
+        "fr",
+        "en"
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "[...document.querySelectorAll('[data-testid=list-card-link]')].every(a => a.getBoundingClientRect().height >= 44)",
+          "message": "les liens de cartes font au moins 44 px"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelectorAll('[data-testid=list-card]').length >= 2",
+          "message": "les cartes de listes sont rendues"
+        }
       ]
     },
     {
       "id": "list-detail",
-      "lot": "B017",
+      "lot": "B023",
       "role": "guest_household",
       "path": "/e/{event.rich}/lists/{list.rich}",
       "scope": "shell",
@@ -364,7 +377,25 @@
         "nav": "event"
       },
       "langs": [
-        "fr"
+        "fr",
+        "en"
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "!document.querySelector('[data-testid=list-main] [autofocus]')",
+          "message": "aucun autofocus dans la liste (pas de clavier au chargement)"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=list-panel-toggle]') && document.querySelector('[data-testid=list-panel-toggle]').getBoundingClientRect().height >= 44",
+          "message": "le bouton du panneau est visible et fait au moins 44 px"
+        },
+        {
+          "type": "assert",
+          "expr": "!!document.querySelector('[data-testid=list-panel-count]') && !document.querySelector('[data-testid=list-panel-count]').hidden",
+          "message": "le compteur n/m est affiché car la liste couvre des éléments"
+        }
       ]
     },
     {
@@ -822,6 +853,306 @@
           "type": "assert",
           "expr": "document.querySelector('[data-testid=offline-page]') !== null",
           "message": "page hors ligne servie"
+        }
+      ]
+    },
+    {
+      "id": "list-panel-mobile",
+      "lot": "B023",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/lists/{list.rich}",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "viewports": [
+        390
+      ],
+      "actions": [
+        {
+          "type": "click",
+          "target": "[data-testid=list-panel-toggle]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=list-panel-toggle]').getAttribute('aria-expanded') === 'true' && getComputedStyle(document.querySelector('[data-testid=list-panel]')).display !== 'none'",
+          "message": "le panneau est ouvert"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=list-panel]').contains(document.activeElement)",
+          "message": "le focus est dans le panneau"
+        },
+        {
+          "type": "assert",
+          "expr": "document.documentElement.scrollWidth <= document.documentElement.clientWidth",
+          "message": "aucun défilement horizontal avec le panneau ouvert"
+        },
+        {
+          "type": "assert",
+          "expr": "!document.querySelector('dialog[open]') && !document.querySelector('[data-testid=list-panel]').hasAttribute('aria-modal') && !document.getElementById('main').inert",
+          "message": "le panneau n'est pas modal"
+        },
+        {
+          "type": "assert",
+          "expr": "(() => { const r = document.querySelector('[data-testid=list-panel]').getBoundingClientRect(); const h = window.innerHeight; return r.height >= h*0.45 && r.height <= h*0.65 && r.bottom <= h; })()",
+          "message": "le tiroir occupe 45 à 65 % de la hauteur et reste au-dessus de la barre du bas"
+        },
+        {
+          "type": "assert",
+          "expr": "(() => { const bar = document.querySelector('[data-testid=nav-bottom]').getBoundingClientRect(); const p = document.querySelector('[data-testid=list-panel]').getBoundingClientRect(); return bar.top >= p.bottom - 1 && bar.height > 0; })()",
+          "message": "la barre du bas reste visible sous le tiroir"
+        },
+        {
+          "type": "assert",
+          "expr": "(() => { const f = document.querySelector('#list-add-name'); const r = f.getBoundingClientRect(); const el = document.elementFromPoint(r.left + r.width/2, r.top + r.height/2); return el === f; })()",
+          "message": "le champ d'ajout reste visible et utilisable au-dessus du tiroir"
+        },
+        {
+          "type": "press",
+          "key": "Escape"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=list-panel-toggle]').getAttribute('aria-expanded') === 'false' && getComputedStyle(document.querySelector('[data-testid=list-panel]')).display === 'none'",
+          "message": "Échap ferme le tiroir"
+        },
+        {
+          "type": "assert",
+          "expr": "document.activeElement === document.querySelector('[data-testid=list-panel-toggle]')",
+          "message": "le focus revient sur le bouton"
+        }
+      ]
+    },
+    {
+      "id": "list-panel-desktop",
+      "lot": "B023",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/lists/{list.rich}",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        1280
+      ],
+      "themes": [
+        "light"
+      ],
+      "actions": [
+        {
+          "type": "click",
+          "target": "[data-testid=list-panel-toggle]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=list-panel-toggle]').getAttribute('aria-expanded') === 'true' && getComputedStyle(document.querySelector('[data-testid=list-panel]')).display !== 'none'",
+          "message": "le panneau est ouvert"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=list-panel]').contains(document.activeElement)",
+          "message": "le focus est dans le panneau"
+        },
+        {
+          "type": "assert",
+          "expr": "document.documentElement.scrollWidth <= document.documentElement.clientWidth",
+          "message": "aucun défilement horizontal avec le panneau ouvert"
+        },
+        {
+          "type": "assert",
+          "expr": "!document.querySelector('dialog[open]') && !document.querySelector('[data-testid=list-panel]').hasAttribute('aria-modal') && !document.getElementById('main').inert",
+          "message": "le panneau n'est pas modal"
+        },
+        {
+          "type": "assert",
+          "expr": "(() => { const m = document.querySelector('[data-testid=list-main]').getBoundingClientRect(); const p = document.querySelector('[data-testid=list-panel]').getBoundingClientRect(); return p.left >= m.right - 1 && p.width > 300 && Math.abs(p.top - m.top) < 400; })()",
+          "message": "le panneau est une colonne à côté de la liste"
+        },
+        {
+          "type": "reload"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=list-panel-toggle]').getAttribute('aria-expanded') === 'true'",
+          "message": "l'état ouvert est mémorisé après rechargement"
+        },
+        {
+          "type": "click",
+          "target": "[data-list-panel-close]"
+        },
+        {
+          "type": "reload"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=list-panel-toggle]').getAttribute('aria-expanded') === 'false'",
+          "message": "l'état fermé est mémorisé après rechargement"
+        }
+      ]
+    },
+    {
+      "id": "list-panel-check",
+      "lot": "B023",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/lists/{list.rich}",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "themes": [
+        "light"
+      ],
+      "note": "coche puis décoche un repas : l'état de la base est rétabli",
+      "actions": [
+        {
+          "type": "click",
+          "target": "[data-testid=list-panel-toggle]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=list-panel-toggle]').getAttribute('aria-expanded') === 'true' && getComputedStyle(document.querySelector('[data-testid=list-panel]')).display !== 'none'",
+          "message": "le panneau est ouvert"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=list-panel]').contains(document.activeElement)",
+          "message": "le focus est dans le panneau"
+        },
+        {
+          "type": "assert",
+          "expr": "document.documentElement.scrollWidth <= document.documentElement.clientWidth",
+          "message": "aucun défilement horizontal avec le panneau ouvert"
+        },
+        {
+          "type": "assert",
+          "expr": "!document.querySelector('dialog[open]') && !document.querySelector('[data-testid=list-panel]').hasAttribute('aria-modal') && !document.getElementById('main').inert",
+          "message": "le panneau n'est pas modal"
+        },
+        {
+          "type": "assert",
+          "expr": "(window.__reloadMarker = 1, window.__before = document.querySelector('[data-testid=panel-summary]').textContent.trim(), window.__rid = document.querySelector('[data-testid=panel-row][data-covered=false]').dataset.id, true)",
+          "message": "repère posé"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=panel-row][data-covered=false] [data-testid=panel-check]"
+        },
+        {
+          "type": "waitFor",
+          "expr": "document.querySelector('[data-testid=panel-summary]').textContent.trim() !== window.__before",
+          "message": "le compteur du panneau se met à jour"
+        },
+        {
+          "type": "assert",
+          "expr": "window.__reloadMarker === 1 && document.querySelector('[data-testid=list-panel-toggle]').getAttribute('aria-expanded') === 'true'",
+          "message": "pas de rechargement et le panneau reste ouvert"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=list-panel-count]').textContent.replace(/\\s+/g, ' ').trim().startsWith('5/')",
+          "message": "le compteur du bouton est mis à jour hors bande"
+        },
+        {
+          "type": "assert",
+          "expr": "(document.querySelector('[data-id=\"' + window.__rid + '\"] [data-testid=panel-check]').click(), true)",
+          "message": "décochage du même élément"
+        },
+        {
+          "type": "waitFor",
+          "expr": "document.querySelector('[data-testid=panel-summary]').textContent.trim() === window.__before",
+          "message": "l'état initial est rétabli"
+        }
+      ]
+    },
+    {
+      "id": "list-item-actions",
+      "lot": "B023",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/lists/{list.packing}",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        390
+      ],
+      "themes": [
+        "light"
+      ],
+      "note": "coche/décoche, supprime puis annule : la liste « Valise » retrouve ses deux articles",
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "(window.__reloadMarker = 1, true)",
+          "message": "repère posé"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=item-check]"
+        },
+        {
+          "type": "waitFor",
+          "expr": "!!document.querySelector('[data-testid=list-done-group]')",
+          "message": "l'article coché passe dans les cochés sans « Je m'occupe »"
+        },
+        {
+          "type": "assert",
+          "expr": "window.__reloadMarker === 1",
+          "message": "cocher ne recharge pas la page"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=list-done-group] summary"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=list-done-group] [data-testid=item-check]"
+        },
+        {
+          "type": "waitFor",
+          "expr": "!document.querySelector('[data-testid=list-done-group]')",
+          "message": "l'article décoché revient dans la liste"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=item-delete]"
+        },
+        {
+          "type": "waitFor",
+          "expr": "document.querySelectorAll('[data-testid=list-item]').length === 1 && !!document.querySelector('[data-toast-action]')",
+          "message": "l'article disparaît et le toast propose d'annuler"
+        },
+        {
+          "type": "click",
+          "target": "[data-toast-action]"
+        },
+        {
+          "type": "waitFor",
+          "expr": "document.querySelectorAll('[data-testid=list-item]').length === 2",
+          "message": "l'annulation rétablit l'article"
+        },
+        {
+          "type": "assert",
+          "expr": "[...document.querySelectorAll('[data-testid=list-item] button')].every(b => { const r = b.getBoundingClientRect(); return r.height >= 44 && r.width >= 44; })",
+          "message": "les actions de ligne sont assez grandes"
         }
       ]
     }
