@@ -10,6 +10,14 @@ sous chaque lot.
 
 ## [Unreleased]
 
+### B022 — Repas
+
+- `feat(models)` : `Meal.position` ; suppression de l'unicité `uq_meal_event_slot` (plusieurs repas par case, 6 maximum) ; migration SQLite idempotente par reconstruction de table (`app/migrations.py` : `plan_meals_migration` / `migrate_meals_schema` / `run_meals_migration`, ids préservés, positions 0..n par `created_at`, sauvegarde `pre-meals-*.db` seulement s'il y a des lignes), exécutée au démarrage avant la purge et par `manage.py migrate`.
+- `feat(meals)` : `create` ajoute en fin de case ; `move` ajoute dans la case cible (ou insère avant `before_id`) et renumérote ; nouvelle route `swap` (échange explicite, droits sur les deux repas, plus de créneau `tmp`) ; identifiants stables ; journal `meal.swapped` ; réponses HTMX = fragment `meals/_grid.html` + `HX-Trigger` (toast), redirection sinon.
+- `feat(ui)` : un jour à la fois < 1024 px (sélecteur de jours, balayage), calendrier jours × (Midi, Soir) au-delà, « Ajouter un repas » toujours visible, feuille accessible (modifier, déplacer vers…, échanger avec…, monter/descendre, supprimer avec confirmation), glisser aux pointer events (`ui/meals.js` : fantôme, case surlignée, indicateur d'insertion, défilement automatique, Échap, repli en toast) ; CSS legacy de la grille retiré.
+- `fix(lists,events)` : tableau de bord, chips des listes et grille triés jour > midi/soir > position (l'ancien tri alphabétique plaçait « soir » avant « midi »).
+- `test` : adaptés (jamais supprimés) — hooks `data-testid`/`aria-current`, case occupée = ajout, `test_module_links` cible l'URL de la page (l'import map liste `ui/meals`) ; scènes `meals-sheet`, `meals-add-sheet`, `meals-day-tabs`, `meals-drag` (glisser réel CDP, ordre conservé après rechargement) et action `drag` dans `scripts/ui/lib.mjs`.
+
 ### B020 (partie A) — Accueil, « Mes événements » et menu « Événement »
 
 - `feat(lists)` : « Pour moi » / « À répartir » cochables en place — `toggle_item` et `claim_item` renvoient le fragment `events/_my_items.html` quand `HX-Request` (sinon redirection inchangée) ; `toggle_item` honore `is_done` (idempotent) et refuse (403) un article attribué à un autre sans droit d'édition (B029) ; module JS `ui/htmx` (toast sur erreur HTMX).

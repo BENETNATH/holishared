@@ -239,6 +239,14 @@ Audit B017/B029 : constats 1 à 6 corrigés (variables `INSTANCE_PATH` et `SKIP_
 - Suppression : confirmation par dialogue `data-confirm` renforcé (titre de l'événement dans le message) ; la route `delete_event` est inchangée.
 - Reste pour la partie B : 20.3 Participants, 20.4, 20.5 Journal, 20.6 identité créateur.
 
+### 2026-10-07 — B022 Repas
+
+- `Meal` : `position` + index `ix_meal_cell (event_id, date, slot, position)`, plus d'unicité de case ; `MAX_MEALS_PER_CELL = 6` ; `Meal.ordering()` (jour, midi avant soir, position) utilisé par la grille, le tableau de bord et les chips de listes.
+- Migration `meals` : reconstruction de table en une transaction (`BEGIN` manuel sous pysqlite), `ROW_NUMBER()` pour les positions, détection par `PRAGMA index_list/index_info` ; exécutée avant `_purge_expired_events` (la purge charge les repas en cascade).
+- Routes : `move` = avant `before_id` sinon fin de case (même case = réordonnancement) ; `swap` exige `can_edit` sur les deux repas ; HTMX : 200/422 + fragment, `HX-Trigger {"meals:message": {message, tone}}` lu par `ui/meals.js` (fetch, pas `hx-*`).
+- UI : une seule structure DOM (jours en sections ; < 1024 px un seul visible, sélection côté client), `ui/meals.js` seul module de la page ; poignée `touch-action: none`.
+- Garde UI : action `drag` (CDP `Input.dispatchMouseEvent`, id gardé dans `sessionStorage`) ; 359 runs verts.
+
 ### À faire (backlog)
 
 | Priorité | Tâche | Statut |

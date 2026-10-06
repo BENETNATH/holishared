@@ -477,7 +477,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B022 — Repas
 
-**Statut** : ⬜ · **Réf.** I2, V5, F25
+**Statut** : ✅ (2026-10-07) — appui long tactile sur la carte non fait (la poignée glisse immédiatement) · **Réf.** I2, V5, F25
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
