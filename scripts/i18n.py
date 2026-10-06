@@ -43,7 +43,7 @@ def _extract(out: Path) -> None:
     _pybabel(
         "extract", "-F", str(ROOT / "babel.cfg"), *KEYWORDS, "--add-location=file",
         "--project=holishared", "--version=1", "--copyright-holder=holishared",
-        "-o", str(out), ".",
+        "-o", str(out), "app", "app/templates/_components",  # babel saute les dossiers en « _ »
     )  # fmt: skip
 
 

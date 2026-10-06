@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 22:22+0200\n"
+"POT-Creation-Date: 2026-10-06 22:26+0200\n"
 "PO-Revision-Date: 2026-10-04 11:18+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -254,8 +254,9 @@ msgstr ""
 msgid "Copie impossible"
 msgstr ""
 
-#: app/templates/base.html app/templates/freemium/_upgrade_modal.html
-#: app/templates/meals/index.html app/ui.py
+#: app/templates/_components/ui.html app/templates/base.html
+#: app/templates/freemium/_upgrade_modal.html app/templates/meals/index.html
+#: app/ui.py
 msgid "Fermer"
 msgstr ""
 
@@ -2239,5 +2240,9 @@ msgstr ""
 
 #: app/voting/__init__.py
 msgid "Vote enregistré."
+msgstr ""
+
+#: app/templates/_components/ui.html
+msgid "facultatif"
 msgstr ""
 
