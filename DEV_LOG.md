@@ -231,6 +231,14 @@ Requêtes de restauration/vérification : `python scripts/i18n.py check` (catalo
 
 Audit B017/B029 : constats 1 à 6 corrigés (variables `INSTANCE_PATH` et `SKIP_STARTUP_MIGRATION` documentées dans `.env.example`, seule la valeur `1` désactive la migration) ; constat 7 (`ruff format` sur les fichiers préexistants) volontairement ignoré.
 
+### 2026-10-06 — B020 (partie A) Accueil, « Mes événements », menu « Événement »
+
+- `events.dashboard` : `event_status()` (phase + libellés traduits) partagé avec `events.index` ; le tableau de bord ne charge plus que 3 messages (`RECENT_MESSAGES`) et 5 infos (`INFOS_ON_HOME`) ; liens conditionnés par `current_app.blueprints` (aucun `BuildError`).
+- « Pour moi » : `lists.home_items(ctx)` (par `Guest.id`) + partial `events/_my_items.html` ; le formulaire HTMX cible `#my-items` (`outerHTML`) ; l'état replié « Déjà pris » se referme après un échange (accepté).
+- Partager = `APP_URL` + `events.guest_access` (`/e/<code>/join`), jamais le tableau de bord ; même lien dans le menu (`NavItem.copy`).
+- Suppression : confirmation par dialogue `data-confirm` renforcé (titre de l'événement dans le message) ; la route `delete_event` est inchangée.
+- Reste pour la partie B : 20.3 Participants, 20.4, 20.5 Journal, 20.6 identité créateur.
+
 ### À faire (backlog)
 
 | Priorité | Tâche | Statut |

@@ -10,6 +10,14 @@ sous chaque lot.
 
 ## [Unreleased]
 
+### B020 (partie A) — Accueil, « Mes événements » et menu « Événement »
+
+- `feat(lists)` : « Pour moi » / « À répartir » cochables en place — `toggle_item` et `claim_item` renvoient le fragment `events/_my_items.html` quand `HX-Request` (sinon redirection inchangée) ; `toggle_item` honore `is_done` (idempotent) et refuse (403) un article attribué à un autre sans droit d'édition (B029) ; module JS `ui/htmx` (toast sur erreur HTMX).
+- `feat(events)` : accueil mobile d'abord — héros (titre, dates, lieu, « Dans N jours » / « Jour X sur N » / « Terminé », progression, description repliée), une seule action primaire, **Partager copie le lien `/join`** (`APP_URL`), « Aujourd'hui » (liens conditionnés aux modules), sondages, 3 derniers messages limités côté serveur, infos avec « Copier » ; le bloc code personnel et la « Zone de gestion » quittent l'accueil.
+- `feat(events)` : menu « Événement » (Partager le lien, Journal, Mon code, Gérer l'événement pour le créateur) ; pages `/e/<code>/me` (code masqué par défaut, copie) et `/e/<code>/manage` (export ZIP, export PDF au statut honnête sans CTA, suppression avec confirmation renforcée, purge à 30 jours).
+- `feat(events)` : « Mes événements » en cartes entièrement cliquables (lien étiré), statut texte + couleur, dates localisées, lieu, participants ; tri en cours / à venir / terminés.
+- `test` : adaptés (jamais supprimés) — le code personnel d'un invité se lit désormais sur `/me` (`test_events`, `test_ui_shell`), nouveaux liens du menu bureau (`test_ui_shell`).
+
 ### B018 — Internationalisation complète (FR/EN)
 
 - `feat(i18n)` : `app/i18n.py` (registre unique des catégories de frais/infos, types de liste, statuts RSVP, créneaux de repas ; filtres `label`, `money`, `number`, `time`, `date_short`, `datetime_short`, `filesize`, `action_label` ; devises traduites) ; plus de clé brute ni de `|capitalize` ; catégorie de frais validée côté serveur ; `format_date(None)` renvoie `""`.

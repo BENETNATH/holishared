@@ -341,13 +341,13 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 ### Lot 5 — Architecture Freemium propre & Paywall élégant ✅
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
-| 20.1 | API déclarative freemium.py | get_tier/has_feature/require_tier, tiers free/pro/unlimited |
-| 20.2 | Creator.tier colonne | Défaut "free", distinct de MediaQuota.tier |
+| 20.1 ✅ | API déclarative freemium.py | get_tier/has_feature/require_tier, tiers free/pro/unlimited |
+| 20.2 ✅ | Creator.tier colonne | Défaut "free", distinct de MediaQuota.tier |
 | 20.3 | require_tier soft paywall | free → teaser (pas 400/403 brut), guest non redirigé |
 | 20.4 | Route export_pdf gated | GET /e/<code>/export/pdf : free→paywall, pro+→vue PDF |
 | 20.5 | Modale "Vacances+" (partial) | 50Go / Export PDF certifié / Participants illimités, CTA hook |
 | 20.6 | Jauge stockage (média) | usage/quotas + incitation douce (75 % + quota atteint) |
-| 20.7 | Jauge invités (invite) | count/max + état premium (illimité ✓ / carte upgrade) |
+| 20.7 ✅ | Jauge invités (invite) | count/max + état premium (illimité ✓ / carte upgrade) |
 | 20.8 | i18n + tests | Chaînes en, .mo, 10 nouveaux tests freemium verts |
 | 20.9 | Zéro régression | ENABLED_MODULES + tests freemium/module-gating intacts |
 
@@ -451,7 +451,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B020 — Accueil de l'événement, Participants & Journal
 
-**Statut** : ⬜ · **Réf.** F02, F03, F04, F18, F21, V3, V8
+**Statut** : partiel (2026-10-06) — 20.1, 20.2, 20.7 ✅ ; 20.3–20.6 à faire · **Réf.** F02, F03, F04, F18, F21, V3, V8
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
