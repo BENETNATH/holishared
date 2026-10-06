@@ -96,7 +96,7 @@
 </div>
 
 <!-- Ratio de répartition (adulte / enfant) -->
-{% if households and is_creator %}
+{% if households and ctx.is_creator %}
 <section class="card ratio-card">
   <details class="ratio-toggle">
     <summary>{{ _("Ratio de répartition") }} <span class="ratio-cur">{{ default_adult_weight }}/{{ default_child_weight }}</span></summary>
@@ -154,7 +154,7 @@
 <section class="card">
   <div class="section-head">
     <h2>{{ _("Foyers") }}</h2>
-    {% if is_creator %}
+    {% if ctx.is_creator %}
     <details class="head-actions ratio-toggle">
       <summary>{{ _("Ajouter un foyer") }}</summary>
       <form method="POST" action="{{ url_for('costs.add_household', code=event.code) }}" class="add-household-form">
@@ -178,7 +178,7 @@
       <div class="gc-head">
         <span class="avatar-pill gc-avatar">{{ hh.name[:1]|upper }}</span>
         <span class="gc-name">{{ hh.name }}</span>
-        {% if is_creator %}
+        {% if ctx.is_creator %}
         <button class="gc-delete" data-confirm="{{ _('Supprimer ce foyer ?') }}"
                 formmethod="POST" type="submit"
                 form="{{ 'costs-household-%s' % hh.id }}" aria-label="{{ _('Supprimer') }}">
@@ -186,7 +186,7 @@
         </button>
         {% endif %}
       </div>
-      {% if is_creator %}
+      {% if ctx.is_creator %}
       <form id="costs-household-{{ hh.id }}" method="POST" action="{{ url_for('costs.delete_household', code=event.code, h_id=hh.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       </form>
@@ -238,7 +238,7 @@
         <div class="expense-sub">{{ exp.paid_by.name }} · {{ exp.date | format_date('medium') }}</div>
       </div>
       <div class="expense-amount">{{ "%.2f"|format(exp.amount) }}<span class="exp-cur"> €</span></div>
-      {% if is_creator %}
+      {% if ctx.is_creator %}
       <button class="expense-del" data-confirm="{{ _('Supprimer cette dépense ?') }}"
               formmethod="POST" type="submit"
               form="expdel-{{ exp.id }}" aria-label="{{ _('Supprimer') }}">
@@ -302,7 +302,7 @@
     <li class="transfer-row">
       <span class="tf-arrow">{{ t.from_household.name }} <span class="arrow">→</span> {{ t.to_household.name }}</span>
       <span class="tf-amount">{{ "%.2f"|format(t.amount) }}<span class="cur"> €</span></span>
-      {% if is_creator %}
+      {% if ctx.is_creator %}
       <button class="tfr-del" data-confirm="{{ _('Supprimer ce transfert ?') }}"
               formmethod="POST" type="submit" form="tfr-{{ t.id }}" aria-label="{{ _('Supprimer') }}">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
@@ -358,7 +358,7 @@
       <form id="prresolve-{{ pr.id }}" method="POST" action="{{ url_for('costs.resolve_payment_request', code=event.code, pr_id=pr.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       </form>
-      {% if is_creator %}
+      {% if ctx.is_creator %}
       <button class="pr-del" data-confirm="{{ _('Supprimer cette demande ?') }}"
               formmethod="POST" type="submit" form="prdel-{{ pr.id }}" aria-label="{{ _('Supprimer') }}">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>

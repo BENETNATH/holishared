@@ -3,24 +3,16 @@
 from datetime import date, datetime
 from typing import cast
 
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for
-from flask_login import current_user
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from werkzeug.wrappers import Response
 
+from app.context import load_event_context, log_event
 from app.extensions import db, limiter
-from app.models import Event, Expense, Guest, Household, PaymentRequest, Transfer
-from app.utils import log_action
+from app.models import Event, Expense, Household, PaymentRequest, Transfer
 
 costs_bp = Blueprint("costs", __name__)
 
 CURRENCIES = ["EUR", "USD", "GBP", "CHF", "CAD", "AUD", "JPY"]
-
-
-def _get_event_or_404(code: str) -> Event | None:
-    event = cast("Event | None", Event.query.filter_by(code=code, is_active=True).first())
-    if not event:
-        return None
-    return event
 
 
 def _household_in_event(household_id: str, event: Event) -> bool:
@@ -28,22 +20,6 @@ def _household_in_event(household_id: str, event: Event) -> bool:
     if not household_id:
         return False
     return Household.query.filter_by(id=household_id, event_id=event.id).first() is not None
-
-
-def _resolve_actor(event: Event) -> tuple[Guest | None, bool, Response | None]:
-    """Return (guest, is_creator, denied_redirect_or_None)."""
-    is_creator = (current_user.is_authenticated and current_user.id == event.creator_id)
-    guest_id = session.get(f"guest_{event.code}")
-    guest: Guest | None = None
-    if guest_id:
-        guest = Guest.query.filter_by(id=guest_id, event_id=event.id, is_active=True).first()
-    if not guest and not is_creator:
-        return None, False, redirect(url_for("events.guest_access", code=event.code))
-    return guest, is_creator, None
-
-
-def _actor(event: Event, guest: Guest | None) -> tuple[str, str]:
-    return (guest.display_name if guest else "Créateur", "guest" if guest else "creator")
 
 
 def _base_cents(amount_cents: int, exchange_rate: float | None) -> int:
@@ -140,13 +116,8 @@ def _category_breakdown(expenses: list[Expense]) -> list[tuple[str, int]]:
 @costs_bp.route("/e/<code>/costs")
 def index(code: str) -> str | Response | tuple[str, int]:
     """Cost sharing dashboard."""
-    event = _get_event_or_404(code)
-    if not event:
-        return "Not found", 404
-
-    guest, is_creator, denied = _resolve_actor(event)
-    if denied:
-        return denied
+    ctx = load_event_context(code)
+    event = ctx.event
 
     households = event.households.all()
     expenses = event.expenses.order_by(Expense.date.desc(), Expense.created_at.desc()).all()
@@ -192,14 +163,8 @@ def index(code: str) -> str | Response | tuple[str, int]:
     # Personal balance for the acting user (guest or creator), derived from the
     # existing household + settlement data (no change to the algorithm).
     my_household = None
-    if guest is not None:
-        my_household = next((h for h in households if h.guest_id == guest.id), None)
-    elif is_creator:
-        creator_guest = Guest.query.filter_by(
-            creator_id=event.creator_id, event_id=event.id
-        ).first()
-        if creator_guest is not None:
-            my_household = next((h for h in households if h.guest_id == creator_guest.id), None)
+    if ctx.participant is not None:
+        my_household = next((h for h in households if h.guest_id == ctx.participant.id), None)
     my_balance: float | None = None
     i_owe: list[dict[str, object]] = []
     owed_to_me: list[dict[str, object]] = []
@@ -220,7 +185,7 @@ def index(code: str) -> str | Response | tuple[str, int]:
     default_child_weight = households[0].child_weight if households else 0.5
 
     return render_template("costs/index.html",
-                           event=event, guest=guest, is_creator=is_creator,
+                           event=event,
                            households=households, expenses=expenses,
                            transfers=transfers, payment_requests=payment_requests,
                            settlements=settlement_display, h_summary=h_summary,
@@ -239,13 +204,8 @@ def index(code: str) -> str | Response | tuple[str, int]:
 @costs_bp.route("/e/<code>/costs/households/new", methods=["GET", "POST"])
 def add_household(code: str) -> str | Response | tuple[str, int]:
     """Add a household."""
-    event = _get_event_or_404(code)
-    if not event:
-        return "Not found", 404
-
-    guest, _is_creator, denied = _resolve_actor(event)
-    if denied:
-        return denied
+    ctx = load_event_context(code)
+    event = ctx.event
 
     if request.method == "POST":
         name = request.form.get("name", "").strip()
@@ -281,27 +241,20 @@ def add_household(code: str) -> str | Response | tuple[str, int]:
                 event_id=event.id,
             )
             db.session.add(h)
-            actor_name, actor_type = _actor(event, guest)
-            log_action(db.session, event.id, actor_name, actor_type,
-                       "household.created", target=name)
+            log_event(ctx, "household.created", target=name)
             db.session.commit()
             flash("Foyer ajouté.", "success")
             return redirect(url_for("costs.index", code=code))
 
-    return render_template("costs/household_form.html", event=event, guest=guest)
+    return render_template("costs/household_form.html", event=event)
 
 
 @costs_bp.route("/e/<code>/costs/expenses/new", methods=["POST"])
 @limiter.limit("20 per hour")
 def add_expense(code: str) -> Response | tuple[str, int]:
     """Add an expense."""
-    event = _get_event_or_404(code)
-    if not event:
-        return "Not found", 404
-
-    guest, _is_creator, denied = _resolve_actor(event)
-    if denied:
-        return denied
+    ctx = load_event_context(code)
+    event = ctx.event
 
     description = request.form.get("description", "").strip()
     amount_str = request.form.get("amount", "").strip()
@@ -361,9 +314,7 @@ def add_expense(code: str) -> Response | tuple[str, int]:
     )
     db.session.add(exp)
 
-    actor_name, actor_type = _actor(event, guest)
-    log_action(db.session, event.id, actor_name, actor_type,
-               "expense.created", target=description,
+    log_event(ctx, "expense.created", target=description,
                details=f"{amount_cents/100:.2f} {currency}")
     db.session.commit()
     flash("Frais ajouté.", "success")
@@ -373,26 +324,18 @@ def add_expense(code: str) -> Response | tuple[str, int]:
 @costs_bp.route("/e/<code>/costs/expenses/<exp_id>/delete", methods=["POST"])
 def delete_expense(code: str, exp_id: str) -> Response | tuple[str, int]:
     """Delete an expense (creator only)."""
-    event = _get_event_or_404(code)
-    if not event:
-        return "Not found", 404
-
-    guest, is_creator, denied = _resolve_actor(event)
-    if denied:
-        return denied
-
-    if not is_creator:
-        return "Pas autorisé.", 403
+    ctx = load_event_context(code)
+    event = ctx.event
 
     exp = Expense.query.filter_by(id=exp_id, event_id=event.id).first()
     if not exp:
-        return "Not found", 404
+        abort(404)
+    if not ctx.can_delete(exp):
+        abort(403)
 
     desc = exp.description
     db.session.delete(exp)
-    actor_name, actor_type = _actor(event, guest)
-    log_action(db.session, event.id, actor_name, actor_type,
-               "expense.deleted", target=desc)
+    log_event(ctx, "expense.deleted", target=desc)
     db.session.commit()
     flash("Frais supprimé.", "success")
     return redirect(url_for("costs.index", code=code))
@@ -401,26 +344,18 @@ def delete_expense(code: str, exp_id: str) -> Response | tuple[str, int]:
 @costs_bp.route("/e/<code>/costs/households/<h_id>/delete", methods=["POST"])
 def delete_household(code: str, h_id: str) -> Response | tuple[str, int]:
     """Delete a household (creator only)."""
-    event = _get_event_or_404(code)
-    if not event:
-        return "Not found", 404
-
-    guest, is_creator, denied = _resolve_actor(event)
-    if denied:
-        return denied
-
-    if not is_creator:
-        return "Pas autorisé.", 403
+    ctx = load_event_context(code)
+    event = ctx.event
 
     h = Household.query.filter_by(id=h_id, event_id=event.id).first()
     if not h:
-        return "Not found", 404
+        abort(404)
+    if not ctx.can_delete(h):
+        abort(403)
 
     name = h.name
     db.session.delete(h)
-    actor_name, actor_type = _actor(event, guest)
-    log_action(db.session, event.id, actor_name, actor_type,
-               "household.deleted", target=name)
+    log_event(ctx, "household.deleted", target=name)
     db.session.commit()
     flash("Foyer supprimé.", "success")
     return redirect(url_for("costs.index", code=code))
@@ -430,13 +365,8 @@ def delete_household(code: str, h_id: str) -> Response | tuple[str, int]:
 @limiter.limit("20 per hour")
 def add_transfer(code: str) -> Response | tuple[str, int]:
     """Record a transfer/repayment between two households."""
-    event = _get_event_or_404(code)
-    if not event:
-        return "Not found", 404
-
-    guest, _is_creator, denied = _resolve_actor(event)
-    if denied:
-        return denied
+    ctx = load_event_context(code)
+    event = ctx.event
 
     from_id = request.form.get("from_household_id", "")
     to_id = request.form.get("to_household_id", "")
@@ -480,9 +410,7 @@ def add_transfer(code: str) -> Response | tuple[str, int]:
         event_id=event.id,
     )
     db.session.add(t)
-    actor_name, actor_type = _actor(event, guest)
-    log_action(db.session, event.id, actor_name, actor_type,
-               "transfer.created", details=f"{amount_cents/100:.2f} €")
+    log_event(ctx, "transfer.created", details=f"{amount_cents/100:.2f} €")
     db.session.commit()
     flash("Transfert enregistré.", "success")
     return redirect(url_for("costs.index", code=code))
@@ -491,24 +419,17 @@ def add_transfer(code: str) -> Response | tuple[str, int]:
 @costs_bp.route("/e/<code>/costs/transfers/<t_id>/delete", methods=["POST"])
 def delete_transfer(code: str, t_id: str) -> Response | tuple[str, int]:
     """Delete a transfer (creator only)."""
-    event = _get_event_or_404(code)
-    if not event:
-        return "Not found", 404
-
-    guest, is_creator, denied = _resolve_actor(event)
-    if denied:
-        return denied
-
-    if not is_creator:
-        return "Pas autorisé.", 403
+    ctx = load_event_context(code)
+    event = ctx.event
 
     t = Transfer.query.filter_by(id=t_id, event_id=event.id).first()
     if not t:
-        return "Not found", 404
+        abort(404)
+    if not ctx.can_delete(t):
+        abort(403)
 
     db.session.delete(t)
-    actor_name, actor_type = _actor(event, guest)
-    log_action(db.session, event.id, actor_name, actor_type, "transfer.deleted")
+    log_event(ctx, "transfer.deleted")
     db.session.commit()
     flash("Transfert supprimé.", "success")
     return redirect(url_for("costs.index", code=code))
@@ -518,13 +439,8 @@ def delete_transfer(code: str, t_id: str) -> Response | tuple[str, int]:
 @limiter.limit("20 per hour")
 def add_payment_request(code: str) -> Response | tuple[str, int]:
     """Create a payment request (reminder) from one household to another."""
-    event = _get_event_or_404(code)
-    if not event:
-        return "Not found", 404
-
-    guest, _is_creator, denied = _resolve_actor(event)
-    if denied:
-        return denied
+    ctx = load_event_context(code)
+    event = ctx.event
 
     from_id = request.form.get("from_household_id", "")
     to_id = request.form.get("to_household_id", "")
@@ -559,9 +475,7 @@ def add_payment_request(code: str) -> Response | tuple[str, int]:
         event_id=event.id,
     )
     db.session.add(pr)
-    actor_name, actor_type = _actor(event, guest)
-    log_action(db.session, event.id, actor_name, actor_type,
-               "payment_request.created", details=f"{amount_cents/100:.2f} €")
+    log_event(ctx, "payment_request.created", details=f"{amount_cents/100:.2f} €")
     db.session.commit()
     flash("Demande de paiement créée.", "success")
     return redirect(url_for("costs.index", code=code))
@@ -570,23 +484,17 @@ def add_payment_request(code: str) -> Response | tuple[str, int]:
 @costs_bp.route("/e/<code>/costs/payment-requests/<pr_id>/resolve", methods=["POST"])
 def resolve_payment_request(code: str, pr_id: str) -> Response | tuple[str, int]:
     """Mark a payment request as resolved."""
-    event = _get_event_or_404(code)
-    if not event:
-        return "Not found", 404
-
-    guest, _is_creator, denied = _resolve_actor(event)
-    if denied:
-        return denied
+    ctx = load_event_context(code)
+    event = ctx.event
 
     pr = PaymentRequest.query.filter_by(id=pr_id, event_id=event.id).first()
     if not pr:
-        return "Not found", 404
+        abort(404)
 
     pr.is_resolved = True
     from datetime import UTC
     pr.resolved_at = datetime.now(UTC)
-    actor_name, actor_type = _actor(event, guest)
-    log_action(db.session, event.id, actor_name, actor_type, "payment_request.resolved")
+    log_event(ctx, "payment_request.resolved")
     db.session.commit()
     flash("Demande marquée comme réglée.", "success")
     return redirect(url_for("costs.index", code=code))
@@ -595,24 +503,17 @@ def resolve_payment_request(code: str, pr_id: str) -> Response | tuple[str, int]
 @costs_bp.route("/e/<code>/costs/payment-requests/<pr_id>/delete", methods=["POST"])
 def delete_payment_request(code: str, pr_id: str) -> Response | tuple[str, int]:
     """Delete a payment request (creator only)."""
-    event = _get_event_or_404(code)
-    if not event:
-        return "Not found", 404
-
-    guest, is_creator, denied = _resolve_actor(event)
-    if denied:
-        return denied
-
-    if not is_creator:
-        return "Pas autorisé.", 403
+    ctx = load_event_context(code)
+    event = ctx.event
 
     pr = PaymentRequest.query.filter_by(id=pr_id, event_id=event.id).first()
     if not pr:
-        return "Not found", 404
+        abort(404)
+    if not ctx.can_delete(pr):
+        abort(403)
 
     db.session.delete(pr)
-    actor_name, actor_type = _actor(event, guest)
-    log_action(db.session, event.id, actor_name, actor_type, "payment_request.deleted")
+    log_event(ctx, "payment_request.deleted")
     db.session.commit()
     flash("Demande supprimée.", "success")
     return redirect(url_for("costs.index", code=code))
@@ -621,13 +522,8 @@ def delete_payment_request(code: str, pr_id: str) -> Response | tuple[str, int]:
 @costs_bp.route("/e/<code>/costs/ratio", methods=["POST"])
 def update_ratio(code: str) -> Response | tuple[str, int]:
     """Update adult/child weights for all households in the event."""
-    event = _get_event_or_404(code)
-    if not event:
-        return "Not found", 404
-
-    guest, _is_creator, denied = _resolve_actor(event)
-    if denied:
-        return denied
+    ctx = load_event_context(code)
+    event = ctx.event
 
     adult_weight_raw = request.form.get("adult_weight", "1.0")
     child_weight_raw = request.form.get("child_weight", "0.5")
@@ -648,9 +544,7 @@ def update_ratio(code: str) -> Response | tuple[str, int]:
         h.adult_weight = adult_weight
         h.child_weight = child_weight
 
-    actor_name, actor_type = _actor(event, guest)
-    log_action(db.session, event.id, actor_name, actor_type,
-               "ratio.updated", details=f"adult={adult_weight}, child={child_weight}")
+    log_event(ctx, "ratio.updated", details=f"adult={adult_weight}, child={child_weight}")
     db.session.commit()
     flash("Ratio appliqué à tous les foyers.", "success")
     return redirect(url_for("costs.index", code=code))

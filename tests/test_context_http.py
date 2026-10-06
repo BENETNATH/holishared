@@ -203,3 +203,35 @@ def test_voting_close_anonymous_redirects_mycode(client, db, event):
 def test_chat_htmx_poll_anonymous_returns_hx_redirect(client, event):
     resp = client.get(f"/e/{event.code}/chat", headers={"HX-Request": "true"})
     assert (resp.status_code, "/mycode" in resp.headers.get("HX-Redirect", "")) == (204, True)
+
+
+def test_costs_unknown_event_renders_404_template(creator_client):
+    assert b'data-testid="error-404"' in creator_client.get("/e/nope00/costs").data
+
+
+def _expense(db, event):
+    from app.models import Expense, Household
+
+    household = Household(name="Foyer A", num_adults=1, num_children=0, event_id=event.id)
+    db.session.add(household)
+    db.session.flush()
+    expense = Expense(
+        description="Loyer",
+        amount_cents=1000,
+        date=date(2026, 12, 1),
+        event_id=event.id,
+        paid_by_household_id=household.id,
+    )
+    db.session.add(expense)
+    db.session.commit()
+    return expense
+
+
+def test_costs_delete_expense_guest_renders_403_template(db, guest_client, event):
+    expense = _expense(db, event)
+    resp = guest_client.post(f"/e/{event.code}/costs/expenses/{expense.id}/delete")
+    assert b'data-testid="error-403"' in resp.data
+
+
+def test_costs_delete_missing_expense_guest_404(guest_client, event):
+    assert guest_client.post(f"/e/{event.code}/costs/expenses/missing/delete").status_code == 404

@@ -55,7 +55,7 @@ class TestCostsIndex:
     def test_index_redirects_no_access(self, client, event):
         resp = client.get(f"/e/{event.code}/costs")
         assert resp.status_code == 302
-        assert "/join" in resp.headers["Location"] or "/mycode" in resp.headers["Location"]
+        assert "/mycode" in resp.headers["Location"]
 
 
 class TestHouseholds:

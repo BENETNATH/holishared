@@ -263,3 +263,35 @@ def test_chat_other_guest_cannot_delete_creator_message_403(
 def test_chat_send_creator_guest_id_is_creator_guest(creator_client, event, creator_guest):
     creator_client.post(f"/e/{event.code}/chat/send", data={"content": "salut"})
     assert ChatMessage.query.filter_by(event_id=event.id).first().guest_id == creator_guest.id
+
+
+# --- HTTP : frais -----------------------------------------------------------------
+
+
+def _expense_payload(household):
+    return {"description": "Loyer", "amount": "10", "household_id": household.id, "date": "2026-12-01"}
+
+
+def _household(db, event):
+    household = Household(name="Foyer A", num_adults=1, num_children=0, event_id=event.id)
+    db.session.add(household)
+    db.session.commit()
+    return household
+
+
+def test_costs_creator_log_uses_display_name(creator_client, db, event):
+    from app.models import ActivityLog
+
+    creator_client.post(f"/e/{event.code}/costs/expenses/new", data=_expense_payload(_household(db, event)))
+    log = ActivityLog.query.filter_by(event_id=event.id, action="expense.created").first()
+    assert log.actor_name == "Test Creator"
+
+
+def test_costs_creator_with_guest_session_logs_creator(creator_client, db, event, guest):
+    from app.models import ActivityLog
+
+    with creator_client.session_transaction() as sess:
+        sess[f"guest_{event.code}"] = guest.id
+    creator_client.post(f"/e/{event.code}/costs/expenses/new", data=_expense_payload(_household(db, event)))
+    log = ActivityLog.query.filter_by(event_id=event.id, action="expense.created").first()
+    assert log.actor_type == "creator"
