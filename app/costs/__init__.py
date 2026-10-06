@@ -9,6 +9,7 @@ from werkzeug.wrappers import Response
 
 from app.context import load_event_context, log_event
 from app.extensions import db, limiter
+from app.forms import FormErrors
 from app.i18n import CURRENCIES, is_valid
 from app.models import Event, Expense, Household, PaymentRequest, Transfer
 
@@ -221,25 +222,24 @@ def add_household(code: str) -> str | Response | tuple[str, int]:
         num_adults_raw = request.form.get("num_adults", "1")
         num_children_raw = request.form.get("num_children", "0")
 
-        errors: list[str] = []
+        errors = FormErrors()
         if not name or len(name) < 2:
-            errors.append("Nom du foyer requis (min 2 caractères).")
+            errors.add("name", _("Nom du foyer requis (min 2 caractères)."))
         num_adults = 0
         num_children = 0
         try:
             num_adults = int(num_adults_raw)
             num_children = int(num_children_raw)
         except (ValueError, TypeError):
-            errors.append("Valeurs numériques invalides.")
+            errors.add_global(_("Valeurs numériques invalides."))
         if not errors:
             if num_adults < 1 or num_adults > 50:
-                errors.append("Adultes : entre 1 et 50.")
+                errors.add("num_adults", _("Adultes : entre 1 et 50."))
             if num_children < 0 or num_children > 50:
-                errors.append("Enfants : entre 0 et 50.")
+                errors.add("num_children", _("Enfants : entre 0 et 50."))
 
         if errors:
-            for e in errors:
-                flash(e, "danger")
+            errors.flash_all("danger")
         else:
             h = Household(
                 name=name,
@@ -252,7 +252,7 @@ def add_household(code: str) -> str | Response | tuple[str, int]:
             db.session.add(h)
             log_event(ctx, "household.created", target=name)
             db.session.commit()
-            flash("Foyer ajouté.", "success")
+            flash(_("Foyer ajouté."), "success")
             return redirect(url_for("costs.index", code=code))
 
     return render_template("costs/household_form.html", event=event)
@@ -276,33 +276,32 @@ def add_expense(code: str) -> Response | tuple[str, int]:
     rate_str = request.form.get("exchange_rate", "1.0").strip()
     is_shared = request.form.get("is_shared") == "on"
 
-    errors: list[str] = []
+    errors = FormErrors()
     if not description:
-        errors.append("Description requise.")
+        errors.add("description", _("Description requise."))
     amount_cents = 0
     try:
         amount_cents = round(float(amount_str) * 100)
         if amount_cents <= 0:
-            errors.append("Montant invalide.")
+            errors.add("amount", _("Montant invalide."))
     except (ValueError, TypeError):
-        errors.append("Montant invalide.")
+        errors.add("amount", _("Montant invalide."))
     if not is_valid("expense_category", category):
-        errors.append(_("Catégorie invalide."))
+        errors.add("category", _("Catégorie invalide."))
     if not household_id:
-        errors.append("Foyer payeur requis.")
+        errors.add("household_id", _("Foyer payeur requis."))
     elif not _household_in_event(household_id, event):
-        errors.append("Foyer payeur invalide.")
+        errors.add("household_id", _("Foyer payeur invalide."))
     try:
         exchange_rate = float(rate_str) if rate_str else 1.0
         if exchange_rate <= 0 or exchange_rate > 10000:
             raise ValueError
     except (ValueError, TypeError):
-        errors.append("Taux de change invalide (0 < taux ≤ 10000).")
+        errors.add("exchange_rate", _("Taux de change invalide (0 < taux ≤ 10000)."))
         exchange_rate = 1.0
 
     if errors:
-        for e in errors:
-            flash(e, "danger")
+        errors.flash_all("danger")
         return redirect(url_for("costs.index", code=code))
 
     d: date | None = None
@@ -328,7 +327,7 @@ def add_expense(code: str) -> Response | tuple[str, int]:
     log_event(ctx, "expense.created", target=description,
                details=f"{amount_cents/100:.2f} {currency}")
     db.session.commit()
-    flash("Frais ajouté.", "success")
+    flash(_("Frais ajouté."), "success")
     return redirect(url_for("costs.index", code=code))
 
 
@@ -348,7 +347,7 @@ def delete_expense(code: str, exp_id: str) -> Response | tuple[str, int]:
     db.session.delete(exp)
     log_event(ctx, "expense.deleted", target=desc)
     db.session.commit()
-    flash("Frais supprimé.", "success")
+    flash(_("Frais supprimé."), "success")
     return redirect(url_for("costs.index", code=code))
 
 
@@ -368,7 +367,7 @@ def delete_household(code: str, h_id: str) -> Response | tuple[str, int]:
     db.session.delete(h)
     log_event(ctx, "household.deleted", target=name)
     db.session.commit()
-    flash("Foyer supprimé.", "success")
+    flash(_("Foyer supprimé."), "success")
     return redirect(url_for("costs.index", code=code))
 
 
@@ -385,24 +384,23 @@ def add_transfer(code: str) -> Response | tuple[str, int]:
     note = request.form.get("note", "").strip()
     t_date = request.form.get("date", "")
 
-    errors: list[str] = []
+    errors = FormErrors()
     if not from_id or not to_id:
-        errors.append("Foyers d'origine et de destination requis.")
+        errors.add("from_household_id", _("Foyers d'origine et de destination requis."))
     elif from_id == to_id:
-        errors.append("Le foyer d'origine et de destination doivent différer.")
+        errors.add("to_household_id", _("Le foyer d'origine et de destination doivent différer."))
     elif not _household_in_event(from_id, event) or not _household_in_event(to_id, event):
-        errors.append("Foyer invalide pour cet événement.")
+        errors.add("from_household_id", _("Foyer invalide pour cet événement."))
     amount_cents = 0
     try:
         amount_cents = round(float(amount_str) * 100)
         if amount_cents <= 0:
-            errors.append("Montant invalide.")
+            errors.add("amount", _("Montant invalide."))
     except (ValueError, TypeError):
-        errors.append("Montant invalide.")
+        errors.add("amount", _("Montant invalide."))
 
     if errors:
-        for e in errors:
-            flash(e, "danger")
+        errors.flash_all("danger")
         return redirect(url_for("costs.index", code=code))
 
     d: date | None = None
@@ -421,9 +419,9 @@ def add_transfer(code: str) -> Response | tuple[str, int]:
         event_id=event.id,
     )
     db.session.add(t)
-    log_event(ctx, "transfer.created", details=f"{amount_cents/100:.2f} €")
+    log_event(ctx, "transfer.created", details=f"{amount_cents / 100:.2f} EUR")
     db.session.commit()
-    flash("Transfert enregistré.", "success")
+    flash(_("Transfert enregistré."), "success")
     return redirect(url_for("costs.index", code=code))
 
 
@@ -442,7 +440,7 @@ def delete_transfer(code: str, t_id: str) -> Response | tuple[str, int]:
     db.session.delete(t)
     log_event(ctx, "transfer.deleted")
     db.session.commit()
-    flash("Transfert supprimé.", "success")
+    flash(_("Transfert supprimé."), "success")
     return redirect(url_for("costs.index", code=code))
 
 
@@ -458,24 +456,23 @@ def add_payment_request(code: str) -> Response | tuple[str, int]:
     amount_str = request.form.get("amount", "").strip()
     message = request.form.get("message", "").strip()
 
-    errors: list[str] = []
+    errors = FormErrors()
     if not from_id or not to_id:
-        errors.append("Foyers requis.")
+        errors.add("from_household_id", _("Foyers requis."))
     elif from_id == to_id:
-        errors.append("Les foyers doivent différer.")
+        errors.add("to_household_id", _("Les foyers doivent différer."))
     elif not _household_in_event(from_id, event) or not _household_in_event(to_id, event):
-        errors.append("Foyer invalide pour cet événement.")
+        errors.add("from_household_id", _("Foyer invalide pour cet événement."))
     amount_cents = 0
     try:
         amount_cents = round(float(amount_str) * 100)
         if amount_cents <= 0:
-            errors.append("Montant invalide.")
+            errors.add("amount", _("Montant invalide."))
     except (ValueError, TypeError):
-        errors.append("Montant invalide.")
+        errors.add("amount", _("Montant invalide."))
 
     if errors:
-        for e in errors:
-            flash(e, "danger")
+        errors.flash_all("danger")
         return redirect(url_for("costs.index", code=code))
 
     pr = PaymentRequest(
@@ -486,9 +483,9 @@ def add_payment_request(code: str) -> Response | tuple[str, int]:
         event_id=event.id,
     )
     db.session.add(pr)
-    log_event(ctx, "payment_request.created", details=f"{amount_cents/100:.2f} €")
+    log_event(ctx, "payment_request.created", details=f"{amount_cents / 100:.2f} EUR")
     db.session.commit()
-    flash("Demande de paiement créée.", "success")
+    flash(_("Demande de paiement créée."), "success")
     return redirect(url_for("costs.index", code=code))
 
 
@@ -507,7 +504,7 @@ def resolve_payment_request(code: str, pr_id: str) -> Response | tuple[str, int]
     pr.resolved_at = datetime.now(UTC)
     log_event(ctx, "payment_request.resolved")
     db.session.commit()
-    flash("Demande marquée comme réglée.", "success")
+    flash(_("Demande marquée comme réglée."), "success")
     return redirect(url_for("costs.index", code=code))
 
 
@@ -526,7 +523,7 @@ def delete_payment_request(code: str, pr_id: str) -> Response | tuple[str, int]:
     db.session.delete(pr)
     log_event(ctx, "payment_request.deleted")
     db.session.commit()
-    flash("Demande supprimée.", "success")
+    flash(_("Demande supprimée."), "success")
     return redirect(url_for("costs.index", code=code))
 
 
@@ -543,11 +540,11 @@ def update_ratio(code: str) -> Response | tuple[str, int]:
         adult_weight = float(adult_weight_raw)
         child_weight = float(child_weight_raw)
     except (ValueError, TypeError):
-        flash("Valeurs invalides.", "danger")
+        flash(_("Valeurs invalides."), "danger")
         return redirect(url_for("costs.index", code=code))
 
     if adult_weight <= 0 or adult_weight > 10 or child_weight < 0 or child_weight > 10:
-        flash("Poids invalides (0 < adulte ≤ 10, 0 ≤ enfant ≤ 10).", "danger")
+        flash(_("Poids invalides (0 < adulte ≤ 10, 0 ≤ enfant ≤ 10)."), "danger")
         return redirect(url_for("costs.index", code=code))
 
     households = event.households.all()
@@ -557,5 +554,5 @@ def update_ratio(code: str) -> Response | tuple[str, int]:
 
     log_event(ctx, "ratio.updated", details=f"adult={adult_weight}, child={child_weight}")
     db.session.commit()
-    flash("Ratio appliqué à tous les foyers.", "success")
+    flash(_("Ratio appliqué à tous les foyers."), "success")
     return redirect(url_for("costs.index", code=code))

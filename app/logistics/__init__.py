@@ -14,6 +14,7 @@ from werkzeug.wrappers import Response
 
 from app.context import load_event_context, log_event
 from app.extensions import db, limiter
+from app.forms import FormErrors
 from app.i18n import is_valid
 from app.models import LogisticsItem
 
@@ -23,38 +24,38 @@ MAX_TITLE = 200
 MAX_CONTENT = 5000
 
 
-def _validate_form() -> tuple[list[str], dict[str, str], tuple[str, str, str, int]]:
+def _validate_form() -> tuple[FormErrors, dict[str, str], tuple[str, str, str, int]]:
     """Validate the logistics form.
 
     Returns (errors, form_data, fields) where form_data holds the raw
     strings for re-rendering and fields the typed values (only meaningful
     when errors is empty).
     """
-    errors: list[str] = []
+    errors = FormErrors()
     title = request.form.get("title", "").strip()
     content = request.form.get("content", "").strip()
     category = request.form.get("category", "").strip() or "general"
     order_raw = request.form.get("order", "").strip()
 
     if len(title) < 2:
-        errors.append(_("Titre requis (min 2 caractères)."))
+        errors.add("title", _("Titre requis (min 2 caractères)."))
     elif len(title) > MAX_TITLE:
-        errors.append(_("Titre trop long (max 200)."))
+        errors.add("title", _("Titre trop long (max 200)."))
 
     if not content:
-        errors.append(_("Contenu requis."))
+        errors.add("content", _("Contenu requis."))
     elif len(content) > MAX_CONTENT:
-        errors.append(_("Contenu trop long (max 5000)."))
+        errors.add("content", _("Contenu trop long (max 5000)."))
 
     if not is_valid("info_category", category):
-        errors.append(_("Catégorie invalide."))
+        errors.add("category", _("Catégorie invalide."))
 
     order = 0
     if order_raw:
         try:
             order = int(order_raw)
         except ValueError:
-            errors.append(_("Ordre invalide."))
+            errors.add("order", _("Ordre invalide."))
 
     form_data = {
         "title": title,
@@ -97,7 +98,7 @@ def create(code: str) -> Response | str:
             event=event,
             item=None,
             form_data={},
-            errors=[],
+            errors=FormErrors(),
             action_url=url_for("logistics.create", code=code),
         )
 
@@ -154,7 +155,7 @@ def edit(code: str, item_id: str) -> Response | tuple[str, int] | str:
             event=event,
             item=item,
             form_data=form_data,
-            errors=[],
+            errors=FormErrors(),
             action_url=action_url,
         )
 

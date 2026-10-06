@@ -10,12 +10,12 @@
 {% if my_household %}
 <div class="user-balance-hero{% if my_balance and my_balance > 0.01 %} hero-positive{% elif my_balance and my_balance < -0.01 %} hero-negative{% else %} hero-neutral{% endif %}">
   <div class="ubh-top">
-    <span class="ubh-title">{{ _("Ton solde") }}</span>
+    <span class="ubh-title">{{ _("Votre solde") }}</span>
     <span class="ubh-household">{{ my_household.name }}</span>
   </div>
   {% if my_balance and my_balance > 0.01 %}
     <div class="ubh-amount">{{ my_balance|money(sign=True) }}</div>
-    <div class="ubh-state positive-badge">{{ _("On te doit de l'argent") }}</div>
+    <div class="ubh-state positive-badge">{{ _("On vous doit de l'argent") }}</div>
     {% if owed_to_me %}
     <div class="ubh-detail">
       {% for o in owed_to_me %}
@@ -25,7 +25,7 @@
     {% endif %}
   {% elif my_balance and my_balance < -0.01 %}
     <div class="ubh-amount">{{ my_balance|money }}</div>
-    <div class="ubh-state negative-badge">{{ _("Tu dois de l'argent au groupe") }}</div>
+    <div class="ubh-state negative-badge">{{ _("Vous devez de l'argent au groupe") }}</div>
     {% if i_owe %}
     <div class="ubh-detail">
       {% for d in i_owe %}
@@ -35,7 +35,7 @@
     {% endif %}
   {% else %}
     <div class="ubh-amount">{{ 0|money }}</div>
-    <div class="ubh-state neutral-badge">{{ _("Tu es quitte ! 👌") }}</div>
+    <div class="ubh-state neutral-badge">{{ _("Vous êtes quitte ! 👌") }}</div>
   {% endif %}
 </div>
 {% endif %}
@@ -44,7 +44,7 @@
 <div class="card expense-form">
   <h2>{{ _("Ajouter une dépense") }}</h2>
   {% if not households %}
-  <p class="empty-hint">{{ _("Ajoute d'abord un foyer pour pouvoir ajouter des dépenses.") }}</p>
+  <p class="empty-hint">{{ _("Ajoutez d'abord un foyer pour pouvoir ajouter des dépenses.") }}</p>
   {% else %}
   <form method="POST" action="{{ url_for('costs.add_expense', code=event.code) }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

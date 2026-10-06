@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_components/ui.html" import aria_invalid, field_errors, form_errors %}
 {% block title %}{% if item %}{{ _("Modifier") }}{% else %}{{ _("Ajouter une info") }}{% endif %} — {{ event.title }}{% endblock %}
 {% block content %}
 <div class="page-head">
@@ -8,11 +9,7 @@
     </div>
 </div>
 
-{% if errors %}
-<ul class="errors" aria-live="assertive">
-  {% for e in errors %}<li>{{ e }}</li>{% endfor %}
-</ul>
-{% endif %}
+{{ form_errors(errors, 'title', 'content', 'category', 'order') }}
 
 <form method="post" action="{{ action_url }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -20,26 +17,30 @@
   <div class="form-group">
     <label for="title">{{ _("Titre") }} *</label>
     <input type="text" id="title" name="title" required minlength="2" maxlength="200"
-           value="{{ form_data.get('title', '') }}" placeholder="{{ _('Ex : Adresse du gîte') }}">
+           value="{{ form_data.get('title', '') }}" placeholder="{{ _('Ex : Adresse du gîte') }}"{{ aria_invalid(errors, 'title') }}>
+    {{ field_errors(errors, 'title') }}
   </div>
 
   <div class="form-group">
     <label for="content">{{ _("Contenu") }} *</label>
-    <textarea id="content" name="content" rows="5" required maxlength="5000">{{ form_data.get('content', '') }}</textarea>
+    <textarea id="content" name="content" rows="5" required maxlength="5000"{{ aria_invalid(errors, 'content') }}>{{ form_data.get('content', '') }}</textarea>
+    {{ field_errors(errors, 'content') }}
   </div>
 
   <div class="form-grid">
     <div class="form-group">
       <label for="category">{{ _("Catégorie") }}</label>
-      <select id="category" name="category">
+      <select id="category" name="category"{{ aria_invalid(errors, 'category') }}>
         {% for value, label in choices('info_category') %}
         <option value="{{ value }}"{% if form_data.get('category', 'general') == value %} selected{% endif %}>{{ label }}</option>
         {% endfor %}
       </select>
+      {{ field_errors(errors, 'category') }}
     </div>
     <div class="form-group">
       <label for="order">{{ _("Ordre d'affichage") }}</label>
-      <input type="number" id="order" name="order" value="{{ form_data.get('order', 0) }}">
+      <input type="number" id="order" name="order" value="{{ form_data.get('order', 0) }}"{{ aria_invalid(errors, 'order') }}>
+      {{ field_errors(errors, 'order') }}
     </div>
   </div>
 

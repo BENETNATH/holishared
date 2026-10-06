@@ -16,6 +16,7 @@ from werkzeug.wrappers import Response
 
 from app.context import load_event_context, log_event
 from app.extensions import db, limiter
+from app.forms import FormErrors
 from app.models import Activity, Event, Guest, ListItem, Meal, SharedList
 
 lists_bp = Blueprint("lists", __name__)
@@ -53,14 +54,14 @@ def index(code: str) -> Response | tuple[str, int] | str:
         .all()
     )
 
-    errors: list[str] = []
+    errors = FormErrors()
     form_title = ""
     if request.method == "POST":
         form_title = request.form.get("title", "").strip()
         if len(form_title) < 2:
-            errors.append(_("Titre requis (min 2 caractères)."))
+            errors.add("title", _("Titre requis (min 2 caractères)."))
         elif len(form_title) > 200:
-            errors.append(_("Titre trop long (max 200)."))
+            errors.add("title", _("Titre trop long (max 200)."))
         if not errors:
             shared_list = SharedList(title=form_title, event_id=event.id)
             db.session.add(shared_list)
@@ -122,7 +123,7 @@ def detail(code: str, list_id: str) -> Response | tuple[str, int] | str:
         event=event,
         shared_list=shared_list,
         items=_list_items(shared_list),
-        errors=[],
+        errors=FormErrors(),
         form_data={},
         **panels,
     )
@@ -141,17 +142,17 @@ def add_item(code: str, list_id: str) -> Response | tuple[str, int] | str:
     section = request.form.get("section", "").strip()
     assigned_to = request.form.get("assigned_to", "").strip()
 
-    errors: list[str] = []
+    errors = FormErrors()
     if len(name) < 1:
-        errors.append(_("Nom requis."))
+        errors.add("name", _("Nom requis."))
     elif len(name) > 300:
-        errors.append(_("Nom trop long (max 300)."))
+        errors.add("name", _("Nom trop long (max 300)."))
     if len(quantity) > 50:
-        errors.append(_("Quantité trop longue (max 50)."))
+        errors.add("quantity", _("Quantité trop longue (max 50)."))
     if len(section) > 100:
-        errors.append(_("Section trop longue (max 100)."))
+        errors.add("section", _("Section trop longue (max 100)."))
     if len(assigned_to) > 50:
-        errors.append(_("Nom trop long (max 50)."))
+        errors.add("assigned_to", _("Nom trop long (max 50)."))
 
     if errors:
         panels = _list_side_panels(event, shared_list)

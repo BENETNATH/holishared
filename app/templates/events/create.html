@@ -1,15 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ _("Nouvel événement") }} — holishared{% endblock %}
 {% block content %}
-{# Map backend error strings to the fields they concern, so validation
-   errors appear next to the field instead of in a block at the top. #}
-{% set field_errors = {'title': [], 'dates': [], 'email': [], 'general': []} %}
-{% for e in errors %}
-  {% if 'Titre' in e %}{% set _ = field_errors['title'].append(e) %}
-  {% elif 'email' in e.lower() %}{% set _ = field_errors['email'].append(e) %}
-  {% elif 'date' in e.lower() or 'Durée' in e %}{% set _ = field_errors['dates'].append(e) %}
-  {% else %}{% set _ = field_errors['general'].append(e) %}{% endif %}
-{% endfor %}
+{% from "_components/ui.html" import aria_invalid, field_errors, form_errors %}
 <div class="page-head">
     <div>
         <h1>{{ _("Nouvel événement") }}</h1>
@@ -28,16 +20,16 @@
       <input type="email" id="email" name="email" required
              value="{{ form.email if form else (current_user.email if current_user.is_authenticated else '') }}"
              placeholder="{{ _('Ex : alice@mail.com') }}"
-             {% if field_errors['email'] %}aria-invalid="true" aria-describedby="err-email"{% endif %}>
-      {% for e in field_errors['email'] %}<p class="field-error" id="err-email">{{ e }}</p>{% endfor %}
+             {{ aria_invalid(errors, 'email') }}>
+      {{ field_errors(errors, 'email') }}
     </div>
 
     <div class="form-group">
       <label for="title">{{ _("Titre") }} *</label>
       <input type="text" id="title" name="title" required maxlength="200"
              value="{{ form.title if form else '' }}" placeholder="{{ _('Ex : Anniversaire de Léa') }}"
-             {% if field_errors['title'] %}aria-invalid="true" aria-describedby="err-title"{% endif %}>
-      {% for e in field_errors['title'] %}<p class="field-error" id="err-title">{{ e }}</p>{% endfor %}
+             {{ aria_invalid(errors, 'title') }}>
+      {{ field_errors(errors, 'title') }}
     </div>
 
     <div class="form-grid">
@@ -45,13 +37,15 @@
         <label for="start_date">{{ _("Date de début") }} *</label>
         <input type="date" id="start_date" name="start_date" required
                value="{{ form.start_date if form else '' }}"
-               {% if field_errors['dates'] %}aria-invalid="true" aria-describedby="err-dates"{% endif %}>
-        {% for e in field_errors['dates'] %}<p class="field-error" id="err-dates">{{ e }}</p>{% endfor %}
+               {{ aria_invalid(errors, 'start_date') }}>
+        {{ field_errors(errors, 'start_date') }}
       </div>
       <div class="form-group">
         <label for="end_date">{{ _("Date de fin") }} *</label>
         <input type="date" id="end_date" name="end_date" required
-               value="{{ form.end_date if form else '' }}">
+               value="{{ form.end_date if form else '' }}"
+               {{ aria_invalid(errors, 'end_date') }}>
+        {{ field_errors(errors, 'end_date') }}
       </div>
     </div>
 
@@ -80,9 +74,5 @@
   </div>
 </form>
 
-{% if field_errors['general'] %}
-<ul class="errors" aria-live="assertive">
-  {% for e in field_errors['general'] %}<li>{{ e }}</li>{% endfor %}
-</ul>
-{% endif %}
+{{ form_errors(errors, 'email', 'title', 'start_date', 'end_date') }}
 {% endblock %}

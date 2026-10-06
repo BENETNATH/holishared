@@ -14,7 +14,8 @@ from typing import TYPE_CHECKING, Any, Final
 
 from babel import dates as bdates
 from babel import numbers as bnum
-from flask_babel import get_locale
+from flask import has_request_context
+from flask_babel import get_locale, gettext
 from flask_babel import lazy_gettext as _l
 
 if TYPE_CHECKING:
@@ -132,6 +133,13 @@ def action_label(code: str | None) -> str:
     return code or ""
 
 
+def household_default_name(display_name: str) -> str:
+    """Nom de foyer par défaut, dans la langue de la requête (donnée utilisateur ensuite)."""
+    if has_request_context():
+        return str(gettext("Foyer %(name)s", name=display_name))
+    return f"Foyer {display_name}"  # hors requête (seed, scripts) : langue source
+
+
 def current_locale() -> str:
     """Langue active (``fr`` hors requête, p. ex. tâches RQ)."""
     loc = get_locale()
@@ -178,6 +186,21 @@ def format_datetime_safe(value: datetime | None, fmt: str = "medium") -> str:
     return str(format_datetime(value, format=fmt))
 
 
+_FILE_UNITS: Final = (_l("o"), _l("Ko"), _l("Mo"), _l("Go"), _l("To"))
+
+
+def format_filesize(nbytes: float | None) -> str:
+    """Taille lisible (unités de 1024) ; unités traduites (o/Ko/Mo -> B/KB/MB)."""
+    if nbytes is None:
+        return ""
+    value = float(nbytes)
+    unit = 0
+    while value >= 1024 and unit < len(_FILE_UNITS) - 1:
+        value /= 1024
+        unit += 1
+    return f"{format_number(value, 0 if value >= 10 or unit == 0 else 1)} {_FILE_UNITS[unit]}"
+
+
 def format_date_short(value: date | None) -> str:
     return "" if value is None else bdates.format_skeleton("dMM", value, locale=current_locale())
 
@@ -198,6 +221,7 @@ def register(app: Flask) -> None:
         "money": format_money,
         "number": format_number,
         "time": format_time_short,
+        "filesize": format_filesize,
         "date_short": format_date_short,
         "datetime_short": format_datetime_short,
         "format_date": format_date_safe,

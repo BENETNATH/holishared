@@ -4,6 +4,7 @@
 from typing import cast
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
+from flask_babel import gettext as _
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.wrappers import Response
 
@@ -50,7 +51,7 @@ def login() -> str | Response:
                 db.session.commit()
             login_user(admin, remember=True)
             return redirect(url_for("events.index"))
-        flash("Identifiants incorrects.", "danger")
+        flash(_("Identifiants incorrects."), "danger")
     return render_template("auth/login.html")
 
 

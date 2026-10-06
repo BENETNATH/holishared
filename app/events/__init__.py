@@ -18,6 +18,7 @@ from flask import (
     url_for,
 )
 from flask_babel import gettext as _
+from flask_babel import ngettext
 from flask_login import current_user, login_required, login_user, logout_user
 from sqlalchemy.exc import IntegrityError
 from werkzeug.wrappers import Response
@@ -36,9 +37,23 @@ from app.access import (
 from app.auth import is_disposable_email
 from app.context import load_event_context
 from app.extensions import db, limiter
+from app.forms import FormErrors
 from app.freemium import can_add_guest, max_duration_days, require_tier
+from app.i18n import household_default_name
 from app.models import Creator, Event, Guest, Household, generate_guest_code
 from app.utils import ensure_creator_guest
+
+
+def _parse_date_field(errors: FormErrors, field: str, raw: str | None, missing: str) -> date | None:
+    """Date ISO d'un champ de formulaire ; ajoute l'erreur du champ si absente/invalide."""
+    if not raw:
+        errors.add(field, missing)
+        return None
+    try:
+        return datetime.strptime(raw, "%Y-%m-%d").date()
+    except ValueError:
+        errors.add(field, _("Format de date invalide (AAAA-MM-JJ)."))
+        return None
 
 
 def _valid_email(email: str) -> bool:
@@ -71,7 +86,7 @@ def access_by_code() -> str | Response:
         match = resolve_home_code(request.form.get("code", ""))
         if match is None or match.kind == "guest":
             mark_attempt_failed("home", None)
-            flash("Code non reconnu.", "danger")
+            flash(_("Code non reconnu."), "danger")
             return redirect(url_for("main.index"))
         if match.creator is not None:
             login_user(match.creator)
@@ -93,28 +108,26 @@ def create() -> str | Response:
         location = request.form.get("location", "").strip()
         email = request.form.get("email", "").strip().lower()
 
-        errors = []
+        errors = FormErrors()
         if not title:
-            errors.append("Titre requis.")
-        if not start_date or not end_date:
-            errors.append("Dates requises.")
-        else:
-            try:
-                sd = datetime.strptime(start_date, "%Y-%m-%d").date()
-                ed = datetime.strptime(end_date, "%Y-%m-%d").date()
-            except ValueError:
-                errors.append("Format de date invalide (AAAA-MM-JJ).")
-            else:
-                if ed < sd:
-                    errors.append("Date de fin avant date de début.")
-                elif (ed - sd).days + 1 > max_duration_days():
-                    errors.append(f"Durée max : {max_duration_days()} jours.")
+            errors.add("title", _("Titre requis."))
+        sd = _parse_date_field(errors, "start_date", start_date, _("Date de début requise."))
+        ed = _parse_date_field(errors, "end_date", end_date, _("Date de fin requise."))
+        if sd and ed:
+            if ed < sd:
+                errors.add("end_date", _("Date de fin avant date de début."))
+            elif (ed - sd).days + 1 > max_duration_days():
+                days = max_duration_days()
+                errors.add(
+                    "end_date",
+                    ngettext("Durée max : %(n)d jour.", "Durée max : %(n)d jours.", days, n=days),
+                )
         if not email:
-            errors.append("Email requis.")
+            errors.add("email", _("Email requis."))
         elif not _valid_email(email):
-            errors.append("Format d'email invalide.")
+            errors.add("email", _("Format d'email invalide."))
         elif is_disposable_email(email):
-            errors.append("Domaine email non accepté (jetable).")
+            errors.add("email", _("Domaine email non accepté (jetable)."))
 
         if errors:
             return render_template(
@@ -139,7 +152,7 @@ def create() -> str | Response:
         # Check event limit
         existing_count = Event.query.filter_by(creator_id=creator.id, is_active=True).count()
         if existing_count >= int(current_app.config["MAX_EVENTS_PER_CREATOR"]):
-            flash(f"Limite d'événements atteinte ({existing_count}).", "warning")
+            flash(_("Limite d'événements atteinte (%(count)d).", count=existing_count), "warning")
             return redirect(url_for("events.create"))
 
         # Create event with verification token (unverified until link clicked).
@@ -162,16 +175,18 @@ def create() -> str | Response:
         # link directly (dev mode, no SMTP).
         if current_app.config["SMTP_HOST"]:
             _send_verification_email(creator, event, token)
-            flash("Un email de vérification a été envoyé.", "success")
+            flash(_("Un email de vérification a été envoyé."), "success")
         else:
             flash(
-                "Mode dev (pas de SMTP) — clique sur le lien de vérification : "
-                + url_for("events.verify", token=token, _external=True),
+                _(
+                    "Mode développement (SMTP non configuré) : cliquez sur le lien de vérification : %(url)s",
+                    url=url_for("events.verify", token=token, _external=True),
+                ),
                 "warning",
             )
         return redirect(url_for("events.verify_sent", code=event.code))
 
-    return render_template("events/create.html")
+    return render_template("events/create.html", errors=FormErrors())
 
 
 @events_bp.route("/new/sent/<code>")
@@ -188,7 +203,7 @@ def verify(token: str) -> str | Response:
     """Creator clicks the verification link: set code + nickname + invite."""
     event = Event.query.filter_by(verification_token=token, is_active=True).first()
     if not event:
-        flash("Lien invalide ou expiré.", "danger")
+        flash(_("Lien invalide ou expiré."), "danger")
         return redirect(url_for("main.index"))
     if event.verified_at is not None:
         # Already verified — log the creator in and go to dashboard.
@@ -208,22 +223,28 @@ def verify(token: str) -> str | Response:
         num_adults_raw = request.form.get("num_adults", "1")
         num_children_raw = request.form.get("num_children", "0")
 
-        errors = []
+        errors = FormErrors()
         if not display_name or len(display_name) < 2:
-            errors.append("Pseudo requis (min 2 caractères).")
-        keep_code = creator is not None and has_existing_code and personal_code in (
-            "",
-            creator.personal_code,
+            errors.add("display_name", _("Pseudo requis (min 2 caractères)."))
+        keep_code = (
+            creator is not None
+            and has_existing_code
+            and personal_code
+            in (
+                "",
+                creator.personal_code,
+            )
         )
         if not keep_code:
             if not re.fullmatch(r"[a-z0-9]{8}", personal_code):
-                errors.append(
-                    _("Le code créateur doit faire 8 caractères (lettres minuscules et chiffres).")
+                errors.add(
+                    "personal_code",
+                    _("Le code créateur doit faire 8 caractères (lettres minuscules et chiffres)."),
                 )
             elif Creator.query.filter(
                 Creator.personal_code == personal_code, Creator.id != event.creator_id
             ).first():
-                errors.append(_("Ce code est déjà utilisé. Choisissez-en un autre."))
+                errors.add("personal_code", _("Ce code est déjà utilisé. Choisissez-en un autre."))
 
         # Household fields (the creator is a participant in their own event).
         try:
@@ -235,7 +256,7 @@ def verify(token: str) -> str | Response:
         except (ValueError, TypeError):
             num_children = 0
 
-        def _form_error(messages: list[str]) -> str:
+        def _form_error(messages: FormErrors) -> str:
             suggestion = personal_code or ("" if has_existing_code else suggest_creator_code())
             return render_template(
                 "events/verify.html", event=event, token=token, errors=messages,
@@ -272,7 +293,9 @@ def verify(token: str) -> str | Response:
             db.session.commit()
         except IntegrityError:
             db.session.rollback()
-            return _form_error([_("Ce code est déjà utilisé. Choisissez-en un autre.")])
+            dup = FormErrors()
+            dup.add("personal_code", _("Ce code est déjà utilisé. Choisissez-en un autre."))
+            return _form_error(dup)
 
         # Send invite emails (NOT stored unless requested)
         if invite_emails_raw and current_app.config["SMTP_HOST"]:
@@ -283,11 +306,14 @@ def verify(token: str) -> str | Response:
 
         if creator:
             login_user(creator)
-        flash("Événement confirmé !", "success")
+        flash(_("Événement confirmé !"), "success")
         return redirect(url_for("events.dashboard", code=event.code))
 
     return render_template(
-        "events/verify.html", event=event, token=token, errors=[],
+        "events/verify.html",
+        event=event,
+        token=token,
+        errors=FormErrors(),
         has_existing_code=has_existing_code,
         form_data={} if has_existing_code else {"personal_code": suggest_creator_code()},
     )
@@ -365,18 +391,17 @@ def members(code: str) -> str | Response:
         if action == "add":
             display_name = request.form.get("display_name", "").strip()
             email = request.form.get("email", "").strip().lower() or None
-            errors = []
+            errors = FormErrors()
             if not display_name or len(display_name) < 2:
-                errors.append("Nom requis (min 2 caractères).")
+                errors.add("display_name", _("Nom requis (min 2 caractères)."))
             if email and not _valid_email(email):
-                errors.append("Format d'email invalide.")
+                errors.add("email", _("Format d'email invalide."))
             if email and is_disposable_email(email):
-                errors.append("Domaine email non accepté.")
+                errors.add("email", _("Domaine email non accepté (jetable)."))
             if not can_add_guest(event):
-                errors.append("Limite d'invités atteinte.")
+                errors.add_global(_("Limite d'invités atteinte."))
             if errors:
-                for e in errors:
-                    flash(e, "danger")
+                errors.flash_all("danger")
             else:
                 new_code = generate_guest_code()
                 member = Guest(
@@ -387,7 +412,10 @@ def members(code: str) -> str | Response:
                 )
                 db.session.add(member)
                 db.session.commit()
-                flash(f"{display_name} ajouté·e (code : {new_code})", "success")
+                flash(
+                    _("%(name)s ajouté·e (code : %(code)s)", name=display_name, code=new_code),
+                    "success",
+                )
                 return redirect(url_for("events.members", code=code))
         elif action == "remove":
             guest_id = request.form.get("guest_id", "")
@@ -398,7 +426,7 @@ def members(code: str) -> str | Response:
                 abort(403)
             target.is_active = False
             db.session.commit()
-            flash(f"{target.display_name} retiré·e.", "success")
+            flash(_("%(name)s retiré·e.", name=target.display_name), "success")
             return redirect(url_for("events.members", code=code))
 
     all_guests = Guest.query.filter_by(event_id=event.id, is_active=True).order_by(Guest.display_name).all()
@@ -521,7 +549,7 @@ def delete_event(code: str) -> Response:
         db.session.commit()
     except Exception:
         db.session.rollback()
-        flash("La suppression a échoué. Réessayez.", "danger")
+        flash(_("La suppression a échoué. Réessayez."), "danger")
         return redirect(url_for("events.dashboard", code=event_code))
 
     # Purge the media folder on disk.
@@ -534,7 +562,13 @@ def delete_event(code: str) -> Response:
     if current_user.is_authenticated:
         logout_user()
 
-    flash(f"Événement « {event_title} » et toutes ses données ont été définitivement supprimés.", "success")
+    flash(
+        _(
+            "Événement « %(title)s » et toutes ses données ont été définitivement supprimés.",
+            title=event_title,
+        ),
+        "success",
+    )
     return redirect(url_for("events.index"))
 
 
@@ -556,7 +590,7 @@ def invite(code: str) -> str | Response:
     """Generate invite links for guests."""
     event = load_event_context(code, require="creator").event
     if not can_add_guest(event):
-        flash("Limite d'invités atteinte.", "warning")
+        flash(_("Limite d'invités atteinte."), "warning")
         return redirect(url_for("events.dashboard", code=code))
 
     invite_url = f"{current_app.config['APP_URL']}/e/{code}/join"
@@ -616,18 +650,18 @@ def invite_email(code: str) -> Response:
     email = request.form.get("email", "").strip().lower()
 
     if not email:
-        flash("Email requis.", "danger")
+        flash(_("Email requis."), "danger")
     elif not _valid_email(email):
-        flash("Format d'email invalide.", "danger")
+        flash(_("Format d'email invalide."), "danger")
     elif is_disposable_email(email):
-        flash("Domaine email non accepté (jetable).", "danger")
+        flash(_("Domaine email non accepté (jetable)."), "danger")
     elif not can_add_guest(event):
-        flash("Limite d'invités atteinte.", "warning")
+        flash(_("Limite d'invités atteinte."), "warning")
     elif not current_app.config["SMTP_HOST"]:
-        flash("Email non configuré (SMTP_HOST vide).", "warning")
+        flash(_("L'envoi d'emails n'est pas configuré sur ce serveur."), "warning")
     else:
         _send_guest_invite_email(event, email)
-        flash(f"Invitation envoyée à {email}.", "success")
+        flash(_("Invitation envoyée à %(email)s.", email=email), "success")
 
     return redirect(url_for("events.invite", code=code))
 
@@ -640,9 +674,9 @@ def invite_resend(code: str, guest_id: str) -> Response:
 
     if guest.email:
         _send_guest_invite_email(event, guest.email, guest.display_name)
-        flash(f"Invitation renvoyée à {guest.display_name}.", "success")
+        flash(_("Invitation renvoyée à %(name)s.", name=guest.display_name), "success")
     else:
-        flash("Aucun email enregistré pour cet invité.", "warning")
+        flash(_("Aucun email enregistré pour cet invité."), "warning")
 
     return redirect(url_for("events.invite", code=code))
 
@@ -667,26 +701,26 @@ def guest_access(code: str) -> str | Response:
         num_children_raw = request.form.get("num_children", "0")
 
         # Field-level validation (the guest chooses their own personal code).
-        errors = []
+        errors = FormErrors()
         code_refused = False
         if not display_name or len(display_name) < 2:
-            errors.append("Pseudo requis (min 2 caractères).")
+            errors.add("display_name", _("Pseudo requis (min 2 caractères)."))
         if not guest_code or len(guest_code) < 4 or len(guest_code) > 8:
-            errors.append("Code perso requis (4 à 8 caractères).")
+            errors.add("code", _("Code perso requis (4 à 8 caractères)."))
         elif not re.fullmatch(r"[a-z0-9]+", guest_code):
-            errors.append("Code : lettres minuscules et chiffres uniquement.")
+            errors.add("code", _("Code : lettres minuscules et chiffres uniquement."))
         elif (
             Guest.query.filter_by(event_id=event.id, code=guest_code).first()
             or event.creator.personal_code == guest_code
         ):
-            errors.append("Code déjà utilisé.")
+            errors.add("code", _("Code déjà utilisé."))
             code_refused = True
         if email and not _valid_email(email):
-            errors.append("Format d'email invalide.")
+            errors.add("email", _("Format d'email invalide."))
         elif email and is_disposable_email(email):
-            errors.append("Domaine email non accepté (jetable).")
+            errors.add("email", _("Domaine email non accepté (jetable)."))
         if not can_add_guest(event):
-            errors.append("Événement complet.")
+            errors.add_global(_("Événement complet."))
 
         # Household fields
         num_adults = 1
@@ -700,12 +734,15 @@ def guest_access(code: str) -> str | Response:
         if errors:
             if code_refused:
                 mark_attempt_failed("join", code)
-            for e in errors:
-                flash(e, "danger")
             return render_template(
-                "events/join.html", event=event,
-                display_name=display_name, code=guest_code or suggest_guest_code(event),
-                email=email, num_adults=num_adults, num_children=num_children,
+                "events/join.html",
+                event=event,
+                errors=errors,
+                display_name=display_name,
+                code=guest_code or suggest_guest_code(event),
+                email=email,
+                num_adults=num_adults,
+                num_children=num_children,
             )
 
         guest = Guest(
@@ -719,7 +756,7 @@ def guest_access(code: str) -> str | Response:
 
         # Auto-create household for cost sharing
         household = Household(
-            name=f"Foyer {display_name}",
+            name=household_default_name(display_name),
             num_adults=num_adults,
             num_children=num_children,
             adult_weight=1.0,
@@ -731,11 +768,13 @@ def guest_access(code: str) -> str | Response:
         db.session.commit()
 
         # Store in session. The code is NOT flashed: it is the guest's own
-        # choice and stays visible on the dashboard ("Ton code personnel").
+        # choice and stays visible on the dashboard ("Votre code personnel").
         session[f"guest_{code}"] = guest.id
         return redirect(url_for("events.dashboard", code=code))
 
-    return render_template("events/join.html", event=event, code=suggest_guest_code(event))
+    return render_template(
+        "events/join.html", event=event, errors=FormErrors(), code=suggest_guest_code(event)
+    )
 
 
 @events_bp.route("/<code>/mycode", methods=["GET", "POST"])
@@ -751,7 +790,7 @@ def my_code(code: str) -> str | Response:
         match = resolve_event_code(ctx.event, request.form.get("guest_code", ""))
         if match is None:
             mark_attempt_failed("event", code)
-            flash("Code invalide.", "danger")
+            flash(_("Code invalide."), "danger")
         elif match.guest is not None:
             session[f"guest_{code}"] = match.guest.id
             log_code_login("guest", code)
@@ -842,27 +881,40 @@ def recover_code() -> str | Response:
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
         if not email or not _valid_email(email):
-            flash("Email invalide.", "danger")
+            flash(_("Email invalide."), "danger")
             return render_template("events/recover.html")
 
         creator = Creator.query.filter_by(email=email).first()
         if not creator or not creator.personal_code:
-            flash("Aucun compte trouvé avec cet email. Si tu n'avais pas coché 'conserver mon email', le code est perdu.", "danger")
+            flash(
+                _(
+                    "Aucun compte trouvé avec cet email. "
+                    "Si vous n'aviez pas coché « conserver mon email », le code est perdu."
+                ),
+                "danger",
+            )
             return render_template("events/recover.html")
 
         # Send recovery email with the code (RQ)
         if current_app.config["SMTP_HOST"]:
             from app import tasks
+
             host, port, user, pw, frm = _smtp_cfg()
             _rq_queue().enqueue(
                 tasks.send_recovery_email,
-                host, port, user, pw, frm, email,
-                creator.personal_code, creator.display_name,
+                host,
+                port,
+                user,
+                pw,
+                frm,
+                email,
+                creator.personal_code,
+                creator.display_name,
             )
-            flash("Ton code a été envoyé par email.", "success")
+            flash(_("Votre code vous a été envoyé par email."), "success")
         else:
             # Dev mode: show code directly
-            flash(f"Ton code : {creator.personal_code}", "success")
+            flash(_("Votre code : %(code)s", code=creator.personal_code), "success")
 
         return redirect(url_for("events.recover_code"))
 

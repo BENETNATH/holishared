@@ -65,3 +65,22 @@
   {% if caller is defined %}<div class="ui-empty__action">{{ caller() }}</div>{% endif %}
 </div>
 {% endmacro %}
+
+{# Erreurs par champ (B018) : ``errors`` est un FormErrors ; le gabarit interroge le champ, jamais le texte. #}
+{% macro aria_invalid(errors, name) -%}
+  {%- if errors and errors.has(name) %} aria-invalid="true" aria-describedby="f-{{ name }}-error"{% endif -%}
+{%- endmacro %}
+
+{% macro field_errors(errors, name) -%}
+  {%- if errors and errors.has(name) -%}
+  <p class="ui-error" id="f-{{ name }}-error" data-testid="err-{{ name }}">{{ icon('circle-alert', size=16) }}<span>{{ errors.text(name) }}</span></p>
+  {%- endif -%}
+{%- endmacro %}
+
+{# Messages des champs non rendus en ligne (+ erreurs globales) : noms des champs rendus en arguments. #}
+{% macro form_errors(errors) -%}
+  {%- set msgs = errors.remaining(*varargs) if errors else [] -%}
+  {%- if msgs -%}
+  <ul class="errors" aria-live="assertive" data-testid="form-errors">{% for m in msgs %}<li>{{ m }}</li>{% endfor %}</ul>
+  {%- endif -%}
+{%- endmacro %}

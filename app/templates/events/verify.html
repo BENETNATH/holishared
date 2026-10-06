@@ -1,39 +1,38 @@
 {% extends "base.html" %}
-{% block title %}Valider — {{ event.title }}{% endblock %}
+{% from "_components/ui.html" import aria_invalid, field_errors, form_errors %}
+{% block title %}{{ _("Validation") }} — {{ event.title }}{% endblock %}
 {% block content %}
 <div class="page-head">
     <div>
-        <h1>{{ _("Valider ton événement") }}</h1>
+        <h1>{{ _("Validez votre événement") }}</h1>
         <p class="page-sub">{{ event.title }} · {{ event.start_date|date_short }} → {{ event.end_date|date_short }}</p>
     </div>
 </div>
 
-{% if errors %}
-<ul class="errors" aria-live="assertive">
-  {% for e in errors %}<li>{{ e }}</li>{% endfor %}
-</ul>
-{% endif %}
+{{ form_errors(errors, 'display_name', 'personal_code') }}
 
 <form method="post" action="{{ url_for('events.verify', token=token) }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
   <div class="form-group">
-    <label for="display_name">{{ _("Ton pseudo") }} *</label>
+    <label for="display_name">{{ _("Votre pseudo") }} *</label>
     <input type="text" id="display_name" name="display_name" required minlength="2" maxlength="50"
-           value="{{ form_data.get('display_name', '') }}" placeholder="{{ _('Ex : Alice, Bob…') }}">
+           value="{{ form_data.get('display_name', '') }}" placeholder="{{ _('Ex : Alice, Bob…') }}"{{ aria_invalid(errors, 'display_name') }}>
+    {{ field_errors(errors, 'display_name') }}
   </div>
 
   <div class="form-group">
-    <label for="personal_code">{{ _("Ton code personnel") }}{% if not has_existing_code %} *{% endif %}</label>
+    <label for="personal_code">{{ _("Votre code personnel") }}{% if not has_existing_code %} *{% endif %}</label>
     <div class="code-input-row">
       <input type="text" id="personal_code" name="personal_code"{% if not has_existing_code %} required minlength="4"{% endif %} maxlength="8"
              pattern="[a-z0-9]{4,8}" autocomplete="off" spellcheck="false"
-             value="{{ form_data.get('personal_code', '') }}" placeholder="{{ _('Ex : alice42') }}">
+             value="{{ form_data.get('personal_code', '') }}" placeholder="{{ _('Ex : alice42') }}"{{ aria_invalid(errors, 'personal_code') }}>
     </div>
+    {{ field_errors(errors, 'personal_code') }}
     {% if has_existing_code %}
     <p class="hint">{{ _("Votre code créateur actuel est conservé. Laissez ce champ vide pour le garder, ou saisissez un nouveau code de 8 caractères pour le remplacer.") }}</p>
     {% else %}
-    <p class="hint">{{ _("Ce code te sert à accéder à l'événement sur n'importe quel appareil. 4 à 8 lettres minuscules ou chiffres.") }}</p>
+    <p class="hint">{{ _("Ce code vous sert à accéder à l'événement sur n'importe quel appareil. 4 à 8 lettres minuscules ou chiffres.") }}</p>
     {% endif %}
   </div>
 
@@ -49,8 +48,8 @@
   </fieldset>
 
   <fieldset class="form-group">
-    <legend>{{ _("Ton groupe (ménage)") }}</legend>
-    <p class="hint">{{ _("Indique ta composition pour le partage des frais et les groupes. Tu pourras la modifier plus tard.") }}</p>
+    <legend>{{ _("Votre foyer") }}</legend>
+    <p class="hint">{{ _("Indiquez la composition de votre foyer pour le partage des frais et les groupes. Vous pourrez la modifier plus tard.") }}</p>
     <div class="form-row">
       <div class="form-group">
         <label for="num_adults">{{ _("Adultes") }}</label>
@@ -66,12 +65,12 @@
   </fieldset>
 
   <fieldset class="form-group">
-    <legend>{{ _("Ton email") }}</legend>
+    <legend>{{ _("Votre email") }}</legend>
     <label class="checkbox-label">
       <input type="checkbox" name="store_creator_email" value="1">
       <span>{{ _("Conserver mon email pour récupérer mon code si perdu") }}</span>
     </label>
-    <p class="hint">{{ _("Si non coché, ton email est effacé après validation. Tu ne pourras pas récupérer ton code.") }}</p>
+    <p class="hint">{{ _("Si la case n'est pas cochée, votre email est effacé après validation. Vous ne pourrez pas récupérer votre code.") }}</p>
   </fieldset>
 
   <div class="form-actions">

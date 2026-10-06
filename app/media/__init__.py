@@ -17,12 +17,14 @@ from flask import (
     send_from_directory,
     url_for,
 )
+from flask_babel import gettext as _
 from werkzeug.datastructures import FileStorage
 from werkzeug.wrappers import Response
 
 from app.context import load_event_context, log_event
 from app.extensions import db, limiter
 from app.freemium import can_upload_media, consume_media_quota, release_media_quota
+from app.i18n import format_filesize
 from app.models import MediaItem
 
 media_bp = Blueprint("media", __name__)
@@ -141,21 +143,6 @@ def gallery(code: str) -> str | Response:
     # Storage gauge context (creator sees their quota + soft upgrade).
     from app.freemium import get_media_quota
 
-    def _human(nbytes: float) -> str:
-        value = nbytes
-        unit = "o"
-        for u in ("Ko", "Mo", "Go", "To"):
-            if value >= 1024:
-                value /= 1024
-                unit = u
-            else:
-                break
-        if value >= 10:
-            value = round(value)
-        else:
-            value = round(value, 1)
-        return f"{value} {unit}"
-
     quota = None
     gauge = None
     if ctx.is_creator:
@@ -163,8 +150,8 @@ def gallery(code: str) -> str | Response:
         used = quota.used_bytes
         pct = min(100.0, (used / quota.max_bytes * 100.0)) if quota.max_bytes else 0.0
         gauge = {
-            "used": _human(used),
-            "max": _human(quota.max_bytes),
+            "used": used,
+            "max": quota.max_bytes,
             "pct": round(pct),
             "exceeded": quota.is_exceeded,
         }
@@ -182,16 +169,16 @@ def upload(code: str) -> Response:
     # Check file
     file = request.files.get("file")
     if not file or file.filename == "":
-        flash("Aucun fichier.", "danger")
+        flash(_("Aucun fichier."), "danger")
         return redirect(url_for("media.gallery", code=code))
 
     if file.content_type not in ALLOWED_MIME:
-        flash("Format non supporté.", "danger")
+        flash(_("Format non supporté."), "danger")
         return redirect(url_for("media.gallery", code=code))
 
     # Validate magic bytes (content must match claimed MIME)
     if not _validate_magic_bytes(file, file.content_type):
-        flash("Fichier invalide (contenu ne correspond pas au format déclaré).", "danger")
+        flash(_("Fichier invalide (contenu ne correspond pas au format déclaré)."), "danger")
         return redirect(url_for("media.gallery", code=code))
 
     # Check size
@@ -199,13 +186,16 @@ def upload(code: str) -> Response:
     size = file.tell()
     file.seek(0)
     if size > MAX_FILE_SIZE:
-        flash("Fichier trop volumineux (max 50 Mo).", "danger")
+        flash(
+            _("Fichier trop volumineux (max %(max)s).", max=format_filesize(MAX_FILE_SIZE)),
+            "danger",
+        )
         return redirect(url_for("media.gallery", code=code))
 
     # Check quota
     creator = event.creator
     if not can_upload_media(creator, size):
-        flash("Quota media atteint. Passe au tier supérieur.", "warning")
+        flash(_("Quota de stockage atteint. Passez à l'offre supérieure."), "warning")
         return redirect(url_for("media.gallery", code=code))
 
     # Extract EXIF
@@ -240,11 +230,11 @@ def upload(code: str) -> Response:
         ctx,
         "media.uploaded",
         target=file.filename,
-        details=f"{size // 1024} KB, geo={'oui' if lat else 'non'}",
+        details=f"{size // 1024} KB, geo={1 if lat else 0}",
     )
     db.session.commit()
 
-    flash("Media ajouté.", "success")
+    flash(_("Média ajouté."), "success")
     return redirect(url_for("media.gallery", code=code))
 
 
@@ -281,5 +271,5 @@ def delete(code: str, item_id: str) -> Response:
     db.session.delete(item)
     db.session.commit()
 
-    flash("Media supprimé.", "success")
+    flash(_("Média supprimé."), "success")
     return redirect(url_for("media.gallery", code=code))

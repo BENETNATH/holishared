@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_components/ui.html" import aria_invalid, field_errors, form_errors %}
 {% block title %}{{ _("Listes") }} — {{ event.title }}{% endblock %}
 {% block content %}
 <div class="page-head">
@@ -11,10 +12,11 @@
 <form method="post" action="{{ url_for('lists.index', code=event.code) }}" class="list-create-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <input type="text" name="title" required minlength="2" maxlength="200"
+           aria-label="{{ _('Nouvelle liste') }}"{{ aria_invalid(errors, 'title') }}
            value="{{ form_title }}" placeholder="{{ _('Nouvelle liste — ex : Courses du samedi') }}">
     <button type="submit" class="btn btn-primary">{{ _("Créer") }}</button>
 </form>
-{% for e in errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+{{ field_errors(errors, 'title') }}
 
 {% if not lists %}
   <div class="empty-state">

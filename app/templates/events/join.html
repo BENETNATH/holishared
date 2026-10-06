@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_components/ui.html" import aria_invalid, field_errors, form_errors %}
 {% block title %}{{ _("Rejoindre") }} — {{ event.title }}{% endblock %}
 {% block content %}
 <div class="page-head">
@@ -11,13 +12,15 @@
     </div>
 </div>
 
+{{ form_errors(errors, 'display_name', 'code', 'email') }}
 <form method="post" action="{{ url_for('events.guest_access', code=event.code) }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
   <div class="form-group">
     <label for="display_name">{{ _("Votre pseudo") }} *</label>
     <input type="text" id="display_name" name="display_name" required minlength="2" maxlength="50"
-           value="{{ display_name or '' }}" placeholder="{{ _('Ex : Alice, Bob…') }}">
+           value="{{ display_name or '' }}" placeholder="{{ _('Ex : Alice, Bob…') }}"{{ aria_invalid(errors, 'display_name') }}>
+    {{ field_errors(errors, 'display_name') }}
   </div>
 
   <div class="form-group">
@@ -25,8 +28,9 @@
     <div class="code-input-row">
       <input type="text" id="code" name="code" required minlength="4" maxlength="8"
              pattern="[a-z0-9]{4,8}" autocomplete="off" spellcheck="false"
-             value="{{ code or '' }}" placeholder="{{ _('Ex : alice42') }}">
+             value="{{ code or '' }}" placeholder="{{ _('Ex : alice42') }}"{{ aria_invalid(errors, 'code') }}>
     </div>
+    {{ field_errors(errors, 'code') }}
     <p class="hint">{{ _("Choisissez un code que vous retiendrez : il vous servira à vous reconnecter sur un autre appareil. 4 à 8 lettres minuscules ou chiffres.") }}</p>
   </div>
 
@@ -47,7 +51,8 @@
 
   <div class="form-group">
     <label for="email">{{ _("Votre email (optionnel)") }}</label>
-    <input type="email" id="email" name="email" value="{{ email or '' }}" autocomplete="email">
+    <input type="email" id="email" name="email" value="{{ email or '' }}" autocomplete="email"{{ aria_invalid(errors, 'email') }}>
+    {{ field_errors(errors, 'email') }}
   </div>
 
   <div class="form-actions">

@@ -357,7 +357,7 @@ REUSED_SHELL_MSGIDS = [
     "Masquer",
     "Copier",
     "Chargement…",
-    "Holishared respecte ta vie privée : 0 cookie tiers, 0 pistage, 0 revente de données.",
+    "Holishared respecte votre vie privée : 0 cookie tiers, 0 pistage, 0 revente de données.",
     "Aucun compte forcé",
     "Les invités rejoignent avec un code, sans e-mail ni inscription.",
     "Aucun cookie tiers, aucun pistage",

@@ -94,15 +94,19 @@ def check() -> list[str]:
             problems.append(f"{loc}: .mo absent")
             continue
         mo = read_mo(mo_path.open("rb"))
-        expected = {
-            m.id: m.string
-            for m in cat
-            if m.id
-            and m.string
-            and not m.fuzzy
-            and any([m.string] if isinstance(m.string, str) else m.string)
-        }
-        actual = {m.id: m.string for m in mo if m.id}
+
+        def norm(x: object) -> object:
+            return tuple(x) if isinstance(x, (list, tuple)) else x
+
+        expected = {}
+        for m in cat:
+            if not m.id or m.fuzzy:
+                continue
+            if any([m.string] if isinstance(m.string, str) else m.string):
+                expected[norm(m.id)] = norm(m.string)
+            elif isinstance(m.id, tuple):  # babel recopie le pluriel source dans le .mo
+                expected[norm(m.id)] = norm(m.id)
+        actual = {norm(m.id): norm(m.string) for m in mo if m.id}
         if expected != actual:
             problems.append(f"{loc}: .mo périmé (lancer compile)")
     return problems

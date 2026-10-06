@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 22:26+0200\n"
+"POT-Creation-Date: 2026-10-06 22:35+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -245,6 +245,31 @@ msgstr ""
 msgid "Ratio de répartition modifié"
 msgstr ""
 
+#: app/i18n.py
+#, python-format
+msgid "Foyer %(name)s"
+msgstr ""
+
+#: app/i18n.py
+msgid "o"
+msgstr ""
+
+#: app/i18n.py
+msgid "Ko"
+msgstr ""
+
+#: app/i18n.py
+msgid "Mo"
+msgstr ""
+
+#: app/i18n.py
+msgid "Go"
+msgstr ""
+
+#: app/i18n.py
+msgid "To"
+msgstr ""
+
 #: app/ui.py
 msgid "Copié"
 msgstr ""
@@ -354,6 +379,10 @@ msgstr ""
 msgid "Déconnexion"
 msgstr ""
 
+#: app/auth/__init__.py
+msgid "Identifiants incorrects."
+msgstr ""
+
 #: app/chat/__init__.py
 msgid "Message vide."
 msgstr ""
@@ -366,8 +395,179 @@ msgstr ""
 msgid "Message supprimé."
 msgstr ""
 
+#: app/costs/__init__.py
+msgid "Nom du foyer requis (min 2 caractères)."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Valeurs numériques invalides."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Adultes : entre 1 et 50."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Enfants : entre 0 et 50."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Foyer ajouté."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Description requise."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Montant invalide."
+msgstr ""
+
 #: app/costs/__init__.py app/logistics/__init__.py
 msgid "Catégorie invalide."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Foyer payeur requis."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Foyer payeur invalide."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Taux de change invalide (0 < taux ≤ 10000)."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Frais ajouté."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Frais supprimé."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Foyer supprimé."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Foyers d'origine et de destination requis."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Le foyer d'origine et de destination doivent différer."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Foyer invalide pour cet événement."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Transfert enregistré."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Transfert supprimé."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Foyers requis."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Les foyers doivent différer."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Demande de paiement créée."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Demande marquée comme réglée."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Demande supprimée."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Valeurs invalides."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Poids invalides (0 < adulte ≤ 10, 0 ≤ enfant ≤ 10)."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Ratio appliqué à tous les foyers."
+msgstr ""
+
+#: app/events/__init__.py app/planning/__init__.py
+msgid "Format de date invalide (AAAA-MM-JJ)."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Code non reconnu."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Titre requis."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Date de début requise."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Date de fin requise."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Date de fin avant date de début."
+msgstr ""
+
+#: app/events/__init__.py
+#, python-format
+msgid "Durée max : %(n)d jour."
+msgid_plural "Durée max : %(n)d jours."
+msgstr[0] ""
+msgstr[1] ""
+
+#: app/events/__init__.py
+msgid "Email requis."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Format d'email invalide."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Domaine email non accepté (jetable)."
+msgstr ""
+
+#: app/events/__init__.py
+#, python-format
+msgid "Limite d'événements atteinte (%(count)d)."
+msgstr ""
+
+#: app/events/__init__.py app/templates/events/verify_sent.html
+msgid "Un email de vérification a été envoyé."
+msgstr ""
+
+#: app/events/__init__.py
+#, python-format
+msgid ""
+"Mode développement (SMTP non configuré) : cliquez sur le lien de "
+"vérification : %(url)s"
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Lien invalide ou expiré."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Pseudo requis (min 2 caractères)."
 msgstr ""
 
 #: app/events/__init__.py
@@ -376,6 +576,96 @@ msgstr ""
 
 #: app/events/__init__.py
 msgid "Ce code est déjà utilisé. Choisissez-en un autre."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Événement confirmé !"
+msgstr ""
+
+#: app/events/__init__.py app/meals/__init__.py
+msgid "Nom requis (min 2 caractères)."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Limite d'invités atteinte."
+msgstr ""
+
+#: app/events/__init__.py
+#, python-format
+msgid "%(name)s ajouté·e (code : %(code)s)"
+msgstr ""
+
+#: app/events/__init__.py
+#, python-format
+msgid "%(name)s retiré·e."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "La suppression a échoué. Réessayez."
+msgstr ""
+
+#: app/events/__init__.py
+#, python-format
+msgid ""
+"Événement « %(title)s » et toutes ses données ont été définitivement "
+"supprimés."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "L'envoi d'emails n'est pas configuré sur ce serveur."
+msgstr ""
+
+#: app/events/__init__.py
+#, python-format
+msgid "Invitation envoyée à %(email)s."
+msgstr ""
+
+#: app/events/__init__.py
+#, python-format
+msgid "Invitation renvoyée à %(name)s."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Aucun email enregistré pour cet invité."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Code perso requis (4 à 8 caractères)."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Code : lettres minuscules et chiffres uniquement."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Code déjà utilisé."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Événement complet."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Code invalide."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Email invalide."
+msgstr ""
+
+#: app/events/__init__.py
+msgid ""
+"Aucun compte trouvé avec cet email. Si vous n'aviez pas coché « conserver"
+" mon email », le code est perdu."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Votre code vous a été envoyé par email."
+msgstr ""
+
+#: app/events/__init__.py
+#, python-format
+msgid "Votre code : %(code)s"
 msgstr ""
 
 #: app/lists/__init__.py app/logistics/__init__.py app/planning/__init__.py
@@ -455,10 +745,6 @@ msgid "Info pratique supprimée."
 msgstr ""
 
 #: app/meals/__init__.py
-msgid "Nom requis (min 2 caractères)."
-msgstr ""
-
-#: app/meals/__init__.py
 msgid "Nom trop long (max 200)."
 msgstr ""
 
@@ -486,8 +772,45 @@ msgstr ""
 msgid "Repas supprimé."
 msgstr ""
 
+#: app/media/__init__.py
+msgid "Aucun fichier."
+msgstr ""
+
+#: app/media/__init__.py
+msgid "Format non supporté."
+msgstr ""
+
+#: app/media/__init__.py
+msgid "Fichier invalide (contenu ne correspond pas au format déclaré)."
+msgstr ""
+
+#: app/media/__init__.py
+#, python-format
+msgid "Fichier trop volumineux (max %(max)s)."
+msgstr ""
+
+#: app/media/__init__.py
+msgid "Quota de stockage atteint. Passez à l'offre supérieure."
+msgstr ""
+
+#: app/media/__init__.py
+msgid "Média ajouté."
+msgstr ""
+
+#: app/media/__init__.py
+msgid "Média supprimé."
+msgstr ""
+
 #: app/planning/__init__.py
 msgid "Description trop longue (max 2000)."
+msgstr ""
+
+#: app/planning/__init__.py
+msgid "Date requise."
+msgstr ""
+
+#: app/planning/__init__.py
+msgid "Heure invalide."
 msgstr ""
 
 #: app/planning/__init__.py
@@ -573,8 +896,8 @@ msgstr ""
 
 #: app/templates/base.html
 msgid ""
-"Holishared respecte ta vie privée : 0 cookie tiers, 0 pistage, 0 revente "
-"de données."
+"Holishared respecte votre vie privée : 0 cookie tiers, 0 pistage, 0 "
+"revente de données."
 msgstr ""
 
 #: app/templates/base.html
@@ -697,19 +1020,19 @@ msgid "Suivi des dépenses partagées par foyer et des soldes entre membres."
 msgstr ""
 
 #: app/templates/costs/index.html
-msgid "Ton solde"
+msgid "Votre solde"
 msgstr ""
 
 #: app/templates/costs/index.html
-msgid "On te doit de l'argent"
+msgid "On vous doit de l'argent"
 msgstr ""
 
 #: app/templates/costs/index.html
-msgid "Tu dois de l'argent au groupe"
+msgid "Vous devez de l'argent au groupe"
 msgstr ""
 
 #: app/templates/costs/index.html
-msgid "Tu es quitte ! 👌"
+msgid "Vous êtes quitte ! 👌"
 msgstr ""
 
 #: app/templates/costs/index.html
@@ -717,7 +1040,7 @@ msgid "Ajouter une dépense"
 msgstr ""
 
 #: app/templates/costs/index.html
-msgid "Ajoute d'abord un foyer pour pouvoir ajouter des dépenses."
+msgid "Ajoutez d'abord un foyer pour pouvoir ajouter des dépenses."
 msgstr ""
 
 #: app/templates/costs/index.html app/templates/events/create.html
@@ -948,7 +1271,8 @@ msgstr ""
 msgid "Basiques"
 msgstr ""
 
-#: app/templates/events/create.html
+#: app/templates/events/create.html app/templates/events/recover.html
+#: app/templates/events/verify.html
 msgid "Votre email"
 msgstr ""
 
@@ -1006,8 +1330,9 @@ msgstr ""
 msgid "Créer l'événement"
 msgstr ""
 
-#: app/templates/events/dashboard.html app/templates/events/verify.html
-msgid "Ton code personnel"
+#: app/templates/events/dashboard.html app/templates/events/join.html
+#: app/templates/events/verify.html
+msgid "Votre code personnel"
 msgstr ""
 
 #: app/templates/events/dashboard.html app/templates/events/mycode.html
@@ -1257,16 +1582,12 @@ msgstr ""
 msgid "Rejoindre"
 msgstr ""
 
-#: app/templates/events/join.html
+#: app/templates/events/join.html app/templates/events/verify.html
 msgid "Votre pseudo"
 msgstr ""
 
 #: app/templates/events/join.html app/templates/events/verify.html
 msgid "Ex : Alice, Bob…"
-msgstr ""
-
-#: app/templates/events/join.html
-msgid "Votre code personnel"
 msgstr ""
 
 #: app/templates/events/join.html app/templates/events/verify.html
@@ -1279,7 +1600,7 @@ msgid ""
 "reconnecter sur un autre appareil. 4 à 8 lettres minuscules ou chiffres."
 msgstr ""
 
-#: app/templates/events/join.html
+#: app/templates/events/join.html app/templates/events/verify.html
 msgid "Votre foyer"
 msgstr ""
 
@@ -1420,26 +1741,22 @@ msgstr ""
 
 #: app/templates/events/recover.html
 msgid ""
-"Si tu avais coché « conserver mon email » à la création, ton code sera "
-"renvoyé par email."
-msgstr ""
-
-#: app/templates/events/recover.html app/templates/events/verify.html
-msgid "Ton email"
+"Si vous aviez coché « conserver mon email » à la création, votre code "
+"vous sera renvoyé par email."
 msgstr ""
 
 #: app/templates/events/recover.html
 msgid ""
-"Si tu n'avais pas conservé ton email, le code est définitivement perdu. "
-"Il faudra créer un nouvel événement."
+"Si vous n'aviez pas conservé votre email, le code est définitivement "
+"perdu. Il faudra créer un nouvel événement."
 msgstr ""
 
 #: app/templates/events/verify.html
-msgid "Valider ton événement"
+msgid "Validation"
 msgstr ""
 
 #: app/templates/events/verify.html
-msgid "Ton pseudo"
+msgid "Validez votre événement"
 msgstr ""
 
 #: app/templates/events/verify.html
@@ -1450,8 +1767,8 @@ msgstr ""
 
 #: app/templates/events/verify.html
 msgid ""
-"Ce code te sert à accéder à l'événement sur n'importe quel appareil. 4 à "
-"8 lettres minuscules ou chiffres."
+"Ce code vous sert à accéder à l'événement sur n'importe quel appareil. 4 "
+"à 8 lettres minuscules ou chiffres."
 msgstr ""
 
 #: app/templates/events/verify.html
@@ -1473,13 +1790,9 @@ msgid ""
 msgstr ""
 
 #: app/templates/events/verify.html
-msgid "Ton groupe (ménage)"
-msgstr ""
-
-#: app/templates/events/verify.html
 msgid ""
-"Indique ta composition pour le partage des frais et les groupes. Tu "
-"pourras la modifier plus tard."
+"Indiquez la composition de votre foyer pour le partage des frais et les "
+"groupes. Vous pourrez la modifier plus tard."
 msgstr ""
 
 #: app/templates/events/verify.html
@@ -1488,8 +1801,8 @@ msgstr ""
 
 #: app/templates/events/verify.html
 msgid ""
-"Si non coché, ton email est effacé après validation. Tu ne pourras pas "
-"récupérer ton code."
+"Si la case n'est pas cochée, votre email est effacé après validation. "
+"Vous ne pourrez pas récupérer votre code."
 msgstr ""
 
 #: app/templates/events/verify.html
@@ -1505,13 +1818,9 @@ msgid "Un email de vérification a été envoyé à"
 msgstr ""
 
 #: app/templates/events/verify_sent.html
-msgid "Un email de vérification a été envoyé."
-msgstr ""
-
-#: app/templates/events/verify_sent.html
 msgid ""
-"Clique sur le lien pour définir ton code personnel et ton pseudo. Le lien"
-" est valide 3 jours."
+"Cliquez sur le lien pour définir votre code personnel et votre pseudo. Le"
+" lien est valide 3 jours."
 msgstr ""
 
 #: app/templates/events/verify_sent.html
@@ -1642,6 +1951,10 @@ msgstr ""
 
 #: app/templates/lists/index.html
 msgid "Courses, to-do, matériel…"
+msgstr ""
+
+#: app/templates/lists/index.html
+msgid "Nouvelle liste"
 msgstr ""
 
 #: app/templates/lists/index.html
@@ -2032,6 +2345,11 @@ msgstr ""
 
 #: app/templates/media/gallery.html
 msgid "Stockage photos"
+msgstr ""
+
+#: app/templates/media/gallery.html
+#, python-format
+msgid "%(used)s sur %(max)s"
 msgstr ""
 
 #: app/templates/media/gallery.html

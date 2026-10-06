@@ -26,7 +26,7 @@
 
 {% if ctx.role == "guest" %}
 <div class="code-box">
-  <span class="code-label">{{ _("Ton code personnel") }} :</span>
+  <span class="code-label">{{ _("Votre code personnel") }} :</span>
   <code class="guest-code" id="guest-code-{{ ctx.participant.id }}" data-secret data-masked="true" aria-label="{{ _('Code personnel') }}">{{ ctx.participant.code }}</code>
   <button type="button" class="btn btn-small" data-reveal aria-controls="guest-code-{{ ctx.participant.id }}" aria-pressed="false"><span data-reveal-label>{{ _("Voir") }}</span></button>
   <button type="button" class="btn btn-small" data-copy="{{ ctx.participant.code }}">{{ _("Copier") }}</button>

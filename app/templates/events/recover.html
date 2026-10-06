@@ -4,14 +4,14 @@
 <div class="page-head">
     <div>
         <h1>{{ _("Récupérer mon code") }}</h1>
-        <p class="page-sub">{{ _("Si tu avais coché « conserver mon email » à la création, ton code sera renvoyé par email.") }}</p>
+        <p class="page-sub">{{ _("Si vous aviez coché « conserver mon email » à la création, votre code vous sera renvoyé par email.") }}</p>
     </div>
 </div>
 
 <form method="post" action="{{ url_for('events.recover_code') }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <div class="form-group">
-    <label for="email">{{ _("Ton email") }} *</label>
+    <label for="email">{{ _("Votre email") }} *</label>
     <input type="email" id="email" name="email" required autocomplete="email"
            placeholder="{{ _('Ex : alice@mail.com') }}">
   </div>
@@ -20,5 +20,5 @@
   </div>
 </form>
 
-<p class="hint">{{ _("Si tu n'avais pas conservé ton email, le code est définitivement perdu. Il faudra créer un nouvel événement.") }}</p>
+<p class="hint">{{ _("Si vous n'aviez pas conservé votre email, le code est définitivement perdu. Il faudra créer un nouvel événement.") }}</p>
 {% endblock %}

@@ -6,6 +6,7 @@ from flask_sqlalchemy.session import Session as FlaskSession
 from sqlalchemy.orm import Session, scoped_session
 
 from app.extensions import db
+from app.i18n import household_default_name
 from app.models import ActivityLog, Creator, Event, Guest, Household
 
 
@@ -74,7 +75,7 @@ def ensure_creator_guest(
     ):
         db.session.add(
             Household(
-                name=f"Foyer {guest.display_name}",
+                name=household_default_name(guest.display_name),
                 num_adults=max(1, num_adults),
                 num_children=max(0, num_children),
                 event_id=event.id,

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_components/ui.html" import aria_invalid, field_errors, form_errors %}
 {% block title %}{{ _("Nouveau sondage") }} — {{ event.title }}{% endblock %}
 {% block content %}
 <div class="page-head">
@@ -8,11 +9,7 @@
     </div>
 </div>
 
-{% if errors %}
-<ul class="errors" aria-live="assertive">
-  {% for e in errors %}<li>{{ e }}</li>{% endfor %}
-</ul>
-{% endif %}
+{{ form_errors(errors, 'question', 'options') }}
 
 <form method="post" action="{{ url_for('voting.create', code=event.code) }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -20,15 +17,17 @@
   <div class="form-group">
     <label for="question">{{ _("Question") }} *</label>
     <input type="text" id="question" name="question" required minlength="2" maxlength="300"
-           value="{{ form_data.get('question', '') }}" placeholder="{{ _('Ex : Quel menu pour samedi ?') }}">
+           value="{{ form_data.get('question', '') }}" placeholder="{{ _('Ex : Quel menu pour samedi ?') }}"{{ aria_invalid(errors, 'question') }}>
+    {{ field_errors(errors, 'question') }}
   </div>
 
   <div class="form-group">
     <label for="options">{{ _("Options") }} *
       <span class="hint">{{ _("Une option par ligne (2 à 10).") }}</span>
     </label>
-    <textarea id="options" name="options" rows="5" required
+    <textarea id="options" name="options" rows="5" required{{ aria_invalid(errors, 'options') }}
               placeholder="{{ _('Poisson\nPoulet\nVégétarien') }}">{{ form_data.get('options', '') }}</textarea>
+    {{ field_errors(errors, 'options') }}
   </div>
 
   <div class="form-actions">

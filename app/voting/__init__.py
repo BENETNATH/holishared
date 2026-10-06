@@ -14,6 +14,7 @@ from werkzeug.wrappers import Response
 
 from app.context import load_event_context, log_event
 from app.extensions import db, limiter
+from app.forms import FormErrors
 from app.models import Poll, PollOption, PollVote
 
 voting_bp = Blueprint("voting", __name__)
@@ -42,27 +43,27 @@ def _poll_results(poll: Poll) -> tuple[list[dict[str, object]], int]:
     return results, total
 
 
-def _validate_poll_form() -> tuple[list[str], dict[str, str], str, list[str]]:
+def _validate_poll_form() -> tuple[FormErrors, dict[str, str], str, list[str]]:
     """Validate the poll creation form.
 
     Returns (errors, form_data, question, option_labels).
     """
-    errors: list[str] = []
+    errors = FormErrors()
     question = request.form.get("question", "").strip()
     options_raw = request.form.get("options", "")
 
     if len(question) < 2:
-        errors.append(_("Question requise (min 2 caractères)."))
+        errors.add("question", _("Question requise (min 2 caractères)."))
     elif len(question) > MAX_QUESTION_LENGTH:
-        errors.append(_("Question trop longue (max 300 caractères)."))
+        errors.add("question", _("Question trop longue (max 300 caractères)."))
 
     labels = [line.strip() for line in options_raw.splitlines() if line.strip()]
     if len(labels) < MIN_OPTIONS:
-        errors.append(_("Au moins 2 options requises (une par ligne)."))
+        errors.add("options", _("Au moins 2 options requises (une par ligne)."))
     elif len(labels) > MAX_OPTIONS:
-        errors.append(_("Maximum 10 options (une par ligne)."))
+        errors.add("options", _("Maximum 10 options (une par ligne)."))
     elif any(len(label) > MAX_OPTION_LENGTH for label in labels):
-        errors.append(_("Option trop longue (max 200 caractères)."))
+        errors.add("options", _("Option trop longue (max 200 caractères)."))
 
     form_data = {"question": question, "options": options_raw}
     return errors, form_data, question, labels
@@ -105,7 +106,7 @@ def create(code: str) -> Response | tuple[str, int] | str:
             "voting/form.html",
             event=event,
             form_data={},
-            errors=[],
+            errors=FormErrors(),
         )
 
     errors, form_data, question, labels = _validate_poll_form()

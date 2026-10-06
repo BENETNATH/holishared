@@ -13,7 +13,7 @@
 <div class="storage-gauge{% if gauge.exceeded %} storage-gauge-full{% endif %}">
   <div class="sg-head">
     <span class="sg-title">{{ _("Stockage photos") }}</span>
-    <span class="sg-values">{{ gauge.used }} / {{ gauge.max }}</span>
+    <span class="sg-values">{{ _('%(used)s sur %(max)s', used=gauge.used|filesize, max=gauge.max|filesize) }}</span>
   </div>
   <div class="sg-bar" role="progressbar" aria-valuenow="{{ gauge.pct }}" aria-valuemin="0" aria-valuemax="100" aria-label="{{ _('Stockage utilisé') }}">
     <div class="sg-fill" style="width: {{ gauge.pct }}%"></div>

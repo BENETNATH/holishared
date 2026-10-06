@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_components/ui.html" import aria_invalid, field_errors, form_errors %}
 {% block title %}{{ shared_list.title }} — {{ event.title }}{% endblock %}
 {% block content %}
 <p class="back-link"><a href="{{ url_for('lists.index', code=event.code) }}">&larr; {{ _("Listes") }}</a></p>
@@ -16,11 +17,7 @@
     {% endif %}
 </div>
 
-{% if errors %}
-<ul class="errors" aria-live="assertive">
-  {% for e in errors %}<li>{{ e }}</li>{% endfor %}
-</ul>
-{% endif %}
+{{ form_errors(errors, ) }}
 
 <div class="list-layout">
   {# === Left: list items === #}
@@ -60,7 +57,7 @@
     <form method="post" action="{{ url_for('lists.add_item', code=event.code, list_id=shared_list.id) }}" class="quick-add">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <input type="text" name="name" required maxlength="300" placeholder="{{ _('Ajouter un article… (Enter)') }}"
-             class="quick-add-input" autofocus>
+             class="quick-add-input" autofocus{{ aria_invalid(errors, 'name') }}>
       <button type="submit" class="btn btn-primary quick-add-btn" aria-label="{{ _('Ajouter') }}">+</button>
     </form>
 

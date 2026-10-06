@@ -8,19 +8,7 @@
     </div>
 </div>
 
-{# Map backend error strings to fields for inline validation display. #}
-{% set fe = {'title': [], 'description': [], 'date': [], 'end_time': [], 'location': [], 'min_headcount': [], 'bring_items': [], 'general': []} %}
-{% for e in errors %}
-  {% if 'Titre' in e %}{% set _ = fe['title'].append(e) %}
-  {% elif 'Description' in e %}{% set _ = fe['description'].append(e) %}
-  {% elif 'Date' in e %}{% set _ = fe['date'].append(e) %}
-  {% elif 'Heure' in e %}{% set _ = fe['end_time'].append(e) %}
-  {% elif 'Lieu' in e %}{% set _ = fe['location'].append(e) %}
-  {% elif 'Nombre' in e %}{% set _ = fe['min_headcount'].append(e) %}
-  {% elif 'Champ' in e %}{% set _ = fe['bring_items'].append(e) %}
-  {% else %}{% set _ = fe['general'].append(e) %}{% endif %}
-{% endfor %}
-
+{% from "_components/ui.html" import aria_invalid, field_errors, form_errors %}
 <form method="post" action="{{ action_url }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
@@ -28,14 +16,14 @@
     <label for="title">{{ _("Titre") }} *</label>
     <input type="text" id="title" name="title" required minlength="2" maxlength="200"
            value="{{ form_data.get('title', '') }}" placeholder="{{ _('Ex : Randonnée au lac') }}"
-           {% if fe['title'] %}aria-invalid="true" aria-describedby="err-title"{% endif %}>
-    {% for e in fe['title'] %}<p class="field-error" id="err-title">{{ e }}</p>{% endfor %}
+           {{ aria_invalid(errors, 'title') }}>
+    {{ field_errors(errors, 'title') }}
   </div>
 
   <div class="form-group">
     <label for="description">{{ _("Description") }}</label>
-    <textarea id="description" name="description" rows="3" maxlength="2000"{% if fe['description'] %} aria-invalid="true" aria-describedby="err-description"{% endif %}>{{ form_data.get('description', '') }}</textarea>
-    {% for e in fe['description'] %}<p class="field-error" id="err-description">{{ e }}</p>{% endfor %}
+    <textarea id="description" name="description" rows="3" maxlength="2000"{{ aria_invalid(errors, 'description') }}>{{ form_data.get('description', '') }}</textarea>
+    {{ field_errors(errors, 'description') }}
   </div>
 
   <div class="form-grid">
@@ -44,27 +32,29 @@
       <input type="date" id="date" name="date" required
              min="{{ event.start_date.isoformat() }}" max="{{ event.end_date.isoformat() }}"
              value="{{ form_data.get('date', '') }}"
-             {% if fe['date'] %}aria-invalid="true" aria-describedby="err-date"{% endif %}>
-      {% for e in fe['date'] %}<p class="field-error" id="err-date">{{ e }}</p>{% endfor %}
+             {{ aria_invalid(errors, 'date') }}>
+      {{ field_errors(errors, 'date') }}
     </div>
     <div class="form-group">
       <label for="location">{{ _("Lieu") }}</label>
       <input type="text" id="location" name="location" maxlength="300" value="{{ form_data.get('location', '') }}"
-             {% if fe['location'] %}aria-invalid="true" aria-describedby="err-location"{% endif %}>
-      {% for e in fe['location'] %}<p class="field-error" id="err-location">{{ e }}</p>{% endfor %}
+             {{ aria_invalid(errors, 'location') }}>
+      {{ field_errors(errors, 'location') }}
     </div>
   </div>
 
   <div class="form-grid">
     <div class="form-group">
       <label for="start_time">{{ _("Heure de début") }}</label>
-      <input type="time" id="start_time" name="start_time" value="{{ form_data.get('start_time', '') }}">
+      <input type="time" id="start_time" name="start_time" value="{{ form_data.get('start_time', '') }}"
+             {{ aria_invalid(errors, 'start_time') }}>
+      {{ field_errors(errors, 'start_time') }}
     </div>
     <div class="form-group">
       <label for="end_time">{{ _("Heure de fin") }}</label>
       <input type="time" id="end_time" name="end_time" value="{{ form_data.get('end_time', '') }}"
-             {% if fe['end_time'] %}aria-invalid="true" aria-describedby="err-end_time"{% endif %}>
-      {% for e in fe['end_time'] %}<p class="field-error" id="err-end_time">{{ e }}</p>{% endfor %}
+             {{ aria_invalid(errors, 'end_time') }}>
+      {{ field_errors(errors, 'end_time') }}
     </div>
   </div>
 
@@ -72,15 +62,15 @@
     <div class="form-group">
       <label for="min_headcount">{{ _("Nombre minimum de participants") }}</label>
       <input type="number" id="min_headcount" name="min_headcount" min="1" max="50" value="{{ form_data.get('min_headcount', 1) }}"
-             {% if fe['min_headcount'] %}aria-invalid="true" aria-describedby="err-min_headcount"{% endif %}>
-      {% for e in fe['min_headcount'] %}<p class="field-error" id="err-min_headcount">{{ e }}</p>{% endfor %}
+             {{ aria_invalid(errors, 'min_headcount') }}>
+      {{ field_errors(errors, 'min_headcount') }}
     </div>
     <div class="form-group">
       <label for="bring_items">{{ _("Apporter") }}</label>
       <input type="text" id="bring_items" name="bring_items" maxlength="500"
              placeholder="{{ _('Ex : 2 chaises, 1 nappe') }}" value="{{ form_data.get('bring_items', '') }}"
-             {% if fe['bring_items'] %}aria-invalid="true" aria-describedby="err-bring_items"{% endif %}>
-      {% for e in fe['bring_items'] %}<p class="field-error" id="err-bring_items">{{ e }}</p>{% endfor %}
+             {{ aria_invalid(errors, 'bring_items') }}>
+      {{ field_errors(errors, 'bring_items') }}
     </div>
   </div>
 
@@ -89,9 +79,5 @@
   </div>
 </form>
 
-{% if fe['general'] %}
-<ul class="errors" aria-live="assertive">
-  {% for e in fe['general'] %}<li>{{ e }}</li>{% endfor %}
-</ul>
-{% endif %}
+{{ form_errors(errors, 'title', 'description', 'date', 'location', 'end_time', 'start_time', 'min_headcount', 'bring_items') }}
 {% endblock %}

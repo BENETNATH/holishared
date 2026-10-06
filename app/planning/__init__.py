@@ -18,6 +18,7 @@ from werkzeug.wrappers import Response
 
 from app.context import load_event_context, log_event
 from app.extensions import db, limiter
+from app.forms import FormErrors
 from app.i18n import RSVP_STATUSES
 from app.models import Activity, ActivityRSVP, Event
 
@@ -49,14 +50,14 @@ def _parse_time(value: str) -> time | None:
         return None
 
 
-def _validate_form(event: Event) -> tuple[list[str], dict[str, str], ActivityFields]:
+def _validate_form(event: Event) -> tuple[FormErrors, dict[str, str], ActivityFields]:
     """Validate the activity form.
 
     Returns (errors, form_data, fields) where form_data holds the raw
     strings for re-rendering and fields the typed values (only meaningful
     when errors is empty).
     """
-    errors: list[str] = []
+    errors = FormErrors()
     title = request.form.get("title", "").strip()
     description = request.form.get("description", "").strip()
     date_raw = request.form.get("date", "").strip()
@@ -67,44 +68,46 @@ def _validate_form(event: Event) -> tuple[list[str], dict[str, str], ActivityFie
     bring_items = request.form.get("bring_items", "").strip()
 
     if len(title) < 2:
-        errors.append(_("Titre requis (min 2 caractères)."))
+        errors.add("title", _("Titre requis (min 2 caractères)."))
     if len(description) > 2000:
-        errors.append(_("Description trop longue (max 2000)."))
+        errors.add("description", _("Description trop longue (max 2000)."))
 
     activity_date: date | None = None
     if not date_raw:
-        errors.append(_("Date hors de la période de l'événement."))
+        errors.add("date", _("Date requise."))
     else:
         try:
             activity_date = datetime.strptime(date_raw, "%Y-%m-%d").date()
         except ValueError:
-            errors.append(_("Date hors de la période de l'événement."))
+            errors.add("date", _("Format de date invalide (AAAA-MM-JJ)."))
         else:
             if not (event.start_date <= activity_date <= event.end_date):
-                errors.append(_("Date hors de la période de l'événement."))
+                errors.add("date", _("Date hors de la période de l'événement."))
 
     start_time = _parse_time(start_raw)
     end_time = _parse_time(end_raw)
-    if (start_raw and start_time is None) or (end_raw and end_time is None):
-        errors.append(_("Heure de fin avant heure de début."))
-    elif start_time is not None and end_time is not None and end_time <= start_time:
-        errors.append(_("Heure de fin avant heure de début."))
+    if start_raw and start_time is None:
+        errors.add("start_time", _("Heure invalide."))
+    if end_raw and end_time is None:
+        errors.add("end_time", _("Heure invalide."))
+    if start_time is not None and end_time is not None and end_time <= start_time:
+        errors.add("end_time", _("Heure de fin avant heure de début."))
 
     if len(location) > 300:
-        errors.append(_("Lieu trop long (max 300)."))
+        errors.add("location", _("Lieu trop long (max 300)."))
 
     min_headcount = 1
     if headcount_raw:
         try:
             min_headcount = int(headcount_raw)
         except ValueError:
-            errors.append(_("Nombre entre 1 et 50."))
+            errors.add("min_headcount", _("Nombre entre 1 et 50."))
         else:
             if not 1 <= min_headcount <= 50:
-                errors.append(_("Nombre entre 1 et 50."))
+                errors.add("min_headcount", _("Nombre entre 1 et 50."))
 
     if len(bring_items) > 500:
-        errors.append(_("Champ trop long (max 500)."))
+        errors.add("bring_items", _("Champ trop long (max 500)."))
 
     form_data = {
         "title": title,
@@ -168,7 +171,7 @@ def create(code: str) -> Response | tuple[str, int] | str:
             event=event,
             activity=None,
             form_data={},
-            errors=[],
+            errors=FormErrors(),
             action_url=url_for("planning.create", code=code),
         )
 
@@ -232,7 +235,7 @@ def edit(code: str, activity_id: str) -> Response | tuple[str, int] | str:
             event=event,
             activity=activity,
             form_data=form_data,
-            errors=[],
+            errors=FormErrors(),
             action_url=action_url,
         )
 
