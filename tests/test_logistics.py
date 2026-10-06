@@ -301,7 +301,7 @@ class TestEditLogistics:
 
     def test_edit_404_item_from_other_event(self, client, creator, db, logistics_item):
         """Un item d'un autre événement n'est pas modifiable via ce code."""
-        from datetime import date
+        from datetime import date, datetime
 
         from app.models import Event, generate_event_code
 
@@ -311,6 +311,7 @@ class TestEditLogistics:
             start_date=date(2026, 12, 1),
             end_date=date(2026, 12, 2),
             creator_id=creator.id,
+            verified_at=datetime(2026, 1, 1),
         )
         db.session.add(other)
         db.session.commit()

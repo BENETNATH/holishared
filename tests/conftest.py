@@ -1,9 +1,13 @@
 """Test fixtures for holishared."""
 
+import secrets
+from datetime import date, datetime
+
 import pytest
 
 from app import create_app
 from app.extensions import db as _db
+from app.extensions import limiter
 from app.models import Creator, Event, Guest, generate_event_code, generate_guest_code
 
 
@@ -23,6 +27,7 @@ def app(monkeypatch):
         "ENABLED_MODULES", "planning,meals,lists,logistics,voting,media,chat,costs"
     )
     app = create_app()
+    limiter.reset()
     app.config["TESTING"] = True
     app.config["WTF_CSRF_ENABLED"] = False
     app.config["SUPERADMIN_EMAIL"] = "admin@test.com"
@@ -60,9 +65,7 @@ def creator(db):
 
 @pytest.fixture
 def event(db, creator):
-    """An active event."""
-    from datetime import date
-
+    """An active, verified event."""
     e = Event(
         code=generate_event_code(),
         title="Test Vacation",
@@ -71,6 +74,25 @@ def event(db, creator):
         end_date=date(2026, 12, 7),
         location="Strasbourg",
         creator_id=creator.id,
+        verified_at=datetime(2026, 1, 1),
+    )
+    db.session.add(e)
+    db.session.commit()
+    return e
+
+
+@pytest.fixture
+def unverified_event(db, creator, event):
+    """Same as ``event`` but never verified (other code, same creator)."""
+    e = Event(
+        code=generate_event_code(),
+        title="Unverified Vacation",
+        description="Not verified yet",
+        start_date=date(2026, 12, 1),
+        end_date=date(2026, 12, 7),
+        location="Strasbourg",
+        creator_id=creator.id,
+        verified_at=None,
     )
     db.session.add(e)
     db.session.commit()
@@ -85,6 +107,29 @@ def guest(db, event):
         display_name="Test Guest",
         event_id=event.id,
     )
+    db.session.add(g)
+    db.session.commit()
+    return g
+
+
+@pytest.fixture
+def creator_guest(db, event, creator):
+    """The creator's participant identity (``Guest.creator_id`` set)."""
+    g = Guest(
+        code=secrets.token_hex(8),
+        display_name="Test Creator",
+        event_id=event.id,
+        creator_id=creator.id,
+    )
+    db.session.add(g)
+    db.session.commit()
+    return g
+
+
+@pytest.fixture
+def other_guest_c(db, event):
+    """A second active guest, distinct from ``guest``."""
+    g = Guest(code=generate_guest_code(), display_name="Other Guest", event_id=event.id)
     db.session.add(g)
     db.session.commit()
     return g
