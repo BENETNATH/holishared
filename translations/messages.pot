@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 23:24+0200\n"
+"POT-Creation-Date: 2026-10-06 23:49+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -113,11 +113,11 @@ msgstr ""
 msgid "Non"
 msgstr ""
 
-#: app/i18n.py app/templates/lists/detail.html app/templates/meals/index.html
+#: app/i18n.py app/templates/lists/detail.html
 msgid "Midi"
 msgstr ""
 
-#: app/i18n.py app/templates/lists/detail.html app/templates/meals/index.html
+#: app/i18n.py app/templates/lists/detail.html
 msgid "Soir"
 msgstr ""
 
@@ -151,6 +151,10 @@ msgstr ""
 
 #: app/i18n.py
 msgid "Repas déplacé"
+msgstr ""
+
+#: app/i18n.py
+msgid "Repas échangés"
 msgstr ""
 
 #: app/i18n.py
@@ -389,8 +393,7 @@ msgid "Copie impossible"
 msgstr ""
 
 #: app/templates/_components/ui.html app/templates/base.html
-#: app/templates/freemium/_upgrade_modal.html app/templates/meals/index.html
-#: app/ui.py
+#: app/templates/freemium/_upgrade_modal.html app/ui.py
 msgid "Fermer"
 msgstr ""
 
@@ -433,6 +436,10 @@ msgstr ""
 
 #: app/ui.py
 msgid "Action impossible. Réessayez."
+msgstr ""
+
+#: app/ui.py
+msgid "Déplacement annulé"
 msgstr ""
 
 #: app/ui.py
@@ -913,8 +920,9 @@ msgstr ""
 msgid "Créneau invalide."
 msgstr ""
 
-#: app/meals/__init__.py
-msgid "Cette case est déjà occupée."
+#: app/meals/__init__.py app/templates/meals/_grid.html
+#, python-format
+msgid "Cette case est pleine (%(max)d repas maximum)."
 msgstr ""
 
 #: app/meals/__init__.py
@@ -927,6 +935,18 @@ msgstr ""
 
 #: app/meals/__init__.py
 msgid "Repas supprimé."
+msgstr ""
+
+#: app/meals/__init__.py
+msgid "Repas déplacé."
+msgstr ""
+
+#: app/meals/__init__.py
+msgid "Choisissez un autre repas."
+msgstr ""
+
+#: app/meals/__init__.py
+msgid "Repas échangés."
 msgstr ""
 
 #: app/media/__init__.py
@@ -1123,8 +1143,8 @@ msgstr ""
 
 #: app/templates/chat/_messages.html app/templates/costs/index.html
 #: app/templates/lists/detail.html app/templates/logistics/index.html
-#: app/templates/main/ui_catalog.html app/templates/media/detail.html
-#: app/templates/planning/index.html
+#: app/templates/main/ui_catalog.html app/templates/meals/index.html
+#: app/templates/media/detail.html app/templates/planning/index.html
 msgid "Supprimer"
 msgstr ""
 
@@ -1236,7 +1256,7 @@ msgstr ""
 
 #: app/templates/costs/index.html app/templates/events/members.html
 #: app/templates/lists/detail.html app/templates/main/ui_catalog.html
-#: app/templates/planning/index.html
+#: app/templates/meals/index.html app/templates/planning/index.html
 msgid "Ajouter"
 msgstr ""
 
@@ -1542,7 +1562,7 @@ msgstr ""
 msgid "Partager"
 msgstr ""
 
-#: app/templates/events/dashboard.html
+#: app/templates/events/dashboard.html app/templates/meals/_grid.html
 msgid "Aujourd'hui"
 msgstr ""
 
@@ -2526,10 +2546,31 @@ msgstr ""
 msgid "Les toasts restent visibles au-dessus d'une feuille ouverte."
 msgstr ""
 
+#: app/templates/meals/_grid.html
+msgid "Aucun repas"
+msgstr ""
+
+#: app/templates/meals/_grid.html
+msgid "1 repas"
+msgstr ""
+
+#: app/templates/meals/_grid.html
+#, python-format
+msgid "%(n)d repas"
+msgstr ""
+
+#: app/templates/meals/_grid.html
+msgid "Jours de l'événement"
+msgstr ""
+
+#: app/templates/meals/_grid.html app/templates/meals/index.html
+msgid "Ajouter un repas"
+msgstr ""
+
 #: app/templates/meals/index.html
 msgid ""
-"Cliquez sur une case pour ajouter un repas, ou sur un repas pour le "
-"modifier. Glissez-déposez pour déplacer (swap si la case est occupée)."
+"Plusieurs repas par créneau. Touchez un repas pour le modifier ou le "
+"déplacer ; la poignée permet de le glisser vers un autre créneau."
 msgstr ""
 
 #: app/templates/meals/index.html
@@ -2538,6 +2579,60 @@ msgstr ""
 
 #: app/templates/meals/index.html
 msgid "Ex : Barbecue, Salade de pâtes…"
+msgstr ""
+
+#: app/templates/meals/index.html
+msgid ""
+"Ce repas a été ajouté par un autre participant : seul son auteur ou "
+"l'organisateur peut le modifier."
+msgstr ""
+
+#: app/templates/meals/index.html
+msgid "Déplacer vers…"
+msgstr ""
+
+#: app/templates/meals/index.html
+msgid "Jour"
+msgstr ""
+
+#: app/templates/meals/index.html
+msgid "Créneau"
+msgstr ""
+
+#: app/templates/meals/index.html
+msgid "Déplacer"
+msgstr ""
+
+#: app/templates/meals/index.html
+msgid "Échanger avec…"
+msgstr ""
+
+#: app/templates/meals/index.html
+msgid "Autre repas"
+msgstr ""
+
+#: app/templates/meals/index.html
+msgid "Aucun autre repas à échanger."
+msgstr ""
+
+#: app/templates/meals/index.html
+msgid "Échanger"
+msgstr ""
+
+#: app/templates/meals/index.html
+msgid "Ordre dans le créneau"
+msgstr ""
+
+#: app/templates/meals/index.html
+msgid "Monter"
+msgstr ""
+
+#: app/templates/meals/index.html
+msgid "Descendre"
+msgstr ""
+
+#: app/templates/meals/index.html
+msgid "Supprimer ce repas ?"
 msgstr ""
 
 #: app/templates/meals/index.html

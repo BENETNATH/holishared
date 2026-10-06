@@ -46,7 +46,8 @@ def test_dashboard_planning_without_meals_renders_200(app_factory):
 def test_dashboard_planning_without_meals_has_no_meals_link(app_factory):
     client, event, _ = _client(app_factory, "planning,lists")
     _add_meal(event)
-    assert b"/meals" not in client.get(f"/e/{event.code}").data
+    # L'import map liste `ui/meals` (/static/js/ui/meals.*.js) : on teste l'URL de la page, pas « /meals ».
+    assert f"/e/{event.code}/meals".encode() not in client.get(f"/e/{event.code}").data
 
 
 def test_dashboard_meals_without_planning_links_meal_title(app_factory):

@@ -76,6 +76,7 @@ ACTION_LABELS: Final[dict[str, Any]] = {
     "meal.updated": _l("Repas modifié"),
     "meal.deleted": _l("Repas supprimé"),
     "meal.moved": _l("Repas déplacé"),
+    "meal.swapped": _l("Repas échangés"),
     "list.created": _l("Liste créée"),
     "list.deleted": _l("Liste supprimée"),
     "list_item.created": _l("Article ajouté"),

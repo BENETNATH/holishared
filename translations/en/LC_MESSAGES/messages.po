@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 23:24+0200\n"
+"POT-Creation-Date: 2026-10-06 23:49+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -114,11 +114,11 @@ msgstr "Maybe"
 msgid "Non"
 msgstr "No"
 
-#: app/i18n.py app/templates/lists/detail.html app/templates/meals/index.html
+#: app/i18n.py app/templates/lists/detail.html
 msgid "Midi"
 msgstr "Lunch"
 
-#: app/i18n.py app/templates/lists/detail.html app/templates/meals/index.html
+#: app/i18n.py app/templates/lists/detail.html
 msgid "Soir"
 msgstr "Dinner"
 
@@ -153,6 +153,10 @@ msgstr "Meal deleted"
 #: app/i18n.py
 msgid "Repas déplacé"
 msgstr "Meal moved"
+
+#: app/i18n.py
+msgid "Repas échangés"
+msgstr "Meals swapped"
 
 #: app/i18n.py
 msgid "Liste créée"
@@ -298,7 +302,8 @@ msgid ""
 "\n"
 "%(url)s\n"
 "\n"
-"Vous y définirez votre code personnel et votre pseudo, et vous pourrez inviter vos proches.\n"
+"Vous y définirez votre code personnel et votre pseudo, et vous pourrez "
+"inviter vos proches.\n"
 "\n"
 "— holishared\n"
 msgstr ""
@@ -310,7 +315,8 @@ msgstr ""
 "\n"
 "%(url)s\n"
 "\n"
-"There you will set your personal code and nickname, and you can invite your friends and family.\n"
+"There you will set your personal code and nickname, and you can invite "
+"your friends and family.\n"
 "\n"
 "— holishared\n"
 
@@ -372,7 +378,8 @@ msgid ""
 "Vous êtes invité(e) à l'événement « %(title)s » sur holishared\n"
 "(%(start)s → %(end)s).\n"
 "\n"
-"Pour rejoindre, créez votre code personnel (4 à 8 lettres ou chiffres que vous retiendrez) en suivant ce lien :\n"
+"Pour rejoindre, créez votre code personnel (4 à 8 lettres ou chiffres que"
+" vous retiendrez) en suivant ce lien :\n"
 "\n"
 "%(url)s\n"
 "\n"
@@ -383,7 +390,8 @@ msgstr ""
 "You are invited to the event “%(title)s” on holishared\n"
 "(%(start)s → %(end)s).\n"
 "\n"
-"To join, create your personal code (4 to 8 letters or digits that you will remember) by following this link:\n"
+"To join, create your personal code (4 to 8 letters or digits that you "
+"will remember) by following this link:\n"
 "\n"
 "%(url)s\n"
 "\n"
@@ -428,8 +436,7 @@ msgid "Copie impossible"
 msgstr "Copy failed"
 
 #: app/templates/_components/ui.html app/templates/base.html
-#: app/templates/freemium/_upgrade_modal.html app/templates/meals/index.html
-#: app/ui.py
+#: app/templates/freemium/_upgrade_modal.html app/ui.py
 msgid "Fermer"
 msgstr "Close"
 
@@ -473,6 +480,10 @@ msgstr "Noted"
 #: app/ui.py
 msgid "Action impossible. Réessayez."
 msgstr "Action failed. Please try again."
+
+#: app/ui.py
+msgid "Déplacement annulé"
+msgstr "Move cancelled"
 
 #: app/ui.py
 msgid "Accueil"
@@ -749,8 +760,12 @@ msgstr "A verification email has been sent."
 
 #: app/events/__init__.py
 #, python-format
-msgid "Mode développement (SMTP non configuré) : cliquez sur le lien de vérification : %(url)s"
-msgstr "Development mode (SMTP not configured): click the verification link: %(url)s"
+msgid ""
+"Mode développement (SMTP non configuré) : cliquez sur le lien de "
+"vérification : %(url)s"
+msgstr ""
+"Development mode (SMTP not configured): click the verification link: "
+"%(url)s"
 
 #: app/events/__init__.py
 msgid "Lien invalide ou expiré."
@@ -796,7 +811,9 @@ msgstr "Deletion failed. Please try again."
 
 #: app/events/__init__.py
 #, python-format
-msgid "Événement « %(title)s » et toutes ses données ont été définitivement supprimés."
+msgid ""
+"Événement « %(title)s » et toutes ses données ont été définitivement "
+"supprimés."
 msgstr "Event “%(title)s” and all its data have been permanently deleted."
 
 #: app/events/__init__.py
@@ -846,8 +863,12 @@ msgid "Email invalide."
 msgstr "Invalid email."
 
 #: app/events/__init__.py
-msgid "Aucun compte trouvé avec cet email. Si vous n'aviez pas coché « conserver mon email », le code est perdu."
-msgstr "No account found with this email. If you did not tick “keep my email”, the code is lost."
+msgid ""
+"Aucun compte trouvé avec cet email. Si vous n'aviez pas coché « conserver"
+" mon email », le code est perdu."
+msgstr ""
+"No account found with this email. If you did not tick “keep my email”, "
+"the code is lost."
 
 #: app/events/__init__.py
 msgid "Votre code vous a été envoyé par email."
@@ -946,9 +967,10 @@ msgstr "Date outside the event period."
 msgid "Créneau invalide."
 msgstr "Invalid time slot."
 
-#: app/meals/__init__.py
-msgid "Cette case est déjà occupée."
-msgstr "This slot is already taken."
+#: app/meals/__init__.py app/templates/meals/_grid.html
+#, python-format
+msgid "Cette case est pleine (%(max)d repas maximum)."
+msgstr "This slot is full (%(max)d meals maximum)."
 
 #: app/meals/__init__.py
 msgid "Repas ajouté."
@@ -961,6 +983,18 @@ msgstr "Meal updated."
 #: app/meals/__init__.py
 msgid "Repas supprimé."
 msgstr "Meal deleted."
+
+#: app/meals/__init__.py
+msgid "Repas déplacé."
+msgstr "Meal moved."
+
+#: app/meals/__init__.py
+msgid "Choisissez un autre repas."
+msgstr "Choose a different meal."
+
+#: app/meals/__init__.py
+msgid "Repas échangés."
+msgstr "Meals swapped."
 
 #: app/media/__init__.py
 msgid "Aucun fichier."
@@ -1085,8 +1119,12 @@ msgid "Confidentialité garantie"
 msgstr "Privacy guaranteed"
 
 #: app/templates/base.html
-msgid "Holishared respecte votre vie privée : 0 cookie tiers, 0 pistage, 0 revente de données."
-msgstr "Holishared respects your privacy: 0 third-party cookies, 0 tracking, 0 data resale."
+msgid ""
+"Holishared respecte votre vie privée : 0 cookie tiers, 0 pistage, 0 "
+"revente de données."
+msgstr ""
+"Holishared respects your privacy: 0 third-party cookies, 0 tracking, 0 "
+"data resale."
 
 #: app/templates/base.html
 msgid "Aucun compte forcé"
@@ -1101,7 +1139,9 @@ msgid "Aucun cookie tiers, aucun pistage"
 msgstr "No third-party cookies, no tracking"
 
 #: app/templates/base.html
-msgid "Aucun script tiers, aucune analyse publicitaire, aucune revente de données."
+msgid ""
+"Aucun script tiers, aucune analyse publicitaire, aucune revente de "
+"données."
 msgstr "No third-party scripts, no ad analytics, no data resale."
 
 #: app/templates/base.html
@@ -1109,8 +1149,12 @@ msgid "Vos données restent vos données"
 msgstr "Your data stays yours"
 
 #: app/templates/base.html
-msgid "Export complet en 1 clic, et effacement définitif (base + photos) quand vous voulez."
-msgstr "One-click full export, and permanent deletion (DB + photos) whenever you want."
+msgid ""
+"Export complet en 1 clic, et effacement définitif (base + photos) quand "
+"vous voulez."
+msgstr ""
+"One-click full export, and permanent deletion (DB + photos) whenever you "
+"want."
 
 #: app/templates/base.html
 msgid "Notifications"
@@ -1150,8 +1194,8 @@ msgstr "Delete message from"
 
 #: app/templates/chat/_messages.html app/templates/costs/index.html
 #: app/templates/lists/detail.html app/templates/logistics/index.html
-#: app/templates/main/ui_catalog.html app/templates/media/detail.html
-#: app/templates/planning/index.html
+#: app/templates/main/ui_catalog.html app/templates/meals/index.html
+#: app/templates/media/detail.html app/templates/planning/index.html
 msgid "Supprimer"
 msgstr "Delete"
 
@@ -1263,7 +1307,7 @@ msgstr "Untick for a personal (non-shared) expense."
 
 #: app/templates/costs/index.html app/templates/events/members.html
 #: app/templates/lists/detail.html app/templates/main/ui_catalog.html
-#: app/templates/planning/index.html
+#: app/templates/meals/index.html app/templates/planning/index.html
 msgid "Ajouter"
 msgstr "Add"
 
@@ -1425,8 +1469,12 @@ msgid "Accès refusé"
 msgstr "Access denied"
 
 #: app/templates/errors/403.html
-msgid "Vous n'avez pas la permission d'accéder à cette page. Connectez-vous ou utilisez votre code personnel pour rejoindre l'événement."
-msgstr "You don't have permission to access this page. Log in or use your personal code to join the event."
+msgid ""
+"Vous n'avez pas la permission d'accéder à cette page. Connectez-vous ou "
+"utilisez votre code personnel pour rejoindre l'événement."
+msgstr ""
+"You don't have permission to access this page. Log in or use your "
+"personal code to join the event."
 
 #: app/templates/errors/403.html app/templates/errors/404.html
 msgid "Retour à l'accueil"
@@ -1437,8 +1485,12 @@ msgid "Page introuvable"
 msgstr "Page not found"
 
 #: app/templates/errors/404.html
-msgid "Cette page n'existe pas ou a été déplacée. Vérifiez le lien, ou retournez à votre événement."
-msgstr "This page doesn't exist or has been moved. Check the link, or go back to your event."
+msgid ""
+"Cette page n'existe pas ou a été déplacée. Vérifiez le lien, ou retournez"
+" à votre événement."
+msgstr ""
+"This page doesn't exist or has been moved. Check the link, or go back to "
+"your event."
 
 #: app/templates/events/_my_items.html
 msgid "Décocher"
@@ -1461,7 +1513,9 @@ msgid "Déjà pris"
 msgstr "Already done"
 
 #: app/templates/events/_my_items.html
-msgid "Rien à votre charge pour l'instant. Prenez un article ci-dessous ou dans une liste."
+msgid ""
+"Rien à votre charge pour l'instant. Prenez un article ci-dessous ou dans "
+"une liste."
 msgstr "Nothing assigned to you yet. Take an item below or from a list."
 
 #: app/templates/events/_my_items.html
@@ -1541,8 +1595,13 @@ msgid "Quelques mots pour situer le contexte…"
 msgstr "A few words to set the context…"
 
 #: app/templates/events/create.html
-msgid "Un email de vérification vous sera envoyé pour activer l'événement (lien valide 3 jours). Il ne sera conservé que si vous le demandez à la validation."
-msgstr "A verification email will be sent to activate the event (link valid for 3 days). It will only be kept if you request it at validation."
+msgid ""
+"Un email de vérification vous sera envoyé pour activer l'événement (lien "
+"valide 3 jours). Il ne sera conservé que si vous le demandez à la "
+"validation."
+msgstr ""
+"A verification email will be sent to activate the event (link valid for 3"
+" days). It will only be kept if you request it at validation."
 
 #: app/templates/events/create.html
 msgid "Créer l'événement"
@@ -1560,7 +1619,7 @@ msgstr "Add activity"
 msgid "Partager"
 msgstr "Share"
 
-#: app/templates/events/dashboard.html
+#: app/templates/events/dashboard.html app/templates/meals/_grid.html
 msgid "Aujourd'hui"
 msgstr "Today"
 
@@ -1695,8 +1754,12 @@ msgid "Invités utilisés"
 msgstr "Guests used"
 
 #: app/templates/events/invite.html
-msgid "Vous avez atteint le maximum d'invités du plan gratuit. Passez à Vacances+ pour en inviter autant que vous voulez."
-msgstr "You have hit the free-plan guest limit. Upgrade to Vacation+ to invite as many as you like."
+msgid ""
+"Vous avez atteint le maximum d'invités du plan gratuit. Passez à "
+"Vacances+ pour en inviter autant que vous voulez."
+msgstr ""
+"You have hit the free-plan guest limit. Upgrade to Vacation+ to invite as"
+" many as you like."
 
 #: app/templates/events/invite.html app/templates/freemium/_upgrade_modal.html
 #: app/templates/media/gallery.html
@@ -1769,8 +1832,12 @@ msgid "Ex : alice42"
 msgstr "E.g. alice42"
 
 #: app/templates/events/join.html
-msgid "Choisissez un code que vous retiendrez : il vous servira à vous reconnecter sur un autre appareil. 4 à 8 lettres minuscules ou chiffres."
-msgstr "Choose a code you'll remember: it will let you reconnect on another device. 4 to 8 lowercase letters or digits."
+msgid ""
+"Choisissez un code que vous retiendrez : il vous servira à vous "
+"reconnecter sur un autre appareil. 4 à 8 lettres minuscules ou chiffres."
+msgstr ""
+"Choose a code you'll remember: it will let you reconnect on another "
+"device. 4 to 8 lowercase letters or digits."
 
 #: app/templates/events/join.html app/templates/events/verify.html
 msgid "Votre foyer"
@@ -1829,7 +1896,9 @@ msgid "Aucune action enregistrée"
 msgstr "No actions recorded"
 
 #: app/templates/events/log.html
-msgid "Les actions de l'événement (créations, modifications, votes…) apparaîtront ici."
+msgid ""
+"Les actions de l'événement (créations, modifications, votes…) "
+"apparaîtront ici."
 msgstr "Event actions (creations, modifications, votes…) will appear here."
 
 #: app/templates/events/manage.html
@@ -1869,16 +1938,24 @@ msgid "Suppression définitive"
 msgstr "Permanent deletion"
 
 #: app/templates/events/manage.html
-msgid "Supprime l'événement, tous ses contenus et ses photos. Cette action est irréversible."
+msgid ""
+"Supprime l'événement, tous ses contenus et ses photos. Cette action est "
+"irréversible."
 msgstr "Deletes the event, all its content and its photos. This cannot be undone."
 
 #: app/templates/events/manage.html
-msgid "Cet événement et ses photos seront de toute façon purgés 30 jours après la fin du séjour."
-msgstr "This event and its photos will be purged 30 days after the end of the stay anyway."
+msgid ""
+"Cet événement et ses photos seront de toute façon purgés 30 jours après "
+"la fin du séjour."
+msgstr ""
+"This event and its photos will be purged 30 days after the end of the "
+"stay anyway."
 
 #: app/templates/events/manage.html
 #, python-format
-msgid "Supprimer définitivement « %(title)s » et toutes ses données ? Cette action est irréversible."
+msgid ""
+"Supprimer définitivement « %(title)s » et toutes ses données ? Cette "
+"action est irréversible."
 msgstr "Permanently delete “%(title)s” and all its data? This cannot be undone."
 
 #: app/templates/events/manage.html
@@ -1890,7 +1967,9 @@ msgid "Supprimer l'événement"
 msgstr "Delete event"
 
 #: app/templates/events/me.html
-msgid "Il vous permet de revenir sur l'événement depuis un autre appareil. Ne le partagez pas."
+msgid ""
+"Il vous permet de revenir sur l'événement depuis un autre appareil. Ne le"
+" partagez pas."
 msgstr "It lets you come back to the event from another device. Do not share it."
 
 #: app/templates/events/me.html app/templates/events/mycode.html
@@ -1979,12 +2058,20 @@ msgid "Récupérer mon code"
 msgstr "Recover my code"
 
 #: app/templates/events/recover.html
-msgid "Si vous aviez coché « conserver mon email » à la création, votre code vous sera renvoyé par email."
-msgstr "If you ticked “keep my email” at creation, your code will be sent to you by email."
+msgid ""
+"Si vous aviez coché « conserver mon email » à la création, votre code "
+"vous sera renvoyé par email."
+msgstr ""
+"If you ticked “keep my email” at creation, your code will be sent to you "
+"by email."
 
 #: app/templates/events/recover.html
-msgid "Si vous n'aviez pas conservé votre email, le code est définitivement perdu. Il faudra créer un nouvel événement."
-msgstr "If you did not keep your email, the code is permanently lost. You will need to create a new event."
+msgid ""
+"Si vous n'aviez pas conservé votre email, le code est définitivement "
+"perdu. Il faudra créer un nouvel événement."
+msgstr ""
+"If you did not keep your email, the code is permanently lost. You will "
+"need to create a new event."
 
 #: app/templates/events/verify.html
 msgid "Validation"
@@ -1995,12 +2082,20 @@ msgid "Validez votre événement"
 msgstr "Validate your event"
 
 #: app/templates/events/verify.html
-msgid "Votre code créateur actuel est conservé. Laissez ce champ vide pour le garder, ou saisissez un nouveau code de 8 caractères pour le remplacer."
-msgstr "Your current creator code is kept. Leave this field empty to keep it, or enter a new 8-character code to replace it."
+msgid ""
+"Votre code créateur actuel est conservé. Laissez ce champ vide pour le "
+"garder, ou saisissez un nouveau code de 8 caractères pour le remplacer."
+msgstr ""
+"Your current creator code is kept. Leave this field empty to keep it, or "
+"enter a new 8-character code to replace it."
 
 #: app/templates/events/verify.html
-msgid "Ce code vous sert à accéder à l'événement sur n'importe quel appareil. 4 à 8 lettres minuscules ou chiffres."
-msgstr "This code lets you access the event from any device. 4 to 8 lowercase letters or digits."
+msgid ""
+"Ce code vous sert à accéder à l'événement sur n'importe quel appareil. 4 "
+"à 8 lettres minuscules ou chiffres."
+msgstr ""
+"This code lets you access the event from any device. 4 to 8 lowercase "
+"letters or digits."
 
 #: app/templates/events/verify.html
 msgid "Inviter des proches (optionnel)"
@@ -2015,20 +2110,30 @@ msgid "Ex : alice@mail.com, bob@mail.fr"
 msgstr "E.g. alice@mail.com, bob@mail.fr"
 
 #: app/templates/events/verify.html
-msgid "Ces emails ne servent qu'à envoyer l'invitation : ils ne sont PAS conservés."
+msgid ""
+"Ces emails ne servent qu'à envoyer l'invitation : ils ne sont PAS "
+"conservés."
 msgstr "These emails are only used to send the invitation: they are NOT kept."
 
 #: app/templates/events/verify.html
-msgid "Indiquez la composition de votre foyer pour le partage des frais et les groupes. Vous pourrez la modifier plus tard."
-msgstr "Tell us your household composition for cost sharing and groups. You can change it later."
+msgid ""
+"Indiquez la composition de votre foyer pour le partage des frais et les "
+"groupes. Vous pourrez la modifier plus tard."
+msgstr ""
+"Tell us your household composition for cost sharing and groups. You can "
+"change it later."
 
 #: app/templates/events/verify.html
 msgid "Conserver mon email pour récupérer mon code si perdu"
 msgstr "Keep my email to recover my code if lost"
 
 #: app/templates/events/verify.html
-msgid "Si la case n'est pas cochée, votre email est effacé après validation. Vous ne pourrez pas récupérer votre code."
-msgstr "If unticked, your email is erased after validation. You will not be able to recover your code."
+msgid ""
+"Si la case n'est pas cochée, votre email est effacé après validation. "
+"Vous ne pourrez pas récupérer votre code."
+msgstr ""
+"If unticked, your email is erased after validation. You will not be able "
+"to recover your code."
 
 #: app/templates/events/verify.html
 msgid "Confirmer et accéder"
@@ -2043,12 +2148,20 @@ msgid "Un email de vérification a été envoyé à"
 msgstr "A verification email has been sent to"
 
 #: app/templates/events/verify_sent.html
-msgid "Cliquez sur le lien pour définir votre code personnel et votre pseudo. Le lien est valide 3 jours."
-msgstr "Click the link to set your personal code and nickname. The link is valid for 3 days."
+msgid ""
+"Cliquez sur le lien pour définir votre code personnel et votre pseudo. Le"
+" lien est valide 3 jours."
+msgstr ""
+"Click the link to set your personal code and nickname. The link is valid "
+"for 3 days."
 
 #: app/templates/events/verify_sent.html
-msgid "Sans vérification, l'événement sera supprimé automatiquement au bout de 3 jours."
-msgstr "Without verification, the event will be automatically deleted after 3 days."
+msgid ""
+"Sans vérification, l'événement sera supprimé automatiquement au bout de 3"
+" jours."
+msgstr ""
+"Without verification, the event will be automatically deleted after 3 "
+"days."
 
 #: app/templates/freemium/_upgrade_modal.html
 #: app/templates/freemium/paywall.html
@@ -2084,8 +2197,12 @@ msgid "Fonctionnalité Vacances+"
 msgstr "Vacation+ feature"
 
 #: app/templates/freemium/paywall.html
-msgid "Cette fonctionnalité fait partie du pack « Holishared Vacances+ ». Elle n'est pas disponible sur le plan gratuit — mais tout le reste l'est."
-msgstr "This feature is part of the \"Holishared Vacation+\" pack. It is not available on the free plan - but everything else is."
+msgid ""
+"Cette fonctionnalité fait partie du pack « Holishared Vacances+ ». Elle "
+"n'est pas disponible sur le plan gratuit — mais tout le reste l'est."
+msgstr ""
+"This feature is part of the \"Holishared Vacation+\" pack. It is not "
+"available on the free plan - but everything else is."
 
 #: app/templates/freemium/paywall.html
 msgid "Fonctionnalité demandée"
@@ -2169,8 +2286,12 @@ msgid "Rien ici pour l'instant"
 msgstr "Nothing here yet"
 
 #: app/templates/lists/index.html
-msgid "Créez votre première liste ci-dessus — courses, to-do, matériel — et partagez-la avec le groupe."
-msgstr "Create your first list above — shopping, to-do, equipment — and share it with the group."
+msgid ""
+"Créez votre première liste ci-dessus — courses, to-do, matériel — et "
+"partagez-la avec le groupe."
+msgstr ""
+"Create your first list above — shopping, to-do, equipment — and share it "
+"with the group."
 
 #: app/templates/lists/index.html
 msgid "Listes de l'événement"
@@ -2219,7 +2340,9 @@ msgid "Aucune info pratique"
 msgstr "No practical info"
 
 #: app/templates/logistics/index.html
-msgid "Ajoutez l'adresse, l'accès, les horaires… pour que tout le monde soit au courant."
+msgid ""
+"Ajoutez l'adresse, l'accès, les horaires… pour que tout le monde soit au "
+"courant."
 msgstr "Add the address, access, schedule… so everyone is informed."
 
 #: app/templates/main/landing.html
@@ -2506,9 +2629,34 @@ msgstr "Demo sheet"
 msgid "Les toasts restent visibles au-dessus d'une feuille ouverte."
 msgstr "Toasts stay visible above an open sheet."
 
+#: app/templates/meals/_grid.html
+msgid "Aucun repas"
+msgstr "No meals"
+
+#: app/templates/meals/_grid.html
+msgid "1 repas"
+msgstr "1 meal"
+
+#: app/templates/meals/_grid.html
+#, python-format
+msgid "%(n)d repas"
+msgstr "%(n)d meals"
+
+#: app/templates/meals/_grid.html
+msgid "Jours de l'événement"
+msgstr "Event days"
+
+#: app/templates/meals/_grid.html app/templates/meals/index.html
+msgid "Ajouter un repas"
+msgstr "Add a meal"
+
 #: app/templates/meals/index.html
-msgid "Cliquez sur une case pour ajouter un repas, ou sur un repas pour le modifier. Glissez-déposez pour déplacer (swap si la case est occupée)."
-msgstr "Click a slot to add a meal, or a meal to edit it. Drag and drop to move it (swaps if the slot is taken)."
+msgid ""
+"Plusieurs repas par créneau. Touchez un repas pour le modifier ou le "
+"déplacer ; la poignée permet de le glisser vers un autre créneau."
+msgstr ""
+"Several meals per slot. Tap a meal to edit or move it; use the handle to "
+"drag it to another slot."
 
 #: app/templates/meals/index.html
 msgid "Nom du repas"
@@ -2517,6 +2665,62 @@ msgstr "Meal name"
 #: app/templates/meals/index.html
 msgid "Ex : Barbecue, Salade de pâtes…"
 msgstr "E.g. Barbecue, Pasta salad…"
+
+#: app/templates/meals/index.html
+msgid ""
+"Ce repas a été ajouté par un autre participant : seul son auteur ou "
+"l'organisateur peut le modifier."
+msgstr ""
+"This meal was added by another participant: only its author or the "
+"organizer can change it."
+
+#: app/templates/meals/index.html
+msgid "Déplacer vers…"
+msgstr "Move to…"
+
+#: app/templates/meals/index.html
+msgid "Jour"
+msgstr "Day"
+
+#: app/templates/meals/index.html
+msgid "Créneau"
+msgstr "Slot"
+
+#: app/templates/meals/index.html
+msgid "Déplacer"
+msgstr "Move"
+
+#: app/templates/meals/index.html
+msgid "Échanger avec…"
+msgstr "Swap with…"
+
+#: app/templates/meals/index.html
+msgid "Autre repas"
+msgstr "Other meal"
+
+#: app/templates/meals/index.html
+msgid "Aucun autre repas à échanger."
+msgstr "No other meal to swap with."
+
+#: app/templates/meals/index.html
+msgid "Échanger"
+msgstr "Swap"
+
+#: app/templates/meals/index.html
+msgid "Ordre dans le créneau"
+msgstr "Order in the slot"
+
+#: app/templates/meals/index.html
+msgid "Monter"
+msgstr "Move up"
+
+#: app/templates/meals/index.html
+msgid "Descendre"
+msgstr "Move down"
+
+#: app/templates/meals/index.html
+msgid "Supprimer ce repas ?"
+msgstr "Delete this meal?"
 
 #: app/templates/meals/index.html
 msgid "Supprimer ce repas"
@@ -2548,8 +2752,12 @@ msgid "Stockage utilisé"
 msgstr "Storage used"
 
 #: app/templates/media/gallery.html
-msgid "Vous avez atteint votre quota gratuit. Passez à Vacances+ pour garder toute la galerie."
-msgstr "You have reached your free quota. Upgrade to Vacances+ to keep the whole gallery."
+msgid ""
+"Vous avez atteint votre quota gratuit. Passez à Vacances+ pour garder "
+"toute la galerie."
+msgstr ""
+"You have reached your free quota. Upgrade to Vacances+ to keep the whole "
+"gallery."
 
 #: app/templates/media/gallery.html
 msgid "Espace presque plein — passez à Vacances+ pour 50 Go."
@@ -2714,7 +2922,9 @@ msgid "Aucun sondage"
 msgstr "No polls"
 
 #: app/templates/voting/index.html
-msgid "Créez un sondage pour laisser le groupe choisir (menu, activité, horaires…)."
+msgid ""
+"Créez un sondage pour laisser le groupe choisir (menu, activité, "
+"horaires…)."
 msgstr "Create a poll to let the group choose (menu, activity, schedule…)."
 
 #: app/voting/__init__.py

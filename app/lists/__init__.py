@@ -142,11 +142,7 @@ def _list_side_panels(event: Event, shared_list: SharedList) -> dict[str, Any]:
     ones covered by this list and lets the user filter them out (instead of
     auto-hiding them the moment they are checked).
     """
-    meals = (
-        Meal.query.filter_by(event_id=event.id)
-        .order_by(Meal.date.asc(), Meal.slot.asc())
-        .all()
-    )
+    meals = Meal.query.filter_by(event_id=event.id).order_by(*Meal.ordering()).all()
     activities = (
         Activity.query.filter_by(event_id=event.id)
         .order_by(Activity.date.asc(), Activity.start_time.asc().nulls_last())

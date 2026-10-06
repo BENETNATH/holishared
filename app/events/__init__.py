@@ -41,7 +41,7 @@ from app.extensions import db, limiter
 from app.forms import FormErrors
 from app.freemium import can_add_guest, has_feature, max_duration_days, require_tier
 from app.i18n import current_locale, household_default_name
-from app.models import Creator, Event, Guest, Household, generate_guest_code
+from app.models import Creator, Event, Guest, Household, Meal, generate_guest_code
 from app.utils import ensure_creator_guest
 
 
@@ -387,7 +387,7 @@ def dashboard(code: str) -> str | Response:
             "title": act.title,
             "location": act.location,
         })
-    for meal in event.meals.filter_by(date=today):
+    for meal in event.meals.filter_by(date=today).order_by(*Meal.ordering()):
         h, m = slot_hour.get(meal.slot, (12, 0))
         timeline.append({
             "kind": "meal",

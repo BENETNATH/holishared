@@ -1,0 +1,62 @@
+{# Grille des repas (B022) : fragment HTMX, remplacé en bloc par meals.js. Un jour à la fois < 1024 px, calendrier jours × (Midi, Soir) au-delà. #}
+{%- macro count_text(n) -%}
+{%- if n == 0 %}{{ _("Aucun repas") }}{% elif n == 1 %}{{ _("1 repas") }}{% else %}{{ _("%(n)d repas", n=n) }}{% endif -%}
+{%- endmacro -%}
+<div id="meal-grid" data-testid="meal-grid" data-selected-day="{{ selected_day.isoformat() }}" class="flex flex-col gap-3">
+  <div class="flex max-w-full gap-2 overflow-x-auto pb-1 lg:hidden" data-meal-tabs role="group" aria-label="{{ _('Jours de l\'événement') }}">
+    {%- for day in days %}
+    <button type="button" data-testid="meal-day-tab" data-meal-day-tab="{{ day.isoformat() }}"
+            aria-pressed="{{ 'true' if day == selected_day else 'false' }}"{% if day == today %} aria-current="date"{% endif %}
+            class="flex min-h-[44px] min-w-[3.5rem] shrink-0 flex-col items-center justify-center rounded-md border border-line bg-surface px-3 py-1 text-small text-ink aria-pressed:border-primary-strong aria-pressed:bg-primary-strong aria-pressed:text-on-primary aria-[current=date]:border-primary-strong">
+      <span class="text-caption uppercase">{{ day|format_date('EEE') }}</span>
+      <span class="font-semibold">{{ day|format_date('d MMM') }}</span>
+    </button>
+    {%- endfor %}
+  </div>
+
+  <div class="hidden grid-cols-[7rem_1fr_1fr] gap-3 text-small font-semibold text-ink-2 lg:grid" aria-hidden="true">
+    <span></span>
+    {%- for slot, slot_label in choices('meal_slot') %}<span>{{ slot_label }}</span>{% endfor %}
+  </div>
+
+  {%- for day in days %}
+  <section data-meal-day="{{ day.isoformat() }}" aria-labelledby="meal-day-{{ day.isoformat() }}"
+           class="{{ 'flex' if day == selected_day else 'hidden' }} flex-col gap-3 lg:grid lg:grid-cols-[7rem_1fr_1fr]">
+    <h2 id="meal-day-{{ day.isoformat() }}" class="m-0 hidden text-small font-semibold text-ink lg:block">
+      {{ day|format_date('EEEE d MMM') }}
+      {%- if day == today %} <span class="ui-badge ui-badge--primary">{{ _("Aujourd'hui") }}</span>{% endif %}
+    </h2>
+    <h2 class="sr-only lg:hidden">{{ day|format_date('EEEE d MMMM') }}</h2>
+    {%- for slot, slot_label in choices('meal_slot') %}
+    {%- set cell = cells.get((day, slot), []) %}
+    {%- set header = (day|format_date('EEEE d MMMM')) ~ ', ' ~ (slot_label|lower) %}
+    <div role="group" data-testid="meal-cell" data-date="{{ day.isoformat() }}" data-slot="{{ slot }}" data-header="{{ header }}"
+         aria-label="{{ header }}, {{ count_text(cell|length) }}"
+         class="flex min-w-0 flex-col gap-2 rounded-md border border-line bg-surface-2 p-2">
+      <h3 class="m-0 text-small font-semibold text-ink-2 lg:hidden" aria-hidden="true">{{ slot_label }}</h3>
+      <ul class="m-0 flex list-none flex-col gap-2 p-0" data-meal-list>
+        {%- for meal in cell %}
+        {%- set editable = ctx.can_edit(meal) %}
+        <li data-testid="meal-card" data-meal-id="{{ meal.id }}" data-title="{{ meal.title }}" data-editable="{{ '1' if editable else '0' }}"
+            data-edit-url="{{ url_for('meals.edit', code=event.code, meal_id=meal.id) }}"
+            data-delete-url="{{ url_for('meals.delete', code=event.code, meal_id=meal.id) }}"
+            class="flex items-stretch rounded-md border border-line bg-surface">
+          <button type="button" data-meal-open data-sheet-open="meal-sheet" aria-haspopup="dialog"
+                  class="min-h-[44px] min-w-0 flex-1 break-words rounded-md px-3 py-2 text-left text-small font-medium text-ink">{{ meal.title }}</button>
+          {%- if editable %}
+          <span data-meal-handle aria-hidden="true" class="flex min-h-[44px] w-11 shrink-0 cursor-grab touch-none items-center justify-center text-ink-muted">{{ icon('grip-vertical') }}</span>
+          {%- endif %}
+        </li>
+        {%- endfor %}
+      </ul>
+      {%- if not cell %}<p class="m-0 text-small text-ink-muted">{{ _("Aucun repas") }}</p>{% endif %}
+      <button type="button" data-testid="meal-add" data-meal-add data-sheet-open="meal-add-sheet" aria-haspopup="dialog"
+              data-date="{{ day.isoformat() }}" data-slot="{{ slot }}" data-header="{{ header }}"
+              class="ui-btn ui-btn--secondary ui-btn--sm min-h-[44px] w-full"{% if cell|length >= max_per_cell %} disabled title="{{ _('Cette case est pleine (%(max)d repas maximum).', max=max_per_cell) }}"{% endif %}>
+        {{- icon('plus', size=16) }}<span>{{ _("Ajouter un repas") }}</span><span class="sr-only"> — {{ header }}</span>
+      </button>
+    </div>
+    {%- endfor %}
+  </section>
+  {%- endfor %}
+</div>

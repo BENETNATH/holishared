@@ -79,6 +79,7 @@ JS_STRINGS: Final[dict[str, str]] = {
     "loading": N_("Chargement…"),
     "lists_noted": N_("C'est noté"),
     "action_failed": N_("Action impossible. Réessayez."),
+    "meal_drag_cancelled": N_("Déplacement annulé"),
 }
 
 
