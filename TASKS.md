@@ -398,7 +398,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B029 — Contexte d'événement & identité participant unique
 
-**Statut** : ⬜ · **Réf.** F29, F30 (serveur), F32 ; §11.2 et §11.5 de l'audit · **S'exécute après B017**
+**Statut** : ✅ (2026-10-06) · **Réf.** F29, F30 (serveur), F32 ; §11.2 et §11.5 de l'audit · **S'exécute après B017**
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|

@@ -10,6 +10,15 @@ sous chaque lot.
 
 ## [Unreleased]
 
+### B029 — Contexte d'événement & identité participant unique
+
+- `feat(context)` : `app/context.py` (`load_event_context`, `EventContext`, `can_edit`/`can_delete`, `log_event`), cache vidé à chaque requête ; les 8 copies de `_get_event_or_404`/`_resolve_actor`/`_actor_name` sont supprimées.
+- `feat(models)` : le créateur est toujours un participant `Guest` ; migration d'identité idempotente au démarrage et par `manage.py migrate` (sauvegarde conditionnelle dans `instance/backups/`, rotation à 3 fichiers et 30 jours), `python -m app.migrations check` / `manage.py check-identity` en lecture seule.
+- `feat(auth)` : `app/access.py` (résolution des codes, suggestion serveur via `secrets`, limiteur d'échecs par IP et par (IP, événement) avec repli mémoire), nouveaux codes créateur de 8 caractères, codes courts existants toujours valables ; `limits>=5.0` déclaré.
+- `fix(events)` : événement non vérifié ou inactif = 404 (sauf `verify`/`verify_sent`) ; visiteur renvoyé vers `/mycode` partout (HTMX : 204 + `HX-Redirect`) ; 403/404 rendus par gabarits ; plus de `BuildError` quand un module est désactivé (F32).
+- `refactor(planning|meals|lists|logistics|voting|chat|costs|media)` : contexte unique, ordre contexte -> objet -> droit ; le créateur répond aux RSVP (D1), refus en 403 (D6), journal de l'acteur réel (D10), plus d'écriture pendant un GET.
+- `refactor(ui)` : `inject_globals` sans requête (ajoute `ctx` et `current_participant`), nom du participant créateur dans la pastille, `inject_event_days` supprimé.
+
 ### B017 — Socle Tailwind, shell mobile & outillage UI
 
 - `chore(infra)` : build Tailwind CSS v4.3.3 (`npm run build:css`, CSS compilé commité), ancien `main.css` isolé en couche `legacy` (`app/static/src/legacy.css`), job CI `frontend`.

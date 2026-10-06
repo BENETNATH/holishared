@@ -196,6 +196,24 @@ Fonctions dans `app/freemium.py` :
 
 Écarts de spec : textes de démonstration du catalogue traduits au commit du catalogue (pas au commit i18n) ; `.meal-chip` passe en `position: relative` (cause réelle du débordement des pastilles repas : l'input masqué absolu échappait au défilement interne) ; `ruff format --check .` et `mypy app/` n'étaient déjà pas verts sur le dépôt avant le lot (27 fichiers historiques non formatés, 17 erreurs mypy, inchangées par le lot) : seuls les fichiers du lot sont tenus propres.
 
+### 2026-10-06 — B029 Contexte d'événement & identité participant unique
+
+| Action | Fichier(s) | Détail |
+|--------|------------|--------|
+| Contexte unique | `app/context.py`, `app/__init__.py` | `load_event_context(code, require=…)`, cache sur `g` vidé par `before_request`, droits `can_edit`/`can_delete`, `log_event` |
+| Identité unique | `app/utils.py`, `app/migrations.py` | Créateur = `Guest` (sans foyer implicite hors `verify`/`join`) ; migration idempotente, `check_identity` en lecture seule |
+| Codes d'accès | `app/access.py`, `app/extensions.py`, `app/events/__init__.py` | Résolution (événement avant créateur), échecs seuls comptés par IP et par (IP, événement), repli mémoire, journal `app.security` sans le code |
+| Modules | `events`, `planning`, `meals`, `lists`, `logistics`, `voting`, `chat`, `costs`, `media` | Les 8 copies de helpers supprimées ; réponses d'erreur par gabarits ; F32 corrigé |
+
+**Retour arrière**
+1. Code seul : l'ancien code fonctionne sur des données migrées (un `Guest.id` est un identifiant valide partout) ; redéployer la version précédente suffit.
+2. Données : arrêter l'application, puis copier la sauvegarde sur la base et redémarrer. Local : `cp instance/backups/pre-identity-<horodatage>.db instance/holishared.db`. Docker : `docker compose stop app`, puis `docker compose run --rm --no-deps --entrypoint sh app -c 'cp /app/instance/backups/pre-identity-<horodatage>.db /app/instance/holishared.db'`, puis `docker compose start app`. La sauvegarde n'existe que si une migration effective a eu lieu.
+3. Vérification après déploiement : `docker compose exec app python -m app.migrations check`.
+
+**Rétention des sauvegardes** : au plus 3 fichiers `pre-identity-*.db` dans `instance/backups/` (hors médias et hors export ZIP), et un fichier de plus de 30 jours est supprimé au premier démarrage, `manage.py migrate` ou nouvelle sauvegarde qui suit son 30e jour. Plafond assumé : un processus qui tourne sans redémarrage peut conserver la sauvegarde plus longtemps.
+
+Écarts de spec : `my_code` et `guest_access` passent par `load_event_context(require="none")` dès le commit des codes (D11, D14, D15 actifs un commit plus tôt) ; deux variables d'environnement ajoutées pour l'outillage et les tests, `INSTANCE_PATH` (dossier instance) et `SKIP_STARTUP_MIGRATION` (utilisée par `python -m app.migrations check` pour rester en lecture seule) ; le purge/migration au démarrage partagent le même `try/except` ; nouveaux messages `verify` (code créateur) sans traduction EN compilée (B018).
+
 ### À faire (backlog)
 
 | Priorité | Tâche | Statut |
