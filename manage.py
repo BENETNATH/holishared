@@ -399,6 +399,7 @@ with app.app_context():
     add_col("guests", "email", "VARCHAR(255)")
     add_col("events", "creator_email", "VARCHAR(255)")
     add_col("creators", "tier", "VARCHAR(20) DEFAULT 'free'")
+    add_col("expenses", "is_shared", "BOOLEAN DEFAULT 1")
 
     # creators.email: NOT NULL -> NULL (opt-out of storing the creator email).
     # SQLite cannot ALTER a column's nullability, so rebuild the table.

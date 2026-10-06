@@ -52,11 +52,17 @@ def _base_cents(amount_cents: int, exchange_rate: float | None) -> int:
 
 
 def _per_expense_shares(households: list[Household], expenses: list[Expense]) -> tuple[dict[str, int], dict[str, int]]:
-    """Return ({household_id: share_cents}, {household_id: paid_cents})."""
+    """Return ({household_id: share_cents}, {household_id: paid_cents}).
+
+    Only shared expenses (is_shared=True) are included; personal expenses are
+    excluded from cost sharing entirely.
+    """
     ids = {h.id for h in households}
     paid: dict[str, int] = {h.id: 0 for h in households}
     shares: dict[str, int] = {h.id: 0 for h in households}
     for exp in expenses:
+        if not exp.is_shared:
+            continue
         payer_id = exp.paid_by_household_id
         if payer_id is None or payer_id not in ids:
             continue
@@ -70,7 +76,8 @@ def _per_expense_shares(households: list[Household], expenses: list[Expense]) ->
     # Rounding fix: shares must sum to the total base amount.
     total_base = sum(
         _base_cents(e.amount_cents, e.exchange_rate)
-        for e in expenses if e.paid_by_household_id is not None and e.paid_by_household_id in ids
+        for e in expenses
+        if e.is_shared and e.paid_by_household_id is not None and e.paid_by_household_id in ids
     )
     diff = total_base - sum(shares.values())
     if diff != 0 and households:
@@ -143,20 +150,21 @@ def index(code: str) -> str | Response | tuple[str, int]:
 
     households = event.households.all()
     expenses = event.expenses.order_by(Expense.date.desc(), Expense.created_at.desc()).all()
+    shared_expenses = [e for e in expenses if e.is_shared]
     transfers = event.transfers.order_by(Transfer.created_at.desc()).all()
     payment_requests = (
         event.payment_requests.order_by(PaymentRequest.is_resolved.asc(),
                                         PaymentRequest.created_at.desc()).all()
     )
 
-    settlements = _settlement(households, expenses, transfers)
+    settlements = _settlement(households, shared_expenses, transfers)
     h_map = {h.id: h for h in households}
     settlement_display = [
         {"from": h_map.get(f), "to": h_map.get(t), "amount": a / 100.0}
         for f, t, a in settlements
     ]
 
-    shares, paid = _per_expense_shares(households, expenses)
+    shares, paid = _per_expense_shares(households, shared_expenses)
     h_summary = [
         {
             "household": h,
@@ -167,10 +175,19 @@ def index(code: str) -> str | Response | tuple[str, int]:
         for h in households
     ]
 
-    total_expenses = sum(_base_cents(e.amount_cents, e.exchange_rate) for e in expenses) / 100.0
+    total_expenses = sum(_base_cents(e.amount_cents, e.exchange_rate) for e in shared_expenses) / 100.0
     category_breakdown = [
-        {"category": c, "amount": a / 100.0} for c, a in _category_breakdown(expenses)
+        {"category": c, "amount": a / 100.0} for c, a in _category_breakdown(shared_expenses)
     ]
+
+    # Per-household personal (non-shared) expense totals, for personal budget tracking.
+    personal_by_household: dict[str, float] = {h.id: 0.0 for h in households}
+    for e in expenses:
+        if e.is_shared:
+            continue
+        payer_id = e.paid_by_household_id
+        if payer_id in personal_by_household:
+            personal_by_household[payer_id] += _base_cents(e.amount_cents, e.exchange_rate) / 100.0
 
     # Personal balance for the acting user (guest or creator), derived from the
     # existing household + settlement data (no change to the algorithm).
@@ -208,8 +225,9 @@ def index(code: str) -> str | Response | tuple[str, int]:
                            transfers=transfers, payment_requests=payment_requests,
                            settlements=settlement_display, h_summary=h_summary,
                            total_expenses=total_expenses,
-                           category_breakdown=category_breakdown,
-                           currencies=CURRENCIES,
+                            category_breakdown=category_breakdown,
+                            personal_by_household=personal_by_household,
+                            currencies=CURRENCIES,
                            default_adult_weight=default_adult_weight,
                            default_child_weight=default_child_weight,
                            my_household=my_household,
@@ -294,6 +312,7 @@ def add_expense(code: str) -> Response | tuple[str, int]:
     if currency not in CURRENCIES:
         currency = "EUR"
     rate_str = request.form.get("exchange_rate", "1.0").strip()
+    is_shared = request.form.get("is_shared") == "on"
 
     errors: list[str] = []
     if not description:
@@ -337,6 +356,7 @@ def add_expense(code: str) -> Response | tuple[str, int]:
         category=category,
         paid_by_household_id=household_id,
         date=d,
+        is_shared=is_shared,
         event_id=event.id,
     )
     db.session.add(exp)

@@ -82,6 +82,13 @@
           {% for h in households %}<option value="{{ h.id }}">{{ h.name }}</option>{% endfor %}
         </select>
       </div>
+      <div class="ef-shared">
+        <label class="shared-toggle" for="ef-shared">
+          <input type="checkbox" id="ef-shared" name="is_shared" checked>
+          <span>{{ _("Partagé") }}</span>
+        </label>
+        <p class="hint">{{ _("Décochez pour une dépense personnelle (non partagée).") }}</p>
+      </div>
     </div>
     <button type="submit" class="btn btn-primary">{{ _("Ajouter") }}</button>
   </form>
@@ -189,6 +196,13 @@
         <span>·</span>
         <span>{{ "%.2f"|format(entry["paid"]) }}&nbsp;€ {{ _("payé") }}</span>
       </div>
+      {% set personal_total = personal_by_household.get(hh.id, 0.0) %}
+      {% if personal_total > 0.01 %}
+      <div class="gc-personal">
+        <span class="gc-personal-label">{{ _("Dépenses personnelles") }}</span>
+        <span class="gc-personal-amount">{{ "%.2f"|format(personal_total) }}&nbsp;€</span>
+      </div>
+      {% endif %}
       <div class="gc-status{% if bal > 0.01 %} gc-positive{% elif bal < -0.01 %} gc-negative{% else %} gc-zero{% endif %}">
         {% if bal > 0.01 %}
           <span class="gc-state">{{ _("reçoit") }}</span>
@@ -220,7 +234,7 @@
     <div class="expense-row">
       <span class="expense-cat" title="{{ exp.category }}">{{ {'general':'🧾','food':'🍔','transport':'🚗','lodging':'🏡','activities':'🎟️','other':'📦'}.get(exp.category, '🧾') }}</span>
       <div class="expense-info">
-        <div class="expense-title">{{ exp.description }}</div>
+        <div class="expense-title">{{ exp.description }}{% if not exp.is_shared %} <span class="personal-badge">{{ _("Personnel") }}</span>{% endif %}</div>
         <div class="expense-sub">{{ exp.paid_by.name }} · {{ exp.date | format_date('medium') }}</div>
       </div>
       <div class="expense-amount">{{ "%.2f"|format(exp.amount) }}<span class="exp-cur"> €</span></div>

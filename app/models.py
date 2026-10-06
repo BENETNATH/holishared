@@ -428,6 +428,8 @@ class Expense(db.Model):  # type: ignore[misc,name-defined]
     paid_by_household_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("households.id"), nullable=False)
     date: Mapped[date | None] = db.Column(db.Date, nullable=True)
     category: Mapped[str] = db.Column(db.String(50), default="general")  # food, transport, lodging, activities, other
+    # When False, the expense is personal (not included in cost sharing).
+    is_shared: Mapped[bool] = db.Column(db.Boolean, default=True, nullable=False)
     receipt_media_id: Mapped[str | None] = db.Column(db.String(32), db.ForeignKey("media_items.id"), nullable=True)
     # Custom split override: JSON {household_id: weight, ...}
     custom_split: Mapped[str | None] = db.Column(db.Text, nullable=True)
