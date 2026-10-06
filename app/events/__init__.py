@@ -767,8 +767,8 @@ def _get_current_guest(event: Event) -> Guest | None:
 
 def _rq_queue():
     """Get the RQ queue (lazy import)."""
-    from rq import Queue
     from redis import Redis
+    from rq import Queue
     return Queue("default", connection=Redis.from_url(
         current_app.config.get("REDIS_URL", "redis://localhost:6379/0")
     ))

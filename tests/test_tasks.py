@@ -1,7 +1,8 @@
 """Tests for RQ background tasks (email sending)."""
 
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 from app import tasks
 

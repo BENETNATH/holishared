@@ -4,7 +4,7 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
 #
 msgid ""
-msgstr "You have hit the free-plan guest limit. Upgrade to Vacation+ to invite as many as you like."Holishared Vacation+" pack. It is not available on the free plan - but everything else is."
+msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-10-05 20:19+0200\n"
@@ -926,6 +926,8 @@ msgid ""
 "Vous avez atteint le maximum d'invités du plan gratuit. Passez à "
 "Vacances+ pour en inviter autant que vous voulez."
 msgstr ""
+"You have hit the free-plan guest limit. Upgrade to Vacation+ to invite "
+"as many as you like."
 
 #: app/templates/events/invite.html:30
 #: app/templates/freemium/_upgrade_modal.html:38
@@ -1310,6 +1312,8 @@ msgid ""
 "Cette fonctionnalité fait partie du pack « Holishared Vacances+ ». Elle "
 "n'est pas disponible sur le plan gratuit — mais tout le reste l'est."
 msgstr ""
+"This feature is part of the \"Holishared Vacation+\" pack. It is not "
+"available on the free plan - but everything else is."
 
 #: app/templates/freemium/paywall.html:9
 msgid "Fonctionnalité demandée"

@@ -60,6 +60,7 @@ ignore = [
     "S603",   # subprocess with shell=False is fine
     "S105",   # hardcoded password string (we use env vars)
     "S106",   # hardcoded password func arg
+    "DTZ003", # datetime.utcnow(): app uses naive UTC consistently (SQLite storage)
     "DTZ005", # datetime.now() in tests is fine
     "DTZ007", # strptime parsing of user input (naive by design, B003)
     "DTZ011", # date.today() for planning display (spec B003 §5.1)

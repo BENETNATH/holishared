@@ -76,7 +76,7 @@ class TestCreateMeal:
 
     def test_create_short_title_rejected(self, client, creator, event):
         _login_creator(client, creator)
-        resp = client.post(
+        client.post(
             f"/e/{event.code}/meals/create",
             data={"title": "a", "date": "2026-12-4", "slot": "dinner"},
             follow_redirects=True,
@@ -85,7 +85,7 @@ class TestCreateMeal:
 
     def test_create_out_of_range_rejected(self, client, creator, event):
         _login_creator(client, creator)
-        resp = client.post(
+        client.post(
             f"/e/{event.code}/meals/create",
             data={"title": "Pâtes", "date": "2026-11-01", "slot": "dinner"},
             follow_redirects=True,
@@ -94,7 +94,7 @@ class TestCreateMeal:
 
     def test_create_occupied_cell_rejected(self, client, creator, event, meal):
         _login_creator(client, creator)
-        resp = client.post(
+        client.post(
             f"/e/{event.code}/meals/create",
             data={"title": "Autre", "date": "2026-12-03", "slot": "lunch"},
             follow_redirects=True,
@@ -116,7 +116,7 @@ class TestEditMeal:
 
     def test_edit_forbidden_for_other_guest(self, client, event, guest, other_guest, meal):
         _login_guest(client, event, other_guest)
-        resp = client.post(
+        client.post(
             f"/e/{event.code}/meals/{meal.id}/edit",
             data={"title": "Hack"},
             follow_redirects=True,
@@ -133,7 +133,7 @@ class TestDeleteMeal:
 
     def test_delete_forbidden_for_other_guest(self, client, event, guest, other_guest, meal):
         _login_guest(client, event, other_guest)
-        resp = client.post(f"/e/{event.code}/meals/{meal.id}/delete", follow_redirects=True)
+        client.post(f"/e/{event.code}/meals/{meal.id}/delete", follow_redirects=True)
         assert Meal.query.get(meal.id) is not None
 
 
@@ -162,12 +162,14 @@ class TestMoveMeal:
             follow_redirects=True,
         )
         # The two meals swapped their (date, slot).
-        assert meal.date == date(2026, 12, 5) and meal.slot == "dinner"
-        assert other.date == date(2026, 12, 3) and other.slot == "lunch"
+        assert meal.date == date(2026, 12, 5)
+        assert meal.slot == "dinner"
+        assert other.date == date(2026, 12, 3)
+        assert other.slot == "lunch"
 
     def test_move_forbidden_for_other_guest(self, client, event, guest, other_guest, meal):
         _login_guest(client, event, other_guest)
-        resp = client.post(
+        client.post(
             f"/e/{event.code}/meals/move",
             data={"meal_id": meal.id, "date": "2026-12-5", "slot": "dinner"},
             follow_redirects=True,
