@@ -1409,9 +1409,8 @@ msgid "Créer"
 msgstr "Create"
 
 #: app/templates/lists/index.html:22
-#, fuzzy
 msgid "Rien ici pour l'instant"
-msgstr "Nothing to display yet"
+msgstr "Nothing here yet"
 
 #: app/templates/lists/index.html:23
 #, fuzzy
@@ -1837,6 +1836,186 @@ msgstr "optional"
 
 msgid "Catalogue de composants"
 msgstr "Component catalog"
+
+msgid "Ajoutez un premier élément pour commencer."
+msgstr "Add a first item to get started."
+
+msgid "Aller aux boutons"
+msgstr "Jump to buttons"
+
+msgid "Annulé"
+msgstr "Cancelled"
+
+msgid "Attention, vérifiez ce point."
+msgstr "Careful, please check this."
+
+msgid "Avancement"
+msgstr "Progress"
+
+msgid "Avatars"
+msgstr "Avatars"
+
+msgid "Badges"
+msgstr "Badges"
+
+msgid "Boutons"
+msgstr "Buttons"
+
+msgid "Carte cliquable"
+msgstr "Clickable card"
+
+msgid "Carte simple"
+msgstr "Simple card"
+
+msgid "Cartes"
+msgstr "Cards"
+
+msgid "Case cochée"
+msgstr "Checked box"
+
+msgid "Case décochée"
+msgstr "Unchecked box"
+
+msgid "Case désactivée"
+msgstr "Disabled box"
+
+msgid "Cases, boutons radio et interrupteurs"
+msgstr "Checkboxes, radios and switches"
+
+msgid "Champs de formulaire"
+msgstr "Form fields"
+
+msgid "Choix"
+msgstr "Choice"
+
+msgid "Confirmation"
+msgstr "Confirmation"
+
+msgid "Confirmé"
+msgstr "Confirmed"
+
+msgid "Danger"
+msgstr "Danger"
+
+msgid "Discret"
+msgstr "Subtle"
+
+msgid "Désactivé"
+msgstr "Disabled"
+
+msgid "Enregistré."
+msgstr "Saved."
+
+msgid "Feuille"
+msgstr "Sheet"
+
+msgid "Feuille de démonstration"
+msgstr "Demo sheet"
+
+msgid "Grand"
+msgstr "Large"
+
+msgid "Icônes"
+msgstr "Icons"
+
+msgid "Information"
+msgstr "Information"
+
+msgid "Information utile."
+msgstr "Useful information."
+
+msgid "Interrupteur allumé"
+msgstr "Switch on"
+
+msgid "Interrupteur désactivé"
+msgstr "Disabled switch"
+
+msgid "Interrupteur éteint"
+msgstr "Switch off"
+
+msgid "Le nom est trop court."
+msgstr "The name is too short."
+
+msgid "Les toasts restent visibles au-dessus d'une feuille ouverte."
+msgstr "Toasts stay visible above an open sheet."
+
+msgid "Moyen"
+msgstr "Medium"
+
+msgid "Neutre"
+msgstr "Neutral"
+
+msgid "Option A"
+msgstr "Option A"
+
+msgid "Option B"
+msgstr "Option B"
+
+msgid "Ouvrir la feuille"
+msgstr "Open the sheet"
+
+msgid "Petit"
+msgstr "Small"
+
+msgid "Pleine largeur"
+msgstr "Full width"
+
+msgid "Principal"
+msgstr "Primary"
+
+msgid "Radio désactivé"
+msgstr "Disabled radio"
+
+msgid "Radio non sélectionné"
+msgstr "Unselected radio"
+
+msgid "Radio sélectionné"
+msgstr "Selected radio"
+
+msgid "Réponse"
+msgstr "Answer"
+
+msgid "Secondaire"
+msgstr "Secondary"
+
+msgid "Secret masqué"
+msgstr "Masked secret"
+
+msgid "Squelettes de chargement"
+msgstr "Loading skeletons"
+
+msgid "Supprimer cet élément de démonstration ?"
+msgstr "Delete this demo item?"
+
+msgid "Sélecteur de segments"
+msgstr "Segmented control"
+
+msgid "Toasts"
+msgstr "Toasts"
+
+msgid "Tous les composants du kit, dans leurs états."
+msgstr "Every kit component, in its states."
+
+msgid "Toute la carte est un lien."
+msgstr "The whole card is a link."
+
+msgid "Un bloc de contenu."
+msgstr "A block of content."
+
+msgid "Une erreur s'est produite."
+msgstr "An error occurred."
+
+msgid "Visible par tous les participants."
+msgstr "Visible to all participants."
+
+msgid "Élément cliquable"
+msgstr "Clickable item"
+
+msgid "Élément simple"
+msgstr "Simple item"
+
+msgid "États vides"
+msgstr "Empty states"
 
 #~ msgid "Organisez les activités du séjour"
 #~ msgstr "Organize the trip's activities"

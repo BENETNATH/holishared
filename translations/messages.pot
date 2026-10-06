@@ -1773,3 +1773,183 @@ msgstr ""
 msgid "Catalogue de composants"
 msgstr ""
 
+msgid "Ajoutez un premier élément pour commencer."
+msgstr ""
+
+msgid "Aller aux boutons"
+msgstr ""
+
+msgid "Annulé"
+msgstr ""
+
+msgid "Attention, vérifiez ce point."
+msgstr ""
+
+msgid "Avancement"
+msgstr ""
+
+msgid "Avatars"
+msgstr ""
+
+msgid "Badges"
+msgstr ""
+
+msgid "Boutons"
+msgstr ""
+
+msgid "Carte cliquable"
+msgstr ""
+
+msgid "Carte simple"
+msgstr ""
+
+msgid "Cartes"
+msgstr ""
+
+msgid "Case cochée"
+msgstr ""
+
+msgid "Case décochée"
+msgstr ""
+
+msgid "Case désactivée"
+msgstr ""
+
+msgid "Cases, boutons radio et interrupteurs"
+msgstr ""
+
+msgid "Champs de formulaire"
+msgstr ""
+
+msgid "Choix"
+msgstr ""
+
+msgid "Confirmation"
+msgstr ""
+
+msgid "Confirmé"
+msgstr ""
+
+msgid "Danger"
+msgstr ""
+
+msgid "Discret"
+msgstr ""
+
+msgid "Désactivé"
+msgstr ""
+
+msgid "Enregistré."
+msgstr ""
+
+msgid "Feuille"
+msgstr ""
+
+msgid "Feuille de démonstration"
+msgstr ""
+
+msgid "Grand"
+msgstr ""
+
+msgid "Icônes"
+msgstr ""
+
+msgid "Information"
+msgstr ""
+
+msgid "Information utile."
+msgstr ""
+
+msgid "Interrupteur allumé"
+msgstr ""
+
+msgid "Interrupteur désactivé"
+msgstr ""
+
+msgid "Interrupteur éteint"
+msgstr ""
+
+msgid "Le nom est trop court."
+msgstr ""
+
+msgid "Les toasts restent visibles au-dessus d'une feuille ouverte."
+msgstr ""
+
+msgid "Moyen"
+msgstr ""
+
+msgid "Neutre"
+msgstr ""
+
+msgid "Option A"
+msgstr ""
+
+msgid "Option B"
+msgstr ""
+
+msgid "Ouvrir la feuille"
+msgstr ""
+
+msgid "Petit"
+msgstr ""
+
+msgid "Pleine largeur"
+msgstr ""
+
+msgid "Principal"
+msgstr ""
+
+msgid "Radio désactivé"
+msgstr ""
+
+msgid "Radio non sélectionné"
+msgstr ""
+
+msgid "Radio sélectionné"
+msgstr ""
+
+msgid "Réponse"
+msgstr ""
+
+msgid "Secondaire"
+msgstr ""
+
+msgid "Secret masqué"
+msgstr ""
+
+msgid "Squelettes de chargement"
+msgstr ""
+
+msgid "Supprimer cet élément de démonstration ?"
+msgstr ""
+
+msgid "Sélecteur de segments"
+msgstr ""
+
+msgid "Toasts"
+msgstr ""
+
+msgid "Tous les composants du kit, dans leurs états."
+msgstr ""
+
+msgid "Toute la carte est un lien."
+msgstr ""
+
+msgid "Un bloc de contenu."
+msgstr ""
+
+msgid "Une erreur s'est produite."
+msgstr ""
+
+msgid "Visible par tous les participants."
+msgstr ""
+
+msgid "Élément cliquable"
+msgstr ""
+
+msgid "Élément simple"
+msgstr ""
+
+msgid "États vides"
+msgstr ""
+

@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% from "_components/ui.html" import field, sheet, empty_state %}
+{% block title %}{{ _("Catalogue de composants") }} — holishared{% endblock %}
+{% block content %}
+<div data-testid="ui-catalog" class="flex flex-col gap-10">
+
+  <section data-testid="catalog-page-header" class="flex flex-col gap-3">
+    <div class="ui-page-header">
+      <div>
+        <h1>{{ _("Catalogue de composants") }}</h1>
+        <p>{{ _("Tous les composants du kit, dans leurs états.") }}</p>
+      </div>
+      <a class="ui-btn ui-btn--secondary" href="#catalog-buttons">{{ _("Aller aux boutons") }}</a>
+    </div>
+  </section>
+
+  <section data-testid="catalog-button" id="catalog-buttons" class="flex flex-col gap-4">
+    <h2 class="text-heading font-semibold">{{ _("Boutons") }}</h2>
+    {% for variant, name in [('primary', _('Principal')), ('secondary', _('Secondaire')), ('ghost', _('Discret')), ('danger', _('Danger'))] %}
+    <div class="flex flex-wrap items-center gap-2">
+      <button type="button" class="ui-btn ui-btn--{{ variant }}">{{ name }}</button>
+      <button type="button" class="ui-btn ui-btn--{{ variant }}" disabled>{{ _("Désactivé") }}</button>
+      <button type="button" class="ui-btn ui-btn--{{ variant }}" data-loading="true" aria-busy="true" aria-disabled="true">{{ _("Chargement…") }}</button>
+    </div>
+    {% endfor %}
+    <div class="flex flex-wrap items-center gap-2">
+      <button type="button" class="ui-btn ui-btn--secondary ui-btn--sm">{{ _("Petit") }}</button>
+      <button type="button" class="ui-btn ui-btn--secondary">{{ _("Moyen") }}</button>
+      <button type="button" class="ui-btn ui-btn--secondary ui-btn--lg">{{ _("Grand") }}</button>
+      <button type="button" class="ui-btn ui-btn--secondary ui-btn--icon" aria-label="{{ _('Ajouter') }}">{{ icon('plus') }}</button>
+    </div>
+    <button type="button" class="ui-btn ui-btn--secondary ui-btn--block">{{ _("Pleine largeur") }}</button>
+  </section>
+
+  <section data-testid="catalog-card" class="flex flex-col gap-4">
+    <h2 class="text-heading font-semibold">{{ _("Cartes") }}</h2>
+    <article class="ui-card">
+      <h3 class="ui-card__title">{{ _("Carte simple") }}</h3>
+      <p>{{ _("Un bloc de contenu.") }}</p>
+    </article>
+    <article class="ui-card ui-card--link">
+      <h3 class="ui-card__title"><a class="ui-card__link" href="#catalog-card">{{ _("Carte cliquable") }}</a></h3>
+      <p>{{ _("Toute la carte est un lien.") }}</p>
+      <button type="button" class="ui-btn ui-btn--ghost ui-btn--icon ui-card__action" aria-label="{{ _('Modifier') }}">{{ icon('pencil') }}</button>
+    </article>
+  </section>
+
+  <section data-testid="catalog-field" class="flex flex-col gap-4">
+    <h2 class="text-heading font-semibold">{{ _("Champs de formulaire") }}</h2>
+    <form class="ui-form" method="get" action="{{ url_for('main.ui_catalog') }}" data-no-lock>
+      {{ field("demo_title", _("Titre"), required=True, help=_("Visible par tous les participants.")) }}
+      {{ field("demo_error", _("Nom"), required=True, value="x", error=_("Le nom est trop court.")) }}
+      {{ field("demo_select", _("Choix"), type="select", required=True, value="b", options=[("a", _("Option A")), ("b", _("Option B"))]) }}
+      {{ field("demo_text", _("Description"), type="textarea") }}
+      {{ field("demo_optional", _("Lieu")) }}
+    </form>
+  </section>
+
+  <section data-testid="catalog-segmented" class="flex flex-col gap-4">
+    <h2 class="text-heading font-semibold">{{ _("Sélecteur de segments") }}</h2>
+    <fieldset class="ui-segmented">
+      <legend class="sr-only">{{ _("Réponse") }}</legend>
+      <label class="ui-segmented__option"><input type="radio" name="demo_rsvp" value="yes" checked><span>{{ _("Oui") }}</span></label>
+      <label class="ui-segmented__option"><input type="radio" name="demo_rsvp" value="maybe"><span>{{ _("Peut-être") }}</span></label>
+      <label class="ui-segmented__option"><input type="radio" name="demo_rsvp" value="no"><span>{{ _("Non") }}</span></label>
+    </fieldset>
+  </section>
+
+  <section data-testid="catalog-check" class="flex flex-col gap-2">
+    <h2 class="text-heading font-semibold">{{ _("Cases, boutons radio et interrupteurs") }}</h2>
+    <label class="ui-check"><input type="checkbox" name="demo_check_off"><span>{{ _("Case décochée") }}</span></label>
+    <label class="ui-check"><input type="checkbox" name="demo_check_on" checked><span>{{ _("Case cochée") }}</span></label>
+    <label class="ui-check"><input type="checkbox" name="demo_check_disabled" disabled><span>{{ _("Case désactivée") }}</span></label>
+    <label class="ui-radio"><input type="radio" name="demo_radio" value="1"><span>{{ _("Radio non sélectionné") }}</span></label>
+    <label class="ui-radio"><input type="radio" name="demo_radio" value="2" checked><span>{{ _("Radio sélectionné") }}</span></label>
+    <label class="ui-radio"><input type="radio" name="demo_radio_disabled" value="3" disabled><span>{{ _("Radio désactivé") }}</span></label>
+    <label class="ui-switch"><input type="checkbox" role="switch" name="demo_switch_off"><span>{{ _("Interrupteur éteint") }}</span></label>
+    <label class="ui-switch"><input type="checkbox" role="switch" name="demo_switch_on" checked><span>{{ _("Interrupteur allumé") }}</span></label>
+    <label class="ui-switch"><input type="checkbox" role="switch" name="demo_switch_disabled" disabled><span>{{ _("Interrupteur désactivé") }}</span></label>
+  </section>
+
+  <section data-testid="catalog-badge" class="flex flex-col gap-4">
+    <h2 class="text-heading font-semibold">{{ _("Badges") }}</h2>
+    <div class="flex flex-wrap gap-2">
+      <span class="ui-badge ui-badge--neutral">{{ _("Neutre") }}</span>
+      <span class="ui-badge ui-badge--primary">{{ _("Principal") }}</span>
+      <span class="ui-badge ui-badge--success">{{ _("Confirmé") }}</span>
+      <span class="ui-badge ui-badge--warning">{{ _("En attente") }}</span>
+      <span class="ui-badge ui-badge--danger">{{ _("Annulé") }}</span>
+      <span class="ui-badge ui-badge--info">{{ _("Information") }}</span>
+    </div>
+  </section>
+
+  <section data-testid="catalog-empty" class="flex flex-col gap-4">
+    <h2 class="text-heading font-semibold">{{ _("États vides") }}</h2>
+    {% call empty_state('inbox', _("Rien ici pour l'instant"), _("Ajoutez un premier élément pour commencer.")) %}
+    <button type="button" class="ui-btn ui-btn--secondary">{{ icon('plus') }}<span>{{ _("Ajouter") }}</span></button>
+    {% endcall %}
+  </section>
+
+  <section data-testid="catalog-skeleton" class="flex flex-col gap-4">
+    <h2 class="text-heading font-semibold">{{ _("Squelettes de chargement") }}</h2>
+    <div aria-busy="true" class="flex flex-col gap-2">
+      <span class="sr-only">{{ _("Chargement…") }}</span>
+      <div class="ui-skeleton h-4 w-2/3"></div>
+      <div class="ui-skeleton h-4 w-full"></div>
+      <div class="ui-skeleton h-4 w-1/2"></div>
+    </div>
+  </section>
+
+  <section data-testid="catalog-sheet" class="flex flex-col gap-4">
+    <h2 class="text-heading font-semibold">{{ _("Feuille") }}</h2>
+    <div>
+      <button type="button" class="ui-btn ui-btn--secondary" data-testid="catalog-sheet-trigger" data-sheet-open="catalog-demo-sheet"
+              aria-haspopup="dialog" aria-controls="catalog-demo-sheet" aria-expanded="false">{{ _("Ouvrir la feuille") }}</button>
+    </div>
+    {% call sheet('catalog-demo-sheet', _('Feuille de démonstration')) %}
+    <p>{{ _("Les toasts restent visibles au-dessus d'une feuille ouverte.") }}</p>
+    <button type="button" class="ui-btn ui-btn--secondary" data-copy="holishared" data-testid="catalog-sheet-copy">{{ icon('copy') }}<span>{{ _("Copier") }}</span></button>
+    {% endcall %}
+  </section>
+
+  <section data-testid="catalog-confirm" class="flex flex-col gap-4">
+    <h2 class="text-heading font-semibold">{{ _("Confirmation") }}</h2>
+    <form class="ui-form" method="get" action="{{ url_for('main.ui_catalog') }}" data-confirm="{{ _('Supprimer cet élément de démonstration ?') }}" data-no-lock>
+      <div>
+        <button type="submit" class="ui-btn ui-btn--danger" data-testid="catalog-confirm-trigger">{{ icon('trash-2') }}<span>{{ _("Supprimer") }}</span></button>
+      </div>
+    </form>
+  </section>
+
+  <section data-testid="catalog-toast" class="flex flex-col gap-4">
+    <h2 class="text-heading font-semibold">{{ _("Toasts") }}</h2>
+    <div>
+      <button type="button" class="ui-btn ui-btn--secondary" data-copy="holishared">{{ icon('copy') }}<span>{{ _("Copier") }}</span></button>
+    </div>
+    {% for tone, icon_name, text in [('success', 'circle-check', _('Enregistré.')), ('info', 'info', _('Information utile.')), ('warning', 'triangle-alert', _('Attention, vérifiez ce point.')), ('danger', 'circle-alert', _("Une erreur s'est produite."))] %}
+    <div class="ui-toast" data-tone="{{ tone }}">{{ icon(icon_name) }}<p class="ui-toast__message">{{ text }}</p></div>
+    {% endfor %}
+  </section>
+
+  <section data-testid="catalog-progress" class="flex flex-col gap-4">
+    <h2 class="text-heading font-semibold">{{ _("Progression") }}</h2>
+    <div class="flex items-center gap-3">
+      <progress class="ui-progress" value="3" max="10" aria-label="{{ _('Avancement') }}">3/10</progress>
+      <span class="text-small whitespace-nowrap">3/10</span>
+    </div>
+  </section>
+
+  <section data-testid="catalog-avatar" class="flex flex-col gap-4">
+    <h2 class="text-heading font-semibold">{{ _("Avatars") }}</h2>
+    <div class="flex items-center gap-3">
+      <span class="ui-avatar" aria-hidden="true">C</span><span translate="no">Camille</span>
+      <span class="ui-avatar ui-avatar--lg" aria-hidden="true">A</span><span translate="no">Antoine</span>
+    </div>
+  </section>
+
+  <section data-testid="catalog-list" class="flex flex-col gap-4">
+    <h2 class="text-heading font-semibold">{{ _("Listes") }}</h2>
+    <ul class="ui-list">
+      <li class="ui-list__item">{{ icon('calendar-days') }}<span>{{ _("Élément simple") }}</span></li>
+      <li class="ui-list__item ui-list__item--link">{{ icon('map-pin') }}<a class="ui-list__link" href="#catalog-list">{{ _("Élément cliquable") }}</a></li>
+    </ul>
+  </section>
+
+  <section data-testid="catalog-secret" class="flex flex-col gap-4">
+    <h2 class="text-heading font-semibold">{{ _("Secret masqué") }}</h2>
+    <div class="flex flex-wrap items-center gap-2">
+      <code id="catalog-secret-code" data-secret data-masked="true">ab12cd34</code>
+      <button type="button" class="ui-btn ui-btn--secondary" data-reveal aria-controls="catalog-secret-code" aria-pressed="false"><span data-reveal-label>{{ _("Voir") }}</span></button>
+    </div>
+  </section>
+
+  <section data-testid="catalog-icons" class="flex flex-col gap-4">
+    <h2 class="text-heading font-semibold">{{ _("Icônes") }}</h2>
+    <ul class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      {% for name in icon_names %}
+      <li class="flex items-center gap-2 text-small" data-icon="{{ name }}">{{ icon(name) }}<span translate="no">{{ name }}</span></li>
+      {% endfor %}
+    </ul>
+  </section>
+
+</div>
+{% endblock %}

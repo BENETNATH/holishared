@@ -60,6 +60,7 @@ def create_app() -> Flask:
 
     # Freemium limits
     app.config["SW_ENABLED"] = os.environ.get("SW_ENABLED", "true") == "true"
+    app.config["UI_CATALOG_ENABLED"] = os.environ.get("UI_CATALOG_ENABLED", "false") == "true"
     app.config["MAX_GUESTS_PER_EVENT"] = int(os.environ.get("MAX_GUESTS_PER_EVENT", "10"))
     app.config["MAX_DURATION_DAYS"] = int(os.environ.get("MAX_DURATION_DAYS", "30"))
     app.config["MAX_EVENTS_PER_CREATOR"] = int(os.environ.get("MAX_EVENTS_PER_CREATOR", "3"))
