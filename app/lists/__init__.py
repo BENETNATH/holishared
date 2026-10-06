@@ -234,6 +234,9 @@ def claim_item(code: str, list_id: str, item_id: str) -> Response | tuple[str, i
     shared_list = _get_list_or_404(event, list_id)
     item = _get_item_or_404(shared_list, item_id)
 
+    if item.assigned_to_id is not None and not ctx.can_edit(item):
+        abort(403)
+
     item.assigned_to = ctx.actor.name
     item.assigned_to_id = ctx.participant.id if ctx.participant else None
     log_event(ctx, "list_item.claimed", target=item.name, details=shared_list.title)

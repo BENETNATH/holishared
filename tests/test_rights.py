@@ -336,3 +336,26 @@ def test_media_delete_by_creator_logs_deleting_actor(creator_client, db, event, 
     creator_client.post(f"/e/{event.code}/media/{item.id}/delete")
     log = ActivityLog.query.filter_by(event_id=event.id, action="media.deleted").first()
     assert log.actor_name == "Test Creator"
+
+
+def test_list_claim_item_assigned_to_other_guest_403(
+    guest_client, db, event, guest, other_guest_c, shared_list
+):
+    item = ListItem(name="Pain", assigned_to="Other Guest", assigned_to_id=other_guest_c.id,
+                    list_id=shared_list.id)
+    db.session.add(item)
+    db.session.commit()
+    resp = guest_client.post(_item_url(event, shared_list, item, "claim"))
+    assert resp.status_code == 403
+    assert item.assigned_to_id == other_guest_c.id
+
+
+def test_list_claim_item_assigned_to_other_guest_creator_may_reassign(
+    creator_client, db, event, creator_guest, other_guest_c, shared_list
+):
+    item = ListItem(name="Pain", assigned_to="Other Guest", assigned_to_id=other_guest_c.id,
+                    list_id=shared_list.id)
+    db.session.add(item)
+    db.session.commit()
+    creator_client.post(_item_url(event, shared_list, item, "claim"))
+    assert item.assigned_to_id == creator_guest.id
