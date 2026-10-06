@@ -37,3 +37,15 @@ jobs:
       - name: Coverage
         run: pytest --cov=app --cov-report=xml
         if: github.ref == 'refs/heads/main'
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: CSS compilé à jour
+        run: npm run build:css && git diff --exit-code -- app/static/css/app.css

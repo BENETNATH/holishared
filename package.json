@@ -1,0 +1,14 @@
+{
+  "name": "holishared-ui",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22 <23" },
+  "scripts": {
+    "build:css": "tailwindcss -i app/static/src/app.css -o app/static/css/app.css --minify",
+    "watch:css": "tailwindcss -i app/static/src/app.css -o app/static/css/app.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "4.3.3",
+    "tailwindcss": "4.3.3"
+  }
+}
