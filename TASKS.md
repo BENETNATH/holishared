@@ -243,7 +243,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ---
 
-## B014 — Web Push (hooks)
+## B014 — Web Push (hooks) — remplacé par B027
 
 **Statut** : ⬜
 
@@ -355,3 +355,178 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 - `feat(freemium): API déclarative tiers + require_tier soft paywall`
 - `feat(ui): modale Vacances+ + jauges stockage/invités`
 - `test(freemium): tiers, has_feature, require_tier (export_pdf)`
+
+---
+
+# Programme « Refonte pro » (B017 → B028)
+
+**Objectif** : une application en production, parfaitement utilisable, de niveau professionnel en ergonomie, usage et efficacité. Source : `AUDIT_UI.md` (constats `N`, `I`, `V` et registre `F01`–`F25`).
+
+**Décisions** (validées par l'utilisateur) :
+- Tailwind CSS v4 (CLI via npm, Node 22), CSS compilé commité dans `app/static/css/` : la prod (Docker) n'a pas besoin de Node, aucun CDN.
+- Navigation mobile : barre du bas à 5 onglets (Accueil, Planning, Repas, Listes, Frais) + feuille « Plus » ancrée en bas.
+- Repas : glisser-déposer tactile (pointer events, sans bibliothèque) **et** action « Déplacer vers… » accessible.
+- Migration « big-bang » sur la branche `ui/tailwind-refonte` : `main.css` historique reste isolé en couche basse jusqu'à B028, qui le supprime. Merge en `main` à la clôture de B028 (un seul merge pour le programme).
+
+**Chaîne de production par lot** (voir `AGENTS.md`, adaptée aux modèles) :
+1. Spec `specs/B0XX-slug.md` — Opus.
+2. Audit de la spec — Opus (contexte vierge), corrections jusqu'à approbation.
+3. Tests écrits d'abord (pytest + garde UI) — Opus ; ils doivent échouer.
+4. Codage — Sonnet (contexte vierge : spec + tests + `AGENTS.md`).
+5. Exécution : `ruff check . && ruff format --check . && mypy app/ && pytest` + `npm run ui:check`.
+6. Audit du code livré — Opus (contexte vierge : spec + code).
+7. Gate + `CHANGELOG.md` + `TASKS.md` + `DEV_LOG.md` + commit `chore: close lot B0XX`.
+
+**Règles transverses** : jamais supprimer un test existant (adapter uniquement selon la table « Tests existants modifiés » de la spec) ; hooks de test = `data-testid` ou rôles ARIA, jamais des classes CSS ; garde UI = aucun défilement horizontal, cibles ≥ 44 px, barre du bas visible, aucun texte français en EN, aucune erreur console, contraste AA, clair et sombre, à 360/390/820/1280 px.
+
+## B017 — Socle Tailwind, shell mobile & outillage UI
+
+**Statut** : ⬜ · **Réf.** N1–N9, I3, V10, F20
+
+| # | Tâche | Critère d'acceptation |
+|---|-------|----------------------|
+| 17.1 | Build Tailwind v4 | `npm run build:css` produit `app/static/css/app.css` ; `package.json` + lockfile ; CI vérifie que le CSS commité est à jour |
+| 17.2 | Design tokens & thèmes | Palette terracotta/lin, clair + sombre (`data-theme`), échelle d'espacement/typo/rayons ; contraste AA mesuré |
+| 17.3 | Shell responsive | En-tête sobre ; navigation bureau ; **barre du bas 5 onglets + feuille « Plus »** ancrée en bas, état actif y compris pour les pages de « Plus », visible hors événement (accueil/événements) |
+| 17.4 | Kit de composants | Boutons (1 primaire/écran), cartes cliquables en entier, formulaires, feuille/dialogue, toast, état vide, squelette de chargement, icônes SVG uniques (fin des emojis comme icônes) |
+| 17.5 | JS partagé | Modules uniques : copie dans le presse-papiers avec retour, thème, feuille, modale confidentialité, confirmation ; fin de la duplication inline |
+| 17.6 | Service worker | Nom de cache dérivé du hash des assets ; page hors ligne ; Alpine retiré du précache |
+| 17.7 | Outillage UI | `scripts/ui/` : graine de démo, serveur de démo (base et `instance_path` jetables), garde `npm run ui:check` (CDP, sans dépendance) ; `main.css` isolé en couche basse |
+
+## B018 — Internationalisation complète
+
+**Statut** : ⬜ · **Réf.** §5 de l'audit, F17, F18 (libellés)
+
+| # | Tâche | Critère d'acceptation |
+|---|-------|----------------------|
+| 18.1 | Catégories traduites | Frais (général, courses…), infos, types de liste : libellés via un dictionnaire central, plus aucune clé brute affichée |
+| 18.2 | Messages serveur | 100 % des `flash()`, erreurs de validation, `abort`/réponses texte passent par `_()` |
+| 18.3 | JS et attributs | Chaînes JS via `data-*`/gabarits traduits ; `aria-label`, `title`, `placeholder` traduits |
+| 18.4 | Catalogue | 0 entrée vide, 0 « fuzzy » en EN ; `.pot/.po/.mo` régénérés et vérifiés |
+| 18.5 | Erreurs par champ | Les formulaires reçoivent des erreurs `{champ: message}` (plus de recherche de sous-chaînes) |
+| 18.6 | Formats | Dates, heures, nombres et devises via Babel selon la langue |
+| 18.7 | Garde i18n | Test : chaque page rendue en EN ne contient aucun msgid français ni mot-clé français |
+
+## B019 — Accès, comptes & parcours d'entrée
+
+**Statut** : ⬜ · **Réf.** F01, F09, F15, F16, F17, F22, V9
+
+| # | Tâche | Critère d'acceptation |
+|---|-------|----------------------|
+| 19.1 | Accueil | Un seul champ « code » : reconnaît code créateur (4–8) et code événement ; chemin clair « Créer » / « J'ai un code » |
+| 19.2 | Mes événements | Cartes entièrement cliquables avec statut (à venir / en cours / terminé), dates, nombre de participants ; accessible aussi aux invités (liste des événements de l'appareil) |
+| 19.3 | Création d'événement | Parcours court, erreurs par champ ; explication de la vérification e-mail avant l'envoi |
+| 19.4 | Vérification & code | Pages `verify`, `verify_sent`, `recover` revues ; aucune fuite du code sans e-mail (F16) ; vouvoiement homogène |
+| 19.5 | Rejoindre | Un seul écran lisible (pseudo, code, foyer optionnel) ; pas de saisie inutile |
+| 19.6 | Session | Sessions invité et créateur durables et maîtrisées (F15) ; redirections cohérentes `/mycode` (F09) |
+| 19.7 | Connexion admin, 403/404/500 | Pages d'erreur utiles avec chemin de retour |
+
+## B020 — Accueil de l'événement, Participants & Journal
+
+**Statut** : ⬜ · **Réf.** F02, F03, F04, F18, F21, V3, V8
+
+| # | Tâche | Critère d'acceptation |
+|---|-------|----------------------|
+| 20.1 | Accueil événement | Héros (titre, dates, lieu, compte à rebours) + « Aujourd'hui » + « Pour moi » + derniers messages ; une action primaire ; plus de bloc code personnel en tête |
+| 20.2 | Menu « Événement » | Partager (lien `/join` correct, F03), mon code, participants, journal, export, gestion/suppression (confirmation forte) |
+| 20.3 | Participants | Fusion Membres + Invitations ; liste, ajout, retrait, renvoi, QR, jauge ; accessible depuis l'interface ; foyer créé à l'ajout (F21) |
+| 20.4 | Limite d'invités | La page reste accessible à la limite avec la carte d'upgrade honnête (F02) |
+| 20.5 | Journal | Phrases lisibles et traduites, filtres, pagination (F18) ; accessible depuis le menu |
+| 20.6 | Identité créateur | Pastille créateur dans l'en-tête ; nom d'affichage éditable (F22) |
+
+## B021 — Planning
+
+**Statut** : ⬜ · **Réf.** F10, V1, V2
+
+| # | Tâche | Critère d'acceptation |
+|---|-------|----------------------|
+| 21.1 | Vue par jour | Chronologie par jour avec jours vides visibles, repas du jour, saut au jour courant |
+| 21.2 | Carte d'activité | RSVP intégré (Oui / Peut-être / Non), décompte, seuil `min_headcount` atteint ou non, `bring_items` affiché |
+| 21.3 | Ajout/édition | Feuille d'ajout rapide + formulaire avancé en sections ; pas de doublon liste/RSVP |
+| 21.4 | Créateur participant | Le créateur peut répondre (F10) |
+
+## B022 — Repas
+
+**Statut** : ⬜ · **Réf.** I2, V5, F25
+
+| # | Tâche | Critère d'acceptation |
+|---|-------|----------------------|
+| 22.1 | Vue mobile | Un jour à la fois (balayage ou sélecteur de jour) ; vue calendrier sur grand écran |
+| 22.2 | Déplacer | Action « Déplacer vers… » (jour + créneau) + glisser-déposer tactile et souris + clavier ; échange explicite si occupé |
+| 22.3 | Cellules | « + » visible sur les cases vides, statut « courses » par repas, lien vers la liste de courses |
+| 22.4 | Backend | Échange sans créneau temporaire `tmp` ; réponses JSON/HTMX sans rechargement complet |
+
+## B023 — Listes
+
+**Statut** : ⬜ · **Réf.** F11, I5, V6
+
+| # | Tâche | Critère d'acceptation |
+|---|-------|----------------------|
+| 23.1 | Saisie complète | Ajout rapide avec quantité et section ; types de liste utilisés |
+| 23.2 | Cocher en un geste | Un article se coche sans « Je m'occupe » préalable ; l'attribution est facultative |
+| 23.3 | Mises à jour sans rechargement | HTMX sur cocher, attribuer, ajouter, supprimer ; position de défilement conservée ; pas de clavier automatique au chargement |
+| 23.4 | Identité d'attribution | Basée sur l'identifiant (plus le nom d'affichage) |
+| 23.5 | Suppression | Chacun supprime ses propres articles (avec annulation) ; suppression de liste dépriorisée |
+
+## B024 — Frais
+
+**Statut** : ⬜ · **Réf.** F06, F07, F08, V4
+
+| # | Tâche | Critère d'acceptation |
+|---|-------|----------------------|
+| 24.1 | Correctifs de données | Note de demande de paiement enregistrée et affichée ; devise avec taux ; date de dépense saisie (défaut : aujourd'hui) |
+| 24.2 | Structure | En-tête « Mon solde » ; « Qui doit à qui » avec noms complets ; ajout via feuille ; détails dépliables ; formats localisés |
+| 24.3 | Droits | Chacun modifie/supprime ses propres dépenses ; droits UI = droits serveur ; confidentialité des dépenses personnelles |
+| 24.4 | Transferts | Formulaire de transfert toujours accessible |
+| 24.5 | Non-régression | `_settlement` et `_per_expense_shares` inchangés ; tests d'algorithme verts |
+
+## B025 — Sondages, Infos pratiques & Chat
+
+**Statut** : ⬜ · **Réf.** F05, F12, F14
+
+| # | Tâche | Critère d'acceptation |
+|---|-------|----------------------|
+| 25.1 | Sondages | Création rapide ; clore et supprimer (créateur) ; résultats après le vote ; vote en un geste |
+| 25.2 | Infos pratiques | Cartes avec copie en un geste ; édition sur place ; plus de champ « Ordre » exposé ; ordre logique des catégories |
+| 25.4 | Sondage d'activités | À la création, choix du type « Question libre » ou « Départager des activités » : sélection d'une ou plusieurs activités existantes comme options (au moins 2), possibilité d'ajouter des options libres ; les activités en vote portent un badge « En vote » dans le Planning avec lien vers le sondage |
+| 25.5 | Issue du vote | À la clôture d'un sondage d'activités : activité(s) gagnante(s) (égalité gérée) ; le créateur peut « Retenir » le gagnant : l'activité passe « Retenue », les autres « Non retenues » (grisées, restaurables ou supprimables) ; journal et notification associés |
+| 25.3 | Chat | Saisie ancrée en bas ; envoi sans rechargement ; polling sans forcer le défilement ; actions de message discrètes ; aperçu accueil limité à 3 messages côté serveur |
+
+## B026 — Média
+
+**Statut** : ⬜ · **Réf.** F13
+
+| # | Tâche | Critère d'acceptation |
+|---|-------|----------------------|
+| 26.1 | Miniatures | Génération côté serveur (Pillow), grille légère, originaux à la demande |
+| 26.2 | Formats | HEIC converti ou refusé avec message clair ; vidéo avec affiche |
+| 26.3 | Envoi | Multi-sélection, progression, limite de débit adaptée |
+| 26.4 | Visionneuse | Précédent/suivant, balayage, téléchargement, légende, date et lieu lisibles |
+
+## B027 — Notifications Web Push (PWA)
+
+**Statut** : ⬜ · **Remplace** B014 (jamais implémenté : seules les clés VAPID existent dans `manage.py`/`.env.example`)
+
+| # | Tâche | Critère d'acceptation |
+|---|-------|----------------------|
+| 27.1 | Modèle et API d'abonnement | Table `PushSubscription` (participant, événement, endpoint, clés, agent, dates) ; `POST /push/subscribe` et `/push/unsubscribe` (CSRF, authentifiés par la session créateur/invité) ; clé publique VAPID exposée ; abonnements purgés avec l'événement et au retrait du participant ; endpoints expirés (404/410) supprimés |
+| 27.2 | Envoi asynchrone | Dépendance `pywebpush` (pyproject + requirements) ; tâche RQ `send_push` sans contexte Flask ; clés VAPID lues de l'environnement ; sans clés ou sans Redis : dégradation silencieuse et journalisée, jamais d'erreur utilisateur |
+| 27.3 | Déclencheurs | Nouveau message de chat (aux autres participants), nouveau sondage (à tous), nouvelle demande de remboursement (au participant du foyer destinataire) ; jamais à l'auteur ; regroupement des messages de chat rapprochés (même `tag`) ; contenu tronqué ; lien profond vers la bonne page |
+| 27.4 | Service worker | Gestionnaires `push` et `notificationclick` (focalise un onglet ouvert ou ouvre la page), `notificationclose` ; icône/badge ; i18n FR/EN du texte |
+| 27.5 | Préférences | Par participant et par événement : chat / sondages / remboursements activables séparément ; option « aperçu du message » ; coupure totale en un geste |
+| 27.6 | Parcours d'activation | Invite contextuelle (jamais au chargement) dans le menu « Événement » et après un premier geste utile ; états : non supporté, refusé, accordé, installé/non installé ; sur iOS, consigne « Ajouter à l'écran d'accueil » (permission possible seulement en PWA installée) |
+| 27.7 | Vie privée | Mise à jour de la modale de confidentialité (les push transitent par le service du navigateur) ; ADR ; abonnement révocable ; aucune donnée personnelle dans le payload au-delà du texte affiché |
+| 27.8 | Tests | Abonnement/désabonnement, droits, déclencheurs, exclusion de l'auteur, purge des endpoints expirés (envoi simulé) ; garde UI de l'invite |
+
+## B028 — Clôture : qualité, accessibilité, PWA & mise en production
+
+**Statut** : ⬜ · **Réf.** F19, F20, F24, §6 de l'audit
+
+| # | Tâche | Critère d'acceptation |
+|---|-------|----------------------|
+| 28.1 | Suppression du CSS historique | `main.css` supprimé ; aucune règle orpheline |
+| 28.2 | Accessibilité | Contraste, étiquettes, focus, navigation clavier, pièges de focus des feuilles ; vérifiés clair et sombre |
+| 28.3 | Honnêteté freemium | Plus d'appel à l'action factice ; état « bientôt » explicite ou masqué (F19) |
+| 28.4 | PWA | Manifest, icônes, page hors ligne, 500 |
+| 28.5 | Performance | Poids de page, images, pas de requêtes inutiles (chat) |
+| 28.6 | Recette | Parcours complets créateur/invité en FR et EN à 360/390/820/1280 px ; documentation (README, CHANGELOG, DEV_LOG) ; merge en `main` |
