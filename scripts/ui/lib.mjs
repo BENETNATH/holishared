@@ -102,7 +102,7 @@ export function loadScenes(file = path.join(UI_DIR, 'scenes.json'), { selfTest =
     if (selfTest && !Array.isArray(s.expectFail)) throw new ToolError(`${where} : expectFail obligatoire`);
     if (!selfTest && (s.expectFail || s.forceLang)) throw new ToolError(`${where} : expectFail/forceLang réservés à l'auto-contrôle`);
     for (const a of s.actions ?? []) {
-      if (!['click', 'press', 'scroll', 'wait', 'waitFor', 'reload', 'navigate', 'offline', 'assert'].includes(a.type)) {
+      if (!['click', 'press', 'scroll', 'wait', 'waitFor', 'reload', 'navigate', 'offline', 'assert', 'drag'].includes(a.type)) {
         throw new ToolError(`${where} : action inconnue ${a.type}`);
       }
       if (a.type === 'wait' && !(a.ms <= 2000)) throw new ToolError(`${where} : wait > 2000 ms`);
@@ -345,6 +345,32 @@ export async function runActions(cdp, page, actions) {
       await s('Input.dispatchMouseEvent', { type: 'mousePressed', x, y, button: 'left', clickCount: 1 });
       await s('Input.dispatchMouseEvent', { type: 'mouseReleased', x, y, button: 'left', clickCount: 1 });
       await evaluate(cdp, page.sessionId, settleAfter(250), 5000);
+    } else if (a.type === 'drag') {
+      // Glisser réel à la souris (CDP) : de `from` (index `fromIndex`) vers `to` (index `toIndex`).
+      // L'id du repas saisi est gardé dans sessionStorage.__dragMealId pour les assertions après rechargement.
+      const point = (sel, index, scroll) => evaluate(cdp, page.sessionId, `(() => { const els = document.querySelectorAll(${JSON.stringify(sel)}); const el = els[${index ?? 0}]; if (!el) return null; if (${scroll}) el.scrollIntoView({ block: 'center', inline: 'center' }); const b = el.getBoundingClientRect(); const card = el.closest('[data-meal-id]'); if (card) sessionStorage.setItem('__dragMealId', card.dataset.mealId); return { x: b.left + b.width / 2, y: b.top + b.height / 2, inView: b.top >= 0 && b.bottom <= innerHeight }; })()`, 5000);
+      const from = await point(a.from, a.fromIndex, true);
+      if (!from.ok || !from.value) {
+        page.failures.push(`drag : source introuvable ${a.from}`);
+        return;
+      }
+      await s('Input.dispatchMouseEvent', { type: 'mouseMoved', x: from.value.x, y: from.value.y });
+      await s('Input.dispatchMouseEvent', { type: 'mousePressed', x: from.value.x, y: from.value.y, button: 'left', clickCount: 1 });
+      const to = await point(a.to, a.toIndex, false);
+      if (!to.ok || !to.value || !to.value.inView) {
+        await s('Input.dispatchMouseEvent', { type: 'mouseReleased', x: from.value.x, y: from.value.y, button: 'left', clickCount: 1 });
+        page.failures.push(`drag : cible introuvable ou hors écran ${a.to}`);
+        return;
+      }
+      const steps = 10;
+      for (let i = 1; i <= steps; i++) {
+        const x = from.value.x + ((to.value.x - from.value.x) * i) / steps;
+        const y = from.value.y + ((to.value.y - from.value.y) * i) / steps;
+        await s('Input.dispatchMouseEvent', { type: 'mouseMoved', x, y, button: 'left', buttons: 1 });
+        await sleep(16);
+      }
+      await s('Input.dispatchMouseEvent', { type: 'mouseReleased', x: to.value.x, y: to.value.y, button: 'left', clickCount: 1 });
+      await evaluate(cdp, page.sessionId, settleAfter(400), 5000);
     } else if (a.type === 'press') {
       const code = KEYS[a.key];
       if (!code) throw new ToolError(`touche non prise en charge ${a.key}`);

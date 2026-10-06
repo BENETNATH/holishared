@@ -181,7 +181,164 @@
         "nav": "event"
       },
       "langs": [
+        "fr",
+        "en"
+      ]
+    },
+    {
+      "lot": "B022",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/meals",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "id": "meals-sheet",
+      "actions": [
+        {
+          "type": "click",
+          "target": "[data-meal-day]:not(.hidden) [data-meal-open]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=meal-sheet]').open",
+          "message": "la feuille du repas est ouverte"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=meal-sheet]').contains(document.activeElement)",
+          "message": "le focus est dans la feuille"
+        },
+        {
+          "type": "assert",
+          "expr": "!!document.querySelector('[data-testid=meal-move-form]') && !!document.querySelector('[data-testid=meal-swap-form]')",
+          "message": "déplacer et échanger sont proposés"
+        }
+      ]
+    },
+    {
+      "lot": "B022",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/meals",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "id": "meals-add-sheet",
+      "actions": [
+        {
+          "type": "click",
+          "target": "[data-meal-day]:not(.hidden) [data-testid=meal-add]:not([disabled])"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=meal-add-sheet]').open",
+          "message": "la feuille d'ajout est ouverte"
+        },
+        {
+          "type": "assert",
+          "expr": "document.activeElement && document.activeElement.id === 'meal-add-title'",
+          "message": "le champ nom a le focus"
+        }
+      ]
+    },
+    {
+      "lot": "B022",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/meals",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
         "fr"
+      ],
+      "id": "meals-day-tabs",
+      "viewports": [
+        360,
+        390,
+        820
+      ],
+      "actions": [
+        {
+          "type": "click",
+          "target": "[data-meal-day-tab]:nth-child(4)"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelectorAll('[data-meal-day-tab]')[3].getAttribute('aria-pressed') === 'true'",
+          "message": "le 4e jour est sélectionné"
+        },
+        {
+          "type": "assert",
+          "expr": "[...document.querySelectorAll('[data-meal-day]')].filter(s => s.getBoundingClientRect().height > 0).length === 1",
+          "message": "un seul jour est visible sur mobile"
+        }
+      ]
+    },
+    {
+      "lot": "B022",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/meals",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ],
+      "id": "meals-drag",
+      "viewports": [
+        1280
+      ],
+      "themes": [
+        "light"
+      ],
+      "note": "glisser réel à la souris ; un autre lot ne doit pas dépendre de l'état laissé",
+      "actions": [
+        {
+          "type": "drag",
+          "from": "[data-meal-handle]",
+          "fromIndex": 0,
+          "to": "[data-testid=meal-cell][data-slot=lunch] [data-testid=meal-add]",
+          "toIndex": 1
+        },
+        {
+          "type": "waitFor",
+          "expr": "!!document.querySelectorAll('[data-testid=meal-cell][data-slot=lunch]')[1].querySelector('[data-meal-id=\"' + sessionStorage.getItem('__dragMealId') + '\"]')",
+          "message": "la carte glissée est dans la case cible"
+        },
+        {
+          "type": "assert",
+          "expr": "!!document.querySelectorAll('[data-testid=meal-cell][data-slot=lunch]')[1].querySelector('[data-meal-id=\"' + sessionStorage.getItem('__dragMealId') + '\"]')",
+          "message": "la carte a changé de case"
+        },
+        {
+          "type": "assert",
+          "expr": "(c => c.length > 1 && c[c.length - 1].dataset.mealId === sessionStorage.getItem('__dragMealId'))(document.querySelectorAll('[data-testid=meal-cell][data-slot=lunch]')[1].querySelectorAll('[data-testid=meal-card]'))",
+          "message": "déposée sous les repas de la case : ajoutée à la fin"
+        },
+        {
+          "type": "reload"
+        },
+        {
+          "type": "assert",
+          "expr": "!!document.querySelectorAll('[data-testid=meal-cell][data-slot=lunch]')[1].querySelector('[data-meal-id=\"' + sessionStorage.getItem('__dragMealId') + '\"]')",
+          "message": "la carte reste dans la case après rechargement"
+        },
+        {
+          "type": "assert",
+          "expr": "(c => c.length > 1 && c[c.length - 1].dataset.mealId === sessionStorage.getItem('__dragMealId'))(document.querySelectorAll('[data-testid=meal-cell][data-slot=lunch]')[1].querySelectorAll('[data-testid=meal-card]'))",
+          "message": "l'ordre persiste après rechargement"
+        }
       ]
     },
     {

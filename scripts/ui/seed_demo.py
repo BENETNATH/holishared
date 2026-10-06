@@ -98,7 +98,7 @@ def _populate_rich(db: Any, models: Any, rich: Any, creator_guest: Any) -> dict[
             )
         )
 
-    meal_titles = ("Raclette", "Pique-nique", "Pâtes au pesto")
+    meal_titles = ("Raclette", "Pique-nique", "Spaghetti pesto")
     index = 0
     for offset in range(-1, 5):
         slots = ["lunch", "dinner"] if offset % 2 == 0 else ["dinner"]
@@ -108,10 +108,22 @@ def _populate_rich(db: Any, models: Any, rich: Any, creator_guest: Any) -> dict[
                     title=meal_titles[index % 3],
                     date=today + timedelta(days=offset),
                     slot=slot,
+                    created_by=antoine.id,
                     event_id=rich.id,
                 )
             )
             index += 1
+    # Plusieurs repas dans une même case (B022) : aujourd'hui, midi.
+    db.session.add(
+        m.Meal(
+            title="Salade de fruits",
+            date=today,
+            slot="lunch",
+            position=1,
+            created_by=antoine.id,
+            event_id=rich.id,
+        )
+    )
 
     shopping = m.SharedList(title="Courses", list_type="shopping", event_id=rich.id)
     db.session.add(shopping)

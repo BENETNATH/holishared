@@ -545,3 +545,30 @@ class TestGridRender:
 
         assert " disabled" in add_button("2026-12-03", "lunch")
         assert " disabled" not in add_button("2026-12-03", "dinner")
+
+
+class TestGridDays:
+    def test_one_day_tab_and_section_per_day_with_selected_pressed(self, creator_client, event):
+        html = creator_client.get(f"/e/{event.code}/meals").get_data(as_text=True)
+        assert html.count('data-testid="meal-day-tab"') == 7
+        assert html.count("data-meal-day=") == 7
+        # Hors période, le premier jour est sélectionné.
+        assert 'data-selected-day="2026-12-01"' in html
+        assert 'data-meal-day-tab="2026-12-01"\n            aria-pressed="true"' in html
+
+    def test_today_is_selected_and_marked_current(self, creator_client, event, db):
+        event.start_date = date.today()
+        event.end_date = date.today()
+        db.session.commit()
+        html = creator_client.get(f"/e/{event.code}/meals").get_data(as_text=True)
+        assert f'data-selected-day="{date.today().isoformat()}"' in html
+        assert html.count('aria-current="date"') == 1
+
+    def test_cell_has_accessible_label_with_day_slot_and_count(self, creator_client, event, cell3):
+        html = creator_client.get(f"/e/{event.code}/meals").get_data(as_text=True)
+        assert 'aria-label="jeudi 3 décembre, midi, 3 repas"' in html
+        assert 'aria-label="jeudi 3 décembre, soir, Aucun repas"' in html
+
+    def test_en_labels_are_translated(self, creator_client, event, cell3):
+        html = creator_client.get(f"/e/{event.code}/meals?lang=en").get_data(as_text=True)
+        assert 'aria-label="Thursday 3 December, lunch, 3 meals"' in html
