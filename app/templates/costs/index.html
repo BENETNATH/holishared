@@ -179,7 +179,7 @@
         <span class="avatar-pill gc-avatar">{{ hh.name[:1]|upper }}</span>
         <span class="gc-name">{{ hh.name }}</span>
         {% if is_creator %}
-        <button class="gc-delete" onclick="return confirm('{{ _('Supprimer ce foyer ?') }}')"
+        <button class="gc-delete" data-confirm="{{ _('Supprimer ce foyer ?') }}"
                 formmethod="POST" type="submit"
                 form="{{ 'costs-household-%s' % hh.id }}" aria-label="{{ _('Supprimer') }}">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
@@ -239,7 +239,7 @@
       </div>
       <div class="expense-amount">{{ "%.2f"|format(exp.amount) }}<span class="exp-cur"> €</span></div>
       {% if is_creator %}
-      <button class="expense-del" onclick="return confirm('{{ _("Supprimer cette dépense ?") }}')"
+      <button class="expense-del" data-confirm="{{ _('Supprimer cette dépense ?') }}"
               formmethod="POST" type="submit"
               form="expdel-{{ exp.id }}" aria-label="{{ _('Supprimer') }}">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
@@ -303,7 +303,7 @@
       <span class="tf-arrow">{{ t.from_household.name }} <span class="arrow">→</span> {{ t.to_household.name }}</span>
       <span class="tf-amount">{{ "%.2f"|format(t.amount) }}<span class="cur"> €</span></span>
       {% if is_creator %}
-      <button class="tfr-del" onclick="return confirm('{{ _("Supprimer ce transfert ?") }}')"
+      <button class="tfr-del" data-confirm="{{ _('Supprimer ce transfert ?') }}"
               formmethod="POST" type="submit" form="tfr-{{ t.id }}" aria-label="{{ _('Supprimer') }}">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
       </button>
@@ -359,7 +359,7 @@
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       </form>
       {% if is_creator %}
-      <button class="pr-del" onclick="return confirm('{{ _("Supprimer cette demande ?") }}')"
+      <button class="pr-del" data-confirm="{{ _('Supprimer cette demande ?') }}"
               formmethod="POST" type="submit" form="prdel-{{ pr.id }}" aria-label="{{ _('Supprimer') }}">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
       </button>

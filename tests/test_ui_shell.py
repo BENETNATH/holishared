@@ -383,8 +383,22 @@ def test_shell_msgids_have_english_translation():
     assert [m for m in shell_msgids if not translated(m)] == []
 
 
+def test_templates_contain_no_native_confirm_call():
+    offenders = [
+        str(p)
+        for p in (REPO / "app/templates").rglob("*.html")
+        if "confirm(" in p.read_text(encoding="utf-8")
+    ]
+    assert offenders == []
 
 
+def test_templates_contain_no_direct_clipboard_api():
+    offenders = [
+        str(p)
+        for p in (REPO / "app/templates").rglob("*.html")
+        if "navigator.clipboard" in p.read_text(encoding="utf-8")
+    ]
+    assert offenders == []
 
 
 def test_ui_strings_json_is_translated_in_english(client):
