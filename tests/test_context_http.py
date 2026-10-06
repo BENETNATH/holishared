@@ -164,3 +164,19 @@ def test_planning_edit_other_guest_renders_403_template(db, guest_client, event,
     db.session.commit()
     resp = guest_client.post(f"/e/{event.code}/planning/{activity.id}/delete")
     assert b'data-testid="error-403"' in resp.data
+
+
+def test_meals_edit_other_guest_403(db, guest_client, event, other_guest_c):
+    from app.models import Meal
+
+    meal = Meal(
+        title="Pasta",
+        date=date(2026, 12, 2),
+        slot="lunch",
+        event_id=event.id,
+        created_by=other_guest_c.id,
+    )
+    db.session.add(meal)
+    db.session.commit()
+    resp = guest_client.post(f"/e/{event.code}/meals/{meal.id}/edit", data={"title": "Hacked"})
+    assert resp.status_code == 403

@@ -9,60 +9,18 @@ from flask import (
     redirect,
     render_template,
     request,
-    session,
     url_for,
 )
 from flask_babel import _
-from flask_login import current_user
 from werkzeug.wrappers import Response
 
+from app.context import load_event_context, log_event
 from app.extensions import db, limiter
-from app.models import Event, Guest, Meal
-from app.utils import log_action
+from app.models import Meal
 
 meals_bp = Blueprint("meals", __name__)
 
 SLOTS = frozenset({"lunch", "dinner"})
-
-
-def _get_event_or_404(code: str) -> Event:
-    """Load an active event by code or abort with 404."""
-    event: Event | None = Event.query.filter_by(code=code, is_active=True).first()
-    if event is None:
-        abort(404)
-    return event
-
-
-def _resolve_actor(event: Event, code: str) -> tuple[Guest | None, bool, Response | None]:
-    """Resolve the current actor for an event.
-
-    Returns (guest, is_creator, denied). ``denied`` is a redirect to the
-    mycode page when neither the creator nor a guest session matches.
-    """
-    if current_user.is_authenticated and current_user.id == event.creator_id:
-        return None, True, None
-    guest_id = session.get(f"guest_{code}")
-    if guest_id:
-        guest = Guest.query.filter_by(id=guest_id, event_id=event.id, is_active=True).first()
-        if guest is not None:
-            return guest, False, None
-    return None, False, redirect(url_for("events.my_code", code=code))
-
-
-def _can_modify(event: Event, meal: Meal, guest: Guest | None) -> bool:
-    """Event creator or meal creator may modify/delete/move."""
-    if current_user.is_authenticated and current_user.id == event.creator_id:
-        return True
-    return guest is not None and meal.created_by == guest.id
-
-
-def _actor_name(guest: Guest | None, is_creator: bool) -> tuple[str, str]:
-    """(actor_name, actor_type) for ActivityLog entries."""
-    if is_creator:
-        return (current_user.display_name or "Créateur"), "creator"
-    if guest is not None:
-        return guest.display_name, "guest"
-    return "Système", "system"
 
 
 def _parse_date(value: str) -> date | None:
@@ -77,10 +35,8 @@ def _parse_date(value: str) -> date | None:
 @meals_bp.route("/e/<code>/meals")
 def index(code: str) -> Response | str:
     """Show the meal grid for the event."""
-    event = _get_event_or_404(code)
-    guest, _, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
+    ctx = load_event_context(code)
+    event = ctx.event
 
     meals = (
         Meal.query.filter_by(event_id=event.id)
@@ -90,16 +46,11 @@ def index(code: str) -> Response | str:
     # One meal per (date, slot) cell.
     by_cell: dict[tuple[date, str], Meal] = {(m.date, m.slot): m for m in meals}
 
-    def can_modify(meal: Meal) -> bool:
-        return _can_modify(event, meal, guest)
-
     return render_template(
         "meals/index.html",
         event=event,
         meals=meals,
         by_cell=by_cell,
-        guest=guest,
-        can_modify=can_modify,
         today=date.today(),
     )
 
@@ -108,10 +59,8 @@ def index(code: str) -> Response | str:
 @limiter.limit("60 per hour")
 def create(code: str) -> Response:
     """Create a meal in an empty cell."""
-    event = _get_event_or_404(code)
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
+    ctx = load_event_context(code)
+    event = ctx.event
 
     title = request.form.get("title", "").strip()
     meal_date = _parse_date(request.form.get("date", ""))
@@ -139,12 +88,11 @@ def create(code: str) -> Response:
         title=title,
         date=meal_date,
         slot=slot,
-        created_by=guest.id if guest is not None else None,
+        created_by=ctx.participant.id if ctx.participant else None,
         event_id=event.id,
     )
     db.session.add(meal)
-    actor_name, actor_type = _actor_name(guest, is_creator)
-    log_action(db.session, event.id, actor_name, actor_type, "meal.created", target=title)
+    log_event(ctx, "meal.created", target=title)
     db.session.commit()
 
     flash(_("Repas ajouté."))
@@ -154,16 +102,12 @@ def create(code: str) -> Response:
 @meals_bp.route("/e/<code>/meals/<meal_id>/edit", methods=["POST"])
 def edit(code: str, meal_id: str) -> Response:
     """Edit a meal's title."""
-    event = _get_event_or_404(code)
-    meal = Meal.query.filter_by(id=meal_id, event_id=event.id).first()
+    ctx = load_event_context(code)
+    meal = Meal.query.filter_by(id=meal_id, event_id=ctx.event.id).first()
     if meal is None:
         abort(404)
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
-    if not _can_modify(event, meal, guest):
-        flash(_("Pas autorisé."))
-        return redirect(url_for("meals.index", code=code))
+    if not ctx.can_edit(meal):
+        abort(403)
 
     title = request.form.get("title", "").strip()
     if len(title) < 2:
@@ -174,8 +118,7 @@ def edit(code: str, meal_id: str) -> Response:
         return redirect(url_for("meals.index", code=code))
 
     meal.title = title
-    actor_name, actor_type = _actor_name(guest, is_creator)
-    log_action(db.session, event.id, actor_name, actor_type, "meal.updated", target=title)
+    log_event(ctx, "meal.updated", target=title)
     db.session.commit()
 
     flash(_("Repas modifié."))
@@ -185,21 +128,16 @@ def edit(code: str, meal_id: str) -> Response:
 @meals_bp.route("/e/<code>/meals/<meal_id>/delete", methods=["POST"])
 def delete(code: str, meal_id: str) -> Response:
     """Delete a meal."""
-    event = _get_event_or_404(code)
-    meal = Meal.query.filter_by(id=meal_id, event_id=event.id).first()
+    ctx = load_event_context(code)
+    meal = Meal.query.filter_by(id=meal_id, event_id=ctx.event.id).first()
     if meal is None:
         abort(404)
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
-    if not _can_modify(event, meal, guest):
-        flash(_("Pas autorisé."))
-        return redirect(url_for("meals.index", code=code))
+    if not ctx.can_delete(meal):
+        abort(403)
 
     title = meal.title
     db.session.delete(meal)
-    actor_name, actor_type = _actor_name(guest, is_creator)
-    log_action(db.session, event.id, actor_name, actor_type, "meal.deleted", target=title)
+    log_event(ctx, "meal.deleted", target=title)
     db.session.commit()
 
     flash(_("Repas supprimé."))
@@ -209,18 +147,15 @@ def delete(code: str, meal_id: str) -> Response:
 @meals_bp.route("/e/<code>/meals/move", methods=["POST"])
 def move(code: str) -> Response:
     """Move a meal to a target cell; swap if the target cell is occupied."""
-    event = _get_event_or_404(code)
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
+    ctx = load_event_context(code)
+    event = ctx.event
 
     meal_id = request.form.get("meal_id", "")
     meal = Meal.query.filter_by(id=meal_id, event_id=event.id).first()
     if meal is None:
         abort(404)
-    if not _can_modify(event, meal, guest):
-        flash(_("Pas autorisé."))
-        return redirect(url_for("meals.index", code=code))
+    if not ctx.can_edit(meal):
+        abort(403)
 
     target_date = _parse_date(request.form.get("date", ""))
     target_slot = request.form.get("slot", "")
@@ -251,8 +186,7 @@ def move(code: str) -> Response:
         meal.date = target_date
         meal.slot = target_slot
 
-    actor_name, actor_type = _actor_name(guest, is_creator)
-    log_action(db.session, event.id, actor_name, actor_type, "meal.moved", target=meal.title)
+    log_event(ctx, "meal.moved", target=meal.title)
     db.session.commit()
 
     return redirect(url_for("meals.index", code=code))

@@ -27,7 +27,7 @@
         <div class="meal-cell" data-date="{{ day.isoformat() }}" data-slot="{{ slot }}"
              data-header="{{ day | format_date('EEEE d MMM') }} — {{ _('Midi') if slot == 'lunch' else _('Soir') }}">
           {% if meal %}
-          <div class="meal-card" draggable="{{ 'true' if can_modify(meal) else 'false' }}"
+          <div class="meal-card" draggable="{{ 'true' if ctx.can_edit(meal) else 'false' }}"
                data-meal-id="{{ meal.id }}" data-title="{{ meal.title }}"
                data-edit-url="{{ url_for('meals.edit', code=event.code, meal_id=meal.id) }}"
                data-delete-url="{{ url_for('meals.delete', code=event.code, meal_id=meal.id) }}">
