@@ -39,8 +39,8 @@
   <h2>{{ _("Partager l'événement") }}</h2>
   <div class="url-row">
     <label for="invite-url" class="sr-only">{{ _("Lien d'invitation") }}</label>
-    <input type="text" id="invite-url" value="{{ invite_url }}" readonly onclick="this.select()">
-    <button class="btn btn-secondary" onclick="navigator.clipboard.writeText('{{ invite_url }}')">{{ _("Copier") }}</button>
+    <input type="text" id="invite-url" value="{{ invite_url }}" readonly>
+    <button type="button" class="btn btn-secondary" data-copy-target="#invite-url">{{ _("Copier") }}</button>
   </div>
 
   <div class="invite-qr">

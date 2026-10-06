@@ -29,9 +29,9 @@
 {% if guest %}
 <div class="code-box">
   <span class="code-label">{{ _("Ton code personnel") }} :</span>
-  <code class="guest-code" data-code="{{ guest.code }}" aria-label="{{ _('Code personnel') }}">{{ guest.code }}</code>
-  <button type="button" class="btn btn-small reveal-code" data-hide-label="{{ _('Masquer') }}">{{ _("Voir") }}</button>
-  <button type="button" class="btn btn-small copy-code" data-code="{{ guest.code }}">{{ _("Copier") }}</button>
+  <code class="guest-code" id="guest-code-{{ guest.id }}" data-secret data-masked="true" aria-label="{{ _('Code personnel') }}">{{ guest.code }}</code>
+  <button type="button" class="btn btn-small" data-reveal aria-controls="guest-code-{{ guest.id }}" aria-pressed="false"><span data-reveal-label>{{ _("Voir") }}</span></button>
+  <button type="button" class="btn btn-small" data-copy="{{ guest.code }}">{{ _("Copier") }}</button>
 </div>
 {% endif %}
 
@@ -44,9 +44,8 @@
   {% if is_creator %}
   <a href="{{ url_for('events.invite', code=event.code) }}" class="btn btn-secondary quick-action">✉ {{ _("Inviter") }}</a>
   {% endif %}
-  <button type="button" class="btn btn-secondary quick-action" id="share-btn"
-          data-url="{{ request.host_url }}{{ url_for('events.dashboard', code=event.code) }}"
-          data-copied="{{ _('Lien copié !') }}">🔗 {{ _("Partager") }}</button>
+  <button type="button" class="btn btn-secondary quick-action"
+          data-copy="{{ request.host_url.rstrip('/') }}{{ url_for('events.dashboard', code=event.code) }}">🔗 {{ _("Partager") }}</button>
 </div>
 
 {# Scannable status cards: label + count + one-tap navigation #}
@@ -230,7 +229,7 @@
       📦 {{ _("Télécharger l'archive complète (ZIP)") }}
     </a>
     <form method="POST" action="{{ url_for('events.delete_event', code=event.code) }}" class="mgmt-delete-form"
-          onsubmit="return confirm('{{ _("Supprimer définitivement cet événement et toutes ses données ?") }}')">
+          data-confirm="{{ _('Supprimer définitivement cet événement et toutes ses données ?') }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <button type="submit" class="btn btn-danger mgmt-danger-btn">
         🗑️ {{ _("Supprimer définitivement l'événement et toutes ses données") }}
@@ -239,34 +238,4 @@
   </div>
 </section>
 {% endif %}
-{% endblock %}
-{% block scripts %}
-<script>
-    // Share button: copy the event link, confirm inline (no page reload)
-    (function() {
-        var btn = document.getElementById('share-btn');
-        if (!btn) return;
-        btn.addEventListener('click', function() {
-            var url = btn.getAttribute('data-url');
-            var copied = btn.getAttribute('data-copied');
-            var original = btn.innerHTML;
-            function done(ok) {
-                btn.innerHTML = ok ? '✓ ' + copied : '✕';
-                setTimeout(function() { btn.innerHTML = original; }, 2000);
-            }
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(url).then(function() { done(true); }, function() { done(false); });
-            } else {
-                var ta = document.createElement('textarea');
-                ta.value = url;
-                document.body.appendChild(ta);
-                ta.select();
-                var ok = false;
-                try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
-                document.body.removeChild(ta);
-                done(ok);
-            }
-        });
-    })();
-</script>
 {% endblock %}

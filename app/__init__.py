@@ -288,8 +288,18 @@ def create_app() -> Flask:
                 current_guest = _Guest.query.filter_by(
                     id=guest_id, event_id=current_event.id, is_active=True
                 ).first()
+        # Role of the visitor inside the current event (shell navigation contract)
+        event_role = None
+        if current_event is not None:
+            from flask_login import current_user as _current_user
+
+            if _current_user.is_authenticated and _current_user.id == current_event.creator_id:
+                event_role = "creator"
+            elif current_guest is not None:
+                event_role = "guest"
         return {
             "app_name": "holishared",
+            "event_role": event_role,
             "enabled_modules": app.config["ENABLED_MODULES"],
             "current_lang": loc.language if loc else None,
             "current_event": current_event,

@@ -46,12 +46,11 @@
                 {% if g.email and not is_creator_guest %}<span class="member-email">{{ g.email }}</span>{% endif %}
             </div>
             <div class="member-code">
-                {% if is_creator_guest %}<span class="muted">—</span>{% else %}
-                <code class="guest-code" data-code="{{ g.code }}">{{ g.code }}</code>
-                {% if is_creator %}
-                <button type="button" class="btn btn-small btn-ghost reveal-code" data-hide-label="{{ _('Masquer') }}">{{ _("Voir") }}</button>
+                {% if is_creator_guest %}<span class="muted">—</span>{% elif is_creator %}
+                <code class="guest-code" id="guest-code-{{ g.id }}" data-secret data-masked="true">{{ g.code }}</code>
+                <button type="button" class="btn btn-small btn-ghost" data-reveal aria-controls="guest-code-{{ g.id }}" aria-pressed="false"><span data-reveal-label>{{ _("Voir") }}</span></button>
+                <button type="button" class="btn btn-small btn-ghost" data-copy="{{ g.code }}">{{ _("Copier") }}</button>
                 {% endif %}
-                <button type="button" class="btn btn-small btn-ghost copy-code" data-code="{{ g.code }}">{{ _("Copier") }}</button>{% endif %}
             </div>
             {% if is_creator and not is_creator_guest %}
             <form method="POST" class="member-remove">
@@ -59,7 +58,7 @@
                 <input type="hidden" name="action" value="remove">
                 <input type="hidden" name="guest_id" value="{{ g.id }}">
                 <button type="submit" class="btn btn-small btn-danger"
-                        onclick="return confirm('{{ _("Retirer") }} {{ g.display_name }} ?')">{{ _("Retirer") }}</button>
+                        data-confirm="{{ _('Retirer %(name)s ?', name=g.display_name) }}">{{ _("Retirer") }}</button>
             </form>
             {% endif %}
         </div>

@@ -88,3 +88,49 @@ def guest(db, event):
     db.session.add(g)
     db.session.commit()
     return g
+
+
+@pytest.fixture
+def creator_client(client, creator):
+    """Test client logged in as the creator (B017)."""
+    with client.session_transaction() as s:
+        s["_user_id"] = creator.id
+        s["_fresh"] = True
+    return client
+
+
+@pytest.fixture
+def guest_client(client, event, guest):
+    """Test client identified as the guest of the event (B017)."""
+    with client.session_transaction() as s:
+        s[f"guest_{event.code}"] = guest.id
+    return client
+
+
+@pytest.fixture
+def app_factory(monkeypatch):
+    """Build apps from a custom environment (B017).
+
+    ``build(env)`` sets ``DATABASE_URL=sqlite:///:memory:`` plus ``env``, calls
+    ``create_app()``, pushes an app context and creates the tables.
+    """
+    contexts = []
+
+    def build(env: dict[str, str]):
+        monkeypatch.setattr("app.load_dotenv", lambda *args, **kwargs: True)
+        monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
+        for key, value in env.items():
+            monkeypatch.setenv(key, value)
+        application = create_app()
+        application.config["TESTING"] = True
+        application.config["WTF_CSRF_ENABLED"] = False
+        ctx = application.app_context()
+        ctx.push()
+        contexts.append(ctx)
+        _db.create_all()
+        return application
+
+    yield build
+    for ctx in reversed(contexts):
+        _db.drop_all()
+        ctx.pop()

@@ -68,8 +68,8 @@ def test_nav_hides_disabled_modules(gated_app):
     c, e = _seed(gated_app)
     client = _client(gated_app, c)
     html = client.get(f"/e/{e.code}").data.decode()
-    # Event nav is now in the main header (.nav-links)
-    nav = re.search(r'<ul class="nav-links">.*?</ul>', html, re.S).group(0)
+    # Navigation bureau : data-testid="nav-desktop"
+    nav = re.search(r'<nav[^>]*data-testid="nav-desktop".*?</nav>', html, re.S).group(0)
     assert "Media" not in nav
     assert "Frais" not in nav
     assert "Planning" in nav
