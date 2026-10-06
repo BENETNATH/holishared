@@ -16,7 +16,7 @@ load_dotenv(BASE_DIR / ".env", override=False)
 
 
 def create_app() -> Flask:
-    app = Flask(__name__)
+    app = Flask(__name__, instance_path=os.environ.get("INSTANCE_PATH") or None)
 
     # Core config
     secret_key = os.environ.get("SECRET_KEY", "")
@@ -133,6 +133,9 @@ def create_app() -> Flask:
     from app.models import Event as _Event
 
     def _purge_expired_events() -> None:
+        from app.migrations import prune_backups
+
+        prune_backups(app.instance_path)
         now = datetime.utcnow()
         # 1. Ended events: 30 days after end_date
         cutoff_ended = date.today() - timedelta(days=30)
@@ -159,9 +162,13 @@ def create_app() -> Flask:
     with app.app_context():
         try:
             _purge_expired_events()
+            if not os.environ.get("SKIP_STARTUP_MIGRATION"):
+                from app.migrations import run_identity_migration
+
+                run_identity_migration(app)
         except Exception:
             import logging
-            logging.getLogger(__name__).exception("Auto-purge failed (continuing)")
+            logging.getLogger(__name__).exception("Auto-purge/migration failed (continuing)")
 
     # Language selector. A ?lang= switch is persisted in the session so the
     # preference survives navigation; otherwise fall back to the browser

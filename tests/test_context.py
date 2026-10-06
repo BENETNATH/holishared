@@ -93,7 +93,7 @@ def test_load_context_guest_of_other_event_redirects_mycode(app, db, event, crea
         start_date=date(2026, 12, 1),
         end_date=date(2026, 12, 2),
         creator_id=creator.id,
-        verified_at=datetime(2026, 1, 1),  # noqa: DTZ001
+        verified_at=datetime.utcnow(),
     )
     db.session.add(other)
     db.session.commit()

@@ -311,7 +311,7 @@ class TestEditLogistics:
             start_date=date(2026, 12, 1),
             end_date=date(2026, 12, 2),
             creator_id=creator.id,
-            verified_at=datetime(2026, 1, 1),  # noqa: DTZ001
+            verified_at=datetime.utcnow(),
         )
         db.session.add(other)
         db.session.commit()

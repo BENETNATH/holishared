@@ -414,8 +414,17 @@ with app.app_context():
         print("[OK] creators.email made nullable (table rebuilt)")
     else:
         print("[skip] creators.email already nullable")
+    from app.migrations import prune_backups, run_identity_migration
+    print('[OK] identity', run_identity_migration(app))
+    print('[OK] backups pruned', prune_backups(app.instance_path))
     print("[OK] Migrations applied")
 """])
+
+
+def cmd_check_identity():
+    """Read-only check of participant identity consistency."""
+    load_env()
+    sys.exit(run([str(venv_python()), "-m", "app.migrations", "check"]))
 
 
 def cmd_deploy():
@@ -507,6 +516,7 @@ COMMANDS = {
     "status": (cmd_status, "Show server status"),
     "db-init": (cmd_db_init, "Create database tables"),
     "migrate": (cmd_migrate, "Apply schema migrations to existing DB"),
+    "check-identity": (cmd_check_identity, "Check participant identity consistency"),
     "db-shell": (cmd_db_shell, "Open SQLite shell"),
     "deploy": (cmd_deploy, "Deploy nginx + systemd"),
     "logs": (cmd_logs, "Tail server logs"),
