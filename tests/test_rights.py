@@ -31,6 +31,11 @@ _AUTHOR_COLUMN = {
     ListItem: ("assigned_to_id", "created_by"),
     ChatMessage: "guest_id",
     MediaItem: "uploaded_by",
+    # B024 : droits des frais par auteur / propriétaire
+    Household: "guest_id",
+    Expense: "created_by",
+    Transfer: "created_by",
+    PaymentRequest: ("created_by",),
 }
 
 # (type, créateur, auteur, autre invité, visiteur)
@@ -43,10 +48,10 @@ EDIT = [
     (Poll, True, False, False, False),
     (ChatMessage, False, False, False, False),
     (MediaItem, False, False, False, False),
-    (Household, True, True, True, False),
-    (Expense, False, False, False, False),
+    (Household, True, True, False, False),
+    (Expense, True, True, False, False),
     (Transfer, False, False, False, False),
-    (PaymentRequest, True, True, True, False),
+    (PaymentRequest, True, True, False, False),
     (Guest, True, False, False, False),
     (Event, True, False, False, False),
 ]
@@ -60,9 +65,9 @@ DELETE = [
     (ChatMessage, True, True, False, False),
     (MediaItem, True, True, False, False),
     (Household, True, False, False, False),
-    (Expense, True, False, False, False),
-    (Transfer, True, False, False, False),
-    (PaymentRequest, True, False, False, False),
+    (Expense, True, True, False, False),
+    (Transfer, True, True, False, False),
+    (PaymentRequest, True, True, False, False),
     (Guest, True, False, False, False),
     (Event, True, False, False, False),
 ]
@@ -85,6 +90,8 @@ def _obj(cls: type) -> object:
     column = _AUTHOR_COLUMN.get(cls)
     for name in (column,) if isinstance(column, str) else (column or ()):
         setattr(obj, name, AUTHOR_ID)
+    if cls is PaymentRequest:  # le destinataire règle la demande
+        obj.to_household = Household(guest_id=AUTHOR_ID)
     return obj
 
 

@@ -61,7 +61,8 @@ _AUTHOR = "author"
 _ANY = "participant"
 _NEVER = "never"
 
-# type -> (règle d'édition, règle de suppression, colonne d'auteur ou (colonne d'édition, colonne de suppression))
+# type -> (règle d'édition, règle de suppression, colonne d'auteur ou (colonne d'édition, colonne de suppression)).
+# Une colonne peut être un chemin pointé ("paid_by.guest_id") ou plusieurs alternatives séparées par "|".
 _RIGHTS: dict[type, tuple[str, str, str | tuple[str, str] | None]] = {
     Activity: (_AUTHOR, _AUTHOR, "created_by"),
     Meal: (_AUTHOR, _AUTHOR, "created_by"),
@@ -72,10 +73,12 @@ _RIGHTS: dict[type, tuple[str, str, str | tuple[str, str] | None]] = {
     Poll: (_CREATOR, _CREATOR, None),
     ChatMessage: (_NEVER, _AUTHOR, "guest_id"),
     MediaItem: (_NEVER, _AUTHOR, "uploaded_by"),
-    Household: (_ANY, _CREATOR, None),
-    Expense: (_NEVER, _CREATOR, None),
-    Transfer: (_NEVER, _CREATOR, None),
-    PaymentRequest: (_ANY, _CREATOR, None),
+    # B024 : foyer modifié par son propriétaire ; dépense par son auteur ou le propriétaire du foyer payeur ;
+    # transfert supprimé par son auteur ; demande réglée par le destinataire, supprimée par son auteur.
+    Household: (_AUTHOR, _CREATOR, "guest_id"),
+    Expense: (_AUTHOR, _AUTHOR, "created_by|paid_by.guest_id"),
+    Transfer: (_NEVER, _AUTHOR, "created_by"),
+    PaymentRequest: (_AUTHOR, _AUTHOR, ("to_household.guest_id", "created_by")),
     Guest: (_CREATOR, _CREATOR, None),
     Event: (_CREATOR, _CREATOR, None),
 }
@@ -96,6 +99,16 @@ class EventContext:
     @property
     def actor(self) -> Actor:
         return actor_for(self.participant)
+
+    def owns(self, obj: object, spec: str) -> bool:
+        """Vrai si le participant est l'un des auteurs désignés par ``spec`` (chemins pointés, "|")."""
+        for path in spec.split("|"):
+            value: object = obj
+            for part in path.split("."):
+                value = getattr(value, part, None)
+            if isinstance(value, str) and self.is_author(value):
+                return True
+        return False
 
     def is_author(self, author_id: str | None) -> bool:
         return (
@@ -119,7 +132,7 @@ class EventContext:
             column = rights[2] or ""
             if isinstance(column, tuple):
                 column = column[index]
-            ok = self.is_creator or self.is_author(getattr(obj, column))
+            ok = self.is_creator or self.owns(obj, column)
         else:
             ok = False
         if ok and index == 1 and isinstance(obj, Guest):
