@@ -484,7 +484,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 | 23.2 | Cocher en un geste | Un article se coche sans « Je m'occupe » préalable ; l'attribution est facultative |
 | 23.3 | Mises à jour sans rechargement | HTMX sur cocher, attribuer, ajouter, supprimer ; position de défilement conservée ; pas de clavier automatique au chargement |
 | 23.4 | Identité d'attribution | Basée sur l'identifiant (plus le nom d'affichage) |
-| 23.6 | Articles rattachés | `ListItem.meal_id`/`activity_id` ; affichage de la source avec lien retour, regroupement/filtre par source ; fin des pastilles de repas et du volet d'activités (F34) ; `covered_meals`/`covered_activities` migrés (contrat §11.5) |
+| 23.6 | Articles rattachés (facultatif) | Les listes restent libres : rattachement optionnel article par article, listes sans source inchangées (aucun regroupement ni filtre affiché) ; `ListItem.meal_id`/`activity_id` ; affichage de la source avec lien retour, regroupement/filtre par source ; fin des pastilles de repas et du volet d'activités (F34) ; `covered_meals`/`covered_activities` migrés (contrat §11.5) |
 | 23.5 | Suppression | Chacun supprime ses propres articles (avec annulation) ; suppression de liste dépriorisée |
 
 ## B024 — Frais
