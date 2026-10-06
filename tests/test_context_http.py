@@ -266,7 +266,9 @@ def test_planning_page_selects_events_table_once(app, db, creator_client, event,
     assert len(selects) == 1, selects
 
 
-def test_identity_chip_creator_shows_event_participant_name(db, creator_client, event, creator_guest):
+def test_identity_chip_creator_shows_event_participant_name(
+    db, creator_client, event, creator_guest
+):
     creator_guest.display_name = "Chef de camp"
     db.session.commit()
     html = creator_client.get(f"/e/{event.code}/planning").data.decode()

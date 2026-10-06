@@ -213,9 +213,7 @@ def test_add_item_assigned_unique_name_sets_guest_id(guest_client, event, guest,
     assert ListItem.query.filter_by(name="Vin").first().assigned_to_id == guest.id
 
 
-def test_add_item_assigned_ambiguous_name_keeps_none(
-    db, guest_client, event, guest, shared_list
-):
+def test_add_item_assigned_ambiguous_name_keeps_none(db, guest_client, event, guest, shared_list):
     db.session.add(Guest(code="twin0001", display_name="Test Guest", event_id=event.id))
     db.session.commit()
     _add_item(guest_client, event, shared_list, "Test Guest")
@@ -247,9 +245,7 @@ def test_vote_creator_creates_no_household(creator_client, db, event):
     assert Household.query.filter_by(event_id=event.id).count() == 0
 
 
-def test_chat_other_guest_cannot_delete_creator_message_403(
-    db, guest_client, event, creator_guest
-):
+def test_chat_other_guest_cannot_delete_creator_message_403(db, guest_client, event, creator_guest):
     message = ChatMessage(
         content="hi",
         author_name="Test Creator",
@@ -271,7 +267,12 @@ def test_chat_send_creator_guest_id_is_creator_guest(creator_client, event, crea
 
 
 def _expense_payload(household):
-    return {"description": "Loyer", "amount": "10", "household_id": household.id, "date": "2026-12-01"}
+    return {
+        "description": "Loyer",
+        "amount": "10",
+        "household_id": household.id,
+        "date": "2026-12-01",
+    }
 
 
 def _household(db, event):
@@ -284,7 +285,9 @@ def _household(db, event):
 def test_costs_creator_log_uses_display_name(creator_client, db, event):
     from app.models import ActivityLog
 
-    creator_client.post(f"/e/{event.code}/costs/expenses/new", data=_expense_payload(_household(db, event)))
+    creator_client.post(
+        f"/e/{event.code}/costs/expenses/new", data=_expense_payload(_household(db, event))
+    )
     log = ActivityLog.query.filter_by(event_id=event.id, action="expense.created").first()
     assert log.actor_name == "Test Creator"
 
@@ -294,7 +297,9 @@ def test_costs_creator_with_guest_session_logs_creator(creator_client, db, event
 
     with creator_client.session_transaction() as sess:
         sess[f"guest_{event.code}"] = guest.id
-    creator_client.post(f"/e/{event.code}/costs/expenses/new", data=_expense_payload(_household(db, event)))
+    creator_client.post(
+        f"/e/{event.code}/costs/expenses/new", data=_expense_payload(_household(db, event))
+    )
     log = ActivityLog.query.filter_by(event_id=event.id, action="expense.created").first()
     assert log.actor_type == "creator"
 

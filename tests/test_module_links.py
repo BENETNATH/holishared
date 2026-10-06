@@ -77,7 +77,9 @@ def test_dashboard_lists_disabled_with_assigned_item_renders_200(app_factory):
     db.session.add(shared)
     db.session.flush()
     db.session.add(
-        ListItem(name="Pain", assigned_to="Camille", assigned_to_id=participant.id, list_id=shared.id)
+        ListItem(
+            name="Pain", assigned_to="Camille", assigned_to_id=participant.id, list_id=shared.id
+        )
     )
     db.session.commit()
     assert client.get(f"/e/{event.code}").status_code == 200
