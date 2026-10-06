@@ -879,11 +879,13 @@ main.container {
 }
 
 .mgmt-export {
-  white-space: nowrap;
+  white-space: normal;
+  text-align: center;
 }
 
 .mgmt-danger-btn {
-  white-space: nowrap;
+  white-space: normal;
+  text-align: center;
 }
 
 /* ---------- Masked guest codes ---------- */
@@ -4551,6 +4553,7 @@ tfoot td {
 /* --- Lists: meals as a horizontal chip strip (mobile-first) --- */
 .meal-chips {
   margin-bottom: var(--sp-4);
+  min-width: 0;
 }
 
 .meal-chips-head {
@@ -4573,6 +4576,7 @@ tfoot td {
 }
 
 .meal-chips-row {
+  max-width: 100%;
   display: flex;
   gap: var(--sp-2);
   overflow-x: auto;
@@ -4591,6 +4595,7 @@ tfoot td {
 }
 
 .meal-chip {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
