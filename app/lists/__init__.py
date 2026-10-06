@@ -9,51 +9,16 @@ from flask import (
     redirect,
     render_template,
     request,
-    session,
     url_for,
 )
 from flask_babel import _
-from flask_login import current_user
 from werkzeug.wrappers import Response
 
+from app.context import load_event_context, log_event
 from app.extensions import db, limiter
 from app.models import Activity, Event, Guest, ListItem, Meal, SharedList
-from app.utils import log_action
 
 lists_bp = Blueprint("lists", __name__)
-
-
-def _get_event_or_404(code: str) -> Event:
-    """Load an active event by code or abort with 404."""
-    event: Event | None = Event.query.filter_by(code=code, is_active=True).first()
-    if event is None:
-        abort(404)
-    return event
-
-
-def _resolve_actor(event: Event, code: str) -> tuple[Guest | None, bool, Response | None]:
-    """Resolve the current actor for an event.
-
-    Returns (guest, is_creator, denied). ``denied`` is a redirect to the
-    mycode page when neither the creator nor a guest session matches.
-    """
-    if current_user.is_authenticated and current_user.id == event.creator_id:
-        return None, True, None
-    guest_id = session.get(f"guest_{code}")
-    if guest_id:
-        guest = Guest.query.filter_by(id=guest_id, event_id=event.id, is_active=True).first()
-        if guest is not None:
-            return guest, False, None
-    return None, False, redirect(url_for("events.my_code", code=code))
-
-
-def _actor_name(guest: Guest | None, is_creator: bool) -> tuple[str, str]:
-    """(actor_name, actor_type) for ActivityLog entries."""
-    if is_creator:
-        return (current_user.display_name or "Créateur"), "creator"
-    if guest is not None:
-        return guest.display_name, "guest"
-    return "Système", "system"
 
 
 def _get_list_or_404(event: Event, list_id: str) -> SharedList:
@@ -79,10 +44,8 @@ def _list_items(shared_list: SharedList) -> list[ListItem]:
 @lists_bp.route("/e/<code>/lists", methods=["GET", "POST"])
 def index(code: str) -> Response | tuple[str, int] | str:
     """List the event's shared lists + inline creation."""
-    event = _get_event_or_404(code)
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
+    ctx = load_event_context(code)
+    event = ctx.event
 
     lists = (
         SharedList.query.filter_by(event_id=event.id)
@@ -101,8 +64,7 @@ def index(code: str) -> Response | tuple[str, int] | str:
         if not errors:
             shared_list = SharedList(title=form_title, event_id=event.id)
             db.session.add(shared_list)
-            actor_name, actor_type = _actor_name(guest, is_creator)
-            log_action(db.session, event.id, actor_name, actor_type, "list.created", target=form_title)
+            log_event(ctx, "list.created", target=form_title)
             db.session.commit()
             flash(_("Liste créée."))
             return redirect(url_for("lists.index", code=code))
@@ -111,7 +73,6 @@ def index(code: str) -> Response | tuple[str, int] | str:
         "lists/index.html",
         event=event,
         lists=lists,
-        guest=guest,
         errors=errors,
         form_title=form_title,
     )
@@ -151,11 +112,9 @@ def _list_side_panels(event: Event, shared_list: SharedList) -> dict[str, Any]:
 @lists_bp.route("/e/<code>/lists/<list_id>")
 def detail(code: str, list_id: str) -> Response | tuple[str, int] | str:
     """Show a shared list with its items + meal plan side panel."""
-    event = _get_event_or_404(code)
+    ctx = load_event_context(code)
+    event = ctx.event
     shared_list = _get_list_or_404(event, list_id)
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
 
     panels = _list_side_panels(event, shared_list)
     return render_template(
@@ -163,8 +122,6 @@ def detail(code: str, list_id: str) -> Response | tuple[str, int] | str:
         event=event,
         shared_list=shared_list,
         items=_list_items(shared_list),
-        guest=guest,
-        is_creator=is_creator,
         errors=[],
         form_data={},
         **panels,
@@ -175,11 +132,9 @@ def detail(code: str, list_id: str) -> Response | tuple[str, int] | str:
 @limiter.limit("20 per hour")
 def add_item(code: str, list_id: str) -> Response | tuple[str, int] | str:
     """Add an item to a shared list."""
-    event = _get_event_or_404(code)
+    ctx = load_event_context(code)
+    event = ctx.event
     shared_list = _get_list_or_404(event, list_id)
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
 
     name = request.form.get("name", "").strip()
     quantity = request.form.get("quantity", "").strip() or "1"
@@ -205,8 +160,6 @@ def add_item(code: str, list_id: str) -> Response | tuple[str, int] | str:
             event=event,
             shared_list=shared_list,
             items=_list_items(shared_list),
-            guest=guest,
-            is_creator=is_creator,
             errors=errors,
             form_data={
                 "name": name,
@@ -217,24 +170,23 @@ def add_item(code: str, list_id: str) -> Response | tuple[str, int] | str:
             **panels,
         )
 
+    assigned_to_id = None
+    if assigned_to:
+        matches = Guest.query.filter_by(
+            event_id=event.id, is_active=True, display_name=assigned_to
+        ).all()
+        if len(matches) == 1:
+            assigned_to_id = matches[0].id
     item = ListItem(
         name=name,
         quantity=quantity,
         section=section,
         assigned_to=assigned_to,
+        assigned_to_id=assigned_to_id,
         list_id=shared_list.id,
     )
     db.session.add(item)
-    actor_name, actor_type = _actor_name(guest, is_creator)
-    log_action(
-        db.session,
-        event.id,
-        actor_name,
-        actor_type,
-        "list_item.created",
-        target=name,
-        details=shared_list.title,
-    )
+    log_event(ctx, "list_item.created", target=name, details=shared_list.title)
     db.session.commit()
 
     flash(_("Article ajouté."))
@@ -244,24 +196,13 @@ def add_item(code: str, list_id: str) -> Response | tuple[str, int] | str:
 @lists_bp.route("/e/<code>/lists/<list_id>/items/<item_id>/toggle", methods=["POST"])
 def toggle_item(code: str, list_id: str, item_id: str) -> Response | tuple[str, int] | str:
     """Toggle an item's is_done flag."""
-    event = _get_event_or_404(code)
+    ctx = load_event_context(code)
+    event = ctx.event
     shared_list = _get_list_or_404(event, list_id)
     item = _get_item_or_404(shared_list, item_id)
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
 
     item.is_done = not item.is_done
-    actor_name, actor_type = _actor_name(guest, is_creator)
-    log_action(
-        db.session,
-        event.id,
-        actor_name,
-        actor_type,
-        "list_item.toggled",
-        target=item.name,
-        details="done" if item.is_done else "undone",
-    )
+    log_event(ctx, "list_item.toggled", target=item.name, details="done" if item.is_done else "undone")
     db.session.commit()
 
     return redirect(url_for("lists.detail", code=code, list_id=shared_list.id))
@@ -270,25 +211,14 @@ def toggle_item(code: str, list_id: str, item_id: str) -> Response | tuple[str, 
 @lists_bp.route("/e/<code>/lists/<list_id>/items/<item_id>/delete", methods=["POST"])
 def delete_item(code: str, list_id: str, item_id: str) -> Response | tuple[str, int] | str:
     """Delete an item from a shared list."""
-    event = _get_event_or_404(code)
+    ctx = load_event_context(code)
+    event = ctx.event
     shared_list = _get_list_or_404(event, list_id)
     item = _get_item_or_404(shared_list, item_id)
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
 
     name = item.name
     db.session.delete(item)
-    actor_name, actor_type = _actor_name(guest, is_creator)
-    log_action(
-        db.session,
-        event.id,
-        actor_name,
-        actor_type,
-        "list_item.deleted",
-        target=name,
-        details=shared_list.title,
-    )
+    log_event(ctx, "list_item.deleted", target=name, details=shared_list.title)
     db.session.commit()
 
     flash(_("Article supprimé."))
@@ -298,21 +228,14 @@ def delete_item(code: str, list_id: str, item_id: str) -> Response | tuple[str, 
 @lists_bp.route("/e/<code>/lists/<list_id>/items/<item_id>/claim", methods=["POST"])
 def claim_item(code: str, list_id: str, item_id: str) -> Response | tuple[str, int] | str:
     """Self-assign an item to the current actor (to-do list)."""
-    event = _get_event_or_404(code)
+    ctx = load_event_context(code)
+    event = ctx.event
     shared_list = _get_list_or_404(event, list_id)
     item = _get_item_or_404(shared_list, item_id)
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
 
-    actor_name, actor_type = _actor_name(guest, is_creator)
-    actor_id = guest.id if guest else (current_user.id if is_creator else "")
-    item.assigned_to = actor_name
-    item.assigned_to_id = actor_id
-    log_action(
-        db.session, event.id, actor_name, actor_type,
-        "list_item.claimed", target=item.name, details=shared_list.title,
-    )
+    item.assigned_to = ctx.actor.name
+    item.assigned_to_id = ctx.participant.id if ctx.participant else None
+    log_event(ctx, "list_item.claimed", target=item.name, details=shared_list.title)
     db.session.commit()
 
     flash(_("Vous vous êtes attribué cet article."))
@@ -322,24 +245,17 @@ def claim_item(code: str, list_id: str, item_id: str) -> Response | tuple[str, i
 @lists_bp.route("/e/<code>/lists/<list_id>/items/<item_id>/unclaim", methods=["POST"])
 def unclaim_item(code: str, list_id: str, item_id: str) -> Response | tuple[str, int] | str:
     """Release a self-assigned item (assignee or creator only)."""
-    event = _get_event_or_404(code)
+    ctx = load_event_context(code)
+    event = ctx.event
     shared_list = _get_list_or_404(event, list_id)
     item = _get_item_or_404(shared_list, item_id)
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
 
-    actor_name, actor_type = _actor_name(guest, is_creator)
-    actor_id = guest.id if guest else (current_user.id if is_creator else "")
-    if not is_creator and item.assigned_to_id != actor_id:
-        return _("Pas autorisé."), 403
+    if not ctx.can_edit(item):
+        abort(403)
 
     item.assigned_to = ""
     item.assigned_to_id = None
-    log_action(
-        db.session, event.id, actor_name, actor_type,
-        "list_item.unclaimed", target=item.name, details=shared_list.title,
-    )
+    log_event(ctx, "list_item.unclaimed", target=item.name, details=shared_list.title)
     db.session.commit()
 
     flash(_("Article libéré."))
@@ -349,18 +265,15 @@ def unclaim_item(code: str, list_id: str, item_id: str) -> Response | tuple[str,
 @lists_bp.route("/e/<code>/lists/<list_id>/delete", methods=["POST"])
 def delete_list(code: str, list_id: str) -> Response | tuple[str, int] | str:
     """Delete a shared list (creator only, items cascade)."""
-    event = _get_event_or_404(code)
+    ctx = load_event_context(code)
+    event = ctx.event
     shared_list = _get_list_or_404(event, list_id)
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
-    if not is_creator:
-        return _("Pas autorisé."), 403
+    if not ctx.can_delete(shared_list):
+        abort(403)
 
     title = shared_list.title
     db.session.delete(shared_list)
-    actor_name, actor_type = _actor_name(guest, is_creator)
-    log_action(db.session, event.id, actor_name, actor_type, "list.deleted", target=title)
+    log_event(ctx, "list.deleted", target=title)
     db.session.commit()
 
     flash(_("Liste supprimée."))
@@ -370,11 +283,9 @@ def delete_list(code: str, list_id: str) -> Response | tuple[str, int] | str:
 @lists_bp.route("/e/<code>/lists/<list_id>/meals/<meal_id>/toggle", methods=["POST"])
 def toggle_meal(code: str, list_id: str, meal_id: str) -> Response:
     """Toggle a meal as covered by this list."""
-    event = _get_event_or_404(code)
+    ctx = load_event_context(code)
+    event = ctx.event
     shared_list = _get_list_or_404(event, list_id)
-    _guest, _is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
 
     covered = shared_list.covered_meals or []
     if meal_id in covered:
@@ -389,11 +300,9 @@ def toggle_meal(code: str, list_id: str, meal_id: str) -> Response:
 @lists_bp.route("/e/<code>/lists/<list_id>/activities/<activity_id>/toggle", methods=["POST"])
 def toggle_activity(code: str, list_id: str, activity_id: str) -> Response:
     """Toggle an activity as covered by this list."""
-    event = _get_event_or_404(code)
+    ctx = load_event_context(code)
+    event = ctx.event
     shared_list = _get_list_or_404(event, list_id)
-    _guest, _is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
 
     covered = shared_list.covered_activities or []
     if activity_id in covered:

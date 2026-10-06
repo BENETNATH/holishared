@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% block title %}{{ shared_list.title }} — {{ event.title }}{% endblock %}
 {% block content %}
-{% set actor_name = guest.display_name if guest else (current_user.display_name or "Créateur") %}
 <p class="back-link"><a href="{{ url_for('lists.index', code=event.code) }}">&larr; {{ _("Listes") }}</a></p>
 
 <div class="page-head">
@@ -67,7 +66,7 @@
 
     <ul class="items items-compact" aria-label="{{ _('Articles de la liste') }}">
       {% for item in items %}
-      <li class="item-row{% if item.is_done %} done{% endif %}{% if item.assigned_to == actor_name %} mine{% endif %}">
+      <li class="item-row{% if item.is_done %} done{% endif %}{% if item.assigned_to_id == ctx.participant.id %} mine{% endif %}">
         {% if not item.assigned_to %}
           <span class="item-status item-status-open" aria-hidden="true">○</span>
           <span class="item-name">{{ item.name }}</span>
@@ -77,7 +76,7 @@
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="btn btn-small btn-primary btn-claim">{{ _("Je m'occupe") }}</button>
           </form>
-        {% elif item.assigned_to == actor_name %}
+        {% elif item.assigned_to_id == ctx.participant.id %}
           <form method="post" action="{{ url_for('lists.toggle_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}" class="item-toggle-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="is_done" value="{{ '0' if item.is_done else '1' }}">
@@ -101,7 +100,7 @@
           {% if item.section %}<span class="item-section">{{ item.section }}</span>{% endif %}
           <span class="assigned">{{ item.assigned_to }}</span>
         {% endif %}
-        {% if is_creator %}
+        {% if ctx.is_creator %}
         <form method="post" action="{{ url_for('lists.delete_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}" class="item-delete-form">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button type="submit" class="icon-btn icon-btn-danger" title="{{ _('Supprimer') }}">×</button>
@@ -113,7 +112,7 @@
       {% endfor %}
     </ul>
 
-    {% if is_creator %}
+    {% if ctx.is_creator %}
     <div class="danger-zone">
       <form method="post" action="{{ url_for('lists.delete_list', code=event.code, list_id=shared_list.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

@@ -180,3 +180,11 @@ def test_meals_edit_other_guest_403(db, guest_client, event, other_guest_c):
     db.session.commit()
     resp = guest_client.post(f"/e/{event.code}/meals/{meal.id}/edit", data={"title": "Hacked"})
     assert resp.status_code == 403
+
+
+def test_lists_claim_missing_item_anonymous_redirects_mycode(client, db, event):
+    shared = SharedList(title="L", event_id=event.id)
+    db.session.add(shared)
+    db.session.commit()
+    resp = client.post(f"/e/{event.code}/lists/{shared.id}/items/missing/claim")
+    assert "/mycode" in _location(resp)

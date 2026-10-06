@@ -159,3 +159,67 @@ def test_planning_index_shows_rsvp_form_to_creator(
 ):
     resp = creator_client.get(f"/e/{event.code}/planning")
     assert f"/planning/{planned_activity.id}/rsvp".encode() in resp.data
+
+
+# --- HTTP : listes (identité par identifiant) ---------------------------------------
+
+
+@pytest.fixture
+def shared_list(db, event):
+    shared = SharedList(title="Courses", event_id=event.id)
+    db.session.add(shared)
+    db.session.commit()
+    return shared
+
+
+@pytest.fixture
+def open_item(db, shared_list):
+    item = ListItem(name="Pain", list_id=shared_list.id)
+    db.session.add(item)
+    db.session.commit()
+    return item
+
+
+def _item_url(event, shared_list, item, action):
+    return f"/e/{event.code}/lists/{shared_list.id}/items/{item.id}/{action}"
+
+
+def test_list_claim_creator_sets_creator_guest_id(
+    creator_client, event, creator_guest, shared_list, open_item
+):
+    creator_client.post(_item_url(event, shared_list, open_item, "claim"))
+    assert open_item.assigned_to_id == creator_guest.id
+
+
+def test_list_detail_same_name_without_id_not_mine(guest_client, db, event, guest, shared_list):
+    item = ListItem(name="Pain", assigned_to="Test Guest", list_id=shared_list.id)
+    db.session.add(item)
+    db.session.commit()
+    resp = guest_client.get(f"/e/{event.code}/lists/{shared_list.id}")
+    assert _item_url(event, shared_list, item, "unclaim").encode() not in resp.data
+
+
+def _add_item(client, event, shared_list, assigned_to):
+    return client.post(
+        f"/e/{event.code}/lists/{shared_list.id}/items",
+        data={"name": "Vin", "assigned_to": assigned_to},
+    )
+
+
+def test_add_item_assigned_unique_name_sets_guest_id(guest_client, event, guest, shared_list):
+    _add_item(guest_client, event, shared_list, "Test Guest")
+    assert ListItem.query.filter_by(name="Vin").first().assigned_to_id == guest.id
+
+
+def test_add_item_assigned_ambiguous_name_keeps_none(
+    db, guest_client, event, guest, shared_list
+):
+    db.session.add(Guest(code="twin0001", display_name="Test Guest", event_id=event.id))
+    db.session.commit()
+    _add_item(guest_client, event, shared_list, "Test Guest")
+    assert ListItem.query.filter_by(name="Vin").first().assigned_to_id is None
+
+
+def test_list_delete_item_guest_allowed(guest_client, event, shared_list, open_item):
+    resp = guest_client.post(_item_url(event, shared_list, open_item, "delete"))
+    assert (resp.status_code, ListItem.query.filter_by(id=open_item.id).first()) == (302, None)

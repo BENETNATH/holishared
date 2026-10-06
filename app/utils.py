@@ -68,7 +68,10 @@ def ensure_creator_guest(
         db.session.add(guest)
     db.session.flush()
 
-    if with_household and Household.query.filter_by(guest_id=guest.id, event_id=event.id).first() is None:
+    if (
+        with_household
+        and Household.query.filter_by(guest_id=guest.id, event_id=event.id).first() is None
+    ):
         db.session.add(
             Household(
                 name=f"Foyer {guest.display_name}",
