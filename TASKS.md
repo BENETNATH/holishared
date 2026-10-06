@@ -459,7 +459,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 | 21.2 | Carte d'activité | RSVP intégré (Oui / Peut-être / Non), décompte, seuil `min_headcount` atteint ou non, `bring_items` affiché |
 | 21.3 | Ajout/édition | Feuille d'ajout rapide + formulaire avancé en sections ; pas de doublon liste/RSVP |
 | 21.4 | Créateur participant | Le créateur peut répondre (F10) |
-| 21.5 | Besoins d'activité | Feuille « Besoins » rattachée à l'activité (contrat §11.5) : articles créés dans la liste « Matériel », statut dérivé affiché ; `bring_items` migré en articles ; programme du jour unifié avec les repas en lecture seule |
+| 21.5 | Statut de couverture & programme unifié | Chaque activité affiche « pas encore dans une liste » ou « pris en compte dans : <listes> » (liens), `bring_items` affiché sur la carte (F10), programme du jour/semaine avec les repas en lecture seule (contrat §11.5) |
 
 ## B022 — Repas
 
@@ -471,7 +471,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 | 22.2 | Déplacer | Action « Déplacer vers… » (jour + créneau) + glisser-déposer tactile et souris + clavier ; déposer sur une case occupée **ajoute** le repas à la case (plusieurs repas par créneau) ; réordonnancement dans la case ; l'ancien échange (swap) reste disponible comme action explicite « Échanger avec… » |
 | 22.3 | Cellules | « + » visible sur les cases vides, statut « courses » par repas, lien vers la liste de courses |
 | 22.4 | Backend | Échange sans créneau temporaire `tmp` ; réponses JSON/HTMX sans rechargement complet |
-| 22.6 | Besoins de repas | Feuille « Besoins » rattachée au repas (contrat §11.5) : articles créés dans la liste « Courses », statut dérivé (à lister / n sur m pris / tout pris) sur la carte, le tableau de bord et la liste ; interrupteur manuel `listed` repris de `covered_meals` |
+| 22.6 | Statut de couverture | Chaque repas affiche « pas encore dans une liste » ou « pris en compte dans : <listes> » (liens vers les listes), sur la grille, le tableau de bord et la feuille du repas ; identifiants de repas stables lors des déplacements (contrat §11.5) |
 | 22.5 | Plusieurs repas par créneau | Suppression de la contrainte d'unicité `(event, date, slot)` avec migration SQLite (reconstruction de table, données préservées, idempotente) ; colonne d'ordre dans la case ; cellule = pile de cartes + « Ajouter un repas » ; tableau de bord, chips de courses, journal, export ZIP et `covered_meals` gèrent n repas par créneau ; limite raisonnable (6 par créneau) |
 
 ## B023 — Listes
@@ -484,7 +484,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 | 23.2 | Cocher en un geste | Un article se coche sans « Je m'occupe » préalable ; l'attribution est facultative |
 | 23.3 | Mises à jour sans rechargement | HTMX sur cocher, attribuer, ajouter, supprimer ; position de défilement conservée ; pas de clavier automatique au chargement |
 | 23.4 | Identité d'attribution | Basée sur l'identifiant (plus le nom d'affichage) |
-| 23.6 | Articles rattachés (facultatif) | Les listes restent libres : rattachement optionnel article par article, listes sans source inchangées (aucun regroupement ni filtre affiché) ; `ListItem.meal_id`/`activity_id` ; affichage de la source avec lien retour, regroupement/filtre par source ; fin des pastilles de repas et du volet d'activités (F34) ; `covered_meals`/`covered_activities` migrés (contrat §11.5) |
+| 23.6 | Panneau « Repas & activités » | Dans chaque liste, bouton avec compteur ouvrant un panneau à côté de la liste (colonne repliable sur bureau, feuille en bas sur mobile) : repas et activités par jour, libellés complets, case « pris en compte » en HTMX sans rechargement, filtre « masquer les pris en compte », bascule Repas/Activités/Tout ; jamais imposé aux listes libres ; couverture dans `covered_meals`/`covered_activities` ; purge des identifiants orphelins à la suppression d'un repas/activité + migration (contrat §11.5) |
 | 23.5 | Suppression | Chacun supprime ses propres articles (avec annulation) ; suppression de liste dépriorisée |
 
 ## B024 — Frais
