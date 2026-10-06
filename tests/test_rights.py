@@ -359,3 +359,29 @@ def test_list_claim_item_assigned_to_other_guest_creator_may_reassign(
     db.session.commit()
     creator_client.post(_item_url(event, shared_list, item, "claim"))
     assert item.assigned_to_id == creator_guest.id
+
+
+def test_members_page_hides_other_guest_email_from_guest(
+    guest_client, db, event, guest, other_guest_c
+):
+    other_guest_c.email = "x@ex.org"
+    db.session.commit()
+    resp = guest_client.get(f"/e/{event.code}/members")
+    assert b"x@ex.org" not in resp.data
+
+
+def test_members_page_shows_own_email_to_guest_and_all_to_creator(
+    creator_client, guest_client, db, event, guest, other_guest_c
+):
+    guest.email = "me@ex.org"
+    other_guest_c.email = "x@ex.org"
+    db.session.commit()
+    own = guest_client.get(f"/e/{event.code}/members")
+    assert b"me@ex.org" in own.data
+    with guest_client.session_transaction() as s:
+        s.pop(f"guest_{event.code}", None)
+    with creator_client.session_transaction() as s:
+        s["_user_id"] = event.creator_id
+        s["_fresh"] = True
+    resp = creator_client.get(f"/e/{event.code}/members")
+    assert b"x@ex.org" in resp.data
