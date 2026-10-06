@@ -1,0 +1,207 @@
+{
+  "defaults": {
+    "viewports": [
+      360,
+      390,
+      820,
+      1280
+    ],
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "langs": [
+      "fr"
+    ],
+    "scope": "shell"
+  },
+  "scenes": [
+    {
+      "id": "selftest-pass",
+      "lot": "B017",
+      "role": "anonymous",
+      "path": "/_ui",
+      "scope": "page",
+      "expect": {
+        "nav": "global"
+      },
+      "viewports": [
+        390
+      ],
+      "themes": [
+        "light"
+      ],
+      "langs": [
+        "fr"
+      ],
+      "expectFail": [],
+      "skip": [
+        "primary"
+      ],
+      "note": "catalogue : chaque variante est montrée"
+    },
+    {
+      "id": "selftest-assert-false",
+      "lot": "B017",
+      "role": "anonymous",
+      "path": "/",
+      "scope": "shell",
+      "expect": {
+        "nav": "global"
+      },
+      "viewports": [
+        390
+      ],
+      "themes": [
+        "light"
+      ],
+      "langs": [
+        "fr"
+      ],
+      "expectFail": [
+        "assert"
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "document.title === '__jamais__'",
+          "message": "faux volontaire"
+        }
+      ]
+    },
+    {
+      "id": "selftest-unresolved-promise",
+      "lot": "B017",
+      "role": "anonymous",
+      "path": "/",
+      "scope": "shell",
+      "expect": {
+        "nav": "global"
+      },
+      "viewports": [
+        390
+      ],
+      "themes": [
+        "light"
+      ],
+      "langs": [
+        "fr"
+      ],
+      "expectFail": [
+        "assert"
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "new Promise(() => {})",
+          "timeout": 500,
+          "message": "promesse jamais résolue"
+        }
+      ]
+    },
+    {
+      "id": "selftest-promise-false",
+      "lot": "B017",
+      "role": "anonymous",
+      "path": "/",
+      "scope": "shell",
+      "expect": {
+        "nav": "global"
+      },
+      "viewports": [
+        390
+      ],
+      "themes": [
+        "light"
+      ],
+      "langs": [
+        "fr"
+      ],
+      "expectFail": [
+        "assert"
+      ],
+      "actions": [
+        {
+          "type": "waitFor",
+          "expr": "Promise.resolve(false)",
+          "timeout": 500,
+          "message": "promesse résolue à faux"
+        }
+      ]
+    },
+    {
+      "id": "selftest-non-boolean",
+      "lot": "B017",
+      "role": "anonymous",
+      "path": "/",
+      "scope": "shell",
+      "expect": {
+        "nav": "global"
+      },
+      "viewports": [
+        390
+      ],
+      "themes": [
+        "light"
+      ],
+      "langs": [
+        "fr"
+      ],
+      "expectFail": [
+        "assert"
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "document.body",
+          "message": "valeur non booléenne"
+        }
+      ]
+    },
+    {
+      "id": "selftest-wrong-nav",
+      "lot": "B017",
+      "role": "anonymous",
+      "path": "/",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "viewports": [
+        390
+      ],
+      "themes": [
+        "light"
+      ],
+      "langs": [
+        "fr"
+      ],
+      "expectFail": [
+        "nav"
+      ]
+    },
+    {
+      "id": "selftest-lang-fr",
+      "lot": "B017",
+      "role": "anonymous",
+      "path": "/",
+      "scope": "shell",
+      "expect": {
+        "nav": "global"
+      },
+      "viewports": [
+        390
+      ],
+      "themes": [
+        "light"
+      ],
+      "langs": [
+        "fr"
+      ],
+      "expectFail": [
+        "lang-fr"
+      ],
+      "forceLang": "fr-content"
+    }
+  ]
+}

@@ -1,0 +1,644 @@
+{
+  "defaults": {
+    "viewports": [
+      360,
+      390,
+      820,
+      1280
+    ],
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "langs": [
+      "fr"
+    ],
+    "scope": "shell"
+  },
+  "scenes": [
+    {
+      "id": "catalog",
+      "lot": "B017",
+      "role": "anonymous",
+      "path": "/_ui",
+      "scope": "page",
+      "expect": {
+        "nav": "global"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "skip": [
+        "primary"
+      ],
+      "note": "le catalogue montre volontairement chaque variante"
+    },
+    {
+      "id": "landing",
+      "lot": "B017",
+      "role": "anonymous",
+      "path": "/",
+      "scope": "shell",
+      "expect": {
+        "nav": "global"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ]
+    },
+    {
+      "id": "admin-login",
+      "lot": "B017",
+      "role": "anonymous",
+      "path": "/admin/login",
+      "scope": "shell",
+      "expect": {
+        "nav": "global"
+      },
+      "langs": [
+        "fr"
+      ]
+    },
+    {
+      "id": "events-index",
+      "lot": "B017",
+      "role": "creator",
+      "path": "/e/",
+      "scope": "shell",
+      "expect": {
+        "nav": "global"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ]
+    },
+    {
+      "id": "join",
+      "lot": "B017",
+      "role": "anonymous",
+      "path": "/e/{event.rich}/join",
+      "scope": "shell",
+      "expect": {
+        "nav": "global"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ]
+    },
+    {
+      "id": "event-home-creator",
+      "lot": "B017",
+      "role": "creator",
+      "path": "/e/{event.rich}",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ]
+    },
+    {
+      "id": "event-home-guest",
+      "lot": "B017",
+      "role": "guest_household",
+      "path": "/e/{event.rich}",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ]
+    },
+    {
+      "id": "event-home-solo",
+      "lot": "B017",
+      "role": "guest_solo",
+      "path": "/e/{event.rich}",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ]
+    },
+    {
+      "id": "planning",
+      "lot": "B017",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/planning",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ]
+    },
+    {
+      "id": "meals",
+      "lot": "B017",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/meals",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ]
+    },
+    {
+      "id": "lists",
+      "lot": "B017",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/lists",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ]
+    },
+    {
+      "id": "list-detail",
+      "lot": "B017",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/lists/{list.rich}",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ]
+    },
+    {
+      "id": "costs",
+      "lot": "B017",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/costs",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ]
+    },
+    {
+      "id": "voting",
+      "lot": "B017",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/voting",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ]
+    },
+    {
+      "id": "logistics",
+      "lot": "B017",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/logistics",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ]
+    },
+    {
+      "id": "chat",
+      "lot": "B017",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/chat",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ]
+    },
+    {
+      "id": "media",
+      "lot": "B017",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/media",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ]
+    },
+    {
+      "id": "members",
+      "lot": "B017",
+      "role": "creator",
+      "path": "/e/{event.rich}/members",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ]
+    },
+    {
+      "id": "invite",
+      "lot": "B017",
+      "role": "creator",
+      "path": "/e/{event.rich}/invite",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ]
+    },
+    {
+      "id": "log",
+      "lot": "B017",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/log",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ]
+    },
+    {
+      "id": "event-empty",
+      "lot": "B017",
+      "role": "creator",
+      "path": "/e/{event.empty}",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ]
+    },
+    {
+      "id": "event-full",
+      "lot": "B017",
+      "role": "creator",
+      "path": "/e/{event.full}",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ]
+    },
+    {
+      "id": "event-unverified",
+      "lot": "B017",
+      "role": "anonymous",
+      "path": "/e/verify/{token.unverified}",
+      "scope": "shell",
+      "expect": {
+        "nav": "global"
+      },
+      "langs": [
+        "fr"
+      ]
+    },
+    {
+      "id": "verify-sent",
+      "lot": "B017",
+      "role": "anonymous",
+      "path": "/e/new/sent/{event.unverified}",
+      "scope": "shell",
+      "expect": {
+        "nav": "global"
+      },
+      "langs": [
+        "fr"
+      ]
+    },
+    {
+      "id": "event-past",
+      "lot": "B017",
+      "role": "creator",
+      "path": "/e/{event.past}",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ]
+    },
+    {
+      "id": "event-long-title",
+      "lot": "B017",
+      "role": "creator",
+      "path": "/e/{event.long}",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "(e => e.scrollWidth > e.clientWidth && e.getBoundingClientRect().right <= innerWidth)(document.querySelector('[data-testid=header-event-title]'))",
+          "message": "titre long tronqué par CSS dans la largeur"
+        }
+      ]
+    },
+    {
+      "id": "more-sheet",
+      "lot": "B017",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/chat",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        360,
+        390,
+        820
+      ],
+      "actions": [
+        {
+          "type": "click",
+          "target": "[data-testid=tab-more]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=more-sheet]').open",
+          "message": "la feuille Plus est ouverte"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=more-sheet]').contains(document.activeElement)",
+          "message": "le focus est dans la feuille"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=more-item-chat]').getAttribute('aria-current') === 'page'",
+          "message": "l'entrée de la page courante est marquée"
+        },
+        {
+          "type": "press",
+          "key": "Escape"
+        },
+        {
+          "type": "assert",
+          "expr": "!document.querySelector('[data-testid=more-sheet]').open",
+          "message": "Échap ferme la feuille"
+        },
+        {
+          "type": "assert",
+          "expr": "document.activeElement === document.querySelector('[data-testid=tab-more]')",
+          "message": "le focus revient au déclencheur"
+        }
+      ]
+    },
+    {
+      "id": "privacy-sheet",
+      "lot": "B017",
+      "role": "anonymous",
+      "path": "/",
+      "scope": "shell",
+      "expect": {
+        "nav": "global"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "actions": [
+        {
+          "type": "click",
+          "target": "[data-testid=footer-privacy]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=privacy-sheet]').open",
+          "message": "la feuille confidentialité est ouverte"
+        }
+      ]
+    },
+    {
+      "id": "confirm-dialog",
+      "lot": "B017",
+      "role": "anonymous",
+      "path": "/_ui",
+      "scope": "page",
+      "expect": {
+        "nav": "global"
+      },
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "skip": [
+        "primary"
+      ],
+      "note": "le catalogue montre volontairement chaque variante",
+      "actions": [
+        {
+          "type": "click",
+          "target": "[data-testid=catalog-confirm-trigger]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=confirm-dialog]')?.open",
+          "message": "le dialogue de confirmation est ouvert"
+        },
+        {
+          "type": "assert",
+          "expr": "document.activeElement === document.querySelector('[data-testid=confirm-cancel]')",
+          "message": "le focus initial est sur Annuler"
+        }
+      ]
+    },
+    {
+      "id": "sheet-toast",
+      "lot": "B017",
+      "role": "anonymous",
+      "path": "/_ui",
+      "scope": "page",
+      "expect": {
+        "nav": "global"
+      },
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "skip": [
+        "primary"
+      ],
+      "note": "le catalogue montre volontairement chaque variante",
+      "actions": [
+        {
+          "type": "click",
+          "target": "[data-testid=catalog-sheet-trigger]"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=catalog-sheet-copy]"
+        },
+        {
+          "type": "waitFor",
+          "timeout": 2000,
+          "expr": "(() => { const t = [...document.querySelectorAll('.ui-toast')].pop(); if (!t) return false; const r = t.getBoundingClientRect(); const el = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return t.contains(el); })()",
+          "message": "toast visible et au-dessus de la feuille ouverte"
+        }
+      ]
+    },
+    {
+      "id": "more-sheet-motion",
+      "lot": "B017",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/chat",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        390
+      ],
+      "themes": [
+        "light"
+      ],
+      "reducedMotion": false,
+      "actions": [
+        {
+          "type": "click",
+          "target": "[data-testid=tab-more]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=more-sheet]').open",
+          "message": "la feuille Plus est ouverte"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=more-sheet]').contains(document.activeElement)",
+          "message": "le focus est dans la feuille"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=more-item-chat]').getAttribute('aria-current') === 'page'",
+          "message": "l'entrée de la page courante est marquée"
+        },
+        {
+          "type": "press",
+          "key": "Escape"
+        },
+        {
+          "type": "assert",
+          "expr": "!document.querySelector('[data-testid=more-sheet]').open",
+          "message": "Échap ferme la feuille"
+        },
+        {
+          "type": "assert",
+          "expr": "document.activeElement === document.querySelector('[data-testid=tab-more]')",
+          "message": "le focus revient au déclencheur"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=tab-more]"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=more-item-privacy]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=privacy-sheet]').open && !document.querySelector('[data-testid=more-sheet]').open",
+          "message": "la confidentialité remplace la feuille Plus"
+        }
+      ]
+    },
+    {
+      "id": "pwa-offline",
+      "lot": "B017",
+      "role": "guest_household",
+      "path": "/e/{event.rich}",
+      "scope": "page",
+      "expect": {
+        "nav": "none"
+      },
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        390
+      ],
+      "themes": [
+        "light"
+      ],
+      "actions": [
+        {
+          "type": "waitFor",
+          "expr": "navigator.serviceWorker.ready.then(() => true)"
+        },
+        {
+          "type": "reload"
+        },
+        {
+          "type": "assert",
+          "expr": "navigator.serviceWorker.controller !== null",
+          "message": "le SW contrôle la page"
+        },
+        {
+          "type": "offline"
+        },
+        {
+          "type": "navigate",
+          "path": "/e/{event.rich}/planning"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=offline-page]') !== null",
+          "message": "page hors ligne servie"
+        }
+      ]
+    }
+  ]
+}

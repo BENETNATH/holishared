@@ -1,0 +1,319 @@
+"""Disposable demo database for the UI guard (B017, spec §9.2).
+
+Creates, OUTSIDE the repository, a SQLite database, an ``instance_path`` and
+``fixtures.json`` (signed session cookies per role, placeholders).
+
+CLI : python scripts/ui/seed_demo.py [--out DIR] [--port N]
+"""
+
+import argparse
+import json
+import os
+import secrets
+import shutil
+import sys
+import tempfile
+from datetime import date, datetime, time, timedelta
+from pathlib import Path
+from typing import Any
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_DEMO_DIR = Path(tempfile.gettempdir()) / "holishared-ui" / "demo"
+LONG_TITLE = (
+    "Réveillon de la Saint-Sylvestre chez Jean-Baptiste, Marie-Charlotte et toute la "
+    "famille Delacroix-Montgomery à Saint-Rémy-de-Provence"
+)
+
+
+def demo_env(out_dir: Path, secret_key: str, superadmin_password: str, port: int) -> dict[str, str]:
+    """Environment of the demo app (wins over the developer's ``.env``)."""
+    return {
+        "SECRET_KEY": secret_key,
+        "SUPERADMIN_EMAIL": "admin@demo.invalid",
+        "SUPERADMIN_PASSWORD": superadmin_password,
+        "DATABASE_URL": f"sqlite:///{Path(out_dir).resolve() / 'demo.db'}",
+        "ENABLED_MODULES": "planning,meals,lists,logistics,voting,media,chat,costs",
+        "MAX_GUESTS_PER_EVENT": "10",
+        "MAX_DURATION_DAYS": "30",
+        "MAX_EVENTS_PER_CREATOR": "10",
+        "SESSION_COOKIE_SECURE": "false",
+        "REDIS_URL": "",
+        "SMTP_HOST": "",
+        "SMTP_USER": "",
+        "SMTP_PASSWORD": "",
+        "DEFAULT_LANGUAGE": "fr",
+        "SUPPORTED_LANGUAGES": "fr,en",
+        "APP_URL": f"http://127.0.0.1:{port}",
+        "UI_CATALOG_ENABLED": "true",
+        "SW_ENABLED": "true",
+    }
+
+
+def _reset(out_dir: Path) -> None:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for name in ("demo.db", "demo.db-wal", "demo.db-shm", "fixtures.json"):
+        (out_dir / name).unlink(missing_ok=True)
+    shutil.rmtree(out_dir / "instance", ignore_errors=True)
+
+
+def _populate_rich(db: Any, models: Any, rich: Any, creator_guest: Any) -> dict[str, Any]:
+    """Full content of the ``rich`` event; returns the objects used later."""
+    m = models
+    today = date.today()
+    guests = {}
+    for name, code in (
+        ("Antoine", "antoine1"),
+        ("Chloé", "chloe001"),
+        ("Dimitri", "dimitri1"),
+        ("Béatrice", "beatrice"),
+    ):
+        guests[name] = m.Guest(code=code, display_name=name, event_id=rich.id)
+        db.session.add(guests[name])
+    db.session.flush()
+    antoine, chloe = guests["Antoine"], guests["Chloé"]
+    antoine_household = m.Household(
+        name="Antoine & Béa", num_adults=2, guest_id=antoine.id, event_id=rich.id
+    )
+    db.session.add(antoine_household)
+
+    for title, offset, start, extra in (
+        (
+            "Randonnée Grande Moucherolle",
+            0,
+            time(9, 0),
+            {"description": "Départ du parking de la Molière.", "location": "Corrençon-en-Vercors"},
+        ),
+        ("Piscine", 1, time(14, 30), {}),
+        ("Visite des grottes de Choranche", 2, None, {}),
+        ("Soirée jeux de société", 2, time(21, 0), {}),
+    ):
+        db.session.add(
+            m.Activity(
+                title=title,
+                date=today + timedelta(days=offset),
+                start_time=start,
+                created_by=antoine.id,
+                event_id=rich.id,
+                **extra,
+            )
+        )
+
+    meal_titles = ("Raclette", "Pique-nique", "Pâtes au pesto")
+    index = 0
+    for offset in range(-1, 5):
+        slots = ["lunch", "dinner"] if offset % 2 == 0 else ["dinner"]
+        for slot in slots:
+            db.session.add(
+                m.Meal(
+                    title=meal_titles[index % 3],
+                    date=today + timedelta(days=offset),
+                    slot=slot,
+                    event_id=rich.id,
+                )
+            )
+            index += 1
+
+    shopping = m.SharedList(title="Courses", list_type="shopping", event_id=rich.id)
+    db.session.add(shopping)
+    db.session.flush()
+    for item in (
+        {"name": "Pâtes", "quantity": "2"},
+        {"name": "Fromage à raclette"},
+        {"name": "Pain"},
+        {"name": "Vin rouge", "assigned_to": "Antoine", "assigned_to_id": antoine.id},
+        {"name": "Sel", "is_done": True},
+    ):
+        db.session.add(m.ListItem(list_id=shopping.id, **item))
+
+    poll = m.Poll(question="Quel jour pour la grande randonnée ?", event_id=rich.id)
+    db.session.add(poll)
+    db.session.flush()
+    options = []
+    for order, label in enumerate(("Mardi", "Mercredi", "Jeudi")):
+        option = m.PollOption(label=label, order=order, poll_id=poll.id)
+        db.session.add(option)
+        options.append(option)
+    db.session.flush()
+    db.session.add(m.PollVote(option_id=options[1].id, guest_id=antoine.id))
+
+    db.session.add(
+        m.LogisticsItem(
+            title="Adresse du gîte",
+            content="12 chemin des Bruyères, 38250 Villard-de-Lans",
+            category="address",
+            event_id=rich.id,
+        )
+    )
+    db.session.add(
+        m.LogisticsItem(
+            title="Code d'accès",
+            content="Boîte à clés : 4821",
+            category="access",
+            event_id=rich.id,
+        )
+    )
+
+    for content, author, guest_id, author_type in (
+        ("On part à quelle heure samedi ?", "Antoine", antoine.id, "guest"),
+        ("Vers 9 h, ça vous va ?", "Chloé", chloe.id, "guest"),
+        ("Parfait, je réserve le gîte.", "Camille", None, "creator"),
+    ):
+        db.session.add(
+            m.ChatMessage(
+                content=content,
+                author_name=author,
+                guest_id=guest_id,
+                author_type=author_type,
+                event_id=rich.id,
+            )
+        )
+
+    creator_household = m.Household.query.filter_by(
+        guest_id=creator_guest.id, event_id=rich.id
+    ).one()
+    db.session.flush()
+    for description, cents, category, household in (
+        ("Courses supermarché", 14250, "food", creator_household),
+        ("Location gîte", 84000, "lodging", antoine_household),
+    ):
+        db.session.add(
+            m.Expense(
+                description=description,
+                amount_cents=cents,
+                category=category,
+                paid_by_household_id=household.id,
+                date=today,
+                event_id=rich.id,
+            )
+        )
+    db.session.commit()
+    return {"antoine": antoine, "chloe": chloe, "list": shopping, "poll": poll}
+
+
+def seed(out_dir: Path, port: int = 8499) -> dict[str, Any]:
+    """Create the demo database and return (and write) ``fixtures.json``."""
+    out_dir = Path(out_dir).resolve()
+    if out_dir.is_relative_to(REPO_ROOT):
+        raise ValueError(f"le dossier de démo doit être hors du dépôt : {out_dir}")
+    _reset(out_dir)
+    secret_key = secrets.token_hex(32)
+    superadmin_password = secrets.token_urlsafe(16)
+    os.environ.update(demo_env(out_dir, secret_key, superadmin_password, port))
+    if str(REPO_ROOT) not in sys.path:
+        sys.path.insert(0, str(REPO_ROOT))
+
+    from app import create_app
+    from app import models as m
+    from app.extensions import db
+    from app.freemium import can_add_guest
+    from app.utils import ensure_creator_guest
+
+    app = create_app()
+    instance_path = out_dir / "instance"
+    instance_path.mkdir(parents=True, exist_ok=True)
+    app.instance_path = str(instance_path)
+
+    today = date.today()
+    now = datetime.utcnow()
+    with app.app_context():
+        creator = m.Creator(
+            email="camille@demo.invalid",
+            email_verified=True,
+            display_name="Camille",
+            personal_code="camille1",
+        )
+        db.session.add(creator)
+        db.session.commit()
+
+        specs = {
+            "rich": ("Vacances au Vercors", -1, 5, "Villard-de-Lans"),
+            "empty": ("Week-end en Bretagne", 40, 42, "Quiberon"),
+            "full": ("Anniversaire de Léa", 20, 22, "Lyon"),
+            "unverified": ("Séjour à confirmer", 60, 63, "Annecy"),
+            "past": ("Ski à Chamrousse", -20, -14, "Chamrousse"),
+            "long": (LONG_TITLE, 80, 83, "Saint-Rémy-de-Provence"),
+        }
+        events = {}
+        for key, (title, start, end, location) in specs.items():
+            unverified = key == "unverified"
+            event = m.Event(
+                title=title,
+                start_date=today + timedelta(days=start),
+                end_date=today + timedelta(days=end),
+                location=location,
+                creator_id=creator.id,
+                creator_email=creator.email,
+                verified_at=None if unverified else now,
+                verification_token=secrets.token_hex(32) if unverified else None,
+            )
+            if key == "rich":
+                event.description = "Une semaine entre amis dans le Vercors."
+            db.session.add(event)
+            events[key] = event
+        db.session.commit()
+
+        creator_guests = {key: ensure_creator_guest(ev, creator) for key, ev in events.items()}
+        db.session.commit()
+
+        full = events["full"]
+        number = 1
+        while can_add_guest(full):
+            db.session.add(
+                m.Guest(
+                    code=f"full{number:04d}",
+                    display_name=f"Invité {number:02d}",
+                    event_id=full.id,
+                )
+            )
+            db.session.commit()
+            number += 1
+
+        rich = events["rich"]
+        objects = _populate_rich(db, m, rich, creator_guests["rich"])
+
+        ser = app.session_interface.get_signing_serializer(app)  # type: ignore[attr-defined]
+        cookies = {
+            "creator": ser.dumps({"_user_id": creator.id, "_fresh": True}),
+            "guest_household": ser.dumps({f"guest_{rich.code}": objects["antoine"].id}),
+            "guest_solo": ser.dumps({f"guest_{rich.code}": objects["chloe"].id}),
+        }
+        placeholders = {f"event.{key}": ev.code for key, ev in events.items()}
+        placeholders["list.rich"] = objects["list"].id
+        placeholders["poll.rich"] = objects["poll"].id
+        placeholders["token.unverified"] = events["unverified"].verification_token
+
+    fixtures: dict[str, Any] = {
+        "version": 1,
+        "port": port,
+        "secret_key": secret_key,
+        "superadmin_password": superadmin_password,
+        "database_path": str(out_dir / "demo.db"),
+        "instance_path": str(instance_path),
+        "roles": ["anonymous", "creator", "guest_household", "guest_solo"],
+        "cookies": cookies,
+        "placeholders": placeholders,
+    }
+    path = out_dir / "fixtures.json"
+    path.write_text(json.dumps(fixtures, indent=2, ensure_ascii=False), encoding="utf-8")
+    path.chmod(0o600)
+    return fixtures
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Graine de démo de la garde UI (B017)")
+    parser.add_argument(
+        "--out", type=Path, default=Path(os.environ.get("UI_DEMO_DIR") or DEFAULT_DEMO_DIR)
+    )
+    parser.add_argument("--port", type=int, default=int(os.environ.get("UI_PORT") or 8499))
+    args = parser.parse_args()
+    try:
+        seed(args.out, args.port)
+    except ValueError as exc:
+        print(f"seed_demo : {exc}", file=sys.stderr)
+        return 2
+    print(Path(args.out).resolve() / "fixtures.json")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
