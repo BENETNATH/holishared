@@ -7,16 +7,14 @@ from flask import (
     redirect,
     render_template,
     request,
-    session,
     url_for,
 )
 from flask_babel import _
-from flask_login import current_user
 from werkzeug.wrappers import Response
 
+from app.context import load_event_context, log_event
 from app.extensions import db, limiter
-from app.models import Event, Guest, LogisticsItem
-from app.utils import log_action
+from app.models import LogisticsItem
 
 logistics_bp = Blueprint("logistics", __name__)
 
@@ -33,39 +31,6 @@ CATEGORY_LABELS = {
 
 MAX_TITLE = 200
 MAX_CONTENT = 5000
-
-
-def _get_event_or_404(code: str) -> Event:
-    """Load an active event by code or abort with 404."""
-    event: Event | None = Event.query.filter_by(code=code, is_active=True).first()
-    if event is None:
-        abort(404)
-    return event
-
-
-def _resolve_actor(event: Event, code: str) -> tuple[Guest | None, bool, Response | None]:
-    """Resolve the current actor for an event.
-
-    Returns (guest, is_creator, denied). ``denied`` is a redirect to the
-    mycode page when neither the creator nor a guest session matches.
-    """
-    if current_user.is_authenticated and current_user.id == event.creator_id:
-        return None, True, None
-    guest_id = session.get(f"guest_{code}")
-    if guest_id:
-        guest = Guest.query.filter_by(id=guest_id, event_id=event.id, is_active=True).first()
-        if guest is not None:
-            return guest, False, None
-    return None, False, redirect(url_for("events.my_code", code=code))
-
-
-def _actor_name(guest: Guest | None, is_creator: bool) -> tuple[str, str]:
-    """(actor_name, actor_type) for ActivityLog entries."""
-    if is_creator:
-        return (current_user.display_name or "Créateur"), "creator"
-    if guest is not None:
-        return guest.display_name, "guest"
-    return "Système", "system"
 
 
 def _category_labels() -> dict[str, str]:
@@ -118,10 +83,8 @@ def _validate_form() -> tuple[list[str], dict[str, str], tuple[str, str, str, in
 @logistics_bp.route("/e/<code>/logistics")
 def index(code: str) -> Response | str:
     """List the event's practical info, grouped by category."""
-    event = _get_event_or_404(code)
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
+    ctx = load_event_context(code)
+    event = ctx.event
 
     items = (
         LogisticsItem.query.filter_by(event_id=event.id)
@@ -133,8 +96,6 @@ def index(code: str) -> Response | str:
         "logistics/index.html",
         event=event,
         items=items,
-        guest=guest,
-        is_creator=is_creator,
         category_labels=_category_labels(),
     )
 
@@ -143,10 +104,8 @@ def index(code: str) -> Response | str:
 @limiter.limit("20 per hour")
 def create(code: str) -> Response | str:
     """Create a new practical info item."""
-    event = _get_event_or_404(code)
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
+    ctx = load_event_context(code)
+    event = ctx.event
 
     if request.method == "GET":
         return render_template(
@@ -179,8 +138,7 @@ def create(code: str) -> Response | str:
         event_id=event.id,
     )
     db.session.add(item)
-    actor_name, actor_type = _actor_name(guest, is_creator)
-    log_action(db.session, event.id, actor_name, actor_type, "logistics.created", target=title)
+    log_event(ctx, "logistics.created", target=title)
     db.session.commit()
 
     flash(_("Info pratique créée."))
@@ -194,13 +152,11 @@ def edit(code: str, item_id: str) -> Response | tuple[str, int] | str:
     Collaborative: any participant (creator or guest) may complete or fix the
     practical info (address, access, timing…). Deletion stays creator-only.
     """
-    event = _get_event_or_404(code)
+    ctx = load_event_context(code)
+    event = ctx.event
     item = LogisticsItem.query.filter_by(id=item_id, event_id=event.id).first()
     if item is None:
         abort(404)
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
 
     action_url = url_for("logistics.edit", code=code, item_id=item.id)
 
@@ -237,8 +193,7 @@ def edit(code: str, item_id: str) -> Response | tuple[str, int] | str:
     item.content = content
     item.category = category
     item.order = order
-    actor_name, actor_type = _actor_name(guest, is_creator)
-    log_action(db.session, event.id, actor_name, actor_type, "logistics.updated", target=title)
+    log_event(ctx, "logistics.updated", target=title)
     db.session.commit()
 
     flash(_("Info pratique modifiée."))
@@ -248,20 +203,17 @@ def edit(code: str, item_id: str) -> Response | tuple[str, int] | str:
 @logistics_bp.route("/e/<code>/logistics/<item_id>/delete", methods=["POST"])
 def delete(code: str, item_id: str) -> Response | tuple[str, int] | str:
     """Delete a practical info item (creator only)."""
-    event = _get_event_or_404(code)
+    ctx = load_event_context(code)
+    event = ctx.event
     item = LogisticsItem.query.filter_by(id=item_id, event_id=event.id).first()
     if item is None:
         abort(404)
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
-    if not is_creator:
-        return _("Pas autorisé."), 403
+    if not ctx.can_delete(item):
+        abort(403)
 
     title = item.title
     db.session.delete(item)
-    actor_name, actor_type = _actor_name(guest, is_creator)
-    log_action(db.session, event.id, actor_name, actor_type, "logistics.deleted", target=title)
+    log_event(ctx, "logistics.deleted", target=title)
     db.session.commit()
 
     flash(_("Info pratique supprimée."))

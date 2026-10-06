@@ -28,7 +28,7 @@
           <p>{{ item.content }}</p>
           <div class="card-actions">
             <a href="{{ url_for('logistics.edit', code=event.code, item_id=item.id) }}" class="btn btn-small btn-secondary">{{ _("Modifier") }}</a>
-            {% if is_creator %}
+            {% if ctx.can_delete(item) %}
             <form method="post" action="{{ url_for('logistics.delete', code=event.code, item_id=item.id) }}">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button type="submit" class="btn btn-small btn-danger">{{ _("Supprimer") }}</button>

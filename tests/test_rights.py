@@ -223,3 +223,11 @@ def test_add_item_assigned_ambiguous_name_keeps_none(
 def test_list_delete_item_guest_allowed(guest_client, event, shared_list, open_item):
     resp = guest_client.post(_item_url(event, shared_list, open_item, "delete"))
     assert (resp.status_code, ListItem.query.filter_by(id=open_item.id).first()) == (302, None)
+
+
+def test_logistics_delete_guest_403(guest_client, db, event):
+    item = LogisticsItem(title="Parking", event_id=event.id)
+    db.session.add(item)
+    db.session.commit()
+    resp = guest_client.post(f"/e/{event.code}/logistics/{item.id}/delete")
+    assert resp.status_code == 403
