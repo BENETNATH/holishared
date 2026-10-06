@@ -452,9 +452,10 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
 | 22.1 | Vue mobile | Un jour à la fois (balayage ou sélecteur de jour) ; vue calendrier sur grand écran |
-| 22.2 | Déplacer | Action « Déplacer vers… » (jour + créneau) + glisser-déposer tactile et souris + clavier ; échange explicite si occupé |
+| 22.2 | Déplacer | Action « Déplacer vers… » (jour + créneau) + glisser-déposer tactile et souris + clavier ; déposer sur une case occupée **ajoute** le repas à la case (plusieurs repas par créneau) ; réordonnancement dans la case ; l'ancien échange (swap) reste disponible comme action explicite « Échanger avec… » |
 | 22.3 | Cellules | « + » visible sur les cases vides, statut « courses » par repas, lien vers la liste de courses |
 | 22.4 | Backend | Échange sans créneau temporaire `tmp` ; réponses JSON/HTMX sans rechargement complet |
+| 22.5 | Plusieurs repas par créneau | Suppression de la contrainte d'unicité `(event, date, slot)` avec migration SQLite (reconstruction de table, données préservées, idempotente) ; colonne d'ordre dans la case ; cellule = pile de cartes + « Ajouter un repas » ; tableau de bord, chips de courses, journal, export ZIP et `covered_meals` gèrent n repas par créneau ; limite raisonnable (6 par créneau) |
 
 ## B023 — Listes
 
