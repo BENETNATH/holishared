@@ -162,7 +162,7 @@ def create_app() -> Flask:
     with app.app_context():
         try:
             _purge_expired_events()
-            if not os.environ.get("SKIP_STARTUP_MIGRATION"):
+            if os.environ.get("SKIP_STARTUP_MIGRATION") != "1":
                 from app.migrations import run_identity_migration
 
                 run_identity_migration(app)

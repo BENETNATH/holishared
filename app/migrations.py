@@ -235,9 +235,11 @@ def backup_sqlite_database(db_uri: str, instance_path: str) -> Path | None:
     if not url.drivername.startswith("sqlite") or url.database in (None, "", ":memory:"):
         return None
     target_dir = Path(instance_path) / "backups"
-    target_dir.mkdir(parents=True, exist_ok=True)
+    target_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
+    os.chmod(target_dir, 0o700)  # dossier privé même s'il existait avec d'autres droits
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     target = target_dir / f"{BACKUP_PREFIX}{stamp}.db"
+    os.close(os.open(target, os.O_CREAT | os.O_WRONLY | os.O_TRUNC, 0o600))  # privé dès la création
     source = sqlite3.connect(str(url.database))
     destination = sqlite3.connect(str(target))
     try:

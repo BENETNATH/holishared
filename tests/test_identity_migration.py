@@ -337,3 +337,36 @@ def test_plan_counts_equal_migrate_counts_on_legacy_base(db, event, creator, gue
     _list_with_item(db, event, assigned_to="Créateur", assigned_to_id=creator.id)
     planned = plan_identity_migration(db.session)
     assert planned == migrate_identity(db.session)
+
+
+def test_backup_dir_and_file_are_private_even_with_open_umask(tmp_path):
+    import os
+    import stat
+
+    source = tmp_path / "src.db"
+    conn = sqlite3.connect(source)
+    conn.execute("CREATE TABLE events (id TEXT)")
+    conn.commit()
+    conn.close()
+    previous = os.umask(0)
+    try:
+        path = backup_sqlite_database(f"sqlite:///{source}", str(tmp_path / "inst"))
+    finally:
+        os.umask(previous)
+    assert stat.S_IMODE(path.parent.stat().st_mode) == 0o700
+    assert stat.S_IMODE(path.stat().st_mode) == 0o600
+
+
+@pytest.mark.parametrize(
+    ("value", "runs"), [("1", False), ("0", True), ("false", True), ("", True)]
+)
+def test_only_skip_startup_migration_1_disables_the_startup_migration(
+    monkeypatch, file_app, value, runs
+):
+    calls = []
+    monkeypatch.setattr("app.migrations.run_identity_migration", lambda app: calls.append(1))
+    file_app()  # pose l'environnement de base
+    monkeypatch.setenv("SKIP_STARTUP_MIGRATION", value)
+    calls.clear()
+    create_app()
+    assert bool(calls) is runs

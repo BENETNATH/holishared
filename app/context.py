@@ -149,12 +149,10 @@ def get_or_create_creator_participant(event: Event, creator: Creator) -> Guest:
         return guest
     from app.utils import ensure_creator_guest
 
-    ensure_creator_guest(event, creator, with_household=False)
+    guest = ensure_creator_guest(event, creator, with_household=False)
     db.session.commit()
     logger.warning("creator participant backfilled event=%s", event.code)
-    return _canonical_creator_guest(event, creator) or ensure_creator_guest(
-        event, creator, with_household=False
-    )
+    return guest
 
 
 def _canonical_creator_guest(event: Event, creator: Creator) -> Guest | None:
