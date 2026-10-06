@@ -1,10 +1,10 @@
 name: CI
 
+# Déclenchement manuel uniquement : le dépôt n'a pas de minutes GitHub Actions.
+# La porte de qualité est locale (ruff, mypy, pytest, build CSS, npm run ui:check).
+# Pour réactiver la CI automatique, remettre push/pull_request sur [main, "ui/**"].
 on:
-  push:
-    branches: [main, "ui/**"]
-  pull_request:
-    branches: [main, "ui/**"]
+  workflow_dispatch:
 
 jobs:
   lint:
