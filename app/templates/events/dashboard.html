@@ -35,8 +35,10 @@
 
 {# Quick actions: the most common next steps, one tap each #}
 <div class="quick-actions" role="group" aria-label="{{ _('Actions rapides') }}">
+  {% if "meals" in enabled_modules %}
+  <a href="{{ url_for('meals.index', code=event.code) }}" class="btn btn-secondary quick-action" data-testid="plan-meals-action">🍽 {{ _("Planifier les repas") }}</a>
+  {% endif %}
   {% if "planning" in enabled_modules %}
-  <a href="{{ url_for('planning.index', code=event.code) }}" class="btn btn-secondary quick-action">🍽 {{ _("Planifier les repas") }}</a>
   <a href="{{ url_for('planning.create', code=event.code) }}" class="btn btn-secondary quick-action">＋ {{ _("Ajouter une activité") }}</a>
   {% endif %}
   {% if ctx.is_creator %}
@@ -61,7 +63,7 @@
         <div class="tl-body">
           {% if entry.kind == 'meal' %}
           <span class="tl-meal-slot">{{ _("Soir") if entry.slot == 'dinner' else _("Midi") }}</span>
-          {% if "planning" in enabled_modules %}
+          {% if "meals" in enabled_modules %}
           <a href="{{ url_for('meals.index', code=event.code) }}">{{ entry.title }}</a>
           {% else %}<span class="tl-title">{{ entry.title }}</span>{% endif %}
           {% if entry.covered %}
@@ -126,8 +128,8 @@
     {% endif %}
   </section>
 
-  {% if my_items %}
-  <section class="card dash-card" aria-labelledby="h-myitems">
+  {% if my_items and "lists" in enabled_modules %}
+  <section class="card dash-card" aria-labelledby="h-myitems" data-testid="my-items">
     <div class="dash-card-head">
       <h2 id="h-myitems">{{ _("Mes items") }}</h2>
       <span class="count-badge">{{ my_items|length }}</span>
@@ -147,9 +149,7 @@
       </li>
       {% endfor %}
     </ul>
-    {% if "lists" in enabled_modules %}
     <a href="{{ url_for('lists.index', code=event.code) }}" class="dash-card-link">{{ _("Voir les listes") }} →</a>
-    {% endif %}
   </section>
   {% endif %}
 
