@@ -26,7 +26,6 @@
       <input type="text" id="code" name="code" required minlength="4" maxlength="8"
              pattern="[a-z0-9]{4,8}" autocomplete="off" spellcheck="false"
              value="{{ code or '' }}" placeholder="{{ _('Ex : alice42') }}">
-      <button type="button" class="btn btn-secondary" id="gen-code">{{ _("Générer") }}</button>
     </div>
     <p class="hint">{{ _("Choisissez un code que vous retiendrez : il vous servira à vous reconnecter sur un autre appareil. 4 à 8 lettres minuscules ou chiffres.") }}</p>
   </div>
@@ -55,16 +54,4 @@
     <button type="submit" class="btn btn-primary">{{ _("Rejoindre l'événement") }}</button>
   </div>
 </form>
-{% endblock %}
-{% block scripts %}
-<script>
-  document.getElementById("gen-code").addEventListener("click", function () {
-    var alphabet = "abcdefghijkmnpqrstuvwxyz23456789";
-    var out = "";
-    for (var i = 0; i < 8; i++) {
-      out += alphabet[Math.floor(Math.random() * alphabet.length)];
-    }
-    document.getElementById("code").value = out;
-  });
-</script>
 {% endblock %}

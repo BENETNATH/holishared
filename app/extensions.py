@@ -25,6 +25,9 @@ def _create_limiter() -> Limiter:
     redis_url = os.environ.get("REDIS_URL", "")
     kwargs: dict[str, Any] = {
         "key_func": get_remote_address,
+        # Redis indisponible : repli mémoire journalisé plutôt que des 500 (B029).
+        "in_memory_fallback_enabled": True,
+        "swallow_errors": True,
     }
     if redis_url:
         kwargs["storage_uri"] = redis_url

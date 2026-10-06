@@ -24,14 +24,17 @@
   </div>
 
   <div class="form-group">
-    <label for="personal_code">{{ _("Ton code personnel") }} *</label>
+    <label for="personal_code">{{ _("Ton code personnel") }}{% if not has_existing_code %} *{% endif %}</label>
     <div class="code-input-row">
-      <input type="text" id="personal_code" name="personal_code" required minlength="4" maxlength="8"
+      <input type="text" id="personal_code" name="personal_code"{% if not has_existing_code %} required minlength="4"{% endif %} maxlength="8"
              pattern="[a-z0-9]{4,8}" autocomplete="off" spellcheck="false"
              value="{{ form_data.get('personal_code', '') }}" placeholder="{{ _('Ex : alice42') }}">
-      <button type="button" class="btn btn-secondary" id="gen-code">{{ _("Générer") }}</button>
     </div>
+    {% if has_existing_code %}
+    <p class="hint">{{ _("Votre code créateur actuel est conservé. Laissez ce champ vide pour le garder, ou saisissez un nouveau code de 8 caractères pour le remplacer.") }}</p>
+    {% else %}
     <p class="hint">{{ _("Ce code te sert à accéder à l'événement sur n'importe quel appareil. 4 à 8 lettres minuscules ou chiffres.") }}</p>
+    {% endif %}
   </div>
 
   <fieldset class="form-group">
@@ -75,16 +78,4 @@
     <button type="submit" class="btn btn-primary btn-lg">{{ _("Confirmer et accéder") }}</button>
   </div>
 </form>
-{% endblock %}
-{% block scripts %}
-<script>
-  document.getElementById("gen-code").addEventListener("click", function () {
-    var alphabet = "abcdefghijkmnpqrstuvwxyz23456789";
-    var out = "";
-    for (var i = 0; i < 8; i++) {
-      out += alphabet[Math.floor(Math.random() * alphabet.length)];
-    }
-    document.getElementById("personal_code").value = out;
-  });
-</script>
 {% endblock %}

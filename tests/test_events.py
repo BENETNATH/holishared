@@ -71,7 +71,7 @@ class TestAnonymousCreationFlow:
         # 4. Verify WITHOUT storing the creator email (opt-out, the default).
         resp = client.post(f"/e/verify/{token}", data={
             "display_name": "Anon",
-            "personal_code": "anon42x",
+            "personal_code": "anon42xy",
         }, follow_redirects=False)
         assert resp.status_code == 302
         assert f"/e/{event.code}" in resp.headers["Location"]
@@ -80,7 +80,7 @@ class TestAnonymousCreationFlow:
         creator = Creator.query.filter_by(display_name="Anon").first()
         assert creator is not None
         assert creator.email is None
-        assert creator.personal_code == "anon42x"
+        assert creator.personal_code == "anon42xy"
 
         # 6. The creator is now logged in and can reach the dashboard.
         resp = client.get(f"/e/{event.code}")
@@ -99,7 +99,7 @@ class TestAnonymousCreationFlow:
         token = event.verification_token
         resp = client.post(f"/e/verify/{token}", data={
             "display_name": "Keeper",
-            "personal_code": "keep42x",
+            "personal_code": "keep42xy",
             "store_creator_email": "1",
         }, follow_redirects=False)
         assert resp.status_code == 302
