@@ -284,3 +284,6 @@ Cible (lot B030) : `Plan` (clé, nom, limites : invités par événement, évén
 
 ### Exigence ajoutée (utilisateur) — récapitulatif des articles sur le tableau de bord
 - **F36** Le tableau de bord doit récapituler les articles de listes pris en charge par la personne et permettre de les cocher directement (aujourd'hui : carte « Mes items » limitée aux articles non cochés, case qui recharge la page, comparaison par nom ; « À répartir » n'affiche qu'un compteur). Cible : bloc « Pour moi » cochable en place, articles terminés repliables, « À répartir » avec prise en charge en un geste. Lots B020 (tâche 20.7) et B023 (cocher sans « Je m'occupe » préalable, HTMX).
+
+### Reste à corriger après B017 (relevé à la recette visuelle)
+- Liseré rectangulaire parasite autour de l'onglet actif « Plus » dans la barre du bas mobile (à traiter dans B028 ou au prochain lot touchant le shell).
