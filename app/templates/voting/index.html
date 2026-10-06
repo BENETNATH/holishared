@@ -27,7 +27,7 @@
       <a href="{{ url_for('voting.detail', code=event.code, poll_id=poll.id) }}">{{ poll.question }}</a>
     </h3>
 
-    {% if guest %}
+    {% if ctx.participant %}
     <div class="vote-options vote-options-inline" role="radiogroup" aria-label="{{ _('Votre vote') }}">
       <form method="post" action="{{ url_for('voting.vote', code=event.code, poll_id=poll.id) }}" class="vote-form-inline">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

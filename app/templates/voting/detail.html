@@ -13,7 +13,7 @@
 </div>
 
 {# Voting section — above results, most prominent #}
-{% if guest and not poll.is_closed %}
+{% if ctx.participant and not poll.is_closed %}
 <div class="card vote-card">
   <h2 class="vote-card-title">{{ _("Votre vote") }}</h2>
   <form method="post" action="{{ url_for('voting.vote', code=event.code, poll_id=poll.id) }}" class="vote-form">

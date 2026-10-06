@@ -231,3 +231,15 @@ def test_logistics_delete_guest_403(guest_client, db, event):
     db.session.commit()
     resp = guest_client.post(f"/e/{event.code}/logistics/{item.id}/delete")
     assert resp.status_code == 403
+
+
+def test_vote_creator_creates_no_household(creator_client, db, event):
+    from app.models import Household, Poll, PollOption
+
+    poll = Poll(question="Q?", event_id=event.id)
+    poll.options.append(PollOption(label="A", order=0))
+    db.session.add(poll)
+    db.session.commit()
+    option = poll.options.first()
+    creator_client.post(f"/e/{event.code}/voting/{poll.id}/vote", data={"option_id": option.id})
+    assert Household.query.filter_by(event_id=event.id).count() == 0

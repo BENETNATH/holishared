@@ -188,3 +188,13 @@ def test_lists_claim_missing_item_anonymous_redirects_mycode(client, db, event):
     db.session.commit()
     resp = client.post(f"/e/{event.code}/lists/{shared.id}/items/missing/claim")
     assert "/mycode" in _location(resp)
+
+
+def test_voting_close_anonymous_redirects_mycode(client, db, event):
+    from app.models import Poll
+
+    poll = Poll(question="Q?", event_id=event.id)
+    db.session.add(poll)
+    db.session.commit()
+    resp = client.post(f"/e/{event.code}/voting/{poll.id}/close")
+    assert "/mycode" in _location(resp)
