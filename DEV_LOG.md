@@ -247,6 +247,14 @@ Audit B017/B029 : constats 1 à 6 corrigés (variables `INSTANCE_PATH` et `SKIP_
 - UI : une seule structure DOM (jours en sections ; < 1024 px un seul visible, sélection côté client), `ui/meals.js` seul module de la page ; poignée `touch-action: none`.
 - Garde UI : action `drag` (CDP `Input.dispatchMouseEvent`, id gardé dans `sessionStorage`) ; 359 runs verts.
 
+### 2026-10-07 — B023 Listes
+
+- Couverture repas/activités en vraies clés étrangères (`ListMealCoverage`, `ListActivityCoverage`, cascade) ; migration idempotente des tableaux JSON (orphelins ignorés, JSON vidé après transfert pour ne pas ressusciter une couverture décochée) ; `PRAGMA foreign_keys=ON` activé sur chaque connexion SQLite — la reconstruction de table `meals` (B022) suspend donc les clés étrangères le temps de la copie (procédure SQLite). Le bloc de reconstruction de `creators` de `manage.py migrate` (historique) n'a pas été adapté.
+- Listes : HTMX partout (`#list-items`, `#list-panel-content`), `HX-Target` distingue le fragment de la liste de celui de l'accueil ; erreurs de validation = `HX-Reswap: none` + `HX-Trigger` `ui:toast` ; suppression immédiate côté serveur + annulation par recréation (`items/restore`), l'attribution n'est rétablie que pour soi (le créateur rétablit celle d'un autre).
+- Droits : suppression d'un article = auteur (`created_by`) ou créateur ; les articles historiques (`created_by` nul) ne sont supprimables que par le créateur ; cocher un article pris par un autre reste refusé (sauf créateur).
+- Panneau : fragment rendu à chaque page (pas de requête supplémentaire), filtres (`mode`, `hide`) transmis par paramètres et conservés par les cases ; état ouvert/fermé mémorisé seulement sur bureau (localStorage, repli sans stockage) ; jours dépliés conservés après échange (`data-keep-open`).
+- Limite connue : avec « masquer les pris en compte » actif, la ligne cochée disparaît immédiatement.
+
 ### À faire (backlog)
 
 | Priorité | Tâche | Statut |

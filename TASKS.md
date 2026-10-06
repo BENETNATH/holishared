@@ -489,7 +489,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B023 — Listes
 
-**Statut** : ⬜ · **Réf.** F11, I5, V6
+**Statut** : ✅ (2026-10-07) · **Réf.** F11, I5, V6
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
