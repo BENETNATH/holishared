@@ -35,6 +35,7 @@ logger = logging.getLogger(__name__)
 BACKUP_PREFIX = "pre-identity-"
 MEALS_BACKUP_PREFIX = "pre-meals-"
 LISTS_BACKUP_PREFIX = "pre-lists-"
+COSTS_BACKUP_PREFIX = "pre-costs-"
 _KEYS = (
     "creator_guests_reactivated",
     "creator_guests_created",
@@ -481,6 +482,76 @@ def run_lists_migration(app: Flask) -> dict[str, int]:
     prune_backups(app.instance_path)
     result = migrate_lists(db.engine)
     logger.info("lists migration %s backup=%s", result, backup or "-")
+    return result
+
+
+COSTS_TABLES = ("expenses", "transfers", "payment_requests")
+
+
+def _costs_state(conn: Any) -> dict[str, Any]:
+    """Calcul à blanc B024 : colonnes `created_by` manquantes, dates NULL à renseigner."""
+    missing: list[str] = []
+    dates: dict[str, int] = {}
+    for table in COSTS_TABLES:
+        columns = {row[1] for row in conn.exec_driver_sql(f"PRAGMA table_info({table})")}
+        if columns and "created_by" not in columns:
+            missing.append(table)
+        if columns and "date" in columns:
+            sql = f"SELECT COUNT(*) FROM {table} WHERE date IS NULL"  # noqa: S608 - table constante
+            dates[table] = conn.exec_driver_sql(sql).scalar() or 0
+    return {"missing": missing, "dates": dates}
+
+
+def _costs_plan(state: dict[str, Any]) -> dict[str, int]:
+    return {
+        "created_by_columns": len(state["missing"]),
+        "expense_dates": state["dates"].get("expenses", 0),
+        "transfer_dates": state["dates"].get("transfers", 0),
+    }
+
+
+def plan_costs_migration(engine: Any) -> dict[str, int]:
+    """Calcul à blanc B024 (aucune écriture)."""
+    with engine.connect() as conn:
+        return _costs_plan(_costs_state(conn))
+
+
+def migrate_costs(engine: Any) -> dict[str, int]:
+    """Colonnes `created_by` (dépenses, transferts, demandes) + dates NULL := date de `created_at`.
+
+    Une dépense sans date affichait « aujourd'hui » à chaque lecture : la date devient celle de
+    sa création. Une seule transaction ; idempotente (plus aucune date NULL ensuite).
+    """
+    with engine.begin() as conn:
+        state = _costs_state(conn)
+        plan = _costs_plan(state)
+        if not any(plan.values()):
+            return plan
+        for table in state["missing"]:
+            conn.exec_driver_sql(
+                f"ALTER TABLE {table} ADD COLUMN created_by VARCHAR(32) REFERENCES guests (id)"
+            )
+        for table, count in state["dates"].items():
+            if count:
+                conn.exec_driver_sql(
+                    f"UPDATE {table} SET date = date(COALESCE(created_at, datetime('now'))) WHERE date IS NULL"  # noqa: S608 - constantes
+                )
+    return plan
+
+
+def run_costs_migration(app: Flask) -> dict[str, int]:
+    """Migration des frais au démarrage : sauvegarde seulement si des lignes sont modifiées."""
+    plan = plan_costs_migration(db.engine)
+    if not any(plan.values()):
+        return plan
+    backup = None
+    if plan["expense_dates"] or plan["transfer_dates"]:
+        backup = backup_sqlite_database(
+            app.config["SQLALCHEMY_DATABASE_URI"], app.instance_path, COSTS_BACKUP_PREFIX
+        )
+        prune_backups(app.instance_path)
+    result = migrate_costs(db.engine)
+    logger.info("costs migration %s backup=%s", result, backup or "-")
     return result
 
 

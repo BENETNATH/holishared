@@ -169,6 +169,9 @@ def create_app() -> Flask:
                 from app.migrations import run_lists_migration
 
                 run_lists_migration(app)  # avant la purge : elle charge les articles (created_by)
+                from app.migrations import run_costs_migration
+
+                run_costs_migration(app)  # avant la purge : elle charge les dépenses (created_by)
             _purge_expired_events()
             if os.environ.get("SKIP_STARTUP_MIGRATION") != "1":
                 from app.migrations import run_identity_migration

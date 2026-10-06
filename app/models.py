@@ -486,6 +486,7 @@ class Expense(db.Model):  # type: ignore[misc,name-defined]
     # Custom split override: JSON {household_id: weight, ...}
     custom_split: Mapped[str | None] = db.Column(db.Text, nullable=True)
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
+    created_by: Mapped[str | None] = db.Column(db.String(32), db.ForeignKey("guests.id"), default=None)
 
     event_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False, index=True)
 
@@ -529,6 +530,7 @@ class Transfer(db.Model):  # type: ignore[misc,name-defined]
     note: Mapped[str] = db.Column(db.String(300), default="")
     date: Mapped[date | None] = db.Column(db.Date, nullable=True)
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
+    created_by: Mapped[str | None] = db.Column(db.String(32), db.ForeignKey("guests.id"), default=None)
 
     event_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False, index=True)
 
@@ -554,6 +556,7 @@ class PaymentRequest(db.Model):  # type: ignore[misc,name-defined]
     is_resolved: Mapped[bool] = db.Column(db.Boolean, default=False)
     resolved_at: Mapped[datetime | None] = db.Column(db.DateTime, nullable=True)
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
+    created_by: Mapped[str | None] = db.Column(db.String(32), db.ForeignKey("guests.id"), default=None)
 
     event_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False, index=True)
 
