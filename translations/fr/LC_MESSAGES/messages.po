@@ -1707,6 +1707,73 @@ msgstr ""
 msgid "Vote enregistré."
 msgstr ""
 
+msgid "Événement"
+msgstr ""
+
+msgid "Participants"
+msgstr ""
+
+msgid "Préférences"
+msgstr ""
+
+msgid "Compte"
+msgstr ""
+
+msgid "Aller au contenu"
+msgstr ""
+
+msgid "Thème sombre"
+msgstr ""
+
+#, python-format
+msgid "Retirer %(name)s ?"
+msgstr ""
+
+msgid "Accueil holishared"
+msgstr ""
+
+msgid "Notifications"
+msgstr ""
+
+msgid "Annuler"
+msgstr ""
+
+msgid "Confirmer"
+msgstr ""
+
+msgid "Confirmer l'action"
+msgstr ""
+
+msgid "Copié"
+msgstr ""
+
+msgid "Copie impossible"
+msgstr ""
+
+msgid "Nouvelle version disponible"
+msgstr ""
+
+msgid "Recharger"
+msgstr ""
+
+msgid "Hors ligne"
+msgstr ""
+
+msgid "Vous êtes hors ligne"
+msgstr ""
+
+msgid "Vérifiez votre connexion puis réessayez."
+msgstr ""
+
+msgid "Réessayer"
+msgstr ""
+
+msgid "facultatif"
+msgstr ""
+
+msgid "Catalogue de composants"
+msgstr ""
+
 #~ msgid "+ Ajouter une info"
 #~ msgstr ""
 

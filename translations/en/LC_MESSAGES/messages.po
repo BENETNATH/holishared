@@ -926,8 +926,8 @@ msgid ""
 "Vous avez atteint le maximum d'invités du plan gratuit. Passez à "
 "Vacances+ pour en inviter autant que vous voulez."
 msgstr ""
-"You have hit the free-plan guest limit. Upgrade to Vacation+ to invite "
-"as many as you like."
+"You have hit the free-plan guest limit. Upgrade to Vacation+ to invite as"
+" many as you like."
 
 #: app/templates/events/invite.html:30
 #: app/templates/freemium/_upgrade_modal.html:38
@@ -1112,7 +1112,7 @@ msgstr "Member list"
 
 #: app/templates/events/members.html:45
 msgid "Créateur"
-msgstr ""
+msgstr "Creator"
 
 #: app/templates/events/members.html:62
 msgid "Retirer"
@@ -1405,9 +1405,8 @@ msgid "Nouvelle liste — ex : Courses du samedi"
 msgstr "E.g. Saturday groceries"
 
 #: app/templates/lists/index.html:15
-#, fuzzy
 msgid "Créer"
-msgstr "Access"
+msgstr "Create"
 
 #: app/templates/lists/index.html:22
 #, fuzzy
@@ -1771,6 +1770,73 @@ msgstr "Poll closed."
 #: app/voting/__init__.py:250
 msgid "Vote enregistré."
 msgstr "Vote recorded."
+
+msgid "Événement"
+msgstr "Event"
+
+msgid "Participants"
+msgstr "Participants"
+
+msgid "Préférences"
+msgstr "Preferences"
+
+msgid "Compte"
+msgstr "Account"
+
+msgid "Aller au contenu"
+msgstr "Skip to content"
+
+msgid "Thème sombre"
+msgstr "Dark theme"
+
+#, python-format
+msgid "Retirer %(name)s ?"
+msgstr "Remove %(name)s?"
+
+msgid "Accueil holishared"
+msgstr "holishared home"
+
+msgid "Notifications"
+msgstr "Notifications"
+
+msgid "Annuler"
+msgstr "Cancel"
+
+msgid "Confirmer"
+msgstr "Confirm"
+
+msgid "Confirmer l'action"
+msgstr "Confirm action"
+
+msgid "Copié"
+msgstr "Copied"
+
+msgid "Copie impossible"
+msgstr "Copy failed"
+
+msgid "Nouvelle version disponible"
+msgstr "New version available"
+
+msgid "Recharger"
+msgstr "Reload"
+
+msgid "Hors ligne"
+msgstr "Offline"
+
+msgid "Vous êtes hors ligne"
+msgstr "You are offline"
+
+msgid "Vérifiez votre connexion puis réessayez."
+msgstr "Check your connection and try again."
+
+msgid "Réessayer"
+msgstr "Try again"
+
+msgid "facultatif"
+msgstr "optional"
+
+msgid "Catalogue de composants"
+msgstr "Component catalog"
 
 #~ msgid "Organisez les activités du séjour"
 #~ msgstr "Organize the trip's activities"
