@@ -221,21 +221,6 @@ def create_app() -> Flask:
             return value + timedelta(days=days)
         return value
 
-    @app.context_processor
-    def inject_event_days():
-        from datetime import timedelta
-
-        from flask import g as _g
-        ev = getattr(_g, "current_event", None)
-        if ev and ev.start_date and ev.end_date:
-            days = []
-            d = ev.start_date
-            while d <= ev.end_date:
-                days.append(d)
-                d += timedelta(days=1)
-            return {"event_days": days}
-        return {"event_days": []}
-
     # Le contexte d'événement est mis en cache sur g pour UNE requête (B029).
     from app.context import reset_event_context
 
@@ -280,52 +265,23 @@ def create_app() -> Flask:
 
     init_ui(app)
 
-    # Context processor
+    # Context processor — aucune requête : réutilise le contexte chargé par la vue (B029).
     @app.context_processor
     def inject_globals() -> dict[str, object]:
-        from flask import session as _session
         from flask_babel import get_locale as _get_locale
-        loc = _get_locale()
-        # Detect current event from URL for navbar integration
-        current_event = None
-        if request.path.startswith("/e/"):
-            from app.models import Event as _Event
-            parts = request.path.split("/")
-            if len(parts) >= 3 and parts[2]:
-                current_event = _Event.query.filter_by(code=parts[2], is_active=True).first()
-        # Guest identity (presentational chip in the header)
-        current_guest = None
-        if current_event is not None:
-            guest_id = _session.get(f"guest_{current_event.code}")
-            if guest_id is not None:
-                from app.models import Guest as _Guest
-                current_guest = _Guest.query.filter_by(
-                    id=guest_id, event_id=current_event.id, is_active=True
-                ).first()
-        # Role of the visitor inside the current event (shell navigation contract)
-        event_role = None
-        if current_event is not None:
-            from flask_login import current_user as _current_user
 
-            if _current_user.is_authenticated and _current_user.id == current_event.creator_id:
-                event_role = "creator"
-            elif current_guest is not None:
-                event_role = "guest"
         from app.context import get_event_context
 
+        loc = _get_locale()
         ctx = get_event_context()
         participant = ctx.participant if ctx else None
-        if ctx is not None:
-            current_event = ctx.event
-            current_guest = participant if ctx.role == "guest" else None
-            event_role = ctx.role if ctx.role != "visitor" else None
         return {
             "app_name": "holishared",
-            "event_role": event_role,
-            "enabled_modules": app.config["ENABLED_MODULES"],
+            "enabled_modules": [m for m in app.config["ENABLED_MODULES"] if m in app.blueprints],
             "current_lang": loc.language if loc else None,
-            "current_event": current_event,
-            "current_guest": current_guest,
+            "current_event": ctx.event if ctx else None,
+            "current_guest": participant if (ctx and ctx.role == "guest") else None,
+            "event_role": ctx.role if (ctx and ctx.role != "visitor") else None,
             "ctx": ctx,
             "current_participant": participant,
         }

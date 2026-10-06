@@ -54,12 +54,6 @@ def has_feature(creator: Creator | None, feature_name: str) -> bool:
     return tier_at_least(creator, min_tier)
 
 
-def _is_event_creator(event: Event) -> bool:
-    """True if the current session belongs to the event's creator."""
-    from flask_login import current_user
-    return bool(current_user.is_authenticated and current_user.id == event.creator_id)
-
-
 def _upgrade_target(code: str | None) -> str | None:
     """Best-effort target to return to after the upgrade flow (hook point)."""
     if code and request and request.path:

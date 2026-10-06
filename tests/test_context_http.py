@@ -239,3 +239,48 @@ def test_costs_delete_missing_expense_guest_404(guest_client, event):
 
 def test_media_file_anonymous_redirects_mycode(client, event):
     assert "/mycode" in _location(client.get(f"/e/{event.code}/media/anything/file"))
+
+
+def _chip_name(html: str) -> str:
+    import re
+
+    chip = html[html.index('data-testid="identity-chip"') :]
+    return re.search(r'translate="no">([^<]*)<', chip).group(1)
+
+
+def test_planning_page_selects_events_table_once(app, db, creator_client, event, creator_guest):
+    from sqlalchemy import event as sa_event
+
+    statements: list[str] = []
+    code = event.code
+
+    def record(conn, cursor, statement, parameters, context, executemany):
+        statements.append(statement)
+
+    sa_event.listen(db.engine, "before_cursor_execute", record)
+    try:
+        creator_client.get(f"/e/{code}/planning")
+    finally:
+        sa_event.remove(db.engine, "before_cursor_execute", record)
+    selects = [s for s in statements if s.lstrip().startswith("SELECT") and "FROM events" in s]
+    assert len(selects) == 1, selects
+
+
+def test_identity_chip_creator_shows_event_participant_name(db, creator_client, event, creator_guest):
+    creator_guest.display_name = "Chef de camp"
+    db.session.commit()
+    html = creator_client.get(f"/e/{event.code}/planning").data.decode()
+    assert "Chef de camp" in _chip_name(html)
+
+
+def test_identity_chip_creator_outside_event_uses_account_name(creator_client):
+    html = creator_client.get("/e/").data.decode()
+    assert "Test Creator" in _chip_name(html)
+
+
+def test_identity_change_between_requests_same_client_uses_new_role(guest_client, event):
+    first = guest_client.get(f"/e/{event.code}/planning").status_code
+    with guest_client.session_transaction() as sess:
+        sess.pop(f"guest_{event.code}")
+    second = guest_client.get(f"/e/{event.code}/planning")
+    assert (first, second.status_code, "/mycode" in second.headers["Location"]) == (200, 302, True)
