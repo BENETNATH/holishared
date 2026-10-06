@@ -368,6 +368,8 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 - Repas : glisser-déposer tactile (pointer events, sans bibliothèque) **et** action « Déplacer vers… » accessible.
 - Migration « big-bang » sur la branche `ui/tailwind-refonte` : `main.css` historique reste isolé en couche basse jusqu'à B028, qui le supprime. Merge en `main` à la clôture de B028 (un seul merge pour le programme).
 
+**Ordre d'exécution** : B017 → **B029** → B018 → B019 → B020 → B021 → B022 → B023 → B024 → B025 → B026 → B027 → B028 (B029 est numéroté après coup mais s'exécute juste après le socle : toutes les vues qui suivent en dépendent).
+
 **Chaîne de production par lot** (voir `AGENTS.md`, adaptée aux modèles) :
 1. Spec `specs/B0XX-slug.md` — Opus.
 2. Audit de la spec — Opus (contexte vierge), corrections jusqu'à approbation.
@@ -392,6 +394,19 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 | 17.5 | JS partagé | Modules uniques : copie dans le presse-papiers avec retour, thème, feuille, modale confidentialité, confirmation ; fin de la duplication inline |
 | 17.6 | Service worker | Nom de cache dérivé du hash des assets ; page hors ligne ; Alpine retiré du précache |
 | 17.7 | Outillage UI | `scripts/ui/` : graine de démo, serveur de démo (base et `instance_path` jetables), garde `npm run ui:check` (CDP, sans dépendance) ; `main.css` isolé en couche basse |
+
+## B029 — Contexte d'événement & identité participant unique
+
+**Statut** : ⬜ · **Réf.** F29, F30 (serveur), F32 ; §11.2 et §11.5 de l'audit · **S'exécute après B017**
+
+| # | Tâche | Critère d'acceptation |
+|---|-------|----------------------|
+| 29.1 | Contexte unique | Un seul module résout événement + participant + rôle (une requête, mise en cache sur `g`) ; les 8 copies de `_get_event_or_404`/`_resolve_actor`/`_actor_name` sont supprimées ; `inject_globals` réutilise ce contexte |
+| 29.2 | Identité unique | Le créateur est toujours un participant `Guest` (créé à la vérification, idempotent, rétro-rempli par migration) ; `assigned_to_id`, `created_by`, auteurs de chat et RSVP utilisent `Guest.id` ; migration des anciennes valeurs (`Creator.id`, `None`, noms) idempotente |
+| 29.3 | Droits | Fonctions uniques `can_edit(objet)`, `can_delete(objet)`, `is_creator` ; tests d'autorisation par module |
+| 29.4 | Réponses homogènes | Non connecté → `/mycode` partout ; 403/404 rendus par les gabarits d'erreur (plus de chaînes brutes) ; aucun `BuildError` quand un module est désactivé (F32) |
+| 29.5 | Codes d'accès | Génération côté serveur (`secrets`), longueur minimale 8 pour les nouveaux codes créateur, limitation des essais par compte/événement ; l'ancien code reste valable |
+| 29.6 | Non-régression | Comportement externe inchangé ; tous les tests existants verts (adaptation traçable uniquement) |
 
 ## B018 — Internationalisation complète
 
@@ -444,6 +459,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 | 21.2 | Carte d'activité | RSVP intégré (Oui / Peut-être / Non), décompte, seuil `min_headcount` atteint ou non, `bring_items` affiché |
 | 21.3 | Ajout/édition | Feuille d'ajout rapide + formulaire avancé en sections ; pas de doublon liste/RSVP |
 | 21.4 | Créateur participant | Le créateur peut répondre (F10) |
+| 21.5 | Besoins d'activité | Feuille « Besoins » rattachée à l'activité (contrat §11.5) : articles créés dans la liste « Matériel », statut dérivé affiché ; `bring_items` migré en articles ; programme du jour unifié avec les repas en lecture seule |
 
 ## B022 — Repas
 
@@ -455,6 +471,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 | 22.2 | Déplacer | Action « Déplacer vers… » (jour + créneau) + glisser-déposer tactile et souris + clavier ; déposer sur une case occupée **ajoute** le repas à la case (plusieurs repas par créneau) ; réordonnancement dans la case ; l'ancien échange (swap) reste disponible comme action explicite « Échanger avec… » |
 | 22.3 | Cellules | « + » visible sur les cases vides, statut « courses » par repas, lien vers la liste de courses |
 | 22.4 | Backend | Échange sans créneau temporaire `tmp` ; réponses JSON/HTMX sans rechargement complet |
+| 22.6 | Besoins de repas | Feuille « Besoins » rattachée au repas (contrat §11.5) : articles créés dans la liste « Courses », statut dérivé (à lister / n sur m pris / tout pris) sur la carte, le tableau de bord et la liste ; interrupteur manuel `listed` repris de `covered_meals` |
 | 22.5 | Plusieurs repas par créneau | Suppression de la contrainte d'unicité `(event, date, slot)` avec migration SQLite (reconstruction de table, données préservées, idempotente) ; colonne d'ordre dans la case ; cellule = pile de cartes + « Ajouter un repas » ; tableau de bord, chips de courses, journal, export ZIP et `covered_meals` gèrent n repas par créneau ; limite raisonnable (6 par créneau) |
 
 ## B023 — Listes
@@ -467,6 +484,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 | 23.2 | Cocher en un geste | Un article se coche sans « Je m'occupe » préalable ; l'attribution est facultative |
 | 23.3 | Mises à jour sans rechargement | HTMX sur cocher, attribuer, ajouter, supprimer ; position de défilement conservée ; pas de clavier automatique au chargement |
 | 23.4 | Identité d'attribution | Basée sur l'identifiant (plus le nom d'affichage) |
+| 23.6 | Articles rattachés | `ListItem.meal_id`/`activity_id` ; affichage de la source avec lien retour, regroupement/filtre par source ; fin des pastilles de repas et du volet d'activités (F34) ; `covered_meals`/`covered_activities` migrés (contrat §11.5) |
 | 23.5 | Suppression | Chacun supprime ses propres articles (avec annulation) ; suppression de liste dépriorisée |
 
 ## B024 — Frais

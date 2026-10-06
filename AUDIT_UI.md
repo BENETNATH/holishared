@@ -206,3 +206,69 @@ Source : lecture complète des 36 templates et des 10 modules Python. Chaque ent
 
 ### Exigence ajoutée (utilisateur) — repas multiples par créneau
 - **F28** Aujourd'hui `Meal` est unique par `(event, date, slot)` : une case = un repas, et le glisser-déposer échange deux repas. À faire évoluer : plusieurs repas dans une même case (ex. plat + dessert, deux options), l'échange restant possible mais explicite. Impacte modèle + migration SQLite (reconstruction de table), grille/calendrier, tableau de bord (timeline), chips de la liste de courses, export, journal. Lot B022 (tâche 22.5).
+
+## 11. Logique inter-modules et JavaScript (lecture exhaustive)
+
+### 11.1 Carte des interactions actuelles
+
+| Lien | Mécanisme réel | Limites |
+|---|---|---|
+| Repas ↔ Listes | `SharedList.covered_meals` : tableau JSON d'identifiants de repas « cochés » **par liste**. Le détail d'une liste affiche **tous** les repas de l'événement en pastilles ; cocher = « les ingrédients sont dans cette liste ». Le tableau de bord marque un repas « Courses notées » si **au moins une** liste le couvre (union). | Aucun article n'est rattaché à un repas : on ne sait ni quoi acheter pour quel repas ni si c'est acheté. La pastille n'affiche que créneau + titre (pas de jour, la date est dans un `title`) : 14 pastilles quasi identiques. Rien n'est visible côté page Repas (ni statut ni lien vers la liste). Supprimer un repas ne nettoie pas `covered_meals` (identifiants orphelins). |
+| Activités ↔ Listes | `SharedList.covered_activities`, même principe, dans un volet masqué par défaut (« 📋 Activités »). En parallèle `Activity.bring_items` (texte libre « Apporter ») : deux mécanismes distincts pour le même besoin. | Cocher une activité recharge la page, ce qui referme le volet. `bring_items` n'est jamais affiché (F10). |
+| Planning ↔ Repas | Aucun lien direct : « Planning ne garde que les activités » (commit 7583db9). Seul le tableau de bord fusionne les repas et activités **du jour** (créneaux fixés à 12:00 et 20:00, activité sans heure à 23:59). | Le Planning ne montre pas les repas ; le programme d'un jour n'existe nulle part en entier. |
+| Planning ↔ Sondages | Aucun (F27). | — |
+| Repas ↔ Sondages | Aucun, alors que le placeholder suggère « Quel menu pour samedi ? ». | — |
+| Frais ↔ Repas/Listes | Aucun (catégorie `food` purement déclarative). | — |
+| Tableau de bord ↔ tout | « À répartir » = articles sans responsable sur **toutes** les listes ; « Mes items » compare `item.assigned_to == mon nom`. | Comparaison par nom d'affichage, calculée différemment dans le gabarit (`display_name or email-local-part`) et dans le module listes (`display_name or "Créateur"`). |
+
+Intention produit d'origine (messages de commit) : « couverture inter-listes » (cocher un article le masque des autres listes) — abandonnée, jamais remplacée.
+
+### 11.2 Modèle d'identité incohérent entre modules
+
+Le créateur est représenté de **trois façons** selon le module :
+- `Creator.id` + nom d'affichage (listes : `assigned_to_id = current_user.id`, `assigned_to = display_name or "Créateur"`) ;
+- `Guest` lié (`creator_id`) créé paresseusement (sondages via `ensure_creator_guest`, foyer des frais, RSVP refusé) ;
+- aucune identité (chat : `guest_id = None`, `author_name = display_name`; planning/repas : `created_by = None`).
+
+Les invités sont identifiés par `Guest.id`. Résultat : le créateur ne peut pas répondre à un RSVP mais peut voter ; un article pris par le créateur n'est pas rattaché au même identifiant que ses votes ; les droits « auteur ou créateur » se calculent à 8 endroits.
+
+Cause : les helpers `_get_event_or_404`, `_resolve_actor`, `_actor_name` sont **copiés dans 8 modules** (chat, costs, lists, logistics, meals, media, planning, voting) avec des variantes silencieuses (le module sondages renvoie le Guest du créateur, les autres `None` ; Frais et Média redirigent vers `/join`, les autres vers `/mycode`). Le processeur de contexte `inject_globals` refait en plus deux requêtes (événement, invité) déjà faites par la vue. → **F29**.
+
+### 11.3 Défauts supplémentaires relevés dans cette lecture
+- **F30 (Prod, sécurité)** Les codes personnels (seul secret d'accès, créateur ou invité) sont choisis par l'utilisateur (4 à 8 caractères, p. ex. `alice42`) ; le bouton « Générer » tire 8 caractères avec `Math.random()` (non cryptographique), recopié dans 3 gabarits (`join`, `verify`, et la copie inline). Le code créateur est global et unique : toute personne qui le devine se connecte comme créateur depuis l'accueil (limite : 10 essais/heure/IP). À corriger : génération serveur (`secrets`), longueur minimale, protection contre le brute-force par compte/événement.
+- **F31** Le sélecteur de thème s'applique en fin de `<body>` : flash de thème au chargement (le choix manuel n'est pas connu avant le premier rendu).
+- **F32 (Prod)** Le tableau de bord envoie « 🍽 Planifier les repas » vers `planning.index` (la page Planning, qui n'affiche plus les repas depuis la séparation du module Repas) ; le lien d'un repas de la chronologie vers `meals.index` est conditionné à `"planning" in enabled_modules` : avec Planning actif et Repas désactivé, `url_for('meals.index')` lève une `BuildError` (page 500) ; avec Repas actif et Planning désactivé, le lien disparaît.
+- **F33** Grille des repas non utilisable au clavier ni aux lecteurs d'écran : cellules et cartes sont des `<div>` sans rôle ni `tabindex` ; le glisser-déposer est la seule voie de déplacement ; chaque déplacement, ajout ou suppression recharge la page entière via des formulaires fabriqués en JS.
+- **F34** Les cases à cocher (`onchange="this.form.submit()"`) des pastilles de repas, des activités et de « Mes items » provoquent un rechargement complet : la rangée de pastilles défilable revient au début, le volet d'activités se referme, le défilement de la page est perdu.
+- **F35** Le JS de la confirmation « Je m'occupe » (« ✓ C'est noté ») change le libellé puis le formulaire navigue aussitôt : le retour n'est jamais vu ; le `setTimeout` de restauration est inutile.
+
+### 11.4 Inventaire du JavaScript existant (à remplacer par les modules partagés de B017)
+
+| Fonction | Emplacement | Constat |
+|---|---|---|
+| Enregistrement du service worker | `base.html` | portée `/static/js/` (F20) |
+| Liste de langues / bascule directe sur mobile | `base.html` | comportement différent bureau/mobile |
+| Feuille « Plus » (ouverture, Échap, clic extérieur) | `base.html` | pas de piège de focus |
+| Masquage automatique des messages flash (5 s) | `base.html` | pas de pause au survol/focus (WCAG 2.2.1) |
+| Modale de confidentialité | `base.html` | idem, pas de piège de focus |
+| Masquage/affichage des codes invités | `base.html` | bascule du libellé par `textContent` |
+| Copie de code (+ variantes) | `base.html`, `dashboard.html`, `invite.html` | trois implémentations ; `invite` sans retour visuel |
+| Thème | `base.html` | flash (F31) |
+| Génération de code | `join.html`, `verify.html` | `Math.random` (F30) |
+| Modale d'upgrade | `invite.html`, `media/gallery.html`, `freemium/paywall.html` | trois copies |
+| Grille des repas (clic, `<dialog>`, glisser-déposer, formulaires fabriqués) | `meals/index.html` | F33 |
+| Volet d'activités, filtre, confirmation « je m'occupe » | `lists/detail.html` | F34, F35 |
+| Défilement du chat + polling | `chat/index.html` | F14 |
+| Pastilles de catégorie de frais | `costs/index.html` | seule logique légitime à conserver (sélection visuelle) |
+
+### 11.5 Contrat inter-modules cible (à implémenter dans B021, B022, B023, B029)
+
+Principe : les besoins (ingrédients, matériel) sont **rattachés** à ce qui les justifie (un repas, une activité) et vivent dans les listes ; la « couverture » est **dérivée**, plus cochée à la main.
+1. **Identité unique** (B029) : tout acteur est un `Guest` (le créateur aussi, créé à la vérification et à la demande) ; une seule fonction résout événement + participant + rôle ; `assigned_to_id`, `created_by`, auteurs du chat et RSVP utilisent toujours `Guest.id`.
+2. **Besoins rattachés** : `ListItem.meal_id` et `ListItem.activity_id` (nullables, suppression de la source = `SET NULL`, l'article reste dans la liste sous « Divers »). Depuis une carte de repas ou d'activité : feuille « Besoins » avec ajout/cochage/attribution d'articles en place (HTMX), créés dans la liste par défaut du type (« Courses » pour un repas, « Matériel » pour une activité, créées à la demande, nom traduit, l'utilisateur peut en choisir une autre).
+3. **Statut dérivé** affiché partout (Repas, Planning, accueil) : aucun besoin / à lister / n articles dont m pris / tout est pris. Le champ texte `bring_items` est migré en articles rattachés (une ligne = un article) puis retiré du formulaire.
+4. **Reprise de l'existant** : les identifiants de `covered_meals` / `covered_activities` valides deviennent un indicateur `Meal.listed` / `Activity.listed` (« tout est déjà dans les listes », interrupteur manuel conservé pour qui ne détaille pas) ; migration idempotente ; identifiants orphelins ignorés ; colonnes JSON supprimées à la clôture (B028).
+5. **Listes** : les articles rattachés affichent la source (« Raclette · mar. soir ») avec lien retour ; filtre/regroupement par source ; pastilles de repas remplacées par ce regroupement (fin du rechargement F34).
+6. **Programme du jour/semaine unifié** : Planning (vue par jour) et accueil montrent activités **et** repas (les repas en lecture seule avec lien vers Repas).
+7. **Repas multiples par créneau** (F28) : l'identifiant d'un repas ne change jamais lors d'un déplacement (les besoins rattachés le suivent).
+8. **Hors périmètre** (noté pour plus tard) : nombre de convives par repas, sondage de menu, lien dépenses ↔ listes.
