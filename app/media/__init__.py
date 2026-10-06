@@ -8,22 +8,22 @@ from typing import Any
 
 from flask import (
     Blueprint,
+    abort,
     current_app,
     flash,
     redirect,
     render_template,
     request,
     send_from_directory,
-    session,
     url_for,
 )
-from flask_login import current_user
 from werkzeug.datastructures import FileStorage
 from werkzeug.wrappers import Response
 
+from app.context import load_event_context, log_event
 from app.extensions import db, limiter
 from app.freemium import can_upload_media, consume_media_quota, release_media_quota
-from app.models import Event, Guest, MediaItem
+from app.models import MediaItem
 
 media_bp = Blueprint("media", __name__)
 
@@ -81,18 +81,6 @@ def _media_dir(event_code: str) -> Path:
     return base
 
 
-def _resolve_actor(event: Event, code: str) -> tuple[Guest | None, bool, Response | None]:
-    """Return (guest, is_creator, denied_redirect_or_None)."""
-    if current_user.is_authenticated and current_user.id == event.creator_id:
-        return None, True, None
-    guest_id = session.get(f"guest_{code}")
-    if guest_id:
-        guest = Guest.query.filter_by(id=guest_id, event_id=event.id, is_active=True).first()
-        if guest is not None:
-            return guest, False, None
-    return None, False, redirect(url_for("events.guest_access", code=code))
-
-
 def _extract_exif(file_storage: FileStorage) -> tuple[float | None, float | None, datetime | None]:
     """Extract GPS and date from EXIF data. Returns (lat, lng, taken_at)."""
     try:
@@ -136,10 +124,8 @@ def _extract_exif(file_storage: FileStorage) -> tuple[float | None, float | None
 @media_bp.route("/e/<code>/media/<item_id>/file")
 def file(code: str, item_id: str) -> Response:
     """Serve a stored media file (creator or guest only)."""
-    event = Event.query.filter_by(code=code, is_active=True).first_or_404()
-    _guest, _is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
+    ctx = load_event_context(code)
+    event = ctx.event
     item = MediaItem.query.filter_by(id=item_id, event_id=event.id).first_or_404()
     return send_from_directory(_media_dir(code), item.filename, mimetype=item.mime_type)
 
@@ -147,10 +133,8 @@ def file(code: str, item_id: str) -> Response:
 @media_bp.route("/e/<code>/media", methods=["GET"])
 def gallery(code: str) -> str | Response:
     """Media gallery for an event (creator or guest only)."""
-    event = Event.query.filter_by(code=code, is_active=True).first_or_404()
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
+    ctx = load_event_context(code)
+    event = ctx.event
 
     items = event.media.order_by(MediaItem.uploaded_at.desc()).all()
 
@@ -174,7 +158,7 @@ def gallery(code: str) -> str | Response:
 
     quota = None
     gauge = None
-    if is_creator:
+    if ctx.is_creator:
         quota = get_media_quota(event.creator)
         used = quota.used_bytes
         pct = min(100.0, (used / quota.max_bytes * 100.0)) if quota.max_bytes else 0.0
@@ -185,21 +169,15 @@ def gallery(code: str) -> str | Response:
             "exceeded": quota.is_exceeded,
         }
 
-    return render_template("media/gallery.html", event=event, items=items,
-                           guest=guest, is_creator=is_creator, gauge=gauge)
+    return render_template("media/gallery.html", event=event, items=items, gauge=gauge)
 
 
 @media_bp.route("/e/<code>/media/upload", methods=["POST"])
 @limiter.limit("10 per hour")
 def upload(code: str) -> Response:
     """Upload a media file (creator or guest only)."""
-    event = Event.query.filter_by(code=code, is_active=True).first_or_404()
-    guest, _is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
-
-    actor_name = guest.display_name if guest else "Créateur"
-    guest_id = guest.id if guest else None
+    ctx = load_event_context(code)
+    event = ctx.event
 
     # Check file
     file = request.files.get("file")
@@ -248,8 +226,8 @@ def upload(code: str) -> Response:
         latitude=lat,
         longitude=lng,
         taken_at=taken_at,
-        uploaded_by=guest_id,
-        uploaded_by_name=actor_name,
+        uploaded_by=ctx.participant.id if ctx.participant else None,
+        uploaded_by_name=ctx.actor.name,
         event_id=event.id,
     )
     db.session.add(item)
@@ -258,16 +236,12 @@ def upload(code: str) -> Response:
     consume_media_quota(creator, size)
 
     # Log
-    from app.models import ActivityLog
-    log = ActivityLog(
-        event_id=event.id,
-        actor_name=actor_name,
-        actor_type="guest" if guest else "creator",
-        action="media.uploaded",
+    log_event(
+        ctx,
+        "media.uploaded",
         target=file.filename,
         details=f"{size // 1024} KB, geo={'oui' if lat else 'non'}",
     )
-    db.session.add(log)
     db.session.commit()
 
     flash("Media ajouté.", "success")
@@ -277,29 +251,22 @@ def upload(code: str) -> Response:
 @media_bp.route("/e/<code>/media/<item_id>")
 def detail(code: str, item_id: str) -> str | Response:
     """Single media detail (creator or guest only)."""
-    event = Event.query.filter_by(code=code, is_active=True).first_or_404()
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
+    ctx = load_event_context(code)
+    event = ctx.event
 
     item = MediaItem.query.filter_by(id=item_id, event_id=event.id).first_or_404()
-    return render_template("media/detail.html", event=event, item=item,
-                           guest=guest, is_creator=is_creator)
+    return render_template("media/detail.html", event=event, item=item)
 
 
 @media_bp.route("/e/<code>/media/<item_id>/delete", methods=["POST"])
 def delete(code: str, item_id: str) -> Response:
     """Delete a media item (uploader or creator)."""
-    event = Event.query.filter_by(code=code, is_active=True).first_or_404()
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
+    ctx = load_event_context(code)
+    event = ctx.event
 
     item = MediaItem.query.filter_by(id=item_id, event_id=event.id).first_or_404()
-    guest_id = guest.id if guest else None
-    if item.uploaded_by != guest_id and not is_creator:
-        flash("Pas autorisé.", "danger")
-        return redirect(url_for("media.gallery", code=code))
+    if not ctx.can_delete(item):
+        abort(403)
 
     # Delete file
     path = _media_dir(code) / item.filename
@@ -310,15 +277,7 @@ def delete(code: str, item_id: str) -> Response:
     release_media_quota(event.creator, item.size_bytes)
 
     # Log
-    from app.models import ActivityLog
-    log = ActivityLog(
-        event_id=event.id,
-        actor_name=item.uploaded_by_name,
-        actor_type="guest" if item.uploaded_by else "creator",
-        action="media.deleted",
-        target=item.original_name,
-    )
-    db.session.add(log)
+    log_event(ctx, "media.deleted", target=item.original_name)
     db.session.delete(item)
     db.session.commit()
 

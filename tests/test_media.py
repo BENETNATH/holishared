@@ -34,7 +34,7 @@ class TestMediaAccess:
     def test_gallery_redirects_no_access(self, client, event):
         resp = client.get(f"/e/{event.code}/media")
         assert resp.status_code == 302
-        assert "/join" in resp.headers["Location"] or "/mycode" in resp.headers["Location"]
+        assert "/mycode" in resp.headers["Location"]
 
     def test_gallery_renders_for_guest(self, client, event, guest, db):
         _make_item(db, event, guest)
@@ -62,7 +62,7 @@ class TestMediaAccess:
         )
         # No access -> redirected to join, not processed
         assert resp.status_code == 302
-        assert "/join" in resp.headers["Location"] or "/mycode" in resp.headers["Location"]
+        assert "/mycode" in resp.headers["Location"]
 
     def test_delete_forbidden_for_other_guest(self, client, event, guest, db):
         other = _make_item(db, event, guest)
@@ -72,6 +72,6 @@ class TestMediaAccess:
         db.session.commit()
         _login_guest(client, event, g2)
         resp = client.post(f"/e/{event.code}/media/{other.id}/delete")
-        assert resp.status_code == 302  # redirected back with flash, not deleted
+        assert resp.status_code == 403  # refus rendu par le gabarit 403, média conservé
         db.session.refresh(other)
         assert other.id is not None

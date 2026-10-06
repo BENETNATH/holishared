@@ -9,7 +9,7 @@
 </div>
 
 {# Storage gauge + soft upgrade (creator) #}
-{% if is_creator and gauge %}
+{% if ctx.is_creator and gauge %}
 <div class="storage-gauge{% if gauge.exceeded %} storage-gauge-full{% endif %}">
   <div class="sg-head">
     <span class="sg-title">{{ _("Stockage photos") }}</span>
@@ -67,13 +67,13 @@
 </div>
 {% endif %}
 
-{% if is_creator %}
+{% if ctx.is_creator %}
 {% include "freemium/_upgrade_modal.html" %}
 {% endif %}
 {% endblock %}
 
 {% block scripts %}
-{% if is_creator %}
+{% if ctx.is_creator %}
 <script>
 // Open the shared upgrade modal from any [data-upgrade-target] button.
 (function() {

@@ -22,7 +22,7 @@
   </figcaption>
 </figure>
 
-{% if is_creator or (guest and guest.id == item.uploaded_by) %}
+{% if ctx.can_delete(item) %}
 <form method="post" action="{{ url_for('media.delete', code=event.code, item_id=item.id) }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <button type="submit" class="btn btn-danger-solid">{{ _("Supprimer") }}</button>

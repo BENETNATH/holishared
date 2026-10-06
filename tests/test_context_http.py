@@ -235,3 +235,7 @@ def test_costs_delete_expense_guest_renders_403_template(db, guest_client, event
 
 def test_costs_delete_missing_expense_guest_404(guest_client, event):
     assert guest_client.post(f"/e/{event.code}/costs/expenses/missing/delete").status_code == 404
+
+
+def test_media_file_anonymous_redirects_mycode(client, event):
+    assert "/mycode" in _location(client.get(f"/e/{event.code}/media/anything/file"))

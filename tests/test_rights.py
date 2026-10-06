@@ -1,5 +1,7 @@
 """Tests des droits (B029) : matrices can_edit / can_delete (table §3.6) et HTTP."""
 
+import io
+
 import pytest
 
 from app.context import EventContext
@@ -295,3 +297,37 @@ def test_costs_creator_with_guest_session_logs_creator(creator_client, db, event
     creator_client.post(f"/e/{event.code}/costs/expenses/new", data=_expense_payload(_household(db, event)))
     log = ActivityLog.query.filter_by(event_id=event.id, action="expense.created").first()
     assert log.actor_type == "creator"
+
+
+# --- HTTP : médias ----------------------------------------------------------------
+
+
+def test_media_upload_creator_sets_uploaded_by_creator_guest(
+    creator_client, event, creator_guest, tmp_path, monkeypatch
+):
+    monkeypatch.setattr("app.media._media_dir", lambda code: tmp_path)
+    creator_client.post(
+        f"/e/{event.code}/media/upload",
+        data={"file": (io.BytesIO(b"\xff\xd8\xff\xe0" + b"0" * 64), "p.jpg", "image/jpeg")},
+        content_type="multipart/form-data",
+    )
+    assert MediaItem.query.filter_by(event_id=event.id).first().uploaded_by == creator_guest.id
+
+
+def test_media_delete_by_creator_logs_deleting_actor(creator_client, db, event, guest):
+    from app.models import ActivityLog
+
+    item = MediaItem(
+        filename="x.jpg",
+        original_name="x.jpg",
+        mime_type="image/jpeg",
+        size_bytes=10,
+        uploaded_by=guest.id,
+        uploaded_by_name=guest.display_name,
+        event_id=event.id,
+    )
+    db.session.add(item)
+    db.session.commit()
+    creator_client.post(f"/e/{event.code}/media/{item.id}/delete")
+    log = ActivityLog.query.filter_by(event_id=event.id, action="media.deleted").first()
+    assert log.actor_name == "Test Creator"
