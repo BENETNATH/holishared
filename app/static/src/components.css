@@ -157,6 +157,9 @@
     color: var(--color-ink);
   }
   .ui-card__link {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
     color: var(--color-ink);
     text-decoration: none;
   }
@@ -542,6 +545,9 @@
     border-top: 1px solid var(--color-line);
   }
   .ui-list__link {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
     color: var(--color-ink);
     text-decoration: none;
   }

@@ -114,10 +114,6 @@
       <button type="button" class="ui-btn ui-btn--secondary" data-testid="catalog-sheet-trigger" data-sheet-open="catalog-demo-sheet"
               aria-haspopup="dialog" aria-controls="catalog-demo-sheet" aria-expanded="false">{{ _("Ouvrir la feuille") }}</button>
     </div>
-    {% call sheet('catalog-demo-sheet', _('Feuille de démonstration')) %}
-    <p>{{ _("Les toasts restent visibles au-dessus d'une feuille ouverte.") }}</p>
-    <button type="button" class="ui-btn ui-btn--secondary" data-copy="holishared" data-testid="catalog-sheet-copy">{{ icon('copy') }}<span>{{ _("Copier") }}</span></button>
-    {% endcall %}
   </section>
 
   <section data-testid="catalog-confirm" class="flex flex-col gap-4">
@@ -180,5 +176,9 @@
     </ul>
   </section>
 
+  {% call sheet('catalog-demo-sheet', _('Feuille de démonstration')) %}
+  <p>{{ _("Les toasts restent visibles au-dessus d'une feuille ouverte.") }}</p>
+  <button type="button" class="ui-btn ui-btn--secondary" data-copy="holishared" data-testid="catalog-sheet-copy">{{ icon('copy') }}<span>{{ _("Copier") }}</span></button>
+  {% endcall %}
 </div>
 {% endblock %}
