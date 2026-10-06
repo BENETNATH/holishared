@@ -17,8 +17,8 @@ from flask import (
     session,
     url_for,
 )
+from flask_babel import format_date, ngettext
 from flask_babel import gettext as _
-from flask_babel import ngettext
 from flask_login import current_user, login_required, login_user, logout_user
 from sqlalchemy.exc import IntegrityError
 from werkzeug.wrappers import Response
@@ -39,7 +39,7 @@ from app.context import load_event_context
 from app.extensions import db, limiter
 from app.forms import FormErrors
 from app.freemium import can_add_guest, max_duration_days, require_tier
-from app.i18n import household_default_name
+from app.i18n import current_locale, household_default_name
 from app.models import Creator, Event, Guest, Household, generate_guest_code
 from app.utils import ensure_creator_guest
 
@@ -829,10 +829,11 @@ def _send_guest_invite_email(event: Event, email: str, display_name: str | None 
         tasks.send_guest_invite_email,
         host, port, user, pw, frm, email,
         event.title,
-        f"{event.start_date:%d/%m/%Y}",
-        f"{event.end_date:%d/%m/%Y}",
+        format_date(event.start_date, "long"),
+        format_date(event.end_date, "long"),
         join_url,
         display_name,
+        lang=current_locale(),
     )
 
 
@@ -845,6 +846,7 @@ def _send_verification_email(creator: Creator, event: Event, token: str) -> None
     _rq_queue().enqueue(
         tasks.send_verification_email,
         host, port, user, pw, frm, to_addr, event.title, url,
+        lang=current_locale(),
     )
 
 
@@ -857,10 +859,11 @@ def _send_invite_email(to_addr: str, event: Event) -> None:
         tasks.send_invite_email,
         host, port, user, pw, frm, to_addr,
         event.title,
-        event.start_date.strftime('%d/%m/%Y'),
-        event.end_date.strftime('%d/%m/%Y'),
+        format_date(event.start_date, "long"),
+        format_date(event.end_date, "long"),
         event.location or "",
         join_url,
+        lang=current_locale(),
     )
 
 
@@ -910,6 +913,7 @@ def recover_code() -> str | Response:
                 email,
                 creator.personal_code,
                 creator.display_name,
+                lang=current_locale(),
             )
             flash(_("Votre code vous a été envoyé par email."), "success")
         else:

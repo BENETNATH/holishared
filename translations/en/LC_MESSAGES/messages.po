@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 22:40+0200\n"
+"POT-Creation-Date: 2026-10-06 22:42+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -286,6 +286,138 @@ msgstr "GB"
 #: app/i18n.py
 msgid "To"
 msgstr "TB"
+
+#: app/tasks.py
+#, python-format
+msgid ""
+"Bonjour,\n"
+"\n"
+"Vous avez créé l'événement « %(title)s » sur holishared.\n"
+"\n"
+"Pour finaliser, cliquez sur ce lien (valide 3 jours) :\n"
+"\n"
+"%(url)s\n"
+"\n"
+"Vous y définirez votre code personnel et votre pseudo, et vous pourrez inviter vos proches.\n"
+"\n"
+"— holishared\n"
+msgstr ""
+"Hello,\n"
+"\n"
+"You created the event “%(title)s” on holishared.\n"
+"\n"
+"To finish, click this link (valid for 3 days):\n"
+"\n"
+"%(url)s\n"
+"\n"
+"There you will set your personal code and nickname, and you can invite your friends and family.\n"
+"\n"
+"— holishared\n"
+
+#: app/tasks.py
+msgid "Validez votre événement - holishared"
+msgstr "Validate your event - holishared"
+
+#: app/tasks.py
+#, python-format
+msgid "Lieu : %(location)s"
+msgstr "Location: %(location)s"
+
+#: app/tasks.py
+#, python-format
+msgid ""
+"Bonjour,\n"
+"\n"
+"Vous êtes invité(e) à l'événement « %(title)s » sur holishared.\n"
+"\n"
+"Dates : %(start)s → %(end)s\n"
+"%(location_line)sPour rejoindre, cliquez ici :\n"
+"\n"
+"%(url)s\n"
+"\n"
+"Vous choisirez votre pseudo et votre code personnel.\n"
+"\n"
+"— holishared\n"
+msgstr ""
+"Hello,\n"
+"\n"
+"You are invited to the event “%(title)s” on holishared.\n"
+"\n"
+"Dates: %(start)s → %(end)s\n"
+"%(location_line)sTo join, click here:\n"
+"\n"
+"%(url)s\n"
+"\n"
+"You will choose your nickname and your personal code.\n"
+"\n"
+"— holishared\n"
+
+#: app/tasks.py
+#, python-format
+msgid "Invitation : %(title)s"
+msgstr "Invitation: %(title)s"
+
+#: app/tasks.py
+#, python-format
+msgid "Bonjour %(name)s,"
+msgstr "Hello %(name)s,"
+
+#: app/tasks.py
+msgid "Bonjour,"
+msgstr "Hello,"
+
+#: app/tasks.py
+#, python-format
+msgid ""
+"Vous êtes invité(e) à l'événement « %(title)s » sur holishared\n"
+"(%(start)s → %(end)s).\n"
+"\n"
+"Pour rejoindre, créez votre code personnel (4 à 8 lettres ou chiffres que vous retiendrez) en suivant ce lien :\n"
+"\n"
+"%(url)s\n"
+"\n"
+"Votre code vous servira à vous reconnecter sur un autre appareil.\n"
+"\n"
+"— holishared\n"
+msgstr ""
+"You are invited to the event “%(title)s” on holishared\n"
+"(%(start)s → %(end)s).\n"
+"\n"
+"To join, create your personal code (4 to 8 letters or digits that you will remember) by following this link:\n"
+"\n"
+"%(url)s\n"
+"\n"
+"Your code will let you sign back in on another device.\n"
+"\n"
+"— holishared\n"
+
+#: app/tasks.py
+#, python-format
+msgid "Invitation : %(title)s - holishared"
+msgstr "Invitation: %(title)s - holishared"
+
+#: app/tasks.py
+#, python-format
+msgid ""
+"Bonjour,\n"
+"\n"
+"Votre code personnel holishared est : %(code)s\n"
+"\n"
+"Pseudo : %(name)s\n"
+"\n"
+"— holishared\n"
+msgstr ""
+"Hello,\n"
+"\n"
+"Your holishared personal code is: %(code)s\n"
+"\n"
+"Nickname: %(name)s\n"
+"\n"
+"— holishared\n"
+
+#: app/tasks.py
+msgid "Votre code holishared"
+msgstr "Your holishared code"
 
 #: app/ui.py
 msgid "Copié"

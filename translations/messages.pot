@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 22:40+0200\n"
+"POT-Creation-Date: 2026-10-06 22:42+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -284,6 +284,100 @@ msgstr ""
 
 #: app/i18n.py
 msgid "To"
+msgstr ""
+
+#: app/tasks.py
+#, python-format
+msgid ""
+"Bonjour,\n"
+"\n"
+"Vous avez créé l'événement « %(title)s » sur holishared.\n"
+"\n"
+"Pour finaliser, cliquez sur ce lien (valide 3 jours) :\n"
+"\n"
+"%(url)s\n"
+"\n"
+"Vous y définirez votre code personnel et votre pseudo, et vous pourrez "
+"inviter vos proches.\n"
+"\n"
+"— holishared\n"
+msgstr ""
+
+#: app/tasks.py
+msgid "Validez votre événement - holishared"
+msgstr ""
+
+#: app/tasks.py
+#, python-format
+msgid "Lieu : %(location)s"
+msgstr ""
+
+#: app/tasks.py
+#, python-format
+msgid ""
+"Bonjour,\n"
+"\n"
+"Vous êtes invité(e) à l'événement « %(title)s » sur holishared.\n"
+"\n"
+"Dates : %(start)s → %(end)s\n"
+"%(location_line)sPour rejoindre, cliquez ici :\n"
+"\n"
+"%(url)s\n"
+"\n"
+"Vous choisirez votre pseudo et votre code personnel.\n"
+"\n"
+"— holishared\n"
+msgstr ""
+
+#: app/tasks.py
+#, python-format
+msgid "Invitation : %(title)s"
+msgstr ""
+
+#: app/tasks.py
+#, python-format
+msgid "Bonjour %(name)s,"
+msgstr ""
+
+#: app/tasks.py
+msgid "Bonjour,"
+msgstr ""
+
+#: app/tasks.py
+#, python-format
+msgid ""
+"Vous êtes invité(e) à l'événement « %(title)s » sur holishared\n"
+"(%(start)s → %(end)s).\n"
+"\n"
+"Pour rejoindre, créez votre code personnel (4 à 8 lettres ou chiffres que"
+" vous retiendrez) en suivant ce lien :\n"
+"\n"
+"%(url)s\n"
+"\n"
+"Votre code vous servira à vous reconnecter sur un autre appareil.\n"
+"\n"
+"— holishared\n"
+msgstr ""
+
+#: app/tasks.py
+#, python-format
+msgid "Invitation : %(title)s - holishared"
+msgstr ""
+
+#: app/tasks.py
+#, python-format
+msgid ""
+"Bonjour,\n"
+"\n"
+"Votre code personnel holishared est : %(code)s\n"
+"\n"
+"Pseudo : %(name)s\n"
+"\n"
+"— holishared\n"
+msgstr ""
+
+#: app/tasks.py
+msgid "Votre code holishared"
 msgstr ""
 
 #: app/ui.py
