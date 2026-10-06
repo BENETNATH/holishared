@@ -454,11 +454,12 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
-| 20.1 | Accueil événement | Héros (titre, dates, lieu, compte à rebours) + « Aujourd'hui » + « Pour moi » + derniers messages ; une action primaire ; plus de bloc code personnel en tête |
+| 20.1 | Accueil événement | Héros (titre, dates, lieu, compte à rebours) + « Aujourd'hui » + « Pour moi » (tâche 20.7) + derniers messages ; une action primaire ; plus de bloc code personnel en tête |
 | 20.2 | Menu « Événement » | Partager (lien `/join` correct, F03), mon code, participants, journal, export, gestion/suppression (confirmation forte) |
 | 20.3 | Participants | Fusion Membres + Invitations ; liste, ajout, retrait, renvoi, QR, jauge ; accessible depuis l'interface ; foyer créé à l'ajout (F21) |
 | 20.4 | Limite d'invités | La page reste accessible à la limite avec la carte d'upgrade honnête (F02) |
 | 20.5 | Journal | Phrases lisibles et traduites, filtres, pagination (F18) ; accessible depuis le menu |
+| 20.7 | Récapitulatif des articles sur l'accueil | Bloc « Pour moi » : tous mes articles pris en charge, toutes listes confondues, regroupés par liste, **cochables en place** (HTMX, sans rechargement ni navigation), compteur « n/m pris » ; les articles déjà cochés restent visibles (barrés, repliables) avec annulation ; identification par `Guest.id` (B029) et non par nom ; bloc « À répartir » : les premiers articles sans responsable avec bouton « Je m'occupe » en place, lien vers la liste concernée ; état vide clair |
 | 20.6 | Identité créateur | Pastille créateur dans l'en-tête ; nom d'affichage éditable (F22) |
 
 ## B021 — Planning
