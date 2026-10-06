@@ -8,7 +8,7 @@
     </div>
 </div>
 
-<p class="hint meal-hint">{{ _("Cliquez sur une case pour ajouter un repas. Glissez-déposez pour déplacer (swap si la case est occupée). Cliquez sur un repas pour l'éditer ou le supprimer.") }}</p>
+<p class="hint meal-hint">{{ _("Cliquez sur une case pour ajouter un repas, ou sur un repas pour le modifier. Glissez-déposez pour déplacer (swap si la case est occupée).") }}</p>
 
 <div class="meal-grid-wrap">
   <div class="meal-grid" id="meal-grid">
@@ -24,36 +24,17 @@
       <span class="meal-grid-day{% if day == today %} is-today-label{% endif %}">{{ day | format_date('EEE') }}<br><strong>{{ day.strftime("%d/%m") }}</strong></span>
       {% for meal_type, slot in [('Midi', 'lunch'), ('Soir', 'dinner')] %}
         {% set meal = by_cell.get((day, slot)) %}
-        <div class="meal-cell" data-date="{{ day.isoformat() }}" data-slot="{{ slot }}">
+        <div class="meal-cell" data-date="{{ day.isoformat() }}" data-slot="{{ slot }}"
+             data-header="{{ day | format_date('EEEE d MMM') }} — {{ _('Midi') if slot == 'lunch' else _('Soir') }}">
           {% if meal %}
-          <div class="meal-item" draggable="{{ 'true' if can_modify(meal) else 'false' }}" data-meal-id="{{ meal.id }}">
-            <span class="meal-item-title">{{ meal.title }}</span>
-            {% if can_modify(meal) %}
-            <div class="meal-item-edit" hidden>
-              <form method="post" action="{{ url_for('meals.edit', code=event.code, meal_id=meal.id) }}" class="meal-edit-form">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <input type="text" name="title" value="{{ meal.title }}" class="meal-edit-input" maxlength="200" required minlength="2">
-                <button type="submit" class="meal-edit-ok" aria-label="{{ _('OK') }}">✓</button>
-              </form>
-            </div>
-            <div class="meal-item-icons">
-              <button type="button" class="meal-icon meal-icon-edit" aria-label="{{ _('Éditer') }}">✎</button>
-              <form method="post" action="{{ url_for('meals.delete', code=event.code, meal_id=meal.id) }}" class="meal-delete-form">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="meal-icon meal-icon-delete" aria-label="{{ _('Supprimer') }}">✕</button>
-              </form>
-            </div>
-            {% endif %}
+          <div class="meal-card" draggable="{{ 'true' if can_modify(meal) else 'false' }}"
+               data-meal-id="{{ meal.id }}" data-title="{{ meal.title }}"
+               data-edit-url="{{ url_for('meals.edit', code=event.code, meal_id=meal.id) }}"
+               data-delete-url="{{ url_for('meals.delete', code=event.code, meal_id=meal.id) }}">
+            <span class="meal-card-title">{{ meal.title }}</span>
           </div>
           {% else %}
-          <form method="post" action="{{ url_for('meals.create', code=event.code) }}" class="meal-add-form">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <input type="hidden" name="date" value="{{ day.isoformat() }}">
-            <input type="hidden" name="slot" value="{{ slot }}">
-            <input type="text" name="title" class="meal-input"
-                   placeholder="{{ _('Repas…') }}" maxlength="200" required minlength="2">
-            <button type="submit" class="meal-submit" aria-label="{{ _('Ajouter') }}">✓</button>
-          </form>
+          <span class="meal-empty-hint" aria-hidden="true">＋</span>
           {% endif %}
         </div>
       {% endfor %}
@@ -61,6 +42,28 @@
     {% endfor %}
   </div>
 </div>
+
+{# Modale de gestion du repas (ajout / modification / suppression) #}
+<dialog id="meal-modal" class="meal-modal" aria-labelledby="meal-modal-title">
+  <form id="meal-modal-form" method="post" action="">
+    <div class="meal-modal-head">
+      <h3 id="meal-modal-title"></h3>
+      <button type="button" class="meal-modal-close" id="meal-modal-close" aria-label="{{ _('Fermer') }}">✕</button>
+    </div>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="date" id="meal-modal-date">
+    <input type="hidden" name="slot" id="meal-modal-slot">
+    <input type="hidden" name="meal_id" id="meal-modal-meal-id">
+    <label class="meal-modal-label" for="meal-modal-title-input">{{ _("Nom du repas") }}</label>
+    <input type="text" name="title" id="meal-modal-title-input"
+           placeholder="{{ _('Ex : Barbecue, Salade de pâtes…') }}"
+           required minlength="2" maxlength="200">
+    <div class="meal-modal-actions">
+      <button type="submit" class="btn btn-primary meal-modal-save">{{ _("Enregistrer") }}</button>
+      <button type="button" class="btn btn-danger meal-modal-delete" id="meal-modal-delete" hidden>{{ _("Supprimer ce repas") }}</button>
+    </div>
+  </form>
+</dialog>
 {% endblock %}
 
 {% block scripts %}
@@ -68,44 +71,86 @@
 (function() {
   var grid = document.getElementById('meal-grid');
   if (!grid) return;
+  var modal = document.getElementById('meal-modal');
+  var form = document.getElementById('meal-modal-form');
+  var titleInput = document.getElementById('meal-modal-title-input');
+  var dateField = document.getElementById('meal-modal-date');
+  var slotField = document.getElementById('meal-modal-slot');
+  var mealIdField = document.getElementById('meal-modal-meal-id');
+  var modalTitle = document.getElementById('meal-modal-title');
+  var deleteBtn = document.getElementById('meal-modal-delete');
+  var closeBtn = document.getElementById('meal-modal-close');
+  var createUrl = "{{ url_for('meals.create', code=event.code) }}";
+  var moveUrl = "{{ url_for('meals.move', code=event.code) }}";
+  var csrf = "{{ csrf_token() }}";
+  var deleteUrl = "";
 
-  function closeAllEdits() {
-    grid.querySelectorAll('.meal-item-edit:not([hidden])').forEach(function(el) {
-      el.hidden = true;
-      var t = el.parentElement.querySelector('.meal-item-title');
-      if (t) t.style.display = '';
-      var i = el.parentElement.querySelector('.meal-item-icons');
-      if (i) i.style.display = '';
-    });
+  function openModal(opts) {
+    if (opts.mode === 'add') {
+      form.action = createUrl;
+      mealIdField.value = "";
+      deleteBtn.hidden = true;
+    } else {
+      form.action = opts.editUrl;
+      mealIdField.value = opts.mealId;
+      deleteUrl = opts.deleteUrl;
+      deleteBtn.hidden = false;
+    }
+    dateField.value = opts.date;
+    slotField.value = opts.slot;
+    titleInput.value = opts.title || "";
+    var h = opts.header || "";
+    modalTitle.textContent = h ? h.charAt(0).toUpperCase() + h.slice(1) : h;
+    modal.showModal();
+    titleInput.focus();
+    titleInput.select();
   }
 
-  // Pencil icon: toggle inline edit for that meal.
+  // Clic : case vide -> ajout ; repas existant -> édition/suppression.
   grid.addEventListener('click', function(e) {
-    var editBtn = e.target.closest('.meal-icon-edit');
-    if (!editBtn) return;
-    var item = editBtn.closest('.meal-item');
-    var edit = item.querySelector('.meal-item-edit');
-    var title = item.querySelector('.meal-item-title');
-    var icons = item.querySelector('.meal-item-icons');
-    closeAllEdits();
-    if (!edit.hidden) return; // was open, now closed
-    title.style.display = 'none';
-    icons.style.display = 'none';
-    edit.hidden = false;
-    var input = edit.querySelector('.meal-edit-input');
-    if (input) { input.focus(); input.select(); }
-    e.stopPropagation();
+    var card = e.target.closest('.meal-card');
+    var cell = e.target.closest('.meal-cell');
+    if (!cell) return;
+    var date = cell.getAttribute('data-date');
+    var slot = cell.getAttribute('data-slot');
+    var header = cell.getAttribute('data-header');
+    if (card) {
+      openModal({
+        mode: 'edit',
+        date: date, slot: slot, header: header,
+        mealId: card.getAttribute('data-meal-id'),
+        title: card.getAttribute('data-title'),
+        editUrl: card.getAttribute('data-edit-url'),
+        deleteUrl: card.getAttribute('data-delete-url')
+      });
+    } else {
+      openModal({ mode: 'add', date: date, slot: slot, header: header, title: "" });
+    }
   });
 
-  // Clicking elsewhere closes open edits.
-  document.addEventListener('click', function(e) {
-    if (!e.target.closest('.meal-item')) closeAllEdits();
+  // Suppression (mode édition) : POST vers meals.delete.
+  deleteBtn.addEventListener('click', function() {
+    if (!deleteUrl) return;
+    var f = document.createElement('form');
+    f.method = 'post';
+    f.action = deleteUrl;
+    var c = document.createElement('input');
+    c.type = 'hidden'; c.name = 'csrf_token'; c.value = csrf;
+    f.appendChild(c);
+    document.body.appendChild(f);
+    f.submit();
   });
 
-  // Drag & drop: move a meal to a cell (swap if occupied).
+  // Fermeture (croix ou clic sur le backdrop).
+  closeBtn.addEventListener('click', function() { modal.close(); });
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) modal.close();
+  });
+
+  // Drag & drop (inchangé, via meals.move).
   var draggedId = null;
   grid.addEventListener('dragstart', function(e) {
-    var item = e.target.closest('.meal-item');
+    var item = e.target.closest('.meal-card');
     if (!item || item.getAttribute('draggable') !== 'true') { e.preventDefault(); return; }
     draggedId = item.getAttribute('data-meal-id');
     e.dataTransfer.effectAllowed = 'move';
@@ -113,7 +158,7 @@
     item.classList.add('dragging');
   });
   grid.addEventListener('dragend', function(e) {
-    var item = e.target.closest('.meal-item');
+    var item = e.target.closest('.meal-card');
     if (item) item.classList.remove('dragging');
     draggedId = null;
   });
@@ -133,20 +178,20 @@
       if (!mealId) return;
       var date = cell.getAttribute('data-date');
       var slot = cell.getAttribute('data-slot');
-      var form = document.createElement('form');
-      form.method = 'post';
-      form.action = "{{ url_for('meals.move', code=event.code) }}";
+      var f = document.createElement('form');
+      f.method = 'post';
+      f.action = moveUrl;
       function field(name, value) {
         var i = document.createElement('input');
         i.type = 'hidden'; i.name = name; i.value = value;
-        form.appendChild(i);
+        f.appendChild(i);
       }
-      field('csrf_token', "{{ csrf_token() }}");
+      field('csrf_token', csrf);
       field('meal_id', mealId);
       field('date', date);
       field('slot', slot);
-      document.body.appendChild(form);
-      form.submit();
+      document.body.appendChild(f);
+      f.submit();
     });
   });
 })();

@@ -38,7 +38,8 @@ class TestMealsIndex:
         resp = client.get(f"/e/{event.code}/meals")
         assert resp.status_code == 200
         assert b"Roti de porc" in resp.data
-        assert b"meal-add-form" in resp.data  # inline per-cell add form renders
+        assert b"meal-card" in resp.data  # meal rendered as an elegant card
+        assert b"meal-modal" in resp.data  # add/edit/delete modal present
 
     def test_today_row_highlighted(self, client, creator, event, db):
         _login_creator(client, creator)

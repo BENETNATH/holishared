@@ -3988,14 +3988,12 @@ tfoot td {
 /* ============================================================
    Meal grid (planning)
    ============================================================ */
+/* ============================================================
+   Grille des repas — calendrier moderne (Notion / Google Calendar)
+   CSS isolé : aucune règle globale (button, form) ne déforme la grille.
+   ============================================================ */
 .meal-grid-wrap {
   margin-bottom: var(--sp-6);
-}
-
-.meal-grid-wrap h2 {
-  font-size: var(--text-lg);
-  font-weight: 600;
-  margin-bottom: var(--sp-3);
 }
 
 .meal-grid {
@@ -4036,146 +4034,119 @@ tfoot td {
   align-items: center;
 }
 
+/* Reset & isolation : les formulaires de la grille ne subissent aucune
+   règle globale (button[type=submit], form). */
+.meal-grid form {
+  all: unset;
+  display: inline;
+}
+
 .meal-cell {
-  padding: var(--sp-2);
-  min-height: 3.5rem;
-  background: var(--surface);
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.meal-item-wrap {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-}
-
-.meal-item {
-  position: relative;
-  font-size: var(--text-sm);
-  padding: 0.25rem 0.375rem;
-  background: var(--primary-soft);
-  color: var(--primary);
+  padding: 0.5rem;
+  min-height: 4.5rem;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  word-break: break-word;
+  transition: background 0.15s ease;
+  background: var(--surface);
   display: flex;
   align-items: center;
-  gap: 3px;
+  justify-content: center;
 }
 
-.meal-item[draggable="true"] {
+.meal-cell:hover {
+  background: var(--surface-hover);
+}
+
+/* Carte repas élégante */
+.meal-card {
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+  background: var(--primary-subtle);
+  color: var(--primary-hover);
+  border: 1px solid var(--border-focus);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.3;
+  word-break: break-word;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease;
+}
+
+.meal-card[draggable="true"] {
   cursor: grab;
 }
 
-.meal-item.dragging {
+.meal-card[draggable="true"]:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.meal-card.dragging {
   opacity: 0.4;
 }
 
-.meal-item-title {
+.meal-card-title {
   display: block;
-  flex: 1;
 }
 
-.meal-item-icons {
-  display: flex;
-  gap: 2px;
-  flex-shrink: 0;
-  opacity: 0;
-  transition: opacity 0.15s;
-}
-
-.meal-item:hover .meal-item-icons,
-.meal-item:focus-within .meal-item-icons {
-  opacity: 1;
-}
-
-.meal-icon {
-  width: 1.5rem;
-  height: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: var(--radius-sm);
-  font-size: 0.8rem;
-  cursor: pointer;
-  background: transparent;
+/* Case vide : hint discret (aucun champ texte permanent) */
+.meal-empty-hint {
   color: var(--text-muted);
-  line-height: 1;
-  padding: 0;
+  opacity: 0;
+  font-size: 1.125rem;
+  font-weight: 400;
+  transition: opacity 0.15s ease;
+  user-select: none;
 }
 
-.meal-icon:hover {
-  background: var(--surface-2);
-  color: var(--text);
-}
-
-.meal-icon-delete:hover {
-  background: var(--danger-soft, #fee2e2);
-  color: var(--danger, #dc2626);
-}
-
-.meal-item-edit {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  min-width: 0;
-}
-
-.meal-edit-form {
-  display: flex;
-  flex: 1;
-  gap: 3px;
-  min-width: 0;
-}
-
-.meal-edit-input {
-  flex: 1;
-  min-width: 0;
-  padding: 0.2rem 0.4rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  color: var(--text);
-  font-size: var(--text-sm);
-}
-
-.meal-edit-ok {
-  flex-shrink: 0;
-  width: 1.5rem;
-  height: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: var(--radius-sm);
-  font-size: 0.8rem;
-  cursor: pointer;
-  background: var(--primary-hover);
-  color: #fff;
-  line-height: 1;
-  padding: 0;
-}
-
-.meal-edit-ok:hover {
-  opacity: 0.85;
+.meal-cell:hover .meal-empty-hint {
+  opacity: 0.6;
 }
 
 .meal-cell.drop-target {
   outline: 2px dashed var(--primary);
   outline-offset: -2px;
-  background: var(--primary-soft);
+  background: var(--primary-subtle);
 }
 
-.meal-delete-form {
-  display: inline;
+/* Modale repas */
+.meal-modal {
+  border: none;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 0;
+  width: min(90vw, 26rem);
+  background: var(--surface);
+  color: var(--text);
 }
 
-.meal-delete-btn {
-  width: 1.25rem;
-  height: 1.25rem;
+.meal-modal::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+}
+
+.meal-modal form {
+  display: block;
+  padding: var(--sp-5);
+}
+
+.meal-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+
+.meal-modal-head h3 {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  margin: 0;
+}
+
+.meal-modal-close {
+  width: 2rem;
+  height: 2rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4184,41 +4155,49 @@ tfoot td {
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
-  font-size: 0.875rem;
-  line-height: 1;
+  font-size: 1rem;
   flex-shrink: 0;
 }
 
-.meal-delete-btn:hover {
-  background: var(--danger-soft);
-  color: var(--danger);
-}
-
-.meal-add-form {
-  margin-top: auto;
-}
-
-.meal-input {
-  width: 100%;
-  padding: 0.25rem 0.375rem;
-  border: 1px dashed var(--border);
-  border-radius: var(--radius-sm);
-  background: transparent;
+.meal-modal-close:hover {
+  background: var(--surface-2);
   color: var(--text);
+}
+
+.meal-modal-label {
+  display: block;
   font-size: var(--text-sm);
-  min-height: 1.75rem;
+  font-weight: 500;
+  color: var(--text-2);
+  margin-bottom: var(--sp-2);
 }
 
-.meal-input::placeholder {
-  color: var(--text-muted);
-  opacity: 0.7;
-}
-
-.meal-input:focus {
-  outline: none;
-  border-color: var(--primary);
-  border-style: solid;
+.meal-modal input[type="text"] {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   background: var(--surface);
+  color: var(--text);
+  font-size: var(--text-base);
+  box-sizing: border-box;
+}
+
+.meal-modal input[type="text"]:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--primary-subtle);
+}
+
+.meal-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-top: var(--sp-5);
+}
+
+.meal-modal-delete {
+  margin-left: auto;
 }
 
 .other-activities {
@@ -4282,8 +4261,9 @@ tfoot td {
     font-size: 0.625rem;
   }
 
-  .meal-input {
-    font-size: var(--text-xs);
+  .meal-card {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.5rem;
   }
 }
 
@@ -4994,34 +4974,6 @@ details.form-options .form-group {
   .landing-hero h1 {
     font-size: var(--text-xl);
   }
-}
-
-.meal-add-form {
-  display: flex;
-  gap: 2px;
-  margin-top: auto;
-}
-
-.meal-submit {
-  width: 1.75rem;
-  height: 1.75rem;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: var(--primary-hover);
-  color: var(--on-primary);
-  font-size: 0.75rem;
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.15s;
-}
-
-.meal-add-form:focus-within .meal-submit,
-.meal-submit:hover {
-  opacity: 1;
 }
 
 /* --- Voting: clear vote card --- */
