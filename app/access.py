@@ -20,6 +20,7 @@ CodeKind = Literal["event", "creator", "guest"]
 IP_FAILURE_LIMIT = "20 per 15 minutes;50 per day"  # par IP, en tout (3 routes, un compteur)
 TARGET_FAILURE_LIMIT = "5 per minute;10 per 15 minutes;15 per hour;30 per day"  # par (IP, cible)
 TARGET_ALERT_THRESHOLD = "50 per hour"  # alerte par cible, jamais de 429
+JOIN_CREATION_LIMIT = "20 per hour"  # créations d'invités réussies par IP (/join)
 
 
 @dataclass(frozen=True)
@@ -128,6 +129,18 @@ def mark_attempt_failed(scope: Literal["home", "event", "join"], event_code: str
             security_log.warning("code_target_alert event=%s", event_code or "home")
     except Exception:
         security_log.warning("code_target_alert_failed", exc_info=True)
+
+
+def join_creation_allowed() -> bool:
+    """Compte une création d'invité réussie pour l'IP ; faux au-delà de la limite.
+
+    Compteur distinct des échecs de code : ne gêne jamais une connexion ``/mycode``.
+    """
+    if not limiter.enabled:
+        return True
+    return bool(
+        limiter.limiter.hit(parse(JOIN_CREATION_LIMIT), "join-created", get_remote_address())
+    )
 
 
 def log_code_login(kind: Literal["creator", "guest"], event_code: str | None) -> None:

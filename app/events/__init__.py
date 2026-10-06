@@ -26,6 +26,7 @@ from werkzeug.wrappers import Response
 from app.access import (
     EVENT_TARGET_FAILURES,
     IP_FAILURES,
+    join_creation_allowed,
     log_code_login,
     mark_attempt_failed,
     normalize_code,
@@ -686,7 +687,7 @@ def invite_resend(code: str, guest_id: str) -> Response:
 @events_bp.route("/<code>/join", methods=["GET", "POST"])
 @IP_FAILURES
 @EVENT_TARGET_FAILURES
-def guest_access(code: str) -> str | Response:
+def guest_access(code: str) -> str | Response | tuple[str, int]:
     """Guest joins an event with display name + creates personal code."""
     ctx = load_event_context(code, require="none")
     event = ctx.event
@@ -703,24 +704,31 @@ def guest_access(code: str) -> str | Response:
         # Field-level validation (the guest chooses their own personal code).
         errors = FormErrors()
         code_refused = False
+        too_many = False
         if not display_name or len(display_name) < 2:
             errors.add("display_name", _("Pseudo requis (min 2 caractères)."))
         if not guest_code or len(guest_code) < 4 or len(guest_code) > 8:
             errors.add("code", _("Code perso requis (4 à 8 caractères)."))
         elif not re.fullmatch(r"[a-z0-9]+", guest_code):
             errors.add("code", _("Code : lettres minuscules et chiffres uniquement."))
-        elif (
-            Guest.query.filter_by(event_id=event.id, code=guest_code).first()
-            or event.creator.personal_code == guest_code
-        ):
-            errors.add("code", _("Code déjà utilisé."))
-            code_refused = True
         if email and not _valid_email(email):
             errors.add("email", _("Format d'email invalide."))
         elif email and is_disposable_email(email):
             errors.add("email", _("Domaine email non accepté (jetable)."))
         if not can_add_guest(event):
             errors.add_global(_("Événement complet."))
+
+        # L'unicité du code n'est testée qu'une fois tout le reste valide : sinon un code
+        # libre/pris se devine sans consommer de quota (oracle de codes, audit #1).
+        if not errors and (
+            Guest.query.filter_by(event_id=event.id, code=guest_code).first()
+            or event.creator.personal_code == guest_code
+        ):
+            errors.add("code", _("Code déjà utilisé."))
+            code_refused = True
+        if not errors and not join_creation_allowed():
+            errors.add_global(_("Trop d'inscriptions depuis votre connexion. Réessayez plus tard."))
+            too_many = True
 
         # Household fields
         num_adults = 1
@@ -734,7 +742,7 @@ def guest_access(code: str) -> str | Response:
         if errors:
             if code_refused:
                 mark_attempt_failed("join", code)
-            return render_template(
+            page = render_template(
                 "events/join.html",
                 event=event,
                 errors=errors,
@@ -744,6 +752,7 @@ def guest_access(code: str) -> str | Response:
                 num_adults=num_adults,
                 num_children=num_children,
             )
+            return page, 429 if too_many else 200
 
         guest = Guest(
             code=guest_code,

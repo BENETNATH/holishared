@@ -365,3 +365,50 @@ def test_verify_integrity_error_renders_code_taken(client, db, pending, monkeypa
     monkeypatch.undo()
     db.session.refresh(pending)
     assert (resp.status_code, pending.verified_at) == (200, None)
+
+
+# --- /join : pas d'oracle de codes, création limitée par IP (audit B017/B029 #1) ------
+
+
+def test_join_invalid_name_does_not_reveal_taken_code(app, event, guest):
+    resp = _post(app, f"/e/{event.code}/join", {"display_name": "", "code": guest.code})
+    assert "Code déjà utilisé".encode() not in resp.data
+
+
+def test_join_invalid_name_with_creator_code_does_not_reveal(app, db, event, creator):
+    creator.personal_code = "abcd2345"
+    db.session.commit()
+    resp = _post(app, f"/e/{event.code}/join", {"display_name": "", "code": "abcd2345"})
+    assert "Code déjà utilisé".encode() not in resp.data
+
+
+def test_join_invalid_email_does_not_reveal_taken_code(app, event, guest):
+    data = {"display_name": "Zed", "code": guest.code, "email": "not-an-email"}
+    assert "Code déjà utilisé".encode() not in _post(app, f"/e/{event.code}/join", data).data
+
+
+def test_join_taken_code_is_still_refused_when_form_is_otherwise_valid(app, event, guest):
+    resp = _post(app, f"/e/{event.code}/join", {"display_name": "Zed", "code": guest.code})
+    assert "Code déjà utilisé".encode() in resp.data
+
+
+def test_join_twenty_first_creation_same_ip_is_refused_and_mycode_still_works(
+    app, db, event, guest
+):
+    app.config["MAX_GUESTS_PER_EVENT"] = 100
+    statuses = []
+    for i in range(21):
+        data = {"display_name": f"Zed{i}", "code": f"zed{i:05d}"}
+        statuses.append(_post(app, f"/e/{event.code}/join", data).status_code)
+    assert statuses == [302] * 20 + [429]
+    assert Guest.query.filter_by(event_id=event.id, code="zed00020").first() is None
+    resp = _post(app, f"/e/{event.code}/mycode", {"guest_code": guest.code})
+    assert resp.status_code == 302
+
+
+def test_join_creation_limit_is_per_ip(app, event):
+    app.config["MAX_GUESTS_PER_EVENT"] = 100
+    for i in range(20):
+        _post(app, f"/e/{event.code}/join", {"display_name": f"Zed{i}", "code": f"zed{i:05d}"})
+    resp = _post(app, f"/e/{event.code}/join", {"display_name": "Other", "code": "other123"}, n=5)
+    assert resp.status_code == 302

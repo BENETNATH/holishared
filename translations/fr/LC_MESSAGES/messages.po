@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 22:42+0200\n"
+"POT-Creation-Date: 2026-10-06 22:55+0200\n"
 "PO-Revision-Date: 2026-10-04 11:18+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -753,11 +753,15 @@ msgid "Code : lettres minuscules et chiffres uniquement."
 msgstr ""
 
 #: app/events/__init__.py
+msgid "Événement complet."
+msgstr ""
+
+#: app/events/__init__.py
 msgid "Code déjà utilisé."
 msgstr ""
 
 #: app/events/__init__.py
-msgid "Événement complet."
+msgid "Trop d'inscriptions depuis votre connexion. Réessayez plus tard."
 msgstr ""
 
 #: app/events/__init__.py

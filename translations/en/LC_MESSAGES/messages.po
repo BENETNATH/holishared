@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 22:42+0200\n"
+"POT-Creation-Date: 2026-10-06 22:55+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -787,12 +787,16 @@ msgid "Code : lettres minuscules et chiffres uniquement."
 msgstr "Code: lowercase letters and digits only."
 
 #: app/events/__init__.py
+msgid "Événement complet."
+msgstr "This event is full."
+
+#: app/events/__init__.py
 msgid "Code déjà utilisé."
 msgstr "Code already in use."
 
 #: app/events/__init__.py
-msgid "Événement complet."
-msgstr "This event is full."
+msgid "Trop d'inscriptions depuis votre connexion. Réessayez plus tard."
+msgstr "Too many sign-ups from your connection. Please try again later."
 
 #: app/events/__init__.py
 msgid "Code invalide."
