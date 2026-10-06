@@ -198,3 +198,8 @@ def test_voting_close_anonymous_redirects_mycode(client, db, event):
     db.session.commit()
     resp = client.post(f"/e/{event.code}/voting/{poll.id}/close")
     assert "/mycode" in _location(resp)
+
+
+def test_chat_htmx_poll_anonymous_returns_hx_redirect(client, event):
+    resp = client.get(f"/e/{event.code}/chat", headers={"HX-Request": "true"})
+    assert (resp.status_code, "/mycode" in resp.headers.get("HX-Redirect", "")) == (204, True)

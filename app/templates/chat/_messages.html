@@ -14,7 +14,7 @@
           <span class="chat-author">{{ msg.author_name }}</span>
           <time datetime="{{ msg.created_at.isoformat() }}">{{ msg.created_at.strftime("%H:%M") }}</time>
           <p class="chat-content">{{ msg.content }}</p>
-          {% if can_delete(msg) %}
+          {% if ctx.can_delete(msg) %}
             <form method="post" action="{{ url_for('chat.delete', code=event.code, msg_id=msg.id) }}">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button type="submit" class="chat-delete"

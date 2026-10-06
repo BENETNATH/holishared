@@ -243,3 +243,23 @@ def test_vote_creator_creates_no_household(creator_client, db, event):
     option = poll.options.first()
     creator_client.post(f"/e/{event.code}/voting/{poll.id}/vote", data={"option_id": option.id})
     assert Household.query.filter_by(event_id=event.id).count() == 0
+
+
+def test_chat_other_guest_cannot_delete_creator_message_403(
+    db, guest_client, event, creator_guest
+):
+    message = ChatMessage(
+        content="hi",
+        author_name="Test Creator",
+        author_type="creator",
+        guest_id=creator_guest.id,
+        event_id=event.id,
+    )
+    db.session.add(message)
+    db.session.commit()
+    assert guest_client.post(f"/e/{event.code}/chat/{message.id}/delete").status_code == 403
+
+
+def test_chat_send_creator_guest_id_is_creator_guest(creator_client, event, creator_guest):
+    creator_client.post(f"/e/{event.code}/chat/send", data={"content": "salut"})
+    assert ChatMessage.query.filter_by(event_id=event.id).first().guest_id == creator_guest.id
