@@ -1,7 +1,6 @@
-"""Migrations de données (B029) : identité unique du créateur, sauvegarde, vérification.
+"""Migrations (B029, B022) : identité unique du créateur, schéma des repas, sauvegarde, vérification.
 
-Sans changement de schéma. Idempotent : une seconde exécution ne fait rien et
-ne crée aucune sauvegarde.
+Idempotentes : une seconde exécution ne fait rien et ne crée aucune sauvegarde.
 """
 
 import logging
@@ -33,6 +32,7 @@ from app.models import (
 logger = logging.getLogger(__name__)
 
 BACKUP_PREFIX = "pre-identity-"
+MEALS_BACKUP_PREFIX = "pre-meals-"
 _KEYS = (
     "creator_guests_reactivated",
     "creator_guests_created",
@@ -229,7 +229,9 @@ def check_identity(session: Any) -> list[str]:
     return sorted(found)
 
 
-def backup_sqlite_database(db_uri: str, instance_path: str) -> Path | None:
+def backup_sqlite_database(
+    db_uri: str, instance_path: str, prefix: str = BACKUP_PREFIX
+) -> Path | None:
     """Copie la base SQLite (compatible WAL) dans <instance>/backups/ ; None sinon."""
     url = make_url(db_uri)
     if not url.drivername.startswith("sqlite") or url.database in (None, "", ":memory:"):
@@ -238,7 +240,7 @@ def backup_sqlite_database(db_uri: str, instance_path: str) -> Path | None:
     target_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
     os.chmod(target_dir, 0o700)  # dossier privé même s'il existait avec d'autres droits
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-    target = target_dir / f"{BACKUP_PREFIX}{stamp}.db"
+    target = target_dir / f"{prefix}{stamp}.db"
     os.close(os.open(target, os.O_CREAT | os.O_WRONLY | os.O_TRUNC, 0o600))  # privé dès la création
     source = sqlite3.connect(str(url.database))
     destination = sqlite3.connect(str(target))
@@ -256,9 +258,7 @@ def prune_backups(instance_path: str, *, keep: int = 3, max_age_days: int = 30) 
     folder = Path(instance_path) / "backups"
     if not folder.is_dir():
         return 0
-    files = sorted(
-        folder.glob(f"{BACKUP_PREFIX}*.db"), key=lambda p: p.stat().st_mtime, reverse=True
-    )
+    files = sorted(folder.glob("pre-*.db"), key=lambda p: p.stat().st_mtime, reverse=True)
     cutoff = (datetime.now(UTC) - timedelta(days=max_age_days)).timestamp()
     removed = 0
     for index, path in enumerate(files):
@@ -277,6 +277,82 @@ def run_identity_migration(app: Flask) -> dict[str, int]:
     prune_backups(app.instance_path)
     result = migrate_identity(db.session)
     logger.info("identity migration %s backup=%s", result, backup or "-")
+    return result
+
+
+def _meals_rebuild_needed(conn: Any) -> bool:
+    """Vrai si `meals` a encore l'unicité (event, date, slot) ou n'a pas `position`."""
+    columns = {row[1] for row in conn.exec_driver_sql("PRAGMA table_info(meals)")}
+    if not columns:
+        return False  # table absente : create_all la créera au bon schéma
+    if "position" not in columns:
+        return True
+    for index in conn.exec_driver_sql("PRAGMA index_list(meals)").fetchall():
+        if index[2]:  # unique
+            info = conn.exec_driver_sql(f'PRAGMA index_info("{index[1]}")').fetchall()
+            if [row[2] for row in info] == ["event_id", "date", "slot"]:
+                return True
+    return False
+
+
+def plan_meals_migration(engine: Any) -> dict[str, int]:
+    """Calcul à blanc : `meals_rebuild` (0/1) et `meals_rows` (lignes à recopier)."""
+    if engine.dialect.name != "sqlite":
+        return {"meals_rebuild": 0, "meals_rows": 0}
+    with engine.connect() as conn:
+        if not _meals_rebuild_needed(conn):
+            return {"meals_rebuild": 0, "meals_rows": 0}
+        rows = conn.exec_driver_sql("SELECT COUNT(*) FROM meals").scalar() or 0
+    return {"meals_rebuild": 1, "meals_rows": int(rows)}
+
+
+_MEALS_REBUILD = (
+    "DROP TABLE IF EXISTS meals_new",
+    "CREATE TABLE meals_new (id VARCHAR(32) NOT NULL, title VARCHAR(200) NOT NULL, "
+    "date DATE NOT NULL, slot VARCHAR(10) NOT NULL, position INTEGER DEFAULT 0 NOT NULL, "
+    "created_by VARCHAR(32), created_at DATETIME, event_id VARCHAR(32) NOT NULL, "
+    "PRIMARY KEY (id), FOREIGN KEY(created_by) REFERENCES guests (id), "
+    "FOREIGN KEY(event_id) REFERENCES events (id))",
+    "INSERT INTO meals_new (id, title, date, slot, position, created_by, created_at, event_id) "
+    "SELECT id, title, date, slot, "
+    "ROW_NUMBER() OVER (PARTITION BY event_id, date, slot ORDER BY created_at, id) - 1, "
+    "created_by, created_at, event_id FROM meals",
+    "DROP TABLE meals",
+    "ALTER TABLE meals_new RENAME TO meals",
+    "CREATE INDEX ix_meal_cell ON meals (event_id, date, slot, position)",
+)
+
+
+def migrate_meals_schema(engine: Any) -> dict[str, int]:
+    """Reconstruit `meals` (sans unicité de case, avec `position`) en une transaction."""
+    plan = plan_meals_migration(engine)
+    if not plan["meals_rebuild"]:
+        return plan
+    with engine.connect() as conn:
+        conn.exec_driver_sql("BEGIN")
+        try:
+            for statement in _MEALS_REBUILD:
+                conn.exec_driver_sql(statement)
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+    return plan
+
+
+def run_meals_migration(app: Flask) -> dict[str, int]:
+    """Migration des repas au démarrage : sauvegarde seulement s'il y a des lignes à recopier."""
+    plan = plan_meals_migration(db.engine)
+    if not plan["meals_rebuild"]:
+        return plan
+    backup = None
+    if plan["meals_rows"]:
+        backup = backup_sqlite_database(
+            app.config["SQLALCHEMY_DATABASE_URI"], app.instance_path, MEALS_BACKUP_PREFIX
+        )
+        prune_backups(app.instance_path)
+    result = migrate_meals_schema(db.engine)
+    logger.info("meals migration %s backup=%s", result, backup or "-")
     return result
 
 

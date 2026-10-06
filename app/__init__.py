@@ -161,6 +161,10 @@ def create_app() -> Flask:
 
     with app.app_context():
         try:
+            if os.environ.get("SKIP_STARTUP_MIGRATION") != "1":
+                from app.migrations import run_meals_migration
+
+                run_meals_migration(app)  # avant la purge : elle charge les repas en cascade
             _purge_expired_events()
             if os.environ.get("SKIP_STARTUP_MIGRATION") != "1":
                 from app.migrations import run_identity_migration

@@ -3,7 +3,7 @@
 import secrets
 import string
 from datetime import date, datetime, time
-from typing import cast
+from typing import Any, cast
 
 from flask_login import UserMixin
 from sqlalchemy.orm import Mapped
@@ -159,11 +159,14 @@ class Activity(db.Model):  # type: ignore[misc,name-defined]
         return sum(1 for r in self.rsvps if r.status == "yes")  # type: ignore[misc,attr-defined]
 
 
+MAX_MEALS_PER_CELL = 6
+
+
 class Meal(db.Model):  # type: ignore[misc,name-defined]
     """A planned meal (lunch or dinner) in the meal grid.
 
-    One meal per (event, date, slot) — a grid cell. Moving a meal into an
-    occupied cell swaps the two meals.
+    Several meals can share a (event, date, slot) cell (B022, at most
+    ``MAX_MEALS_PER_CELL``); ``position`` orders them inside the cell.
     """
 
     __tablename__ = "meals"
@@ -172,12 +175,19 @@ class Meal(db.Model):  # type: ignore[misc,name-defined]
     title: Mapped[str] = db.Column(db.String(200), nullable=False)
     date: Mapped[date] = db.Column(db.Date, nullable=False)
     slot: Mapped[str] = db.Column(db.String(10), nullable=False)  # 'lunch' | 'dinner'
+    position: Mapped[int] = db.Column(db.Integer, nullable=False, default=0, server_default="0")
     created_by: Mapped[str | None] = db.Column(db.String(32), db.ForeignKey("guests.id"), default=None)
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
 
     event_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False)
 
-    __table_args__ = (db.UniqueConstraint("event_id", "date", "slot", name="uq_meal_event_slot"),)
+    __table_args__ = (db.Index("ix_meal_cell", "event_id", "date", "slot", "position"),)
+
+    @staticmethod
+    def ordering() -> tuple[Any, ...]:
+        """ORDER BY chronologique : jour, midi avant soir, position dans la case."""
+        lunch_first = db.case((Meal.slot == "lunch", 0), else_=1)
+        return (Meal.date, lunch_first, Meal.position, Meal.created_at, Meal.id)
 
 
 class ActivityRSVP(db.Model):  # type: ignore[misc,name-defined]
