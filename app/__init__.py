@@ -59,6 +59,7 @@ def create_app() -> Flask:
     app.config["SUPERADMIN_PASSWORD"] = superadmin_pw
 
     # Freemium limits
+    app.config["SW_ENABLED"] = os.environ.get("SW_ENABLED", "true") == "true"
     app.config["MAX_GUESTS_PER_EVENT"] = int(os.environ.get("MAX_GUESTS_PER_EVENT", "10"))
     app.config["MAX_DURATION_DAYS"] = int(os.environ.get("MAX_DURATION_DAYS", "30"))
     app.config["MAX_EVENTS_PER_CREATOR"] = int(os.environ.get("MAX_EVENTS_PER_CREATOR", "3"))
@@ -334,7 +335,7 @@ def create_app() -> Flask:
             response.headers["Pragma"] = "no-cache"
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline'; "  # Alpine.js inline
+            "script-src 'self' 'unsafe-inline'; "  # scripts inline : thème, import map, pages historiques (durcissement en B028)
             "style-src 'self' 'unsafe-inline'; "
             "img-src 'self' data: blob:; "
             "connect-src 'self'; "

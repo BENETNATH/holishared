@@ -16,7 +16,7 @@
 {%- set other_lang = 'fr' if current_lang == 'en' else 'en' -%}
 {%- set role_name = (current_guest.display_name if event_role == 'guest' else (current_user.display_name or _("Créateur"))) if (event_role or current_user.is_authenticated) else '' -%}
 <!DOCTYPE html>
-<html lang="{{ current_lang or 'fr' }}">
+<html lang="{{ current_lang or 'fr' }}" data-sw="{{ 'on' if config.SW_ENABLED else 'off' }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">

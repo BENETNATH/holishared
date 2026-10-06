@@ -124,6 +124,32 @@ def icon(name: str, label: str | None = None, size: int = 20, class_: str = "") 
     )
 
 
+def precache_static() -> list[str]:
+    """Assets statiques précachés par le service worker (hors page hors ligne)."""
+    folder = Path(current_app.static_folder or "", "js", "ui")
+    modules = [f"js/ui/{f.name}" for f in sorted(folder.glob("*.js"))]
+    return ["css/app.css", "js/htmx.min.js", "icons/icon-192.png", *modules]
+
+
+def precache_urls() -> list[str]:
+    """URL précachées : assets à empreinte + page hors ligne."""
+    return [asset_url(f) for f in precache_static()] + [url_for("main.offline")]
+
+
+def asset_version() -> str:
+    """Empreinte globale (assets, service worker, page hors ligne, catalogues .mo)."""
+    digest = hashlib.sha256()
+    for filename in precache_static():
+        digest.update(f"{filename}:{asset_hash(filename)}\n".encode())
+    templates = Path(current_app.root_path, "templates")
+    digest.update((templates / "sw.js").read_bytes())
+    digest.update((templates / "main" / "offline.html").read_bytes())
+    translations = Path(str(current_app.config["BABEL_TRANSLATION_DIRECTORIES"]))
+    for catalog in sorted(translations.glob("*/LC_MESSAGES/messages.mo")):
+        digest.update(catalog.read_bytes())
+    return digest.hexdigest()[:12]
+
+
 @dataclass(frozen=True)
 class NavItem:
     key: str

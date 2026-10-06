@@ -5,6 +5,7 @@ import { initClipboard } from 'ui/clipboard';
 import { initReveal } from 'ui/reveal';
 import { initConfirm } from 'ui/confirm';
 import { initForms } from 'ui/forms';
+import { initPwa } from 'ui/pwa';
 
 initTheme();
 initSheets();
@@ -13,3 +14,4 @@ initClipboard();
 initReveal();
 initConfirm();
 initForms();
+initPwa();
