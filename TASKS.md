@@ -368,7 +368,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 - Repas : glisser-déposer tactile (pointer events, sans bibliothèque) **et** action « Déplacer vers… » accessible.
 - Migration « big-bang » sur la branche `ui/tailwind-refonte` : `main.css` historique reste isolé en couche basse jusqu'à B028, qui le supprime. Merge en `main` à la clôture de B028 (un seul merge pour le programme).
 
-**Ordre d'exécution** : B017 → **B029** → B018 → B019 → B020 → B021 → B022 → B023 → B024 → B025 → B026 → B027 → B028 (B029 est numéroté après coup mais s'exécute juste après le socle : toutes les vues qui suivent en dépendent).
+**Ordre d'exécution** : B017 → **B029** → **B030** → B018 → B019 → B020 → B021 → B022 → B023 → B024 → B025 → B026 → B027 → B028 (B029 est numéroté après coup mais s'exécute juste après le socle : toutes les vues qui suivent en dépendent).
 
 **Chaîne de production par lot** (voir `AGENTS.md`, adaptée aux modèles) :
 1. Spec `specs/B0XX-slug.md` — Opus.
@@ -407,6 +407,18 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 | 29.4 | Réponses homogènes | Non connecté → `/mycode` partout ; 403/404 rendus par les gabarits d'erreur (plus de chaînes brutes) ; aucun `BuildError` quand un module est désactivé (F32) |
 | 29.5 | Codes d'accès | Génération côté serveur (`secrets`), longueur minimale 8 pour les nouveaux codes créateur, limitation des essais par compte/événement ; l'ancien code reste valable |
 | 29.6 | Non-régression | Comportement externe inchangé ; tous les tests existants verts (adaptation traçable uniquement) |
+
+## B030 — Modèle freemium relationnel (Plan / Abonnement)
+
+**Statut** : ⬜ · **Réf.** §11.6 de l'audit, F19 · **S'exécute après B029**
+
+| # | Tâche | Critère d'acceptation |
+|---|-------|----------------------|
+| 30.1 | Schéma | Tables `plans`, `plan_features`, `subscriptions` avec clés étrangères ; plan « free » créé par défaut ; `Creator.tier` et `MediaQuota.tier` remplacés par la relation (migration idempotente, données préservées) |
+| 30.2 | Limites en données | Invités/événement, événements actifs, durée max, stockage : lus depuis le plan ; les variables d'environnement alimentent le plan gratuit |
+| 30.3 | API inchangée | `get_tier`, `has_feature`, `require_tier`, `can_add_guest`, `can_create_event`, `can_upload_media` gardent leurs signatures ; tests freemium existants verts |
+| 30.4 | Extensibilité | Une fonctionnalité payante se déclare par une ligne `plan_features` ; documentation dans un ADR ; aucun paiement branché |
+| 30.5 | Honnêteté | Aucun abonnement fictif : changement de plan réservé à l'administration (commande `manage.py`) tant qu'aucun paiement n'existe (F19) |
 
 ## B018 — Internationalisation complète
 
@@ -484,7 +496,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 | 23.2 | Cocher en un geste | Un article se coche sans « Je m'occupe » préalable ; l'attribution est facultative |
 | 23.3 | Mises à jour sans rechargement | HTMX sur cocher, attribuer, ajouter, supprimer ; position de défilement conservée ; pas de clavier automatique au chargement |
 | 23.4 | Identité d'attribution | Basée sur l'identifiant (plus le nom d'affichage) |
-| 23.6 | Panneau « Repas & activités » | Dans chaque liste, bouton avec compteur ouvrant un panneau à côté de la liste (colonne repliable sur bureau, feuille en bas sur mobile) : repas et activités par jour, libellés complets, case « pris en compte » en HTMX sans rechargement, filtre « masquer les pris en compte », bascule Repas/Activités/Tout ; jamais imposé aux listes libres ; couverture dans `covered_meals`/`covered_activities` ; purge des identifiants orphelins à la suppression d'un repas/activité + migration (contrat §11.5) |
+| 23.6 | Panneau « Repas & activités » | Dans chaque liste, bouton avec compteur ouvrant un panneau à côté de la liste (colonne repliable sur bureau, feuille en bas sur mobile) : repas et activités par jour, libellés complets, case « pris en compte » en HTMX sans rechargement, filtre « masquer les pris en compte », bascule Repas/Activités/Tout ; jamais imposé aux listes libres ; couverture stockée en clés étrangères (`ListMealCoverage`, `ListActivityCoverage`, cascade) en remplacement des tableaux JSON `covered_meals`/`covered_activities`, avec migration idempotente (contrat §11.5) |
 | 23.5 | Suppression | Chacun supprime ses propres articles (avec annulation) ; suppression de liste dépriorisée |
 
 ## B024 — Frais
