@@ -29,6 +29,10 @@ def test_dashboard_unverified_event_creator_404(creator_client, unverified_event
     assert creator_client.get(f"/e/{unverified_event.code}").status_code == 404
 
 
+def test_planning_unverified_event_creator_404(creator_client, unverified_event):
+    assert creator_client.get(f"/e/{unverified_event.code}/planning").status_code == 404
+
+
 def test_verify_sent_unverified_event_200(client, unverified_event):
     assert client.get(f"/e/new/sent/{unverified_event.code}").status_code == 200
 
@@ -146,3 +150,17 @@ def test_dashboard_creator_get_creates_no_household(creator_client, event):
 
     creator_client.get(f"/e/{event.code}")
     assert Household.query.filter_by(event_id=event.id).count() == 0
+
+
+def test_planning_edit_other_guest_renders_403_template(db, guest_client, event, other_guest_c):
+    from datetime import date
+
+    from app.models import Activity
+
+    activity = Activity(
+        title="Theirs", date=date(2026, 12, 2), event_id=event.id, created_by=other_guest_c.id
+    )
+    db.session.add(activity)
+    db.session.commit()
+    resp = guest_client.post(f"/e/{event.code}/planning/{activity.id}/delete")
+    assert b'data-testid="error-403"' in resp.data

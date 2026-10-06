@@ -151,7 +151,9 @@ class TestCreateActivity:
         assert resp.status_code == 302
         act = Activity.query.filter_by(title="Hiking").first()
         assert act is not None
-        assert act.created_by is None
+        assert act.created_by == Guest.query.filter_by(
+            creator_id=creator.id, event_id=event.id
+        ).first().id
 
     def test_create_success_as_guest(self, client, event, guest, db):
         _login_guest(client, event, guest)
@@ -447,12 +449,16 @@ class TestRSVP:
         }, follow_redirects=True)
         assert b"Statut invalide" in resp.data
 
-    def test_rsvp_forbidden_for_creator(self, client, creator, event, activity):
+    def test_rsvp_allowed_for_creator(self, client, creator, event, activity):
         _login_creator(client, creator)
-        resp = client.post(f"/e/{event.code}/planning/{activity.id}/rsvp", data={
+        client.post(f"/e/{event.code}/planning/{activity.id}/rsvp", data={
             "status": "yes",
         }, follow_redirects=True)
-        assert b"cr" in resp.data.lower()  # "Le créateur ne fait pas de RSVP"
+        participant = Guest.query.filter_by(creator_id=creator.id, event_id=event.id).first()
+        rsvp = ActivityRSVP.query.filter_by(
+            activity_id=activity.id, guest_id=participant.id
+        ).first()
+        assert rsvp.status == "yes"
 
     def test_rsvp_redirects_if_not_logged_in(self, client, event, activity):
         resp = client.post(f"/e/{event.code}/planning/{activity.id}/rsvp", data={

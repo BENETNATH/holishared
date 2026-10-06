@@ -113,3 +113,49 @@ def test_can_delete_matches_rights_table(cls, role, expected):
 def test_can_edit_unknown_type_raises_type_error():
     with pytest.raises(TypeError):
         _ctx("creator").can_edit(object())
+
+
+# --- HTTP : RSVP du créateur (D1) --------------------------------------------------
+
+
+@pytest.fixture
+def planned_activity(db, event):
+    from datetime import date
+
+    activity = Activity(title="Swim", date=date(2026, 12, 2), event_id=event.id)
+    db.session.add(activity)
+    db.session.commit()
+    return activity
+
+
+def _rsvp_as_creator(creator_client, event, activity):
+    return creator_client.post(
+        f"/e/{event.code}/planning/{activity.id}/rsvp", data={"status": "yes"}
+    )
+
+
+def test_rsvp_creator_records_rsvp_under_creator_guest(
+    creator_client, event, creator_guest, planned_activity
+):
+    _rsvp_as_creator(creator_client, event, planned_activity)
+    from app.models import ActivityRSVP
+
+    rsvp = ActivityRSVP.query.filter_by(guest_id=creator_guest.id).first()
+    assert rsvp.status == "yes"
+
+
+def test_rsvp_creator_logs_actor_type_creator(
+    creator_client, event, creator_guest, planned_activity
+):
+    _rsvp_as_creator(creator_client, event, planned_activity)
+    from app.models import ActivityLog
+
+    log = ActivityLog.query.filter_by(event_id=event.id, action="rsvp.updated").first()
+    assert log.actor_type == "creator"
+
+
+def test_planning_index_shows_rsvp_form_to_creator(
+    creator_client, event, creator_guest, planned_activity
+):
+    resp = creator_client.get(f"/e/{event.code}/planning")
+    assert f"/planning/{planned_activity.id}/rsvp".encode() in resp.data

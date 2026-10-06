@@ -10,17 +10,15 @@ from flask import (
     redirect,
     render_template,
     request,
-    session,
     url_for,
 )
 from flask_babel import _
-from flask_login import current_user
 from sqlalchemy.exc import IntegrityError
 from werkzeug.wrappers import Response
 
+from app.context import load_event_context, log_event
 from app.extensions import db, limiter
-from app.models import Activity, ActivityRSVP, Event, Guest
-from app.utils import log_action
+from app.models import Activity, ActivityRSVP, Event
 
 planning_bp = Blueprint("planning", __name__)
 
@@ -39,46 +37,6 @@ class ActivityFields:
     location: str
     min_headcount: int
     bring_items: str
-
-
-def _get_event_or_404(code: str) -> Event:
-    """Load an active event by code or abort with 404."""
-    event: Event | None = Event.query.filter_by(code=code, is_active=True).first()
-    if event is None:
-        abort(404)
-    return event
-
-
-def _resolve_actor(event: Event, code: str) -> tuple[Guest | None, bool, Response | None]:
-    """Resolve the current actor for an event.
-
-    Returns (guest, is_creator, denied). ``denied`` is a redirect to the
-    mycode page when neither the creator nor a guest session matches.
-    """
-    if current_user.is_authenticated and current_user.id == event.creator_id:
-        return None, True, None
-    guest_id = session.get(f"guest_{code}")
-    if guest_id:
-        guest = Guest.query.filter_by(id=guest_id, event_id=event.id, is_active=True).first()
-        if guest is not None:
-            return guest, False, None
-    return None, False, redirect(url_for("events.my_code", code=code))
-
-
-def _can_modify(event: Event, activity: Activity, guest: Guest | None) -> bool:
-    """Event creator or activity creator may modify/delete."""
-    if current_user.is_authenticated and current_user.id == event.creator_id:
-        return True
-    return guest is not None and activity.created_by == guest.id
-
-
-def _actor_name(guest: Guest | None, is_creator: bool) -> tuple[str, str]:
-    """(actor_name, actor_type) for ActivityLog entries."""
-    if is_creator:
-        return (current_user.display_name or "Créateur"), "creator"
-    if guest is not None:
-        return guest.display_name, "guest"
-    return "Système", "system"
 
 
 def _parse_time(value: str) -> time | None:
@@ -174,10 +132,8 @@ def _validate_form(event: Event) -> tuple[list[str], dict[str, str], ActivityFie
 @planning_bp.route("/e/<code>/planning")
 def index(code: str) -> Response | tuple[str, int] | str:
     """List the event's activities, grouped by date."""
-    event = _get_event_or_404(code)
-    guest, _, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
+    ctx = load_event_context(code)
+    event = ctx.event
 
     activities = (
         Activity.query.filter_by(event_id=event.id)
@@ -186,21 +142,16 @@ def index(code: str) -> Response | tuple[str, int] | str:
     )
 
     guest_rsvps: dict[str, str] = {}
-    if guest is not None:
-        for rsvp in ActivityRSVP.query.filter_by(guest_id=guest.id).all():
+    if ctx.participant is not None:
+        for rsvp in ActivityRSVP.query.filter_by(guest_id=ctx.participant.id).all():
             guest_rsvps[rsvp.activity_id] = rsvp.status
-
-    def can_modify(activity: Activity) -> bool:
-        return _can_modify(event, activity, guest)
 
     return render_template(
         "planning/index.html",
         event=event,
         activities=activities,
-        guest=guest,
         today=date.today(),
         guest_rsvps=guest_rsvps,
-        can_modify=can_modify,
     )
 
 
@@ -208,10 +159,8 @@ def index(code: str) -> Response | tuple[str, int] | str:
 @limiter.limit("20 per hour")
 def create(code: str) -> Response | tuple[str, int] | str:
     """Create a new activity."""
-    event = _get_event_or_404(code)
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
+    ctx = load_event_context(code)
+    event = ctx.event
 
     if request.method == "GET":
         return render_template(
@@ -243,14 +192,11 @@ def create(code: str) -> Response | tuple[str, int] | str:
         location=fields.location,
         min_headcount=fields.min_headcount,
         bring_items=fields.bring_items,
-        created_by=guest.id if guest is not None else None,
+        created_by=ctx.participant.id if ctx.participant else None,
         event_id=event.id,
     )
     db.session.add(activity)
-    actor_name, actor_type = _actor_name(guest, is_creator)
-    log_action(
-        db.session, event.id, actor_name, actor_type, "activity.created", target=fields.title
-    )
+    log_event(ctx, "activity.created", target=fields.title)
     db.session.commit()
 
     flash(_("Activité créée."))
@@ -260,15 +206,13 @@ def create(code: str) -> Response | tuple[str, int] | str:
 @planning_bp.route("/e/<code>/planning/<activity_id>/edit", methods=["GET", "POST"])
 def edit(code: str, activity_id: str) -> Response | tuple[str, int] | str:
     """Edit an existing activity."""
-    event = _get_event_or_404(code)
+    ctx = load_event_context(code)
+    event = ctx.event
     activity = Activity.query.filter_by(id=activity_id, event_id=event.id).first()
     if activity is None:
         abort(404)
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
-    if not _can_modify(event, activity, guest):
-        return _("Pas autorisé."), 403
+    if not ctx.can_edit(activity):
+        abort(403)
 
     action_url = url_for("planning.edit", code=code, activity_id=activity.id)
 
@@ -311,10 +255,7 @@ def edit(code: str, activity_id: str) -> Response | tuple[str, int] | str:
     activity.location = fields.location
     activity.min_headcount = fields.min_headcount
     activity.bring_items = fields.bring_items
-    actor_name, actor_type = _actor_name(guest, is_creator)
-    log_action(
-        db.session, event.id, actor_name, actor_type, "activity.updated", target=fields.title
-    )
+    log_event(ctx, "activity.updated", target=fields.title)
     db.session.commit()
 
     flash(_("Activité modifiée."))
@@ -324,20 +265,16 @@ def edit(code: str, activity_id: str) -> Response | tuple[str, int] | str:
 @planning_bp.route("/e/<code>/planning/<activity_id>/delete", methods=["POST"])
 def delete(code: str, activity_id: str) -> Response | tuple[str, int] | str:
     """Delete an activity (RSVPs cascade)."""
-    event = _get_event_or_404(code)
-    activity = Activity.query.filter_by(id=activity_id, event_id=event.id).first()
+    ctx = load_event_context(code)
+    activity = Activity.query.filter_by(id=activity_id, event_id=ctx.event.id).first()
     if activity is None:
         abort(404)
-    guest, is_creator, denied = _resolve_actor(event, code)
-    if denied is not None:
-        return denied
-    if not _can_modify(event, activity, guest):
-        return _("Pas autorisé."), 403
+    if not ctx.can_delete(activity):
+        abort(403)
 
     title = activity.title
     db.session.delete(activity)
-    actor_name, actor_type = _actor_name(guest, is_creator)
-    log_action(db.session, event.id, actor_name, actor_type, "activity.deleted", target=title)
+    log_event(ctx, "activity.deleted", target=title)
     db.session.commit()
 
     flash(_("Activité supprimée."))
@@ -347,20 +284,11 @@ def delete(code: str, activity_id: str) -> Response | tuple[str, int] | str:
 @planning_bp.route("/e/<code>/planning/<activity_id>/rsvp", methods=["POST"])
 def rsvp(code: str, activity_id: str) -> Response | tuple[str, int] | str:
     """Upsert the guest's RSVP for an activity."""
-    event = _get_event_or_404(code)
-
-    if current_user.is_authenticated and current_user.id == event.creator_id:
-        flash(_("Le créateur ne fait pas de RSVP."))
-        return redirect(url_for("planning.index", code=code))
-
-    guest_id = session.get(f"guest_{code}")
-    guest = None
-    if guest_id:
-        guest = Guest.query.filter_by(id=guest_id, event_id=event.id, is_active=True).first()
-    if guest is None:
-        return redirect(url_for("events.my_code", code=code))
-
-    activity = Activity.query.filter_by(id=activity_id, event_id=event.id).first()
+    ctx = load_event_context(code)
+    participant = ctx.participant
+    if participant is None:  # garanti par require="participant"
+        abort(403)
+    activity = Activity.query.filter_by(id=activity_id, event_id=ctx.event.id).first()
     if activity is None:
         abort(404)
 
@@ -370,24 +298,16 @@ def rsvp(code: str, activity_id: str) -> Response | tuple[str, int] | str:
         return redirect(url_for("planning.index", code=code))
 
     try:
-        db.session.add(ActivityRSVP(activity_id=activity.id, guest_id=guest.id, status=status))
+        db.session.add(ActivityRSVP(activity_id=activity.id, guest_id=participant.id, status=status))
         db.session.commit()
     except IntegrityError:
         db.session.rollback()
-        existing = ActivityRSVP.query.filter_by(activity_id=activity.id, guest_id=guest.id).first()
+        existing = ActivityRSVP.query.filter_by(activity_id=activity.id, guest_id=participant.id).first()
         if existing is not None:
             existing.status = status
             db.session.commit()
 
-    log_action(
-        db.session,
-        event.id,
-        guest.display_name,
-        "guest",
-        "rsvp.updated",
-        target=activity.title,
-        details=status,
-    )
+    log_event(ctx, "rsvp.updated", target=activity.title, details=status)
     db.session.commit()
 
     return redirect(url_for("planning.index", code=code))

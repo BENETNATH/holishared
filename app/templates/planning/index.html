@@ -31,7 +31,7 @@
           {% if act.description %}<p>{{ act.description }}</p>{% endif %}
           {% if act.location %}<p class="location">📍 {{ act.location }}</p>{% endif %}
         </div>
-        {% if can_modify(act) %}
+        {% if ctx.can_edit(act) %}
           <div class="activity-actions">
             <a href="{{ url_for('planning.edit', code=event.code, activity_id=act.id) }}" class="btn btn-small btn-secondary">{{ _("Modifier") }}</a>
             <form method="post" action="{{ url_for('planning.delete', code=event.code, activity_id=act.id) }}">
@@ -67,7 +67,7 @@
 </div>
 
 {# RSVP section for guests #}
-{% if guest and activities %}
+{% if ctx.participant and activities %}
 <div class="rsvp-section">
   <h2>{{ _("Indiquez votre participation") }}</h2>
   {% for act in activities %}
