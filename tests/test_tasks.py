@@ -24,10 +24,14 @@ def test_send_verification_email(smtp_config):
         mock_conn = MagicMock()
         mock_smtp.return_value.__enter__.return_value = mock_conn
         tasks.send_verification_email(
-            smtp_config["host"], smtp_config["port"],
-            smtp_config["user"], smtp_config["password"],
-            smtp_config["from"], "to@test.com",
-            "Test Event", "http://test.com/verify/abc",
+            smtp_config["host"],
+            smtp_config["port"],
+            smtp_config["user"],
+            smtp_config["password"],
+            smtp_config["from"],
+            "to@test.com",
+            "Test Event",
+            "http://test.com/verify/abc",
         )
         mock_smtp.assert_called_once_with("smtp.test.com", 587)
         mock_conn.starttls.assert_called_once()
@@ -40,11 +44,17 @@ def test_send_invite_email(smtp_config):
         mock_conn = MagicMock()
         mock_smtp.return_value.__enter__.return_value = mock_conn
         tasks.send_invite_email(
-            smtp_config["host"], smtp_config["port"],
-            smtp_config["user"], smtp_config["password"],
-            smtp_config["from"], "to@test.com",
-            "Test Event", "01/12/2026", "07/12/2026",
-            "Strasbourg", "http://test.com/e/abc/join",
+            smtp_config["host"],
+            smtp_config["port"],
+            smtp_config["user"],
+            smtp_config["password"],
+            smtp_config["from"],
+            "to@test.com",
+            "Test Event",
+            "01/12/2026",
+            "07/12/2026",
+            "Strasbourg",
+            "http://test.com/e/abc/join",
         )
         mock_smtp.assert_called_once()
 
@@ -54,11 +64,17 @@ def test_send_guest_invite_email(smtp_config):
         mock_conn = MagicMock()
         mock_smtp.return_value.__enter__.return_value = mock_conn
         tasks.send_guest_invite_email(
-            smtp_config["host"], smtp_config["port"],
-            smtp_config["user"], smtp_config["password"],
-            smtp_config["from"], "to@test.com",
-            "Test Event", "01/12/2026", "07/12/2026",
-            "http://test.com/e/abc/join", "Alice",
+            smtp_config["host"],
+            smtp_config["port"],
+            smtp_config["user"],
+            smtp_config["password"],
+            smtp_config["from"],
+            "to@test.com",
+            "Test Event",
+            "01/12/2026",
+            "07/12/2026",
+            "http://test.com/e/abc/join",
+            "Alice",
         )
         mock_smtp.assert_called_once()
 
@@ -68,10 +84,15 @@ def test_send_guest_invite_email_no_name(smtp_config):
         mock_conn = MagicMock()
         mock_smtp.return_value.__enter__.return_value = mock_conn
         tasks.send_guest_invite_email(
-            smtp_config["host"], smtp_config["port"],
-            smtp_config["user"], smtp_config["password"],
-            smtp_config["from"], "to@test.com",
-            "Test Event", "01/12/2026", "07/12/2026",
+            smtp_config["host"],
+            smtp_config["port"],
+            smtp_config["user"],
+            smtp_config["password"],
+            smtp_config["from"],
+            "to@test.com",
+            "Test Event",
+            "01/12/2026",
+            "07/12/2026",
             "http://test.com/e/abc/join",
         )
         mock_smtp.assert_called_once()
@@ -82,10 +103,14 @@ def test_send_recovery_email(smtp_config):
         mock_conn = MagicMock()
         mock_smtp.return_value.__enter__.return_value = mock_conn
         tasks.send_recovery_email(
-            smtp_config["host"], smtp_config["port"],
-            smtp_config["user"], smtp_config["password"],
-            smtp_config["from"], "to@test.com",
-            "abc123", "Alice",
+            smtp_config["host"],
+            smtp_config["port"],
+            smtp_config["user"],
+            smtp_config["password"],
+            smtp_config["from"],
+            "to@test.com",
+            "abc123",
+            "Alice",
         )
         mock_smtp.assert_called_once()
 
@@ -94,8 +119,22 @@ def _sent(call_name, lang=None, **extra):
     """Appelle une tâche avec un SMTP factice ; renvoie (sujet, corps)."""
     args = {
         "send_verification_email": ("to@test.com", "Fête", "http://t/verify/x"),
-        "send_invite_email": ("to@test.com", "Fête", "1 décembre 2026", "7 décembre 2026", "Lyon", "http://t/join"),
-        "send_guest_invite_email": ("to@test.com", "Fête", "1 décembre 2026", "7 décembre 2026", "http://t/join", "Alice"),
+        "send_invite_email": (
+            "to@test.com",
+            "Fête",
+            "1 décembre 2026",
+            "7 décembre 2026",
+            "Lyon",
+            "http://t/join",
+        ),
+        "send_guest_invite_email": (
+            "to@test.com",
+            "Fête",
+            "1 décembre 2026",
+            "7 décembre 2026",
+            "http://t/join",
+            "Alice",
+        ),
         "send_recovery_email": ("to@test.com", "abc12345", "Alice"),
     }[call_name]
     kwargs = dict(extra)
@@ -111,7 +150,12 @@ def _sent(call_name, lang=None, **extra):
 
 @pytest.mark.parametrize(
     "name",
-    ["send_verification_email", "send_invite_email", "send_guest_invite_email", "send_recovery_email"],
+    [
+        "send_verification_email",
+        "send_invite_email",
+        "send_guest_invite_email",
+        "send_recovery_email",
+    ],
 )
 def test_emails_default_to_formal_french(name):
     subject, body = _sent(name)
@@ -122,7 +166,12 @@ def test_emails_default_to_formal_french(name):
 
 @pytest.mark.parametrize(
     "name",
-    ["send_verification_email", "send_invite_email", "send_guest_invite_email", "send_recovery_email"],
+    [
+        "send_verification_email",
+        "send_invite_email",
+        "send_guest_invite_email",
+        "send_recovery_email",
+    ],
 )
 def test_emails_are_sent_in_the_requested_language(name):
     subject, body = _sent(name, lang="en")
@@ -156,9 +205,7 @@ def test_invitation_is_enqueued_in_the_inviters_language(creator_client, event, 
             queued.append((fn.__name__, args, kwargs))
 
     monkeypatch.setattr("app.events._rq_queue", lambda: FakeQueue())
-    creator_client.post(
-        f"/e/{event.code}/invite/email?lang=en", data={"email": "friend@test.com"}
-    )
+    creator_client.post(f"/e/{event.code}/invite/email?lang=en", data={"email": "friend@test.com"})
     name, args, kwargs = queued[0]
     assert name == "send_guest_invite_email"
     assert kwargs == {"lang": "en"}

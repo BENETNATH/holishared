@@ -513,3 +513,8 @@ class PaymentRequest(db.Model):  # type: ignore[misc,name-defined]
     event = db.relationship("Event", backref=db.backref("payment_requests", lazy="dynamic", cascade="all, delete-orphan"))
     from_household = db.relationship("Household", foreign_keys=[from_household_id])
     to_household = db.relationship("Household", foreign_keys=[to_household_id])
+
+    @property
+    def amount(self) -> float:
+        """Amount in the base currency (float for display)."""
+        return self.amount_cents / 100.0

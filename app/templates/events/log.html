@@ -26,7 +26,7 @@
     <tr>
       <td data-label="{{ _('Quand') }}">{{ log.created_at | format_datetime('short') }}</td>
       <td data-label="{{ _('Qui') }}">{{ log.actor_name }}</td>
-      <td data-label="{{ _('Action') }}"><code>{{ log.action }}</code></td>
+      <td data-label="{{ _('Action') }}">{{ log.action|action_label }}</td>
       <td data-label="{{ _('Cible') }}">{{ log.target or "" }}</td>
       <td data-label="{{ _('Détails') }}">{{ log.details or "" }}</td>
     </tr>
