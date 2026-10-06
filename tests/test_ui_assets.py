@@ -94,6 +94,7 @@ SPEC_ICON_NAMES = [
     "users",
     "scroll-text",
     "user-plus",
+    "user-minus",
     "shield-check",
     "calendar-plus",
     "calendar-range",

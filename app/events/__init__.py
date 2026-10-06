@@ -365,7 +365,7 @@ def verify(token: str) -> str | Response:
 def dashboard(code: str) -> str | Response:
     """Accueil de l'événement (créateur ou invité avec code valide)."""
     from app.lists import home_items
-    from app.models import ChatMessage, LogisticsItem
+    from app.models import ChatMessage, ListMealCoverage, LogisticsItem, SharedList
 
     ctx = load_event_context(code)
     event = ctx.event
@@ -373,9 +373,12 @@ def dashboard(code: str) -> str | Response:
     modules = [m for m in current_app.config["ENABLED_MODULES"] if m in current_app.blueprints]
 
     # Courses : un repas est « couvert » quand ses ingrédients sont dans une liste.
-    covered_meal_ids: set[str] = set()
-    for lst in event.lists:
-        covered_meal_ids.update(lst.covered_meals or [])
+    covered_meal_ids = {
+        row[0]
+        for row in db.session.query(ListMealCoverage.meal_id)
+        .join(SharedList, SharedList.id == ListMealCoverage.list_id)
+        .filter(SharedList.event_id == event.id)
+    }
 
     # Chronologie du jour : activités + repas (déjeuner 12:00, dîner 20:00 ; sans heure -> fin).
     slot_hour = {"lunch": (12, 0), "dinner": (20, 0)}
@@ -516,7 +519,15 @@ def export_event(code: str) -> Response:
     import zipfile
 
     from app.costs import _per_expense_shares, _settlement
-    from app.models import Activity, Expense, MediaItem, Poll, SharedList
+    from app.models import (
+        Activity,
+        Expense,
+        ListActivityCoverage,
+        ListMealCoverage,
+        MediaItem,
+        Poll,
+        SharedList,
+    )
 
     event = load_event_context(code, require="creator").event
 
@@ -578,6 +589,18 @@ def export_event(code: str) -> Response:
                 "articles": [
                     {"nom": i.name, "fait": i.is_done, "assigne": i.assigned_to}
                     for i in lst.items
+                ],
+                "repas_pris_en_compte": [
+                    m.title
+                    for m in Meal.query.join(ListMealCoverage, ListMealCoverage.meal_id == Meal.id).filter(
+                        ListMealCoverage.list_id == lst.id
+                    )
+                ],
+                "activites_pris_en_compte": [
+                    a.title
+                    for a in Activity.query.join(
+                        ListActivityCoverage, ListActivityCoverage.activity_id == Activity.id
+                    ).filter(ListActivityCoverage.list_id == lst.id)
                 ],
             }
             for lst in lists

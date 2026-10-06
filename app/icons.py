@@ -16,6 +16,7 @@ ICON_NAMES: Final[tuple[str, ...]] = (
     "users",
     "scroll-text",
     "user-plus",
+    "user-minus",
     "shield-check",
     "calendar-plus",
     "calendar-range",
@@ -139,6 +140,11 @@ ICONS: Final[dict[str, str]] = {
         '<path d="M15 8h-5" />'
         '<path d="M19 17V5a2 2 0 0 0-2-2H4" />'
         '<path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3" />'
+    ),
+    "user-minus": (
+        '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />'
+        '<circle cx="9" cy="7" r="4" />'
+        '<line x1="17" x2="23" y1="11" y2="11" />'
     ),
     "user-plus": (
         '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />'

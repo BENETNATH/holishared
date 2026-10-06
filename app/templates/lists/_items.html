@@ -1,0 +1,64 @@
+{# Fragment HTMX « articles » (B023) : remplacé en bloc (cible #list-items) après ajout, coche, attribution, suppression. #}
+{%- macro row(item) -%}
+{%- set mine = ctx.participant is not none and item.assigned_to_id == ctx.participant.id -%}
+{%- set locked = item.assigned_to_id is not none and not ctx.can_edit(item) -%}
+{%- set base = {'code': event.code, 'list_id': shared_list.id, 'item_id': item.id} -%}
+<li data-testid="list-item" data-item-id="{{ item.id }}" data-done="{{ 'true' if item.is_done else 'false' }}" data-mine="{{ 'true' if mine else 'false' }}"
+    class="flex items-center gap-1 border-t border-line first:border-t-0">
+  <form class="min-w-0 flex-1" hx-post="{{ url_for('lists.toggle_item', **base) }}" hx-target="#list-items" hx-swap="outerHTML" hx-trigger="change">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="is_done" value="{{ '0' if item.is_done else '1' }}">
+    <label class="ui-check">
+      <input type="checkbox" id="item-check-{{ item.id }}" data-testid="item-check"{% if item.is_done %} checked{% endif %}{% if locked %} disabled{% endif %}
+             aria-label="{{ (_('Décocher') if item.is_done else _('Cocher')) ~ ' : ' ~ item.name }}">
+      <span class="min-w-0">
+        <span class="break-words{% if item.is_done %} text-ink-muted line-through{% endif %}" data-testid="item-name">{{ item.name }}</span>
+        {%- if item.quantity and item.quantity != "1" %} <span class="text-small text-ink-2" data-testid="item-quantity">× {{ item.quantity }}</span>{% endif %}
+        {%- if item.assigned_to %}
+        <span class="mt-0.5 flex items-center gap-1 text-caption text-ink-2" data-testid="item-assignee">
+          <span class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary-soft text-caption font-semibold text-primary-strong" aria-hidden="true">{{ item.assigned_to[:1]|upper }}</span>
+          <span class="min-w-0 break-words">{{ _("Vous") if mine else item.assigned_to }}</span>
+        </span>
+        {%- endif %}
+      </span>
+    </label>
+  </form>
+  {%- if not item.assigned_to_id and ctx.participant is not none %}
+  <form hx-post="{{ url_for('lists.claim_item', **base) }}" hx-target="#list-items" hx-swap="outerHTML">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="ui-btn ui-btn--ghost ui-btn--sm min-h-[44px] min-w-[44px]" data-testid="item-claim" title="{{ _("Je m'occupe") }}">{{ icon('user-plus', size=18) }}<span class="max-sm:sr-only">{{ _("Je m'occupe") }}</span></button>
+  </form>
+  {%- elif item.assigned_to_id and ctx.can_edit(item) %}
+  <form hx-post="{{ url_for('lists.unclaim_item', **base) }}" hx-target="#list-items" hx-swap="outerHTML">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="ui-btn ui-btn--ghost ui-btn--sm min-h-[44px] min-w-[44px]" data-testid="item-release" title="{{ _('Libérer') }}">{{ icon('user-minus', size=18) }}<span class="max-sm:sr-only">{{ _("Libérer") }}</span></button>
+  </form>
+  {%- endif %}
+  {%- if ctx.can_delete(item) %}
+  <form hx-post="{{ url_for('lists.delete_item', **base) }}" hx-target="#list-items" hx-swap="outerHTML">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="ui-btn ui-btn--ghost ui-btn--icon text-ink-2" data-testid="item-delete" aria-label="{{ _('Supprimer') ~ ' : ' ~ item.name }}" title="{{ _('Supprimer') }}">{{ icon('trash-2', size=18) }}</button>
+  </form>
+  {%- endif %}
+</li>
+{%- endmacro -%}
+<div id="list-items" data-testid="list-items" data-total="{{ item_total }}" class="flex flex-col gap-4">
+  <datalist id="list-sections">{% for name in section_names %}<option value="{{ name }}">{% endfor %}</datalist>
+  {%- if not item_total %}
+  <p class="m-0 text-small text-ink-2" data-testid="list-empty">{{ _("Aucun article. Ajoutez le premier ci-dessus.") }}</p>
+  {%- endif %}
+  {%- for group in groups %}
+  <section data-testid="list-section" data-section="{{ group.name }}"{% if group.name or has_sections %} aria-labelledby="sec-{{ loop.index }}"{% else %} aria-label="{{ _('Articles de la liste') }}"{% endif %}>
+    {%- if group.name or has_sections %}
+    <h3 id="sec-{{ loop.index }}" class="m-0 mb-1 text-caption font-semibold uppercase tracking-wide text-ink-2">{{ group.name or _("Sans section") }}</h3>
+    {%- endif %}
+    <ul class="m-0 list-none p-0">{% for item in group.rows %}{{ row(item) }}{% endfor %}</ul>
+  </section>
+  {%- endfor %}
+  {%- if done_items %}
+  <details data-testid="list-done-group" data-keep-open="done" class="rounded-md border border-line bg-surface-2 px-3">
+    <summary class="flex min-h-[44px] cursor-pointer items-center text-small font-medium text-ink-2">{{ _("Cochés") }} ({{ done_items|length }})</summary>
+    <ul class="m-0 list-none p-0">{% for item in done_items %}{{ row(item) }}{% endfor %}</ul>
+  </details>
+  {%- endif %}
+</div>

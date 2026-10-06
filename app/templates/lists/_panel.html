@@ -1,0 +1,58 @@
+{# Panneau « Repas & activités » (B023, §11.5.3) : fragment HTMX (cible #list-panel-content), jamais imposé. #}
+{% from "lists/_macros.html" import count_badge %}
+{%- set panel_url = url_for('lists.panel', code=event.code, list_id=shared_list.id) -%}
+{%- set modes = [('all', _("Tout")), ('meals', _("Repas")), ('activities', _("Activités"))] -%}
+<div id="list-panel-content" data-testid="list-panel-content" data-mode="{{ mode }}" data-hide-covered="{{ 'true' if hide else 'false' }}" class="flex flex-col gap-3">
+  {%- if oob %}{{ count_badge(covered_count, total_count, oob=True) }}{% endif %}
+  <p class="m-0 text-small text-ink-2" data-testid="panel-summary">{{ covered_count }}/{{ total_count }} {{ _("pris en compte") }}</p>
+  <div class="flex gap-1" role="group" aria-label="{{ _('Afficher') }}">
+    {%- for key, text in modes %}
+    {%- set enabled = key == 'all' or available[key] %}
+    <button type="button" data-testid="panel-mode-{{ key }}" aria-pressed="{{ 'true' if mode == key else 'false' }}"{% if not enabled %} disabled{% endif %}
+            hx-get="{{ panel_url }}" hx-vals='{"mode": "{{ key }}", "hide": "{{ 1 if hide else 0 }}"}' hx-target="#list-panel-content" hx-swap="outerHTML"
+            class="min-h-[44px] flex-1 rounded-md border border-line-strong bg-surface px-2 text-small font-medium text-ink aria-pressed:border-primary-strong aria-pressed:bg-primary-strong aria-pressed:text-on-primary disabled:cursor-not-allowed disabled:opacity-50">{{ text }}</button>
+    {%- endfor %}
+  </div>
+  <label class="ui-check">
+    <input type="checkbox" id="panel-hide-covered" data-testid="panel-hide-covered"{% if hide %} checked{% endif %}
+           hx-get="{{ panel_url }}" hx-vals='{"mode": "{{ mode }}", "hide": "{{ 0 if hide else 1 }}"}' hx-target="#list-panel-content" hx-swap="outerHTML" hx-trigger="change">
+    <span>{{ _("Masquer ceux déjà pris en compte") }}</span>
+  </label>
+  {%- for day in days %}
+  {%- set day_covered = day.rows|selectattr('covered')|list|length %}
+  <details data-testid="panel-day" data-date="{{ day.date.isoformat() }}" data-today="{{ 'true' if day.today else 'false' }}" data-keep-open="day-{{ day.date.isoformat() }}"{% if not day.past %} open{% endif %}
+           class="rounded-md border {{ 'border-primary-strong bg-primary-soft' if day.today else 'border-line' }}">
+    <summary class="flex min-h-[44px] cursor-pointer items-center gap-2 px-3 text-small font-semibold text-ink">
+      <span class="min-w-0 break-words">{{ day.date|format_date('EEEE d MMMM') }}</span>
+      {%- if day.today %}<span class="ui-badge ui-badge--primary shrink-0">{{ _("Aujourd'hui") }}</span>{% endif %}
+      <span class="ml-auto shrink-0 text-caption font-normal text-ink-2">{{ day_covered }}/{{ day.rows|length }}</span>
+    </summary>
+    <ul class="m-0 list-none px-3 pb-1">
+      {%- for row in day.rows %}
+      {%- set obj = row.obj %}
+      {%- set meal = row.kind == 'meal' %}
+      {%- set when = (obj.slot|label('meal_slot')) if meal else (obj.start_time|time if obj.start_time else '') %}
+      <li data-testid="panel-row" data-kind="{{ row.kind }}" data-id="{{ obj.id }}" data-covered="{{ 'true' if row.covered else 'false' }}" class="border-t border-line first:border-t-0">
+        <form hx-post="{{ url_for('lists.toggle_meal' if meal else 'lists.toggle_activity', code=event.code, list_id=shared_list.id, **({'meal_id': obj.id} if meal else {'activity_id': obj.id})) }}"
+              hx-target="#list-panel-content" hx-swap="outerHTML" hx-trigger="change">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="covered" value="{{ 0 if row.covered else 1 }}">
+          <input type="hidden" name="mode" value="{{ mode }}">
+          <input type="hidden" name="hide" value="{{ 1 if hide else 0 }}">
+          <label class="ui-check">
+            <input type="checkbox" id="panel-check-{{ row.kind }}-{{ obj.id }}" data-testid="panel-check"{% if row.covered %} checked{% endif %}
+                   aria-label="{{ obj.date|format_date('EEEE d MMMM') ~ (', ' ~ when if when else '') ~ ' : ' ~ obj.title }}">
+            <span class="min-w-0">
+              <span class="flex items-center gap-1 text-caption text-ink-2">{{ icon('utensils' if meal else 'calendar-days', size=14) }}<span>{{ (_("Repas") ~ ' · ' ~ when) if meal else ((_("Activité") ~ ' · ' ~ when) if when else _("Activité")) }}</span></span>
+              <span class="break-words">{{ obj.title }}</span>
+            </span>
+          </label>
+        </form>
+      </li>
+      {%- endfor %}
+    </ul>
+  </details>
+  {%- else %}
+  <p class="m-0 text-small text-ink-2" data-testid="panel-empty">{{ _("Tout est pris en compte.") if (hide and total_count) else _("Rien à afficher pour l'instant.") }}</p>
+  {%- endfor %}
+</div>

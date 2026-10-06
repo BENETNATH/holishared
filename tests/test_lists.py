@@ -120,10 +120,10 @@ class TestListDetail:
         assert resp.status_code == 200
         assert b"Milk" in resp.data
         assert b"Dairy" in resp.data
-        assert b"quick-add" in resp.data  # inline quick-add form renders
+        assert b'data-testid="list-add-form"' in resp.data  # B023 : formulaire d'ajout rapide
 
-    def test_detail_shows_meal_chips(self, client, creator, event, shared_list, db):
-        """Le panneau de repas s'affiche en pastilles quand l'événement a des repas."""
+    def test_detail_shows_meal_panel(self, client, creator, event, shared_list, db):
+        """B023 : les repas ne sont plus des pastilles mais le panneau « Repas & activités » à la demande."""
         from datetime import date
 
         from app.models import Meal
@@ -134,7 +134,7 @@ class TestListDetail:
         db.session.commit()
         resp = client.get(f"/e/{event.code}/lists/{shared_list.id}")
         assert resp.status_code == 200
-        assert b"meal-chips" in resp.data
+        assert b'data-testid="list-panel"' in resp.data
         assert "Déjeuner".encode() in resp.data
 
 

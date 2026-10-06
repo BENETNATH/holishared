@@ -1,47 +1,55 @@
 {% extends "base.html" %}
-{% from "_components/ui.html" import aria_invalid, field_errors, form_errors %}
+{% from "_components/ui.html" import aria_invalid, field_errors, empty_state %}
 {% block title %}{{ _("Listes") }} — {{ event.title }}{% endblock %}
 {% block content %}
-<div class="page-head">
-    <div>
-        <h1>{{ _("Listes") }}</h1>
-        <p class="page-sub">{{ event.title }} · {{ _("Courses, to-do, matériel…") }}</p>
-    </div>
+<div class="ui-page-header">
+  <div>
+    <h1>{{ _("Listes") }}</h1>
+    <p>{{ event.title }} · {{ _("Courses, to-do, matériel…") }}</p>
+  </div>
 </div>
 
-<form method="post" action="{{ url_for('lists.index', code=event.code) }}" class="list-create-form">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <input type="text" name="title" required minlength="2" maxlength="200"
-           aria-label="{{ _('Nouvelle liste') }}"{{ aria_invalid(errors, 'title') }}
+<form method="post" action="{{ url_for('lists.index', code=event.code) }}" class="mb-4 flex flex-wrap items-start gap-2" data-testid="list-create-form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="min-w-0 flex-[1_1_16rem]">
+    <label class="sr-only" for="list-create-title">{{ _("Nouvelle liste") }}</label>
+    <input class="ui-input" type="text" id="list-create-title" name="title" required minlength="2" maxlength="200" autocomplete="off"
+           data-testid="list-create-title"{{ aria_invalid(errors, 'title') }}
            value="{{ form_title }}" placeholder="{{ _('Nouvelle liste — ex : Courses du samedi') }}">
-    <button type="submit" class="btn btn-primary">{{ _("Créer") }}</button>
-</form>
-{{ field_errors(errors, 'title') }}
-
-{% if not lists %}
-  <div class="empty-state">
-    <span class="empty-icon" aria-hidden="true">📝</span>
-    <h3>{{ _("Rien ici pour l'instant") }}</h3>
-    <p>{{ _("Créez votre première liste ci-dessus — courses, to-do, matériel — et partagez-la avec le groupe.") }}</p>
+    {{ field_errors(errors, 'title') }}
   </div>
+  <div class="flex min-w-0 flex-[1_1_100%] gap-2 sm:flex-[0_0_auto]">
+    <label class="sr-only" for="list-create-type">{{ _("Type de liste") }}</label>
+    <select class="ui-input ui-select min-w-0 flex-1" id="list-create-type" name="list_type" data-testid="list-create-type">
+      {% for key, text in choices('list_type') %}<option value="{{ key }}"{% if key == form_type %} selected{% endif %}>{{ text }}</option>{% endfor %}
+    </select>
+    <button type="submit" class="ui-btn ui-btn--primary shrink-0" data-testid="list-create-submit">{{ icon('plus', size=16) }}<span>{{ _("Créer") }}</span></button>
+  </div>
+</form>
+
+{% if not cards %}
+{% call empty_state('list-checks', _("Rien ici pour l'instant"), _("Créez votre première liste ci-dessus — courses, to-do, matériel — et partagez-la avec le groupe.")) %}{% endcall %}
 {% else %}
-  <ul class="lists" aria-label="{{ _('Listes de l\'événement') }}">
-    {% for lst in lists %}
-    {% set total = lst.items.count() %}
-    {% set done = lst.items.filter_by(is_done=True).count() %}
-    <li class="card list-card">
-      <a href="{{ url_for('lists.detail', code=event.code, list_id=lst.id) }}">
-        <h3>{{ lst.title }}</h3>
-      </a>
-      <div class="list-progress">
-        <div class="progress" role="progressbar" aria-valuenow="{{ done }}" aria-valuemin="0" aria-valuemax="{{ total }}"
-             aria-label="{{ _('Progression') }} {{ done }}/{{ total }}">
-          <div class="progress-fill" style="width: {{ (done * 100 // total) if total else 0 }}%"></div>
-        </div>
-        <span class="item-count">{{ done }}/{{ total }}</span>
+<ul class="m-0 grid list-none gap-3 p-0 md:grid-cols-2" data-testid="list-cards" aria-label="{{ _('Listes de l\'événement') }}">
+  {% for lst, done, total in cards %}
+  <li>
+    <article class="ui-card ui-card--link" data-testid="list-card" data-list-id="{{ lst.id }}">
+      <div class="flex items-start justify-between gap-3">
+        <h2 class="ui-card__title m-0 min-w-0 break-words">
+          <a class="ui-card__link" href="{{ url_for('lists.detail', code=event.code, list_id=lst.id) }}" data-testid="list-card-link">{{ lst.title }}</a>
+        </h2>
+        <span class="ui-badge ui-badge--neutral shrink-0" data-testid="list-card-type">{{ lst.list_type|label('list_type') }}</span>
       </div>
-    </li>
-    {% endfor %}
-  </ul>
+      <div class="mt-2 flex items-center gap-3">
+        <div class="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-surface-2" role="progressbar" aria-valuenow="{{ done }}" aria-valuemin="0" aria-valuemax="{{ total }}"
+             aria-label="{{ _('Progression') }}">
+          <div class="h-2 rounded-full bg-primary-strong" style="width: {{ (done * 100 // total) if total else 0 }}%"></div>
+        </div>
+        <span class="shrink-0 text-small text-ink-2" data-testid="list-card-progress">{{ done }}/{{ total }}</span>
+      </div>
+    </article>
+  </li>
+  {% endfor %}
+</ul>
 {% endif %}
 {% endblock %}

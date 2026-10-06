@@ -28,7 +28,7 @@ AUTHOR_ID = "author-guest-id"
 _AUTHOR_COLUMN = {
     Activity: "created_by",
     Meal: "created_by",
-    ListItem: "assigned_to_id",
+    ListItem: ("assigned_to_id", "created_by"),
     ChatMessage: "guest_id",
     MediaItem: "uploaded_by",
 }
@@ -54,7 +54,7 @@ DELETE = [
     (Activity, True, True, False, False),
     (Meal, True, True, False, False),
     (SharedList, True, False, False, False),
-    (ListItem, True, True, True, False),
+    (ListItem, True, True, False, False),
     (LogisticsItem, True, False, False, False),
     (Poll, True, False, False, False),
     (ChatMessage, True, True, False, False),
@@ -83,8 +83,8 @@ def _ctx(role: str) -> EventContext:
 def _obj(cls: type) -> object:
     obj = cls()
     column = _AUTHOR_COLUMN.get(cls)
-    if column:
-        setattr(obj, column, AUTHOR_ID)
+    for name in (column,) if isinstance(column, str) else (column or ()):
+        setattr(obj, name, AUTHOR_ID)
     return obj
 
 
@@ -220,7 +220,9 @@ def test_add_item_assigned_ambiguous_name_keeps_none(db, guest_client, event, gu
     assert ListItem.query.filter_by(name="Vin").first().assigned_to_id is None
 
 
-def test_list_delete_item_guest_allowed(guest_client, event, shared_list, open_item):
+def test_list_delete_item_guest_allowed(guest_client, db, event, guest, shared_list, open_item):
+    open_item.created_by = guest.id  # B023 : chacun supprime ses propres articles
+    db.session.commit()
     resp = guest_client.post(_item_url(event, shared_list, open_item, "delete"))
     assert (resp.status_code, ListItem.query.filter_by(id=open_item.id).first()) == (302, None)
 

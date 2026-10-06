@@ -1,201 +1,84 @@
 {% extends "base.html" %}
-{% from "_components/ui.html" import aria_invalid, field_errors, form_errors %}
+{% from "_components/ui.html" import aria_invalid, field, field_errors, form_errors %}
+{% from "lists/_macros.html" import count_badge %}
 {% block title %}{{ shared_list.title }} — {{ event.title }}{% endblock %}
 {% block content %}
-<p class="back-link"><a href="{{ url_for('lists.index', code=event.code) }}">&larr; {{ _("Listes") }}</a></p>
+<div data-testid="list-page" data-list-layout data-panel="closed" class="group">
+  <p class="m-0 mb-2"><a class="ui-link inline-flex min-h-[44px] items-center gap-1" href="{{ url_for('lists.index', code=event.code) }}">{{ icon('arrow-left', size=16) }}{{ _("Listes") }}</a></p>
 
-<div class="page-head">
-    <div>
-        <h1>{{ shared_list.title }}</h1>
+  <div class="ui-page-header">
+    <div class="min-w-0">
+      <h1 class="break-words" data-testid="list-title">{{ shared_list.title }}</h1>
+      <p><span class="ui-badge ui-badge--neutral" data-testid="list-type">{{ shared_list.list_type|label('list_type') }}</span></p>
     </div>
-    {% if act_acts %}
-    <div class="head-actions">
-      <button type="button" class="btn btn-small btn-secondary" id="toggle-acts" aria-expanded="false">
-        📋 {{ _("Activités") }}
+    <div class="flex shrink-0 items-center gap-1">
+      {%- if has_content %}
+      <button type="button" class="ui-btn ui-btn--secondary" data-list-panel-toggle data-testid="list-panel-toggle" aria-controls="list-panel" aria-expanded="false">
+        {{ icon('utensils', size=16) }}<span>{{ _("Repas & activités") }}</span>{{ count_badge(covered_count, total_count) }}
       </button>
+      {%- endif %}
+      {%- if ctx.can_delete(shared_list) %}
+      <details class="relative" data-testid="list-menu">
+        <summary class="ui-btn ui-btn--ghost ui-btn--icon list-none" aria-label="{{ _('Autres actions') }}">{{ icon('ellipsis-vertical') }}</summary>
+        <div class="absolute right-0 z-20 mt-1 w-60 rounded-md border border-line bg-surface p-1 shadow-raised">
+          <form method="post" action="{{ url_for('lists.delete_list', code=event.code, list_id=shared_list.id) }}"
+                data-confirm="{{ _('Supprimer cette liste et tous ses articles ?') }}" data-confirm-label="{{ _('Supprimer') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="ui-btn ui-btn--ghost w-full justify-start text-danger" data-testid="list-delete">{{ icon('trash-2', size=16) }}<span>{{ _("Supprimer la liste") }}</span></button>
+          </form>
+        </div>
+      </details>
+      {%- endif %}
     </div>
-    {% endif %}
-</div>
-
-{{ form_errors(errors, ) }}
-
-<div class="list-layout">
-  {# === Left: list items === #}
-  <div class="list-main">
-    {# Meals as a compact horizontal chip strip (tap to check off). #}
-    {% if meal_acts %}
-    <section class="meal-chips" aria-label="{{ _('Repas planifiés') }}">
-      <div class="meal-chips-head">
-        <span class="meal-chips-title">🍽️ {{ _("Repas") }}</span>
-        <span class="meal-chips-hint">{{ _("Cochez un repas quand ses ingrédients sont en liste.") }}</span>
-      </div>
-      <div class="meal-chips-row" role="list">
-        {% for day, day_meals in meal_acts | groupby("date") %}
-        {% for m in day_meals %}
-        <form method="post" action="{{ url_for('lists.toggle_meal', code=event.code, list_id=shared_list.id, meal_id=m.id) }}" class="meal-chip-form">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <label class="meal-chip{% if m.id in covered_meal_ids %} covered{% endif %}"
-                 role="listitem" for="mealchip-{{ m.id }}"
-                 title="{{ day | format_date('full') }} — {{ _('Soir') if m.slot == 'dinner' else _('Midi') }}">
-            <input type="checkbox" id="mealchip-{{ m.id }}" class="meal-chip-input"
-                   onchange="this.form.submit()" aria-label="{{ m.title }} — {{ day | format_date('full') }}"
-                   {% if m.id in covered_meal_ids %}checked{% endif %}>
-            <span class="meal-chip-check" aria-hidden="true">{% if m.id in covered_meal_ids %}✓{% else %}+{% endif %}</span>
-            <span class="meal-chip-label">
-              <span class="meal-chip-slot">{{ _("Soir") if m.slot == 'dinner' else _("Midi") }}</span>
-              <span class="meal-chip-title">{{ m.title }}</span>
-            </span>
-          </label>
-        </form>
-        {% endfor %}
-        {% endfor %}
-      </div>
-    </section>
-    {% endif %}
-
-    {# Quick-add #}
-    <form method="post" action="{{ url_for('lists.add_item', code=event.code, list_id=shared_list.id) }}" class="quick-add">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <input type="text" name="name" required maxlength="300" placeholder="{{ _('Ajouter un article… (Enter)') }}"
-             class="quick-add-input" autofocus{{ aria_invalid(errors, 'name') }}>
-      <button type="submit" class="btn btn-primary quick-add-btn" aria-label="{{ _('Ajouter') }}">+</button>
-    </form>
-
-    <ul class="items items-compact" aria-label="{{ _('Articles de la liste') }}">
-      {% for item in items %}
-      <li class="item-row{% if item.is_done %} done{% endif %}{% if item.assigned_to_id == ctx.participant.id %} mine{% endif %}">
-        {% if not item.assigned_to %}
-          <span class="item-status item-status-open" aria-hidden="true">○</span>
-          <span class="item-name">{{ item.name }}</span>
-          {% if item.quantity and item.quantity != "1" %}<span class="qty">{{ item.quantity }}</span>{% endif %}
-          {% if item.section %}<span class="item-section">{{ item.section }}</span>{% endif %}
-          <form method="post" action="{{ url_for('lists.claim_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}" class="item-claim-form">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="btn btn-small btn-primary btn-claim">{{ _("Je m'occupe") }}</button>
-          </form>
-        {% elif item.assigned_to_id == ctx.participant.id %}
-          <form method="post" action="{{ url_for('lists.toggle_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}" class="item-toggle-form">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <input type="hidden" name="is_done" value="{{ '0' if item.is_done else '1' }}">
-            <label class="item-check-label" for="toggle-{{ item.id }}">
-              <input type="checkbox" id="toggle-{{ item.id }}" class="item-check-input" onchange="this.form.submit()"
-                     {% if item.is_done %}checked{% endif %}>
-              <span class="item-check item-check-done" aria-hidden="true">{% if item.is_done %}✓{% else %}&nbsp;{% endif %}</span>
-            </label>
-          </form>
-          <span class="item-name">{{ item.name }}</span>
-          {% if item.quantity and item.quantity != "1" %}<span class="qty">{{ item.quantity }}</span>{% endif %}
-          <span class="assigned assigned-me">{{ item.assigned_to }}</span>
-          <form method="post" action="{{ url_for('lists.unclaim_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}" class="item-release-form">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="btn btn-small btn-ghost btn-release" title="{{ _('Libérer') }}">{{ _("Libérer") }}</button>
-          </form>
-        {% else %}
-          <span class="item-status item-status-taken" aria-hidden="true">{% if item.is_done %}✓{% else %}●{% endif %}</span>
-          <span class="item-name">{{ item.name }}</span>
-          {% if item.quantity and item.quantity != "1" %}<span class="qty">{{ item.quantity }}</span>{% endif %}
-          {% if item.section %}<span class="item-section">{{ item.section }}</span>{% endif %}
-          <span class="assigned">{{ item.assigned_to }}</span>
-        {% endif %}
-        {% if ctx.is_creator %}
-        <form method="post" action="{{ url_for('lists.delete_item', code=event.code, list_id=shared_list.id, item_id=item.id) }}" class="item-delete-form">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <button type="submit" class="icon-btn icon-btn-danger" title="{{ _('Supprimer') }}">×</button>
-        </form>
-        {% endif %}
-      </li>
-      {% else %}
-      <li class="empty">{{ _("Aucun article. Tapez ci-dessus et appuyez sur Enter.") }}</li>
-      {% endfor %}
-    </ul>
-
-    {% if ctx.is_creator %}
-    <div class="danger-zone">
-      <form method="post" action="{{ url_for('lists.delete_list', code=event.code, list_id=shared_list.id) }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="btn btn-danger-solid">{{ _("Supprimer la liste") }}</button>
-      </form>
-    </div>
-    {% endif %}
   </div>
 
-  {# === Right: side panels (hidden by default, toggled) === #}
-  <div class="list-sidebar-col">
-    {% if act_acts %}
-    <aside class="list-sidebar list-sidebar-hidden" id="act-panel" aria-label="{{ _("Activités") }}">
-      <h2 class="sidebar-title">{{ _("Activités") }}</h2>
-      <p class="sidebar-hint">{{ _("Cochez les activités déjà préparées.") }}</p>
-      <label class="filter-toggle">
-        <input type="checkbox" id="act-filter-covered">
-        <span>{{ _("Masquer les activités cochées") }}</span>
-      </label>
-      {% for day, day_acts in act_acts | groupby("date") %}
-      <div class="meal-group">
-        <h3 class="meal-group-day">{{ day | format_date('full') }}</h3>
-        <ul class="meal-check-list">
-          {% for a in day_acts %}
-          <li class="meal-check-item{% if a.id in covered_act_ids %} covered{% endif %}">
-            <form method="post" action="{{ url_for('lists.toggle_activity', code=event.code, list_id=shared_list.id, activity_id=a.id) }}" class="meal-check-form">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <label class="meal-check-label" for="act-{{ a.id }}">
-                <input type="checkbox" id="act-{{ a.id }}" class="meal-check-input"
-                       onchange="this.form.submit()" {% if a.id in covered_act_ids %}checked{% endif %}>
-                <span class="meal-check-box" aria-hidden="true">{% if a.id in covered_act_ids %}✓{% else %}&nbsp;{% endif %}</span>
-              </label>
-              <span class="meal-check-name">
-                {% if a.start_time %}<span class="meal-check-time">{{ a.start_time|time }}</span>{% endif %}
-                {{ a.title }}
-              </span>
-            </form>
-          </li>
-          {% endfor %}
-        </ul>
+  {{ form_errors(errors, 'name', 'quantity', 'section') }}
+
+  <div class="lg:flex lg:items-start lg:gap-6">
+    <div class="min-w-0 flex-1 group-data-[panel=open]:max-lg:pb-[58dvh]" data-testid="list-main">
+      <form method="post" action="{{ url_for('lists.add_item', code=event.code, list_id=shared_list.id) }}" class="mb-4 flex flex-col gap-1"
+            hx-post="{{ url_for('lists.add_item', code=event.code, list_id=shared_list.id) }}" hx-target="#list-items" hx-swap="outerHTML"
+            data-list-add data-testid="list-add-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="flex gap-2">
+          <label class="sr-only" for="list-add-name">{{ _("Nouvel article") }}</label>
+          <input class="ui-input min-w-0 flex-1" type="text" id="list-add-name" name="name" required maxlength="300" autocomplete="off" enterkeyhint="done"
+                 data-testid="list-add-name" placeholder="{{ _('Ajouter un article…') }}" value="{{ form_data.get('name', '') }}"{{ aria_invalid(errors, 'name') }}>
+          <button type="submit" class="ui-btn ui-btn--primary ui-btn--icon shrink-0" data-testid="list-add-submit" aria-label="{{ _('Ajouter') }}">{{ icon('plus') }}</button>
+        </div>
+        {{ field_errors(errors, 'name') }}
+        <details data-testid="list-add-options"{% if form_data.get('quantity', '1') != '1' or form_data.get('section') or errors.has('quantity') or errors.has('section') %} open{% endif %}>
+          <summary class="flex min-h-[44px] cursor-pointer items-center gap-1 text-small text-ink-2">{{ icon('chevron-down', size=16) }}<span>{{ _("Quantité et section") }}</span></summary>
+          <div class="grid gap-3 pb-2 sm:grid-cols-2">
+            {{ field('quantity', _('Quantité'), id='list-add-quantity', value=form_data.get('quantity', ''), error=errors.text('quantity'), attrs={'maxlength': 50, 'autocomplete': 'off', 'placeholder': _('Ex : 2 kg')}) }}
+            {{ field('section', _('Section'), id='list-add-section', value=form_data.get('section', ''), error=errors.text('section'), attrs={'maxlength': 100, 'autocomplete': 'off', 'list': 'list-sections', 'placeholder': _('Ex : Boulangerie')}) }}
+          </div>
+        </details>
+      </form>
+
+      {% include "lists/_items.html" %}
+    </div>
+
+    {%- if has_content %}
+    <aside id="list-panel" data-testid="list-panel" aria-labelledby="list-panel-title" tabindex="-1"
+           class="hidden flex-col border border-line bg-surface shadow-raised group-data-[panel=open]:flex max-lg:fixed max-lg:inset-x-0 max-lg:bottom-[calc(var(--ui-bar-h)+var(--ui-safe-bottom))] max-lg:z-30 max-lg:h-[55dvh] max-lg:rounded-t-lg lg:sticky lg:top-24 lg:max-h-[calc(100dvh-8rem)] lg:w-[22rem] lg:shrink-0 lg:rounded-md">
+      <div class="flex items-center gap-2 border-b border-line px-3" data-list-panel-handle>
+        <span class="absolute left-1/2 top-1 h-1 w-10 -translate-x-1/2 rounded-full bg-line-strong lg:hidden" aria-hidden="true"></span>
+        <h2 id="list-panel-title" class="m-0 min-w-0 flex-1 py-2 text-subheading font-semibold text-ink" tabindex="-1">{{ _("Repas & activités") }}</h2>
+        <button type="button" class="ui-btn ui-btn--ghost ui-btn--icon shrink-0" data-list-panel-close data-testid="list-panel-close" aria-label="{{ _('Fermer') }}">{{ icon('x') }}</button>
       </div>
-      {% endfor %}
+      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3" data-list-panel-body>
+        <p class="m-0 mb-3 text-small text-ink-2">{{ _("Cochez les repas et activités dont les besoins sont couverts par les articles de cette liste.") }}</p>
+        {% include "lists/_panel.html" %}
+      </div>
     </aside>
-    {% endif %}
+    {%- endif %}
   </div>
 </div>
 {% endblock %}
 {% block scripts %}
-<script>
-// "Je m'occupe" — immediate confirmation pill before the form submits.
-document.addEventListener('click', function(e) {
-  var btn = e.target.closest('.btn-claim');
-  if (!btn || btn.dataset.confirmed) return;
-  btn.dataset.confirmed = '1';
-  var original = btn.textContent;
-  btn.classList.add('btn-claim-confirmed');
-  btn.textContent = '✓ ' + JSON.parse(document.getElementById('ui-strings').textContent).lists_noted;
-  setTimeout(function() { btn.textContent = original; }, 1200);
-});
+<script type="module">
+  import { initLists } from 'ui/lists';
+  initLists();
 </script>
-{% if act_acts %}
-<script>
-(function() {
-  var btn = document.getElementById('toggle-acts');
-  var panel = document.getElementById('act-panel');
-  if (btn && panel) {
-    btn.addEventListener('click', function() {
-      var hidden = panel.classList.toggle('list-sidebar-hidden');
-      btn.setAttribute('aria-expanded', String(!hidden));
-    });
-  }
-  // Filter: hide/show the already-checked activities in the panel.
-  var filter = document.getElementById('act-filter-covered');
-  if (filter && panel) {
-    filter.addEventListener('change', function() {
-      var hide = filter.checked;
-      panel.querySelectorAll('.meal-check-item.covered').forEach(function(el) {
-        el.style.display = hide ? 'none' : '';
-      });
-      panel.querySelectorAll('.meal-group').forEach(function(group) {
-        var hasVisible = group.querySelector('.meal-check-item:not(.covered)');
-        group.style.display = (hide && !hasVisible) ? 'none' : '';
-      });
-    });
-  }
-})();
-</script>
-{% endif %}
 {% endblock %}

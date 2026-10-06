@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 23:49+0200\n"
+"POT-Creation-Date: 2026-10-07 00:54+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -49,7 +49,7 @@ msgstr ""
 msgid "Hébergement"
 msgstr ""
 
-#: app/i18n.py app/templates/lists/detail.html
+#: app/i18n.py app/templates/lists/_panel.html
 msgid "Activités"
 msgstr ""
 
@@ -82,19 +82,19 @@ msgid "Divers"
 msgstr ""
 
 #: app/i18n.py
-msgid "Liste"
-msgstr ""
-
-#: app/i18n.py
 msgid "Courses"
 msgstr ""
 
 #: app/i18n.py
-msgid "Bagages"
+msgid "Matériel"
 msgstr ""
 
 #: app/i18n.py
-msgid "Matériel"
+msgid "Valise"
+msgstr ""
+
+#: app/i18n.py
+msgid "À faire"
 msgstr ""
 
 #: app/i18n.py
@@ -113,11 +113,11 @@ msgstr ""
 msgid "Non"
 msgstr ""
 
-#: app/i18n.py app/templates/lists/detail.html
+#: app/i18n.py
 msgid "Midi"
 msgstr ""
 
-#: app/i18n.py app/templates/lists/detail.html
+#: app/i18n.py
 msgid "Soir"
 msgstr ""
 
@@ -183,6 +183,26 @@ msgstr ""
 
 #: app/i18n.py
 msgid "Article libéré"
+msgstr ""
+
+#: app/i18n.py
+msgid "Article rétabli"
+msgstr ""
+
+#: app/i18n.py
+msgid "Repas pris en compte dans une liste"
+msgstr ""
+
+#: app/i18n.py
+msgid "Repas retiré d'une liste"
+msgstr ""
+
+#: app/i18n.py
+msgid "Activité prise en compte dans une liste"
+msgstr ""
+
+#: app/i18n.py
+msgid "Activité retirée d'une liste"
 msgstr ""
 
 #: app/i18n.py
@@ -393,11 +413,12 @@ msgid "Copie impossible"
 msgstr ""
 
 #: app/templates/_components/ui.html app/templates/base.html
-#: app/templates/freemium/_upgrade_modal.html app/ui.py
+#: app/templates/freemium/_upgrade_modal.html app/templates/lists/detail.html
+#: app/ui.py
 msgid "Fermer"
 msgstr ""
 
-#: app/templates/base.html app/ui.py
+#: app/lists/__init__.py app/templates/base.html app/ui.py
 msgid "Annuler"
 msgstr ""
 
@@ -458,7 +479,7 @@ msgstr ""
 msgid "Planning"
 msgstr ""
 
-#: app/templates/lists/detail.html app/templates/meals/index.html app/ui.py
+#: app/templates/lists/_panel.html app/templates/meals/index.html app/ui.py
 msgid "Repas"
 msgstr ""
 
@@ -869,6 +890,10 @@ msgid "Article ajouté."
 msgstr ""
 
 #: app/lists/__init__.py
+msgid "Article rétabli."
+msgstr ""
+
+#: app/lists/__init__.py
 msgid "Article supprimé."
 msgstr ""
 
@@ -1142,9 +1167,10 @@ msgid "Supprimer le message de"
 msgstr ""
 
 #: app/templates/chat/_messages.html app/templates/costs/index.html
-#: app/templates/lists/detail.html app/templates/logistics/index.html
-#: app/templates/main/ui_catalog.html app/templates/meals/index.html
-#: app/templates/media/detail.html app/templates/planning/index.html
+#: app/templates/lists/_items.html app/templates/lists/detail.html
+#: app/templates/logistics/index.html app/templates/main/ui_catalog.html
+#: app/templates/meals/index.html app/templates/media/detail.html
+#: app/templates/planning/index.html
 msgid "Supprimer"
 msgstr ""
 
@@ -1437,11 +1463,11 @@ msgid ""
 " à votre événement."
 msgstr ""
 
-#: app/templates/events/_my_items.html
+#: app/templates/events/_my_items.html app/templates/lists/_items.html
 msgid "Décocher"
 msgstr ""
 
-#: app/templates/events/_my_items.html
+#: app/templates/events/_my_items.html app/templates/lists/_items.html
 msgid "Cocher"
 msgstr ""
 
@@ -1467,7 +1493,7 @@ msgstr ""
 msgid "À répartir"
 msgstr ""
 
-#: app/templates/events/_my_items.html app/templates/lists/detail.html
+#: app/templates/events/_my_items.html app/templates/lists/_items.html
 msgid "Je m'occupe"
 msgstr ""
 
@@ -1562,7 +1588,8 @@ msgstr ""
 msgid "Partager"
 msgstr ""
 
-#: app/templates/events/dashboard.html app/templates/meals/_grid.html
+#: app/templates/events/dashboard.html app/templates/lists/_panel.html
+#: app/templates/meals/_grid.html
 msgid "Aujourd'hui"
 msgstr ""
 
@@ -2152,28 +2179,68 @@ msgstr ""
 msgid "Généré par Holishared Vacances+ — prêt à partager ou à comptabiliser."
 msgstr ""
 
-#: app/templates/lists/detail.html
-msgid "Repas planifiés"
+#: app/templates/lists/_items.html
+msgid "Vous"
 msgstr ""
 
-#: app/templates/lists/detail.html
-msgid "Cochez un repas quand ses ingrédients sont en liste."
-msgstr ""
-
-#: app/templates/lists/detail.html
-msgid "Ajouter un article… (Enter)"
-msgstr ""
-
-#: app/templates/lists/detail.html
-msgid "Articles de la liste"
-msgstr ""
-
-#: app/templates/lists/detail.html
+#: app/templates/lists/_items.html
 msgid "Libérer"
 msgstr ""
 
+#: app/templates/lists/_items.html
+msgid "Aucun article. Ajoutez le premier ci-dessus."
+msgstr ""
+
+#: app/templates/lists/_items.html
+msgid "Articles de la liste"
+msgstr ""
+
+#: app/templates/lists/_items.html
+msgid "Sans section"
+msgstr ""
+
+#: app/templates/lists/_items.html
+msgid "Cochés"
+msgstr ""
+
+#: app/templates/lists/_macros.html app/templates/lists/_panel.html
+msgid "pris en compte"
+msgstr ""
+
+#: app/templates/lists/_panel.html
+msgid "Tout"
+msgstr ""
+
+#: app/templates/lists/_panel.html
+msgid "Afficher"
+msgstr ""
+
+#: app/templates/lists/_panel.html
+msgid "Masquer ceux déjà pris en compte"
+msgstr ""
+
+#: app/templates/lists/_panel.html
+msgid "Activité"
+msgstr ""
+
+#: app/templates/lists/_panel.html
+msgid "Tout est pris en compte."
+msgstr ""
+
+#: app/templates/lists/_panel.html
+msgid "Rien à afficher pour l'instant."
+msgstr ""
+
 #: app/templates/lists/detail.html
-msgid "Aucun article. Tapez ci-dessus et appuyez sur Enter."
+msgid "Repas & activités"
+msgstr ""
+
+#: app/templates/lists/detail.html
+msgid "Autres actions"
+msgstr ""
+
+#: app/templates/lists/detail.html
+msgid "Supprimer cette liste et tous ses articles ?"
 msgstr ""
 
 #: app/templates/lists/detail.html
@@ -2181,11 +2248,37 @@ msgid "Supprimer la liste"
 msgstr ""
 
 #: app/templates/lists/detail.html
-msgid "Cochez les activités déjà préparées."
+msgid "Nouvel article"
 msgstr ""
 
 #: app/templates/lists/detail.html
-msgid "Masquer les activités cochées"
+msgid "Ajouter un article…"
+msgstr ""
+
+#: app/templates/lists/detail.html
+msgid "Quantité et section"
+msgstr ""
+
+#: app/templates/lists/detail.html
+msgid "Quantité"
+msgstr ""
+
+#: app/templates/lists/detail.html
+msgid "Ex : 2 kg"
+msgstr ""
+
+#: app/templates/lists/detail.html
+msgid "Section"
+msgstr ""
+
+#: app/templates/lists/detail.html
+msgid "Ex : Boulangerie"
+msgstr ""
+
+#: app/templates/lists/detail.html
+msgid ""
+"Cochez les repas et activités dont les besoins sont couverts par les "
+"articles de cette liste."
 msgstr ""
 
 #: app/templates/lists/index.html
@@ -2198,6 +2291,10 @@ msgstr ""
 
 #: app/templates/lists/index.html
 msgid "Nouvelle liste — ex : Courses du samedi"
+msgstr ""
+
+#: app/templates/lists/index.html
+msgid "Type de liste"
 msgstr ""
 
 #: app/templates/lists/index.html app/templates/main/ui_catalog.html

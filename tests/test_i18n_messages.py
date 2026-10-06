@@ -129,6 +129,9 @@ def test_paywall_feature_labels_and_js_strings_are_translated(app):
 def test_list_claim_script_has_no_hardcoded_french():
     from pathlib import Path
 
-    html = (Path(__file__).resolve().parent.parent / "app/templates/lists/detail.html").read_text()
-    assert "not\\u00e9" not in html
-    assert "ui-strings" in html
+    root = Path(__file__).resolve().parent.parent
+    html = (root / "app/templates/lists/detail.html").read_text()
+    script = (root / "app/static/js/ui/lists.js").read_text()
+    assert "not\\u00e9" not in html + script
+    # B023 : la pastille « C'est noté » (script en ligne) disparaît, l'attribution est immédiate.
+    assert "<script>" not in html

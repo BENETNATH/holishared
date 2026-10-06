@@ -1,0 +1,4 @@
+{# Macros des listes (B023) #}
+{%- macro count_badge(covered, total, oob=False) -%}
+<span id="list-panel-count"{% if oob %} hx-swap-oob="true"{% endif %} data-testid="list-panel-count" class="ui-badge ui-badge--primary"{% if not covered %} hidden{% endif %}>{{ covered }}/{{ total }}<span class="max-sm:sr-only">&nbsp;{{ _("pris en compte") }}</span></span>
+{%- endmacro -%}

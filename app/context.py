@@ -61,12 +61,13 @@ _AUTHOR = "author"
 _ANY = "participant"
 _NEVER = "never"
 
-# type -> (règle d'édition, règle de suppression, colonne d'auteur)
-_RIGHTS: dict[type, tuple[str, str, str | None]] = {
+# type -> (règle d'édition, règle de suppression, colonne d'auteur ou (colonne d'édition, colonne de suppression))
+_RIGHTS: dict[type, tuple[str, str, str | tuple[str, str] | None]] = {
     Activity: (_AUTHOR, _AUTHOR, "created_by"),
     Meal: (_AUTHOR, _AUTHOR, "created_by"),
     SharedList: (_NEVER, _CREATOR, None),
-    ListItem: (_AUTHOR, _ANY, "assigned_to_id"),
+    # édition : la personne qui a pris l'article ; suppression : la personne qui l'a ajouté (B023)
+    ListItem: (_AUTHOR, _AUTHOR, ("assigned_to_id", "created_by")),
     LogisticsItem: (_ANY, _CREATOR, None),
     Poll: (_CREATOR, _CREATOR, None),
     ChatMessage: (_NEVER, _AUTHOR, "guest_id"),
@@ -116,6 +117,8 @@ class EventContext:
             ok = self.is_creator
         elif rule == _AUTHOR:
             column = rights[2] or ""
+            if isinstance(column, tuple):
+                column = column[index]
             ok = self.is_creator or self.is_author(getattr(obj, column))
         else:
             ok = False
