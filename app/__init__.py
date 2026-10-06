@@ -262,6 +262,10 @@ def create_app() -> Flask:
         if name in app.config["ENABLED_MODULES"]:
             app.register_blueprint(bp)
 
+    from app.ui import init_ui
+
+    init_ui(app)
+
     # Context processor
     @app.context_processor
     def inject_globals() -> dict[str, object]:

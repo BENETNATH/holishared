@@ -179,12 +179,27 @@ def test_source_css_imports_legacy_into_legacy_layer():
     assert '@import "./legacy.css" layer(legacy);' in source
 
 
+def test_compiled_css_layers_appear_in_order():
+    css = _css()
+    positions = []
+    for layer in ("legacy", "theme", "base", "components", "utilities"):
+        match = re.search(rf"@layer {layer}\b", css)
+        positions.append(match.start() if match else -1)
+    assert -1 not in positions
+    assert positions == sorted(set(positions))
 
 
+def test_compiled_css_defines_dark_theme_tokens():
+    assert re.search(r'\[data-theme=("?)dark\1\]\{[^}]*--color-canvas:#171512', _css())
 
 
+def test_compiled_css_contains_all_component_classes():
+    css = _css()
+    assert [c for c in COMPONENT_CLASSES if f".{c}" not in css] == []
 
 
+def test_compiled_css_has_no_default_tailwind_palette():
+    assert "--color-red-500" not in _css()
 
 
 def test_static_css_dir_no_longer_contains_main_css():
@@ -194,37 +209,115 @@ def test_static_css_dir_no_longer_contains_main_css():
 # --- Fingerprints --------------------------------------------------------------
 
 
+def test_asset_url_appends_content_hash(app):
+    from app.ui import asset_url
+
+    digest = hashlib.sha256(COMPILED_CSS.read_bytes()).hexdigest()[:10]
+    with app.test_request_context():
+        assert asset_url("css/app.css") == "/static/css/app.css?v=" + digest
 
 
+def test_asset_url_changes_when_file_content_changes(app, monkeypatch, tmp_path):
+    from app.ui import asset_url
+
+    monkeypatch.setattr(app, "static_folder", str(tmp_path))
+    target = tmp_path / "a.css"
+    target.write_text("a{color:red}", encoding="utf-8")
+    with app.test_request_context():
+        url1 = asset_url("a.css")
+        target.write_text("a{color:blue}", encoding="utf-8")
+        stat = target.stat()
+        os.utime(target, (stat.st_atime + 1, stat.st_mtime + 1))
+        url2 = asset_url("a.css")
+    assert url1 != url2
 
 
+def test_asset_url_raises_for_missing_file(app):
+    from app.ui import asset_url
+
+    with app.test_request_context(), pytest.raises(FileNotFoundError):
+        asset_url("css/absent.css")
 
 
 # --- Icons -----------------------------------------------------------------------
 
 
+def test_icon_renders_decorative_svg_by_default():
+    from app.ui import icon
+
+    assert 'aria-hidden="true"' in str(icon("house"))
 
 
+def test_icon_with_label_renders_img_role():
+    from app.ui import icon
+
+    assert 'role="img" aria-label="Fermer"' in str(icon("x", label="Fermer"))
 
 
+def test_icon_unknown_name_raises_key_error():
+    from app.ui import icon
+
+    with pytest.raises(KeyError):
+        icon("inconnue")
 
 
+def test_icon_set_matches_specified_names():
+    from app.icons import ICON_NAMES
+
+    assert list(ICON_NAMES) == SPEC_ICON_NAMES
 
 
+def test_icon_label_is_html_escaped():
+    from app.ui import icon
+
+    assert 'aria-label="&lt;b&gt;"' in str(icon("x", label="<b>"))
 
 
 # --- Macros ---------------------------------------------------------------------
 
 
+def test_field_macro_links_help_and_error_with_describedby(app):
+    with app.test_request_context():
+        out = str(_ui_macros(app).field("title", "Titre", help="Aide", error="Erreur"))
+    assert 'aria-describedby="f-title-help f-title-error"' in out
 
 
+def test_field_macro_sets_aria_invalid_when_error(app):
+    with app.test_request_context():
+        out = str(_ui_macros(app).field("title", "Titre", help="Aide", error="Erreur"))
+    assert 'aria-invalid="true"' in out
 
 
+def test_field_macro_omits_describedby_without_help_or_error(app):
+    with app.test_request_context():
+        out = str(_ui_macros(app).field("title", "Titre"))
+    assert "aria-describedby" not in out
 
 
+def test_field_macro_label_targets_input_id(app):
+    with app.test_request_context():
+        out = str(_ui_macros(app).field("title", "Titre"))
+    assert '<label class="ui-label" for="f-title">' in out
+    assert 'id="f-title"' in out
 
 
+def test_field_macro_marks_optional_field(app):
+    with app.test_request_context():
+        out = str(_ui_macros(app).field("title", "Titre"))
+    assert "(facultatif)" in out
 
 
+def test_sheet_macro_renders_labelled_dialog(app):
+    source = (
+        '{% from "_components/ui.html" import sheet %}'
+        '{% call sheet("demo", "Titre") %}x{% endcall %}'
+    )
+    with app.test_request_context():
+        out = app.jinja_env.from_string(source).render()
+    assert 'aria-labelledby="demo-title"' in out
 
 
+def test_empty_state_macro_renders_title(app):
+    with app.test_request_context():
+        out = str(_ui_macros(app).empty_state("inbox", "Rien ici"))
+    assert '<p class="ui-empty__title">Rien ici</p>' in out

@@ -1,0 +1,67 @@
+{# Macros du kit ui-* (B017 §5) : uniquement le câblage d'accessibilité non trivial. #}
+
+{% macro field(name, label, type="text", value="", id=None, help=None, error=None, required=False,
+               options=None, placeholder=None, autocomplete=None, attrs=None) %}
+{%- set fid = id or ("f-" ~ name) -%}
+{%- set described = ((fid ~ "-help") if help else "") ~ (" " if help and error else "") ~ ((fid ~ "-error") if error else "") -%}
+<div class="ui-field"{% if error %} data-invalid="true"{% endif %}>
+  <label class="ui-label" for="{{ fid }}">{{ label }}{% if not required %} <span class="ui-label__optional">({{ _("facultatif") }})</span>{% endif %}</label>
+  {%- if type == "textarea" %}
+  <textarea class="ui-input ui-textarea" rows="3" id="{{ fid }}" name="{{ name }}"
+    {%- if required %} required{% endif %}
+    {%- if placeholder %} placeholder="{{ placeholder }}"{% endif %}
+    {%- if autocomplete %} autocomplete="{{ autocomplete }}"{% endif %}
+    {%- if described %} aria-describedby="{{ described }}"{% endif %}
+    {%- if error %} aria-invalid="true"{% endif %}
+    {{- (attrs or {})|xmlattr }}>{{ value }}</textarea>
+  {%- elif type == "select" %}
+  <select class="ui-input ui-select" id="{{ fid }}" name="{{ name }}"
+    {%- if required %} required{% endif %}
+    {%- if autocomplete %} autocomplete="{{ autocomplete }}"{% endif %}
+    {%- if described %} aria-describedby="{{ described }}"{% endif %}
+    {%- if error %} aria-invalid="true"{% endif %}
+    {{- (attrs or {})|xmlattr }}>
+    {%- for opt_value, opt_label in (options or []) %}
+    <option value="{{ opt_value }}"{% if opt_value|string == value|string %} selected{% endif %}>{{ opt_label }}</option>
+    {%- endfor %}
+  </select>
+  {%- else %}
+  <input class="ui-input" type="{{ type }}" id="{{ fid }}" name="{{ name }}" value="{{ value }}"
+    {%- if required %} required{% endif %}
+    {%- if placeholder %} placeholder="{{ placeholder }}"{% endif %}
+    {%- if autocomplete %} autocomplete="{{ autocomplete }}"{% endif %}
+    {%- if described %} aria-describedby="{{ described }}"{% endif %}
+    {%- if error %} aria-invalid="true"{% endif %}
+    {{- (attrs or {})|xmlattr }}>
+  {%- endif %}
+  {%- if help %}
+  <p class="ui-help" id="{{ fid }}-help">{{ help }}</p>
+  {%- endif %}
+  {%- if error %}
+  <p class="ui-error" id="{{ fid }}-error">{{ icon('circle-alert', size=16) }}<span>{{ error }}</span></p>
+  {%- endif %}
+</div>
+{% endmacro %}
+
+{% macro sheet(id, title, variant="sheet") %}
+<dialog id="{{ id }}" class="ui-sheet{% if variant == 'dialog' %} ui-sheet--dialog{% endif %}"
+        aria-labelledby="{{ id }}-title" data-testid="{{ id }}" data-ui-shell>
+  <div class="ui-sheet__panel">
+    <div class="ui-sheet__header">
+      <h2 class="ui-sheet__title" id="{{ id }}-title">{{ title }}</h2>
+      <button type="button" class="ui-btn ui-btn--ghost ui-btn--icon" data-sheet-close
+              data-testid="{{ id }}-close" aria-label="{{ _('Fermer') }}">{{ icon('x') }}</button>
+    </div>
+    <div class="ui-sheet__body">{{ caller() }}</div>
+  </div>
+</dialog>
+{% endmacro %}
+
+{% macro empty_state(icon_name, title, text=None) %}
+<div class="ui-empty">
+  {{ icon(icon_name, size=40) }}
+  <p class="ui-empty__title">{{ title }}</p>
+  {% if text %}<p class="ui-empty__text">{{ text }}</p>{% endif %}
+  {% if caller is defined %}<div class="ui-empty__action">{{ caller() }}</div>{% endif %}
+</div>
+{% endmacro %}

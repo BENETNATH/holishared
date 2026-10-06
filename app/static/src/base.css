@@ -1,0 +1,118 @@
+/* Couche base (B017 §4.11) : variables, thème sombre, corps, focus, mouvement réduit. */
+@layer base {
+  :root {
+    color-scheme: light;
+    --ui-header-h: 3.5rem;
+    --ui-bar-h: 4rem;
+    --ui-sidebar-w: 15rem;
+    --ui-content-max: 60rem;
+    --ui-gutter: 1rem;
+    --ui-safe-top: env(safe-area-inset-top, 0px);
+    --ui-safe-bottom: env(safe-area-inset-bottom, 0px);
+    --ui-safe-left: env(safe-area-inset-left, 0px);
+    --ui-safe-right: env(safe-area-inset-right, 0px);
+    --z-header: 30;
+    --z-nav: 40;
+    --z-toast: 60;
+    --ui-duration: 150ms;
+    --shadow-card: 0 1px 2px rgb(35 32 29 / 0.05), 0 2px 8px rgb(35 32 29 / 0.04);
+    --shadow-raised: 0 8px 24px rgb(35 32 29 / 0.12);
+    --shadow-bar: 0 -1px 0 rgb(35 32 29 / 0.06), 0 -4px 16px rgb(35 32 29 / 0.06);
+    --ui-toast-success: #7fb5a4;
+    --ui-toast-info: #6cc4ef;
+    --ui-toast-warning: #f5b94a;
+    --ui-toast-danger: #f4877c;
+    --ui-toast-ghost-hover: rgb(255 255 255 / 0.12);
+  }
+
+  @media (min-width: 48rem) {
+    :root {
+      --ui-gutter: 1.5rem;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --color-canvas: #171512;
+    --color-surface: #211e1a;
+    --color-surface-2: #2b2722;
+    --color-line: #3a352d;
+    --color-line-strong: #80776b;
+    --color-ink: #f0ede8;
+    --color-ink-2: #c9c3b8;
+    --color-ink-muted: #a39b91;
+    --color-primary: #e27a50;
+    --color-primary-strong: #f0906b;
+    --color-primary-stronger: #f5a583;
+    --color-primary-soft: #3a271e;
+    --color-on-primary: #1d120c;
+    --color-success: #7fb5a4;
+    --color-success-soft: #1f2d28;
+    --color-warning: #f5b94a;
+    --color-warning-soft: #33281a;
+    --color-danger: #f4877c;
+    --color-danger-soft: #3a201d;
+    --color-danger-strong: #f7a097;
+    --color-on-danger: #1d0d0b;
+    --color-info: #6cc4ef;
+    --color-info-soft: #16293a;
+    --color-inverse: #f0ede8;
+    --color-on-inverse: #171512;
+    --color-overlay: rgb(0 0 0 / 0.6);
+    --shadow-card: 0 1px 3px rgb(0 0 0 / 0.5);
+    --shadow-raised: 0 8px 24px rgb(0 0 0 / 0.6);
+    --shadow-bar: 0 -1px 0 rgb(0 0 0 / 0.4), 0 -4px 16px rgb(0 0 0 / 0.4);
+    --ui-toast-success: #2e5c4e;
+    --ui-toast-info: #0b5f8a;
+    --ui-toast-warning: #9a4a07;
+    --ui-toast-danger: #b42318;
+    --ui-toast-ghost-hover: rgb(0 0 0 / 0.08);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.5;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  body[data-has-bottom-nav] {
+    padding-bottom: calc(var(--ui-bar-h) + var(--ui-safe-bottom));
+  }
+
+  @media (min-width: 64rem) {
+    body[data-has-bottom-nav] {
+      padding-bottom: 0;
+    }
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary-strong);
+    outline-offset: 2px;
+  }
+
+  html:has(dialog[open]) {
+    overflow: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
