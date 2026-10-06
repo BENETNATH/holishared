@@ -5,6 +5,7 @@ from functools import wraps
 from typing import Any, cast
 
 from flask import current_app, render_template, request, session
+from flask_babel import lazy_gettext as _l
 
 from app.models import Creator, Event, MediaQuota
 
@@ -102,7 +103,7 @@ def require_tier(min_tier: str) -> Callable[..., Callable[..., Any]]:
             if creator is not None and not tier_at_least(creator, min_tier):
                 _upgrade_target(kwargs.get("code"))
                 feature_name = _feature_name_for_tier(min_tier)
-                feature_label = FEATURE_LABELS.get(feature_name, "Fonctionnalité avancée") if feature_name else "Fonctionnalité avancée"
+                feature_label = FEATURE_LABELS.get(feature_name, FALLBACK_FEATURE_LABEL) if feature_name else FALLBACK_FEATURE_LABEL
                 return render_template(
                     "freemium/paywall.html",
                     min_tier=min_tier,
@@ -124,10 +125,11 @@ def _feature_name_for_tier(tier: str) -> str | None:
 
 
 # Human-readable names for the paywall copy (FR source; i18n covers EN).
-FEATURE_LABELS: dict[str, str] = {
-    "pdf_export": "Export PDF des comptes certifié",
-    "unlimited_guests": "Participants illimités",
-    "hd_video": "Vidéos haute résolution",
+FALLBACK_FEATURE_LABEL = _l("Fonctionnalité avancée")
+FEATURE_LABELS = {
+    "pdf_export": _l("Export PDF des comptes certifié"),
+    "unlimited_guests": _l("Participants illimités"),
+    "hd_video": _l("Vidéos haute résolution"),
 }
 
 

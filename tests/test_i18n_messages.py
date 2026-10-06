@@ -112,3 +112,23 @@ def test_source_catalog_uses_formal_address():
     )
     offenders = [i for i in ids if informal.search(i)]
     assert offenders == []
+
+
+def test_paywall_feature_labels_and_js_strings_are_translated(app):
+    from app.freemium import FALLBACK_FEATURE_LABEL, FEATURE_LABELS
+    from app.ui import ui_strings
+
+    with app.app_context(), app.test_request_context("/?lang=en"):
+        assert str(FEATURE_LABELS["pdf_export"]) == "Certified accountancy PDF export"
+        assert str(FALLBACK_FEATURE_LABEL) == "Advanced feature"
+        assert ui_strings()["lists_noted"] == "Noted"
+    with app.app_context(), app.test_request_context("/?lang=fr"):
+        assert ui_strings()["lists_noted"] == "C'est noté"
+
+
+def test_list_claim_script_has_no_hardcoded_french():
+    from pathlib import Path
+
+    html = (Path(__file__).resolve().parent.parent / "app/templates/lists/detail.html").read_text()
+    assert "not\\u00e9" not in html
+    assert "ui-strings" in html

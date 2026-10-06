@@ -74,6 +74,7 @@ JS_STRINGS: Final[dict[str, str]] = {
     "show": N_("Voir"),
     "hide": N_("Masquer"),
     "loading": N_("Chargement…"),
+    "lists_noted": N_("C'est noté"),
 }
 
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 22:35+0200\n"
+"POT-Creation-Date: 2026-10-06 22:40+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,22 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
+
+#: app/freemium.py
+msgid "Fonctionnalité avancée"
+msgstr ""
+
+#: app/freemium.py app/templates/freemium/_upgrade_modal.html
+msgid "Export PDF des comptes certifié"
+msgstr ""
+
+#: app/freemium.py app/templates/freemium/_upgrade_modal.html
+msgid "Participants illimités"
+msgstr ""
+
+#: app/freemium.py
+msgid "Vidéos haute résolution"
+msgstr ""
 
 #: app/i18n.py
 msgid "Général"
@@ -319,6 +335,10 @@ msgid "Chargement…"
 msgstr ""
 
 #: app/ui.py
+msgid "C'est noté"
+msgstr ""
+
+#: app/ui.py
 msgid "Accueil"
 msgstr ""
 
@@ -343,7 +363,7 @@ msgstr ""
 msgid "Listes"
 msgstr ""
 
-#: app/ui.py
+#: app/templates/costs/index.html app/ui.py
 msgid "Frais"
 msgstr ""
 
@@ -1847,15 +1867,7 @@ msgid "Gardez toute la galerie du séjour, en haute qualité."
 msgstr ""
 
 #: app/templates/freemium/_upgrade_modal.html
-msgid "Export PDF des comptes certifié"
-msgstr ""
-
-#: app/templates/freemium/_upgrade_modal.html
 msgid "Partagez la répartition des frais en un document pro."
-msgstr ""
-
-#: app/templates/freemium/_upgrade_modal.html
-msgid "Participants illimités"
 msgstr ""
 
 #: app/templates/freemium/_upgrade_modal.html
@@ -2015,18 +2027,6 @@ msgstr ""
 msgid ""
 "Ajoutez l'adresse, l'accès, les horaires… pour que tout le monde soit au "
 "courant."
-msgstr ""
-
-#: app/templates/main/dashboard.html
-msgid "Dashboard"
-msgstr ""
-
-#: app/templates/main/dashboard.html
-msgid "Le SaaS est opérationnel."
-msgstr ""
-
-#: app/templates/main/dashboard.html
-msgid "Statut"
 msgstr ""
 
 #: app/templates/main/landing.html

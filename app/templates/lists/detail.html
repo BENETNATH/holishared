@@ -166,7 +166,7 @@ document.addEventListener('click', function(e) {
   btn.dataset.confirmed = '1';
   var original = btn.textContent;
   btn.classList.add('btn-claim-confirmed');
-  btn.textContent = '✓ C\u2019est not\u00e9';
+  btn.textContent = '✓ ' + JSON.parse(document.getElementById('ui-strings').textContent).lists_noted;
   setTimeout(function() { btn.textContent = original; }, 1200);
 });
 </script>
