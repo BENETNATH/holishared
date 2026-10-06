@@ -234,7 +234,10 @@ def test_desktop_nav_lists_all_destinations_for_creator(creator_client, event):
         "navlink-media",
         "navlink-participants",
         "navlink-invite",
+        "navlink-share",
         "navlink-log",
+        "navlink-me",
+        "navlink-manage",
         "navlink-privacy",
         "navlink-events",
         "navlink-logout",
@@ -436,13 +439,13 @@ def test_js_strings_registry_keys_follow_convention():
 # --- Migrated templates (§7.12) -----------------------------------------------
 
 
-def test_guest_dashboard_has_copy_hook_for_code(guest_client, event, guest):
-    html = _html(guest_client.get(f"/e/{event.code}"))
+def test_guest_my_code_page_has_copy_hook_for_code(guest_client, event, guest):
+    html = _html(guest_client.get(f"/e/{event.code}/me"))
     assert f'data-copy="{guest.code}"' in html
 
 
-def test_guest_dashboard_code_is_masked_by_default(guest_client, event):
-    html = _html(guest_client.get(f"/e/{event.code}"))
+def test_guest_my_code_page_code_is_masked_by_default(guest_client, event):
+    html = _html(guest_client.get(f"/e/{event.code}/me"))
     assert 'data-masked="true"' in html
 
 

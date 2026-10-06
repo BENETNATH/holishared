@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Mon code") }} — {{ event.title }}{% endblock %}
+{% block content %}
+<div class="mx-auto flex max-w-xl flex-col gap-4">
+  <div class="ui-page-header">
+    <div>
+      <h1>{{ _("Mon code") }}</h1>
+      <p>{{ event.title }}</p>
+    </div>
+  </div>
+  <section class="ui-card" aria-labelledby="h-code">
+    <h2 id="h-code" class="mt-0 text-subheading font-semibold text-ink">{{ _("Votre code personnel") }}</h2>
+    {% if personal_code %}
+    <p class="text-small text-ink-2">{{ _("Il vous permet de revenir sur l'événement depuis un autre appareil. Ne le partagez pas.") }}</p>
+    <p class="my-3">
+      <code class="rounded-md bg-surface-2 px-3 py-2 font-mono text-heading tracking-widest" id="my-code" data-secret data-masked="true" data-testid="my-code" aria-label="{{ _('Code personnel') }}">{{ personal_code }}</code>
+    </p>
+    <div class="flex flex-wrap gap-2">
+      <button type="button" class="ui-btn ui-btn--secondary" data-reveal aria-controls="my-code" aria-pressed="false" data-testid="my-code-reveal">{{ icon('eye') }}<span data-reveal-label>{{ _("Voir") }}</span></button>
+      <button type="button" class="ui-btn ui-btn--secondary" data-copy="{{ personal_code }}" data-testid="my-code-copy">{{ icon('copy') }}<span>{{ _("Copier") }}</span></button>
+    </div>
+    {% else %}
+    <p class="m-0 text-small text-ink-2" data-testid="my-code-none">{{ _("Vous n'avez pas encore de code personnel. Vous vous connectez par e-mail.") }}</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

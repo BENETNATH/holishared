@@ -5,6 +5,7 @@ import { initClipboard } from 'ui/clipboard';
 import { initReveal } from 'ui/reveal';
 import { initConfirm } from 'ui/confirm';
 import { initForms } from 'ui/forms';
+import { initHtmx } from 'ui/htmx';
 import { initPwa } from 'ui/pwa';
 
 initTheme();
@@ -14,4 +15,5 @@ initClipboard();
 initReveal();
 initConfirm();
 initForms();
+initHtmx();
 initPwa();

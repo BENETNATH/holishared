@@ -1,0 +1,70 @@
+{# Fragment HTMX de l'accueil : « Pour moi » + « À répartir » (B020a, 20.7). Rendu aussi par lists.toggle_item / lists.claim_item. #}
+{%- macro toggle_form(item, lst, done) -%}
+<form class="min-w-0 flex-1" hx-post="{{ url_for('lists.toggle_item', code=event.code, list_id=lst.id, item_id=item.id) }}"
+      hx-target="#my-items" hx-swap="outerHTML" hx-trigger="change">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="is_done" value="{{ '0' if done else '1' }}">
+  <label class="ui-check">
+    <input type="checkbox" data-testid="{{ 'my-item-undo' if done else 'my-item-check' }}"{% if done %} checked{% endif %}
+           aria-label="{{ (_('Décocher') if done else _('Cocher')) ~ ' : ' ~ item.name }}">
+    <span class="min-w-0 break-words{% if done %} text-ink-muted line-through{% endif %}">{{ item.name }}{% if item.quantity and item.quantity != "1" %} <span class="text-ink-muted">× {{ item.quantity }}</span>{% endif %}</span>
+  </label>
+</form>
+{%- endmacro -%}
+<div id="my-items" data-testid="my-items" class="flex flex-col gap-4">
+  <section class="ui-card" aria-labelledby="h-myitems">
+    <div class="mb-2 flex items-center justify-between gap-2">
+      <h2 id="h-myitems" class="text-subheading font-semibold text-ink">{{ _("Pour moi") }}</h2>
+      {% if total %}<span class="ui-badge ui-badge--neutral" data-testid="my-items-count">{{ taken }}/{{ total }} {{ _("pris") }}</span>{% endif %}
+    </div>
+    {% if groups %}
+    {% for group in groups %}
+    <section class="mt-3 first:mt-0" data-testid="my-items-group" aria-labelledby="h-mylist-{{ group.list.id }}">
+      <h3 id="h-mylist-{{ group.list.id }}" class="text-small font-semibold text-ink-2">
+        <a class="ui-link" href="{{ url_for('lists.detail', code=event.code, list_id=group.list.id) }}">{{ group.list.title }}</a>
+      </h3>
+      <ul class="m-0 list-none p-0" data-testid="my-items-todo">
+        {% for item in group.open %}<li class="flex items-center">{{ toggle_form(item, group.list, False) }}</li>{% endfor %}
+      </ul>
+      {% if group.done %}
+      <details class="mt-1" data-testid="my-items-done">
+        <summary class="flex min-h-[44px] cursor-pointer items-center text-small text-ink-2">{{ _("Déjà pris") }} ({{ group.done|length }})</summary>
+        <ul class="m-0 list-none p-0">
+          {% for item in group.done %}<li class="flex items-center">{{ toggle_form(item, group.list, True) }}</li>{% endfor %}
+        </ul>
+      </details>
+      {% endif %}
+    </section>
+    {% endfor %}
+    {% else %}
+    <p class="m-0 text-small text-ink-2" data-testid="my-items-empty">{{ _("Rien à votre charge pour l'instant. Prenez un article ci-dessous ou dans une liste.") }}</p>
+    {% endif %}
+  </section>
+
+  <section class="ui-card" aria-labelledby="h-unassigned" data-testid="unassigned">
+    <div class="mb-2 flex items-center justify-between gap-2">
+      <h2 id="h-unassigned" class="text-subheading font-semibold text-ink">{{ _("À répartir") }}</h2>
+      {% if unassigned_total %}<span class="ui-badge ui-badge--warning">{{ unassigned_total }}</span>{% endif %}
+    </div>
+    {% if unassigned %}
+    <ul class="m-0 list-none p-0">
+      {% for item, lst in unassigned %}
+      <li class="flex items-center justify-between gap-3 border-t border-line py-1 first:border-t-0" data-testid="unassigned-item">
+        <div class="min-w-0">
+          <p class="m-0 break-words text-body text-ink">{{ item.name }}</p>
+          <a class="text-caption text-ink-muted underline" href="{{ url_for('lists.detail', code=event.code, list_id=lst.id) }}">{{ lst.title }}</a>
+        </div>
+        <form hx-post="{{ url_for('lists.claim_item', code=event.code, list_id=lst.id, item_id=item.id) }}" hx-target="#my-items" hx-swap="outerHTML">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="ui-btn ui-btn--secondary ui-btn--sm" data-testid="claim-item">{{ _("Je m'occupe") }}</button>
+        </form>
+      </li>
+      {% endfor %}
+    </ul>
+    <a class="ui-link mt-2 inline-flex min-h-[44px] items-center text-small" data-testid="unassigned-all"
+       href="{{ url_for('lists.index', code=event.code) }}">{{ _("Voir les listes") }} ({{ unassigned_total }})</a>
+    {% else %}
+    <p class="m-0 text-small text-ink-2">{{ _("Tout est réparti.") }}</p>
+    {% endif %}
+  </section>
+</div>

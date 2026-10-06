@@ -12,9 +12,10 @@ from flask import (
     url_for,
 )
 from flask_babel import _
+from sqlalchemy import or_
 from werkzeug.wrappers import Response
 
-from app.context import load_event_context, log_event
+from app.context import EventContext, load_event_context, log_event
 from app.extensions import db, limiter
 from app.forms import FormErrors
 from app.models import Activity, Event, Guest, ListItem, Meal, SharedList
@@ -40,6 +41,55 @@ def _get_item_or_404(shared_list: SharedList, item_id: str) -> ListItem:
 
 def _list_items(shared_list: SharedList) -> list[ListItem]:
     return cast("list[ListItem]", cast("Any", shared_list.items).order_by(ListItem.created_at.asc()).all())
+
+
+HOME_UNASSIGNED_LIMIT = 5
+
+
+def home_items(ctx: EventContext) -> dict[str, Any]:
+    """Données du bloc « Pour moi » / « À répartir » de l'accueil (B020a, 20.7)."""
+    lists = SharedList.query.filter_by(event_id=ctx.event.id).order_by(SharedList.created_at).all()
+    by_id = {lst.id: lst for lst in lists}
+    groups: dict[str, dict[str, Any]] = {}
+    total = taken = 0
+    if ctx.participant is not None:
+        mine = (
+            ListItem.query.filter(
+                ListItem.list_id.in_(by_id), ListItem.assigned_to_id == ctx.participant.id
+            )
+            .order_by(ListItem.created_at)
+            .all()
+        )
+        for item in mine:
+            group = groups.setdefault(
+                item.list_id, {"list": by_id[item.list_id], "open": [], "done": []}
+            )
+            group["done" if item.is_done else "open"].append(item)
+            taken += int(item.is_done)
+        total = len(mine)
+    free = ListItem.query.filter(
+        ListItem.list_id.in_(by_id),
+        ListItem.is_done.is_(False),
+        or_(ListItem.assigned_to_id.is_(None), ListItem.assigned_to == ""),
+    )
+    return {
+        "groups": sorted(groups.values(), key=lambda g: g["list"].created_at),
+        "total": total,
+        "taken": taken,
+        "unassigned": [
+            (item, by_id[item.list_id])
+            for item in free.order_by(ListItem.created_at).limit(HOME_UNASSIGNED_LIMIT)
+        ],
+        "unassigned_total": free.count(),
+    }
+
+
+def _is_htmx() -> bool:
+    return request.headers.get("HX-Request") == "true"
+
+
+def _home_fragment(ctx: EventContext) -> str:
+    return render_template("events/_my_items.html", event=ctx.event, **home_items(ctx))
 
 
 @lists_bp.route("/e/<code>/lists", methods=["GET", "POST"])
@@ -202,10 +252,16 @@ def toggle_item(code: str, list_id: str, item_id: str) -> Response | tuple[str, 
     shared_list = _get_list_or_404(event, list_id)
     item = _get_item_or_404(shared_list, item_id)
 
-    item.is_done = not item.is_done
+    if item.assigned_to_id is not None and not ctx.can_edit(item):
+        abort(403)
+
+    wanted = request.form.get("is_done")
+    item.is_done = (wanted == "1") if wanted in ("0", "1") else not item.is_done
     log_event(ctx, "list_item.toggled", target=item.name, details="done" if item.is_done else "undone")
     db.session.commit()
 
+    if _is_htmx():
+        return _home_fragment(ctx)
     return redirect(url_for("lists.detail", code=code, list_id=shared_list.id))
 
 
@@ -242,6 +298,8 @@ def claim_item(code: str, list_id: str, item_id: str) -> Response | tuple[str, i
     log_event(ctx, "list_item.claimed", target=item.name, details=shared_list.title)
     db.session.commit()
 
+    if _is_htmx():
+        return _home_fragment(ctx)
     flash(_("Vous vous êtes attribué cet article."))
     return redirect(url_for("lists.detail", code=code, list_id=shared_list.id))
 

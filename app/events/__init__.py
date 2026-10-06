@@ -39,7 +39,7 @@ from app.auth import is_disposable_email
 from app.context import load_event_context
 from app.extensions import db, limiter
 from app.forms import FormErrors
-from app.freemium import can_add_guest, max_duration_days, require_tier
+from app.freemium import can_add_guest, has_feature, max_duration_days, require_tier
 from app.i18n import current_locale, household_default_name
 from app.models import Creator, Event, Guest, Household, generate_guest_code
 from app.utils import ensure_creator_guest
@@ -66,7 +66,32 @@ def _valid_email(email: str) -> bool:
     except EmailNotValidError:
         return False
 
+def event_status(event: Event, today: date) -> dict[str, Any]:
+    """Phase de l'événement (``upcoming``/``ongoing``/``past``) avec libellés traduits."""
+    total = (event.end_date - event.start_date).days + 1
+    if today < event.start_date:
+        n = (event.start_date - today).days
+        return {
+            "key": "upcoming",
+            "badge": _("À venir"),
+            "label": ngettext("Dans %(n)d jour", "Dans %(n)d jours", n, n=n),
+            "percent": 0,
+        }
+    if today > event.end_date:
+        return {"key": "past", "badge": _("Terminé"), "label": _("Terminé"), "percent": 100}
+    day = (today - event.start_date).days + 1
+    return {
+        "key": "ongoing",
+        "badge": _("En cours"),
+        "label": _("Jour %(day)d sur %(total)d", day=day, total=total),
+        "percent": day * 100 // total,
+    }
+
+
 events_bp = Blueprint("events", __name__)
+
+RECENT_MESSAGES = 3
+INFOS_ON_HOME = 5
 
 
 # === Creator: Event Management ===
@@ -74,9 +99,25 @@ events_bp = Blueprint("events", __name__)
 @events_bp.route("/")
 @login_required  # type: ignore[untyped-decorator]
 def index() -> str:
-    """List creator's events."""
-    events = current_user.events.filter_by(is_active=True).order_by(Event.created_at.desc()).all()
-    return render_template("events/index.html", events=events)
+    """Mes événements : en cours, à venir, puis terminés (B020a)."""
+    today = date.today()
+    cards = [
+        {
+            "event": e,
+            "status": event_status(e, today),
+            "participants": e.guests.filter_by(is_active=True).count(),
+        }
+        for e in current_user.events.filter_by(is_active=True)
+    ]
+    rank = {"ongoing": 0, "upcoming": 1, "past": 2}
+
+    def order(card: dict[str, Any]) -> tuple[int, int]:
+        key = card["status"]["key"]
+        day = card["event"].start_date.toordinal()
+        return rank[key], -card["event"].end_date.toordinal() if key == "past" else day
+
+    cards.sort(key=order)
+    return render_template("events/index.html", cards=cards)
 
 
 @events_bp.route("/access", methods=["GET", "POST"])
@@ -322,45 +363,31 @@ def verify(token: str) -> str | Response:
 
 @events_bp.route("/<code>")
 def dashboard(code: str) -> str | Response:
-    """Event dashboard (accessible by creator or guest with valid code)."""
+    """Accueil de l'événement (créateur ou invité avec code valide)."""
+    from app.lists import home_items
+    from app.models import ChatMessage, LogisticsItem
+
     ctx = load_event_context(code)
     event = ctx.event
-
-    # Load data
     today = date.today()
-    activities = event.activities.filter_by(date=today).all()
-    today_meals = event.meals.filter_by(date=today).all()
-    lists = event.lists.all()
-    polls = event.polls.filter_by(is_closed=False).all()
+    modules = [m for m in current_app.config["ENABLED_MODULES"] if m in current_app.blueprints]
 
-    from app.models import LogisticsItem
-
-    logistics_items = (
-        LogisticsItem.query.filter_by(event_id=event.id)
-        .order_by(LogisticsItem.category.asc(), LogisticsItem.order.asc())
-        .all()
-    )
-
-    # Courses status: a meal is "covered" when its ingredients are already
-    # checked off in any of the event's shared lists.
+    # Courses : un repas est « couvert » quand ses ingrédients sont dans une liste.
     covered_meal_ids: set[str] = set()
     for lst in event.lists:
         covered_meal_ids.update(lst.covered_meals or [])
 
-    # Build a single chronological timeline of today's meals + activities.
-    # Meals have no clock time, so each slot maps to a canonical hour
-    # (lunch → 12:00, dinner → 20:00); activities with no start_time sort last.
+    # Chronologie du jour : activités + repas (déjeuner 12:00, dîner 20:00 ; sans heure -> fin).
     slot_hour = {"lunch": (12, 0), "dinner": (20, 0)}
     timeline: list[dict[str, object]] = []
-    for act in activities:
+    for act in event.activities.filter_by(date=today):
         timeline.append({
             "kind": "activity",
             "time": act.start_time or time(23, 59),
             "title": act.title,
             "location": act.location,
-            "obj": act,
         })
-    for meal in today_meals:
+    for meal in event.meals.filter_by(date=today):
         h, m = slot_hour.get(meal.slot, (12, 0))
         timeline.append({
             "kind": "meal",
@@ -368,17 +395,64 @@ def dashboard(code: str) -> str | Response:
             "title": meal.title,
             "slot": meal.slot,
             "covered": meal.id in covered_meal_ids,
-            "obj": meal,
         })
     timeline.sort(key=lambda e: cast("time", e["time"]))
 
-    return render_template("events/dashboard.html",
-                           event=event,
-                           activities=activities, today_meals=today_meals,
-                           timeline=timeline,
-                           covered_meal_ids=covered_meal_ids,
-                           lists=lists, polls=polls,
-                           logistics_items=logistics_items)
+    recent_messages = []
+    if "chat" in modules:
+        recent_messages = list(
+            reversed(
+                ChatMessage.query.filter_by(event_id=event.id)
+                .order_by(ChatMessage.created_at.desc())
+                .limit(RECENT_MESSAGES)
+                .all()
+            )
+        )
+    infos = LogisticsItem.query.filter_by(event_id=event.id).order_by(
+        LogisticsItem.category.asc(), LogisticsItem.order.asc()
+    )
+    return render_template(
+        "events/dashboard.html",
+        event=event,
+        status=event_status(event, today),
+        timeline=timeline,
+        polls=event.polls.filter_by(is_closed=False).all(),
+        recent_messages=recent_messages,
+        infos=infos.limit(INFOS_ON_HOME).all(),
+        infos_total=infos.count(),
+        share_url=_join_url(event),
+        **(home_items(ctx) if "lists" in modules else {}),
+    )
+
+
+def _join_url(event: Event) -> str:
+    """Lien public de REJOINDRE (jamais l'URL du tableau de bord)."""
+    base = str(current_app.config["APP_URL"]).rstrip("/")
+    return base + url_for("events.guest_access", code=event.code)
+
+
+@events_bp.route("/<code>/me")
+def me(code: str) -> str:
+    """Mon code : code personnel de la personne connectée, masqué par défaut."""
+    ctx = load_event_context(code)
+    participant = ctx.participant  # garanti par require="participant"
+    personal = (
+        ctx.event.creator.personal_code
+        if ctx.is_creator
+        else (participant.code if participant else None)
+    )
+    return render_template("events/me.html", event=ctx.event, personal_code=personal)
+
+
+@events_bp.route("/<code>/manage")
+def manage(code: str) -> str:
+    """Gérer l'événement (créateur) : exports et suppression définitive."""
+    ctx = load_event_context(code, require="creator")
+    return render_template(
+        "events/manage.html",
+        event=ctx.event,
+        pdf_included=has_feature(ctx.event.creator, "pdf_export"),
+    )
 
 
 @events_bp.route("/<code>/members", methods=["GET", "POST"])

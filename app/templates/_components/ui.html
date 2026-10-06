@@ -84,3 +84,8 @@
   <ul class="errors" aria-live="assertive" data-testid="form-errors">{% for m in msgs %}<li>{{ m }}</li>{% endfor %}</ul>
   {%- endif -%}
 {%- endmacro %}
+
+{# Statut d'un événement (B020a) : texte + couleur, jamais la couleur seule. ``status`` vient de events.event_status. #}
+{% macro status_badge(status) -%}
+<span class="ui-badge shrink-0 whitespace-nowrap ui-badge--{{ {'upcoming': 'info', 'ongoing': 'success', 'past': 'neutral'}[status.key] }}" data-testid="event-status" data-status="{{ status.key }}">{{ status.badge }}</span>
+{%- endmacro %}

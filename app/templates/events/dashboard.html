@@ -1,239 +1,150 @@
 {% extends "base.html" %}
+{% from "_components/ui.html" import empty_state, status_badge %}
 {% block title %}{{ event.title }} — holishared{% endblock %}
 {% block content %}
-{# Unclaimed items across all lists (template-side count, no backend change). #}
-{% set unclaimed = [] %}
-{# Items assigned to me (creator or guest), matched by participant id. #}
-{% set my_items = [] %}
-{% for lst in lists %}
-  {% for item in lst.items %}
-    {% if not item.assigned_to %}{% set _ = unclaimed.append(item) %}{% endif %}
-    {% if item.assigned_to_id == ctx.participant.id and not item.is_done %}{% set _ = my_items.append((item, lst)) %}{% endif %}
-  {% endfor %}
-{% endfor %}
+{% set first_action = 'activity' if 'planning' in enabled_modules else ('invite' if ctx.is_creator else 'share') %}
+{%- macro action_class(key) -%}ui-btn {{ 'ui-btn--primary' if first_action == key else 'ui-btn--secondary' }}{%- endmacro -%}
+<div class="flex flex-col gap-4">
 
-<div class="page-head">
-    <div>
-        <h1>{{ event.title }}</h1>
-        <p class="page-sub">
-            {{ event.start_date | format_date('medium') }} → {{ event.end_date | format_date('medium') }}
-            {% if event.location %} · 📍 {{ event.location }}{% endif %}
-        </p>
+  <header class="ui-card" data-testid="event-hero">
+    <div class="flex items-start justify-between gap-3">
+      <h1 class="m-0 min-w-0 break-words text-title font-bold text-ink">{{ event.title }}</h1>
+      {{ status_badge(status) }}
     </div>
-</div>
-
-{% if event.description %}<p class="prose">{{ event.description }}</p>{% endif %}
-
-{% if ctx.role == "guest" %}
-<div class="code-box">
-  <span class="code-label">{{ _("Votre code personnel") }} :</span>
-  <code class="guest-code" id="guest-code-{{ ctx.participant.id }}" data-secret data-masked="true" aria-label="{{ _('Code personnel') }}">{{ ctx.participant.code }}</code>
-  <button type="button" class="btn btn-small" data-reveal aria-controls="guest-code-{{ ctx.participant.id }}" aria-pressed="false"><span data-reveal-label>{{ _("Voir") }}</span></button>
-  <button type="button" class="btn btn-small" data-copy="{{ ctx.participant.code }}">{{ _("Copier") }}</button>
-</div>
-{% endif %}
-
-{# Quick actions: the most common next steps, one tap each #}
-<div class="quick-actions" role="group" aria-label="{{ _('Actions rapides') }}">
-  {% if "meals" in enabled_modules %}
-  <a href="{{ url_for('meals.index', code=event.code) }}" class="btn btn-secondary quick-action" data-testid="plan-meals-action">🍽 {{ _("Planifier les repas") }}</a>
-  {% endif %}
-  {% if "planning" in enabled_modules %}
-  <a href="{{ url_for('planning.create', code=event.code) }}" class="btn btn-secondary quick-action">＋ {{ _("Ajouter une activité") }}</a>
-  {% endif %}
-  {% if ctx.is_creator %}
-  <a href="{{ url_for('events.invite', code=event.code) }}" class="btn btn-secondary quick-action">✉ {{ _("Inviter") }}</a>
-  {% endif %}
-  <button type="button" class="btn btn-secondary quick-action"
-          data-copy="{{ request.host_url.rstrip('/') }}{{ url_for('events.dashboard', code=event.code) }}">🔗 {{ _("Partager") }}</button>
-</div>
-
-{# Scannable status cards: label + count + one-tap navigation #}
-<div class="dash-cards">
-  <section class="card dash-card" aria-labelledby="h-today">
-    <div class="dash-card-head">
-      <h2 id="h-today">{{ _("Aujourd'hui") }}</h2>
-      {% if timeline %}<span class="count-badge">{{ timeline|length }}</span>{% endif %}
-    </div>
-    {% if timeline %}
-    <ol class="dash-timeline" aria-label="{{ _("Programme du jour") }}">
-      {% for entry in timeline %}
-      <li class="tl-item{% if entry.kind == 'meal' %} tl-meal{% endif %}">
-        <span class="time">{{ entry.time|time }}</span>
-        <div class="tl-body">
-          {% if entry.kind == 'meal' %}
-          <span class="tl-meal-slot">{{ entry.slot|label('meal_slot') }}</span>
-          {% if "meals" in enabled_modules %}
-          <a href="{{ url_for('meals.index', code=event.code) }}">{{ entry.title }}</a>
-          {% else %}<span class="tl-title">{{ entry.title }}</span>{% endif %}
-          {% if entry.covered %}
-          <span class="meal-course-badge covered" title="{{ _("Ingrédients dans la liste de courses") }}">✓ {{ _("Courses notées") }}</span>
-          {% else %}
-          <span class="meal-course-badge" title="{{ _("Ingrédients pas encore en liste de courses") }}">{{ _("À lister") }}</span>
-          {% endif %}
-          {% else %}
-          {% if "planning" in enabled_modules %}
-          <a href="{{ url_for('planning.index', code=event.code) }}">{{ entry.title }}</a>
-          {% else %}<span class="tl-title">{{ entry.title }}</span>{% endif %}
-          {% if entry.location %}<span class="tl-meta">📍 {{ entry.location }}</span>{% endif %}
-          {% endif %}
-        </div>
-      </li>
-      {% endfor %}
-    </ol>
-    {% else %}
-    <p class="dash-empty">{{ _("Rien prévu aujourd'hui.") }}</p>
+    <p class="mt-2 mb-0 flex flex-wrap items-center gap-x-4 gap-y-1 text-small text-ink-2">
+      <span class="inline-flex items-center gap-1">{{ icon('calendar-days', size=16) }}{{ event.start_date | format_date('medium') }} → {{ event.end_date | format_date('medium') }}</span>
+      {% if event.location %}<span class="inline-flex items-center gap-1">{{ icon('map-pin', size=16) }}{{ event.location }}</span>{% endif %}
+    </p>
+    <p class="mt-3 mb-0 text-subheading font-semibold text-ink" data-testid="event-countdown">{{ status.label }}</p>
+    {% if status.key == 'ongoing' %}
+    <progress class="ui-progress mt-2" max="100" value="{{ status.percent }}" aria-label="{{ status.label }}"></progress>
     {% endif %}
-    {% if "planning" in enabled_modules %}
-    <a href="{{ url_for('planning.index', code=event.code) }}" class="dash-card-link">{{ _("Voir le planning") }} →</a>
-    {% endif %}
-  </section>
-
-  <section class="card dash-card" aria-labelledby="h-polls">
-    <div class="dash-card-head">
-      <h2 id="h-polls">{{ _("Sondages ouverts") }}</h2>
-      {% if polls %}<span class="count-badge">{{ polls|length }}</span>{% endif %}
-    </div>
-    {% if polls %}
-    <ul class="dash-mini-list">
-      {% for poll in polls[:3] %}
-      <li>
-        {% if "voting" in enabled_modules %}
-        <a href="{{ url_for('voting.detail', code=event.code, poll_id=poll.id) }}">{{ poll.question }}</a>
-        {% else %}<span>{{ poll.question }}</span>{% endif %}
-      </li>
-      {% endfor %}
-      {% if polls|length > 3 %}<li class="muted">+{{ polls|length - 3 }} {{ _("autres") }}</li>{% endif %}
-    </ul>
-    {% else %}
-    <p class="dash-empty">{{ _("Aucun sondage ouvert.") }}</p>
-    {% endif %}
-    {% if "voting" in enabled_modules %}
-    <a href="{{ url_for('voting.index', code=event.code) }}" class="dash-card-link">{{ _("Voir les sondages") }} →</a>
-    {% endif %}
-  </section>
-
-  <section class="card dash-card" aria-labelledby="h-unclaimed">
-    <div class="dash-card-head">
-      <h2 id="h-unclaimed">{{ _("À répartir") }}</h2>
-      {% if unclaimed %}<span class="count-badge">{{ unclaimed|length }}</span>{% endif %}
-    </div>
-    {% if unclaimed %}
-    <p class="dash-empty">{{ unclaimed|length }} {{ _("articles sans responsable dans vos listes.") }}</p>
-    {% else %}
-    <p class="dash-empty">{{ _("Tout est réparti. 👌") }}</p>
-    {% endif %}
-    {% if "lists" in enabled_modules %}
-    <a href="{{ url_for('lists.index', code=event.code) }}" class="dash-card-link">{{ _("Voir les listes") }} →</a>
-    {% endif %}
-  </section>
-
-  {% if my_items and "lists" in enabled_modules %}
-  <section class="card dash-card" aria-labelledby="h-myitems" data-testid="my-items">
-    <div class="dash-card-head">
-      <h2 id="h-myitems">{{ _("Mes items") }}</h2>
-      <span class="count-badge">{{ my_items|length }}</span>
-    </div>
-    <ul class="dash-mini-list dash-my-items">
-      {% for item, lst in my_items %}
-      <li>
-        <form method="post" action="{{ url_for('lists.toggle_item', code=event.code, list_id=lst.id, item_id=item.id) }}" class="dash-item-form">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <input type="hidden" name="is_done" value="1">
-          <label class="dash-item-label">
-            <input type="checkbox" class="dash-item-check" onchange="this.form.submit()" aria-label="{{ _('Cocher') }}: {{ item.name }}">
-            <span class="dash-item-name">{{ item.name }}</span>
-          </label>
-        </form>
-        <span class="dash-item-list">{{ lst.title }}</span>
-      </li>
-      {% endfor %}
-    </ul>
-    <a href="{{ url_for('lists.index', code=event.code) }}" class="dash-card-link">{{ _("Voir les listes") }} →</a>
-  </section>
-  {% endif %}
-
-  {% if "chat" in enabled_modules %}
-  <section class="card dash-card" aria-labelledby="h-chat">
-    <div class="dash-card-head">
-      <h2 id="h-chat">{{ _("Chat") }}</h2>
-    </div>
-    {# Last messages loaded via HTMX (chat index returns a partial);
-       CSS keeps only the 3 most recent visible. #}
-    <div class="dash-chat"
-         hx-get="{{ url_for('chat.index', code=event.code) }}"
-         hx-trigger="load"
-         hx-swap="innerHTML">
-      <p class="dash-empty">{{ _("Chargement…") }}</p>
-    </div>
-    <a href="{{ url_for('chat.index', code=event.code) }}" class="dash-card-link">{{ _("Ouvrir le chat") }} →</a>
-  </section>
-  {% endif %}
-</div>
-
-<!-- Important info (collaborative) -->
-<section aria-labelledby="h-info" class="section">
-  <div class="section-head">
-    <h2 id="h-info">{{ _("Infos importantes") }}</h2>
-    {% if "logistics" in enabled_modules %}
-    <a href="{{ url_for('logistics.create', code=event.code) }}" class="btn btn-small btn-secondary">{{ _("+ Ajouter une info") }}</a>
-    {% endif %}
-  </div>
-  {% if logistics_items %}
-  <div class="info-grid">
-    {% for item in logistics_items %}
-    <div class="card info-card">
-      <span class="tag">{{ item.category|label('info_category') }}</span>
-      <h3>{{ item.title }}</h3>
-      <p>{{ item.content }}</p>
-      {% if "logistics" in enabled_modules %}
-      <a href="{{ url_for('logistics.edit', code=event.code, item_id=item.id) }}">{{ _("Modifier") }}</a>
+    {% if event.description %}
+      {% if event.description|length > 140 %}
+      <details class="mt-3" data-testid="event-description">
+        <summary class="flex min-h-[44px] cursor-pointer items-center text-small font-semibold text-ink-2">{{ _("Description") }}</summary>
+        <p class="m-0 whitespace-pre-line text-body text-ink-2">{{ event.description }}</p>
+      </details>
+      {% else %}
+      <p class="mt-3 mb-0 whitespace-pre-line text-body text-ink-2" data-testid="event-description">{{ event.description }}</p>
       {% endif %}
+    {% endif %}
+    <div class="mt-4 flex flex-wrap gap-2" role="group" aria-label="{{ _('Actions rapides') }}" data-testid="quick-actions">
+      {% if "planning" in enabled_modules %}
+      <a href="{{ url_for('planning.create', code=event.code) }}" class="{{ action_class('activity') }}" data-testid="add-activity-action">{{ icon('plus') }}<span>{{ _("Ajouter une activité") }}</span></a>
+      {% endif %}
+      {% if ctx.is_creator %}
+      <a href="{{ url_for('events.invite', code=event.code) }}" class="{{ action_class('invite') }}" data-testid="invite-action">{{ icon('user-plus') }}<span>{{ _("Inviter") }}</span></a>
+      {% endif %}
+      <button type="button" class="{{ action_class('share') }}" data-testid="share-action" data-copy="{{ share_url }}">{{ icon('share-2') }}<span>{{ _("Partager") }}</span></button>
     </div>
-    {% endfor %}
-  </div>
-  {% else %}
-  <div class="empty-state">
-    <span class="empty-icon" aria-hidden="true">📌</span>
-    <h3>{{ _("Aucune info pour l'instant") }}</h3>
-    <p>{{ _("Adresse du gîte, code d'accès, horaires, documents… chacun peut compléter.") }}</p>
+  </header>
+
+  <div class="grid items-start gap-4 lg:grid-cols-2">
+    <section class="ui-card" aria-labelledby="h-today" data-testid="today">
+      <div class="mb-2 flex items-center justify-between gap-2">
+        <h2 id="h-today" class="m-0 text-subheading font-semibold text-ink">{{ _("Aujourd'hui") }}</h2>
+        {% if timeline %}<span class="ui-badge ui-badge--neutral">{{ timeline|length }}</span>{% endif %}
+      </div>
+      {% if timeline %}
+      <ol class="m-0 list-none p-0" aria-label="{{ _('Programme du jour') }}">
+        {% for entry in timeline %}
+        <li class="flex gap-3 border-t border-line py-2 first:border-t-0" data-testid="today-entry">
+          <span class="w-16 shrink-0 text-small font-semibold text-ink-2">{% if entry.kind == 'activity' and entry.time.hour == 23 and entry.time.minute == 59 %}{{ _("Journée") }}{% else %}{{ entry.time|time }}{% endif %}</span>
+          <div class="min-w-0">
+            {% if entry.kind == 'meal' %}
+            <p class="m-0 text-caption font-semibold uppercase text-ink-muted">{{ entry.slot|label('meal_slot') }}</p>
+            {% if "meals" in enabled_modules %}<a class="ui-link" href="{{ url_for('meals.index', code=event.code) }}">{{ entry.title }}</a>{% else %}<span>{{ entry.title }}</span>{% endif %}
+            <p class="mt-1 mb-0">
+              {% if entry.covered %}<span class="ui-badge ui-badge--success" title="{{ _('Ingrédients dans la liste de courses') }}">{{ icon('check', size=14) }}{{ _("Courses notées") }}</span>
+              {% else %}<span class="ui-badge ui-badge--warning" title="{{ _('Ingrédients pas encore en liste de courses') }}">{{ _("À lister") }}</span>{% endif %}
+            </p>
+            {% else %}
+            {% if "planning" in enabled_modules %}<a class="ui-link" href="{{ url_for('planning.index', code=event.code) }}">{{ entry.title }}</a>{% else %}<span>{{ entry.title }}</span>{% endif %}
+            {% if entry.location %}<p class="m-0 inline-flex items-center gap-1 text-small text-ink-2">{{ icon('map-pin', size=14) }}{{ entry.location }}</p>{% endif %}
+            {% endif %}
+          </div>
+        </li>
+        {% endfor %}
+      </ol>
+      {% else %}
+      <p class="m-0 text-small text-ink-2" data-testid="today-empty">{{ _("Rien de prévu aujourd'hui.") }}{% if "planning" in enabled_modules %} {{ _("Ajoutez une activité ou planifiez les repas.") }}{% endif %}</p>
+      {% endif %}
+      <div class="mt-2 flex flex-wrap gap-x-4">
+        {% if "meals" in enabled_modules %}
+        <a href="{{ url_for('meals.index', code=event.code) }}" class="ui-link inline-flex min-h-[44px] items-center text-small" data-testid="plan-meals-action">{{ _("Planifier les repas") }}</a>
+        {% endif %}
+        {% if "planning" in enabled_modules %}
+        <a href="{{ url_for('planning.index', code=event.code) }}" class="ui-link inline-flex min-h-[44px] items-center text-small" data-testid="see-planning">{{ _("Voir le planning") }}</a>
+        {% endif %}
+      </div>
+    </section>
+
+    {% if "lists" in enabled_modules %}{% include "events/_my_items.html" %}{% endif %}
+
+    {% if "voting" in enabled_modules %}
+    <section class="ui-card" aria-labelledby="h-polls" data-testid="polls">
+      <div class="mb-2 flex items-center justify-between gap-2">
+        <h2 id="h-polls" class="m-0 text-subheading font-semibold text-ink">{{ _("Sondages ouverts") }}</h2>
+        {% if polls %}<span class="ui-badge ui-badge--neutral">{{ polls|length }}</span>{% endif %}
+      </div>
+      {% if polls %}
+      <ul class="m-0 list-none p-0">
+        {% for poll in polls[:3] %}
+        <li class="border-t border-line first:border-t-0"><a class="ui-link flex min-h-[44px] items-center" href="{{ url_for('voting.detail', code=event.code, poll_id=poll.id) }}">{{ poll.question }}</a></li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="m-0 text-small text-ink-2">{{ _("Aucun sondage ouvert.") }}</p>
+      {% endif %}
+      <a href="{{ url_for('voting.index', code=event.code) }}" class="ui-link inline-flex min-h-[44px] items-center text-small">{{ _("Voir les sondages") }}{% if polls|length > 3 %} (+{{ polls|length - 3 }}){% endif %}</a>
+    </section>
+    {% endif %}
+
+    {% if "chat" in enabled_modules %}
+    <section class="ui-card" aria-labelledby="h-chat" data-testid="chat-recent">
+      <h2 id="h-chat" class="mb-2 mt-0 text-subheading font-semibold text-ink">{{ _("Derniers messages") }}</h2>
+      {% if recent_messages %}
+      <ul class="m-0 list-none p-0">
+        {% for msg in recent_messages %}
+        <li class="border-t border-line py-2 first:border-t-0" data-testid="chat-recent-message">
+          <p class="m-0 text-small"><span class="font-semibold text-ink">{{ msg.author_name }}</span> <time class="text-ink-muted" datetime="{{ msg.created_at.isoformat() }}">{{ msg.created_at|time }}</time></p>
+          <p class="m-0 line-clamp-2 break-words text-body text-ink-2">{{ msg.content }}</p>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="m-0 text-small text-ink-2">{{ _("Aucun message pour l'instant.") }}</p>
+      {% endif %}
+      <a href="{{ url_for('chat.index', code=event.code) }}" class="ui-link inline-flex min-h-[44px] items-center text-small">{{ _("Ouvrir le chat") }}</a>
+    </section>
+    {% endif %}
+
     {% if "logistics" in enabled_modules %}
-    <a href="{{ url_for('logistics.create', code=event.code) }}" class="btn btn-primary">{{ _("Ajouter une info") }}</a>
+    <section class="ui-card" aria-labelledby="h-info" data-testid="infos">
+      <div class="mb-2 flex items-center justify-between gap-2">
+        <h2 id="h-info" class="m-0 text-subheading font-semibold text-ink">{{ _("Infos importantes") }}</h2>
+        <a href="{{ url_for('logistics.create', code=event.code) }}" class="ui-btn ui-btn--secondary ui-btn--sm">{{ icon('plus', size=16) }}<span>{{ _("Ajouter une info") }}</span></a>
+      </div>
+      {% if infos %}
+      <ul class="m-0 list-none p-0">
+        {% for item in infos %}
+        <li class="flex items-start justify-between gap-2 border-t border-line py-2 first:border-t-0" data-testid="info-item">
+          <div class="min-w-0">
+            <p class="m-0 break-words font-semibold text-ink">{{ item.title }}</p>
+            <p class="m-0 line-clamp-2 break-words text-small text-ink-2">{{ item.content }}</p>
+          </div>
+          <button type="button" class="ui-btn ui-btn--ghost ui-btn--icon shrink-0" data-copy="{{ item.content }}" data-testid="info-copy"
+                  aria-label="{{ _('Copier') }} : {{ item.title }}">{{ icon('copy') }}</button>
+        </li>
+        {% endfor %}
+      </ul>
+      <a href="{{ url_for('logistics.index', code=event.code) }}" class="ui-link inline-flex min-h-[44px] items-center text-small" data-testid="infos-all">{{ _("Tout voir") }} ({{ infos_total }})</a>
+      {% else %}
+      {% call empty_state('info', _("Aucune info pour l'instant"), _("Adresse du gîte, code d'accès, horaires… chacun peut compléter.")) %}{% endcall %}
+      {% endif %}
+    </section>
     {% endif %}
   </div>
-  {% endif %}
-</section>
-
-{% if not activities and not polls and not lists and not logistics_items %}
-<div class="empty-state">
-  <span class="empty-icon" aria-hidden="true">🧭</span>
-  <h3>{{ _("Rien à afficher pour l'instant") }}</h3>
-  <p>{{ _("Commencez par ajouter une activité ou une info pratique.") }}</p>
-  {% if "planning" in enabled_modules %}
-  <a href="{{ url_for('planning.create', code=event.code) }}" class="btn btn-primary">{{ _("Ajouter une activité") }}</a>
-  {% endif %}
 </div>
-{% endif %}
-
-{# Zone de gestion (créateur) : export ZIP + suppression définitive #}
-{% if ctx.is_creator %}
-<section class="card mgmt-zone" aria-labelledby="h-mgmt">
-  <div class="section-head">
-    <h2 id="h-mgmt">{{ _("Zone de gestion") }}</h2>
-    <span class="mgmt-retention">🕒 {{ _("Cet événement et ses photos seront purgés 30 jours après la fin du séjour.") }}</span>
-  </div>
-  <div class="mgmt-actions">
-    <a href="{{ url_for('events.export_event', code=event.code) }}" class="btn btn-secondary mgmt-export">
-      📦 {{ _("Télécharger l'archive complète (ZIP)") }}
-    </a>
-    <form method="POST" action="{{ url_for('events.delete_event', code=event.code) }}" class="mgmt-delete-form"
-          data-confirm="{{ _('Supprimer définitivement cet événement et toutes ses données ?') }}">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button type="submit" class="btn btn-danger mgmt-danger-btn">
-        🗑️ {{ _("Supprimer définitivement l'événement et toutes ses données") }}
-      </button>
-    </form>
-  </div>
-</section>
-{% endif %}
 {% endblock %}

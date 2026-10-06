@@ -130,6 +130,34 @@
       ]
     },
     {
+      "id": "event-my-code",
+      "lot": "B020",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/me",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ]
+    },
+    {
+      "id": "event-manage",
+      "lot": "B020",
+      "role": "creator",
+      "path": "/e/{event.rich}/manage",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ]
+    },
+    {
       "id": "planning",
       "lot": "B017",
       "role": "guest_household",

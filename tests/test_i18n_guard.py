@@ -127,6 +127,8 @@ def _urls(event, db):
         f"/e/{code}/lists/{lst.id}",
         f"/e/{code}/lists/new",
         f"/e/{code}/log",
+        f"/e/{code}/manage",
+        f"/e/{code}/me",
         f"/e/{code}/logistics",
         f"/e/{code}/logistics/{item.id}/edit",
         f"/e/{code}/logistics/new",

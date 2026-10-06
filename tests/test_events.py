@@ -157,8 +157,8 @@ class TestGuestAccess:
         from app.models import Guest
         g = Guest.query.filter_by(event_id=event.id, code="alice42x").first()
         assert g is not None
-        # The code is shown on the dashboard, not flashed.
-        assert b"alice42x" in resp.data
+        # The code is no longer on the dashboard (B020a): it is shown on "Mon code".
+        assert b"alice42x" in client.get(f"/e/{event.code}/me").data
 
     def test_join_missing_code(self, client, event):
         resp = client.post(f"/e/{event.code}/join", data={
@@ -206,8 +206,8 @@ class TestMyCode:
             "guest_code": guest.code,
         }, follow_redirects=True)
         assert resp.status_code == 200
-        # Dashboard shows the guest's own code.
-        assert guest.code.encode() in resp.data
+        # The guest's own code is shown on "Mon code", not on the dashboard (B020a).
+        assert guest.code.encode() in client.get(f"/e/{event.code}/me").data
 
     def test_my_code_invalid(self, client, event):
         resp = client.post(f"/e/{event.code}/mycode", data={

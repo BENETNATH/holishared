@@ -54,6 +54,9 @@ _EVENT_SECTIONS: Final[dict[str, str]] = {
     "events.invite_email": "invite",
     "events.invite_resend": "invite",
     "events.log": "log",
+    "events.me": "me",
+    "events.manage": "manage",
+    "events.export_pdf": "manage",
 }
 BOTTOM_NAV_MODULES: Final[int] = 4
 
@@ -75,6 +78,7 @@ JS_STRINGS: Final[dict[str, str]] = {
     "hide": N_("Masquer"),
     "loading": N_("Chargement…"),
     "lists_noted": N_("C'est noté"),
+    "action_failed": N_("Action impossible. Réessayez."),
 }
 
 
@@ -156,8 +160,9 @@ class NavItem:
     key: str
     label: str
     icon: str
-    href: str | None  # None pour les boutons (confidentialité)
+    href: str | None  # None pour les boutons (confidentialité, copie)
     active: bool
+    copy: str | None = None  # bouton « copier » : texte placé dans le presse-papiers
 
 
 @dataclass(frozen=True)
@@ -196,9 +201,11 @@ def build_nav(
     """Navigation du shell pour la page courante (contexte event ou global)."""
     current = nav_section(endpoint)
 
-    def item(key: str, label: str, icon_name: str, ep: str | None, **values: Any) -> NavItem:
+    def item(
+        key: str, label: str, icon_name: str, ep: str | None, copy: str | None = None, **values: Any
+    ) -> NavItem:
         href = url_for(ep, **values) if ep else None
-        return NavItem(key, label, icon_name, href, key == current)
+        return NavItem(key, label, icon_name, href, key == current, copy)
 
     if not (event_code and role in ("creator", "guest")):
         primary = [
@@ -235,7 +242,16 @@ def build_nav(
         event_items.append(
             item("invite", _("Inviter"), "user-plus", "events.invite", code=event_code)
         )
+    join_url = current_app.config["APP_URL"].rstrip("/") + url_for(
+        "events.guest_access", code=event_code
+    )
+    event_items.append(item("share", _("Partager le lien"), "share-2", None, copy=join_url))
     event_items.append(item("log", _("Journal"), "scroll-text", "events.log", code=event_code))
+    event_items.append(item("me", _("Mon code"), "key-round", "events.me", code=event_code))
+    if role == "creator":
+        event_items.append(
+            item("manage", _("Gérer l'événement"), "settings", "events.manage", code=event_code)
+        )
     account_items = []
     if role == "creator":
         account_items = [

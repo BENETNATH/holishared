@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 22:55+0200\n"
+"POT-Creation-Date: 2026-10-06 23:24+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -414,7 +414,7 @@ msgstr ""
 msgid "Recharger"
 msgstr ""
 
-#: app/templates/events/dashboard.html app/templates/events/members.html
+#: app/templates/events/me.html app/templates/events/members.html
 #: app/templates/main/ui_catalog.html app/ui.py
 msgid "Voir"
 msgstr ""
@@ -423,13 +423,16 @@ msgstr ""
 msgid "Masquer"
 msgstr ""
 
-#: app/templates/events/dashboard.html app/templates/main/ui_catalog.html
-#: app/ui.py
+#: app/templates/main/ui_catalog.html app/ui.py
 msgid "Chargement…"
 msgstr ""
 
 #: app/ui.py
 msgid "C'est noté"
+msgstr ""
+
+#: app/ui.py
+msgid "Action impossible. Réessayez."
 msgstr ""
 
 #: app/ui.py
@@ -469,7 +472,7 @@ msgstr ""
 msgid "Infos"
 msgstr ""
 
-#: app/templates/chat/index.html app/templates/events/dashboard.html app/ui.py
+#: app/templates/chat/index.html app/ui.py
 msgid "Chat"
 msgstr ""
 
@@ -485,8 +488,20 @@ msgstr ""
 msgid "Inviter"
 msgstr ""
 
+#: app/ui.py
+msgid "Partager le lien"
+msgstr ""
+
 #: app/templates/events/log.html app/ui.py
 msgid "Journal"
+msgstr ""
+
+#: app/templates/events/me.html app/ui.py
+msgid "Mon code"
+msgstr ""
+
+#: app/templates/events/manage.html app/ui.py
+msgid "Gérer l'événement"
 msgstr ""
 
 #: app/templates/base.html app/ui.py
@@ -619,6 +634,30 @@ msgstr ""
 
 #: app/events/__init__.py app/planning/__init__.py
 msgid "Format de date invalide (AAAA-MM-JJ)."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "À venir"
+msgstr ""
+
+#: app/events/__init__.py
+#, python-format
+msgid "Dans %(n)d jour"
+msgid_plural "Dans %(n)d jours"
+msgstr[0] ""
+msgstr[1] ""
+
+#: app/events/__init__.py
+msgid "Terminé"
+msgstr ""
+
+#: app/events/__init__.py
+msgid "En cours"
+msgstr ""
+
+#: app/events/__init__.py
+#, python-format
+msgid "Jour %(day)d sur %(total)d"
 msgstr ""
 
 #: app/events/__init__.py
@@ -1162,7 +1201,8 @@ msgid "Ajoutez d'abord un foyer pour pouvoir ajouter des dépenses."
 msgstr ""
 
 #: app/templates/costs/index.html app/templates/events/create.html
-#: app/templates/main/ui_catalog.html app/templates/planning/form.html
+#: app/templates/events/dashboard.html app/templates/main/ui_catalog.html
+#: app/templates/planning/form.html
 msgid "Description"
 msgstr ""
 
@@ -1377,6 +1417,48 @@ msgid ""
 " à votre événement."
 msgstr ""
 
+#: app/templates/events/_my_items.html
+msgid "Décocher"
+msgstr ""
+
+#: app/templates/events/_my_items.html
+msgid "Cocher"
+msgstr ""
+
+#: app/templates/events/_my_items.html
+msgid "Pour moi"
+msgstr ""
+
+#: app/templates/events/_my_items.html
+msgid "pris"
+msgstr ""
+
+#: app/templates/events/_my_items.html
+msgid "Déjà pris"
+msgstr ""
+
+#: app/templates/events/_my_items.html
+msgid ""
+"Rien à votre charge pour l'instant. Prenez un article ci-dessous ou dans "
+"une liste."
+msgstr ""
+
+#: app/templates/events/_my_items.html
+msgid "À répartir"
+msgstr ""
+
+#: app/templates/events/_my_items.html app/templates/lists/detail.html
+msgid "Je m'occupe"
+msgstr ""
+
+#: app/templates/events/_my_items.html
+msgid "Voir les listes"
+msgstr ""
+
+#: app/templates/events/_my_items.html
+msgid "Tout est réparti."
+msgstr ""
+
 #: app/templates/events/create.html app/templates/events/index.html
 msgid "Nouvel événement"
 msgstr ""
@@ -1448,26 +1530,8 @@ msgstr ""
 msgid "Créer l'événement"
 msgstr ""
 
-#: app/templates/events/dashboard.html app/templates/events/join.html
-#: app/templates/events/verify.html
-msgid "Votre code personnel"
-msgstr ""
-
-#: app/templates/events/dashboard.html app/templates/events/mycode.html
-msgid "Code personnel"
-msgstr ""
-
-#: app/templates/events/dashboard.html app/templates/events/invite.html
-#: app/templates/events/members.html app/templates/main/ui_catalog.html
-msgid "Copier"
-msgstr ""
-
 #: app/templates/events/dashboard.html
 msgid "Actions rapides"
-msgstr ""
-
-#: app/templates/events/dashboard.html
-msgid "Planifier les repas"
 msgstr ""
 
 #: app/templates/events/dashboard.html app/templates/planning/index.html
@@ -1487,6 +1551,10 @@ msgid "Programme du jour"
 msgstr ""
 
 #: app/templates/events/dashboard.html
+msgid "Journée"
+msgstr ""
+
+#: app/templates/events/dashboard.html
 msgid "Ingrédients dans la liste de courses"
 msgstr ""
 
@@ -1503,7 +1571,15 @@ msgid "À lister"
 msgstr ""
 
 #: app/templates/events/dashboard.html
-msgid "Rien prévu aujourd'hui."
+msgid "Rien de prévu aujourd'hui."
+msgstr ""
+
+#: app/templates/events/dashboard.html
+msgid "Ajoutez une activité ou planifiez les repas."
+msgstr ""
+
+#: app/templates/events/dashboard.html
+msgid "Planifier les repas"
 msgstr ""
 
 #: app/templates/events/dashboard.html
@@ -1515,10 +1591,6 @@ msgid "Sondages ouverts"
 msgstr ""
 
 #: app/templates/events/dashboard.html
-msgid "autres"
-msgstr ""
-
-#: app/templates/events/dashboard.html
 msgid "Aucun sondage ouvert."
 msgstr ""
 
@@ -1527,27 +1599,11 @@ msgid "Voir les sondages"
 msgstr ""
 
 #: app/templates/events/dashboard.html
-msgid "À répartir"
+msgid "Derniers messages"
 msgstr ""
 
 #: app/templates/events/dashboard.html
-msgid "articles sans responsable dans vos listes."
-msgstr ""
-
-#: app/templates/events/dashboard.html
-msgid "Tout est réparti. 👌"
-msgstr ""
-
-#: app/templates/events/dashboard.html
-msgid "Voir les listes"
-msgstr ""
-
-#: app/templates/events/dashboard.html
-msgid "Mes items"
-msgstr ""
-
-#: app/templates/events/dashboard.html
-msgid "Cocher"
+msgid "Aucun message pour l'instant."
 msgstr ""
 
 #: app/templates/events/dashboard.html
@@ -1558,14 +1614,19 @@ msgstr ""
 msgid "Infos importantes"
 msgstr ""
 
-#: app/templates/events/dashboard.html
-msgid "+ Ajouter une info"
+#: app/templates/events/dashboard.html app/templates/logistics/form.html
+#: app/templates/logistics/index.html
+msgid "Ajouter une info"
 msgstr ""
 
-#: app/templates/events/dashboard.html app/templates/logistics/form.html
-#: app/templates/logistics/index.html app/templates/main/ui_catalog.html
-#: app/templates/planning/form.html app/templates/planning/index.html
-msgid "Modifier"
+#: app/templates/events/dashboard.html app/templates/events/invite.html
+#: app/templates/events/me.html app/templates/events/members.html
+#: app/templates/main/ui_catalog.html
+msgid "Copier"
+msgstr ""
+
+#: app/templates/events/dashboard.html
+msgid "Tout voir"
 msgstr ""
 
 #: app/templates/events/dashboard.html
@@ -1573,49 +1634,19 @@ msgid "Aucune info pour l'instant"
 msgstr ""
 
 #: app/templates/events/dashboard.html
-msgid "Adresse du gîte, code d'accès, horaires, documents… chacun peut compléter."
-msgstr ""
-
-#: app/templates/events/dashboard.html app/templates/logistics/form.html
-#: app/templates/logistics/index.html
-msgid "Ajouter une info"
-msgstr ""
-
-#: app/templates/events/dashboard.html
-msgid "Rien à afficher pour l'instant"
-msgstr ""
-
-#: app/templates/events/dashboard.html
-msgid "Commencez par ajouter une activité ou une info pratique."
-msgstr ""
-
-#: app/templates/events/dashboard.html
-msgid "Zone de gestion"
-msgstr ""
-
-#: app/templates/events/dashboard.html
-msgid "Cet événement et ses photos seront purgés 30 jours après la fin du séjour."
-msgstr ""
-
-#: app/templates/events/dashboard.html
-msgid "Télécharger l'archive complète (ZIP)"
-msgstr ""
-
-#: app/templates/events/dashboard.html
-msgid "Supprimer définitivement cet événement et toutes ses données ?"
-msgstr ""
-
-#: app/templates/events/dashboard.html
-msgid "Supprimer définitivement l'événement et toutes ses données"
+msgid "Adresse du gîte, code d'accès, horaires… chacun peut compléter."
 msgstr ""
 
 #: app/templates/events/index.html
-msgid "Retrouvez vos événements et leurs invités."
+msgid "Retrouvez vos événements et leurs participants."
 msgstr ""
 
-#: app/templates/events/index.html app/templates/events/invite.html
-msgid "invités"
-msgstr ""
+#: app/templates/events/index.html
+#, python-format
+msgid "%(n)d participant"
+msgid_plural "%(n)d participants"
+msgstr[0] ""
+msgstr[1] ""
 
 #: app/templates/events/index.html
 msgid "Aucun événement"
@@ -1627,6 +1658,10 @@ msgstr ""
 
 #: app/templates/events/invite.html
 msgid "Invitations"
+msgstr ""
+
+#: app/templates/events/invite.html
+msgid "invités"
 msgstr ""
 
 #: app/templates/events/invite.html
@@ -1708,6 +1743,11 @@ msgstr ""
 msgid "Ex : Alice, Bob…"
 msgstr ""
 
+#: app/templates/events/join.html app/templates/events/me.html
+#: app/templates/events/verify.html
+msgid "Votre code personnel"
+msgstr ""
+
 #: app/templates/events/join.html app/templates/events/verify.html
 msgid "Ex : alice42"
 msgstr ""
@@ -1778,6 +1818,83 @@ msgstr ""
 msgid ""
 "Les actions de l'événement (créations, modifications, votes…) "
 "apparaîtront ici."
+msgstr ""
+
+#: app/templates/events/manage.html
+msgid "Exporter les données"
+msgstr ""
+
+#: app/templates/events/manage.html
+msgid "Archive complète : données de l'événement (JSON) et photos."
+msgstr ""
+
+#: app/templates/events/manage.html
+msgid "Télécharger l'archive (ZIP)"
+msgstr ""
+
+#: app/templates/events/manage.html app/templates/freemium/pdf_export.html
+msgid "Export PDF des comptes"
+msgstr ""
+
+#: app/templates/events/manage.html
+msgid "Inclus dans votre offre, mais pas encore disponible."
+msgstr ""
+
+#: app/templates/events/manage.html
+msgid "Fonctionnalité de l'offre Vacances+, pas encore disponible."
+msgstr ""
+
+#: app/templates/events/manage.html
+msgid "Bientôt"
+msgstr ""
+
+#: app/templates/events/manage.html
+msgid "Vacances+"
+msgstr ""
+
+#: app/templates/events/manage.html
+msgid "Suppression définitive"
+msgstr ""
+
+#: app/templates/events/manage.html
+msgid ""
+"Supprime l'événement, tous ses contenus et ses photos. Cette action est "
+"irréversible."
+msgstr ""
+
+#: app/templates/events/manage.html
+msgid ""
+"Cet événement et ses photos seront de toute façon purgés 30 jours après "
+"la fin du séjour."
+msgstr ""
+
+#: app/templates/events/manage.html
+#, python-format
+msgid ""
+"Supprimer définitivement « %(title)s » et toutes ses données ? Cette "
+"action est irréversible."
+msgstr ""
+
+#: app/templates/events/manage.html
+msgid "Supprimer définitivement"
+msgstr ""
+
+#: app/templates/events/manage.html
+msgid "Supprimer l'événement"
+msgstr ""
+
+#: app/templates/events/me.html
+msgid ""
+"Il vous permet de revenir sur l'événement depuis un autre appareil. Ne le"
+" partagez pas."
+msgstr ""
+
+#: app/templates/events/me.html app/templates/events/mycode.html
+msgid "Code personnel"
+msgstr ""
+
+#: app/templates/events/me.html
+msgid "Vous n'avez pas encore de code personnel. Vous vous connectez par e-mail."
 msgstr ""
 
 #: app/templates/events/members.html
@@ -1999,10 +2116,6 @@ msgid "Export PDF"
 msgstr ""
 
 #: app/templates/freemium/pdf_export.html
-msgid "Export PDF des comptes"
-msgstr ""
-
-#: app/templates/freemium/pdf_export.html
 #, python-format
 msgid "Votre document comptable pour « %(title)s » est prêt."
 msgstr ""
@@ -2033,10 +2146,6 @@ msgstr ""
 
 #: app/templates/lists/detail.html
 msgid "Articles de la liste"
-msgstr ""
-
-#: app/templates/lists/detail.html
-msgid "Je m'occupe"
 msgstr ""
 
 #: app/templates/lists/detail.html
@@ -2087,6 +2196,12 @@ msgstr ""
 
 #: app/templates/lists/index.html app/templates/main/ui_catalog.html
 msgid "Progression"
+msgstr ""
+
+#: app/templates/logistics/form.html app/templates/logistics/index.html
+#: app/templates/main/ui_catalog.html app/templates/planning/form.html
+#: app/templates/planning/index.html
+msgid "Modifier"
 msgstr ""
 
 #: app/templates/logistics/form.html

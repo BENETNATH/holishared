@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Gérer l'événement") }} — {{ event.title }}{% endblock %}
+{% block content %}
+<div class="mx-auto flex max-w-2xl flex-col gap-4">
+  <div class="ui-page-header">
+    <div>
+      <h1>{{ _("Gérer l'événement") }}</h1>
+      <p>{{ event.title }}</p>
+    </div>
+  </div>
+
+  <section class="ui-card" aria-labelledby="h-export" data-testid="manage-export">
+    <h2 id="h-export" class="mt-0 text-subheading font-semibold text-ink">{{ _("Exporter les données") }}</h2>
+    <p class="text-small text-ink-2">{{ _("Archive complète : données de l'événement (JSON) et photos.") }}</p>
+    <a href="{{ url_for('events.export_event', code=event.code) }}" class="ui-btn ui-btn--secondary" data-testid="export-zip">{{ icon('download') }}<span>{{ _("Télécharger l'archive (ZIP)") }}</span></a>
+    <div class="mt-4 flex items-start justify-between gap-3 border-t border-line pt-3" data-testid="export-pdf-status">
+      <div class="min-w-0">
+        <p class="m-0 font-semibold text-ink">{{ _("Export PDF des comptes") }}</p>
+        <p class="m-0 text-small text-ink-2">{% if pdf_included %}{{ _("Inclus dans votre offre, mais pas encore disponible.") }}{% else %}{{ _("Fonctionnalité de l'offre Vacances+, pas encore disponible.") }}{% endif %}</p>
+      </div>
+      <span class="ui-badge ui-badge--neutral shrink-0">{{ _("Bientôt") if pdf_included else _("Vacances+") }}</span>
+    </div>
+  </section>
+
+  <section class="ui-card border-danger" aria-labelledby="h-danger" data-testid="manage-danger">
+    <h2 id="h-danger" class="mt-0 text-subheading font-semibold text-danger">{{ _("Suppression définitive") }}</h2>
+    <p class="text-small text-ink-2">{{ _("Supprime l'événement, tous ses contenus et ses photos. Cette action est irréversible.") }}</p>
+    <p class="flex items-start gap-2 text-small text-ink-2"><span class="mt-0.5 shrink-0">{{ icon('clock', size=16) }}</span><span>{{ _("Cet événement et ses photos seront de toute façon purgés 30 jours après la fin du séjour.") }}</span></p>
+    <form method="POST" data-testid="delete-form" action="{{ url_for('events.delete_event', code=event.code) }}"
+          data-confirm="{{ _('Supprimer définitivement « %(title)s » et toutes ses données ? Cette action est irréversible.', title=event.title) }}"
+          data-confirm-label="{{ _('Supprimer définitivement') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="ui-btn ui-btn--danger" data-testid="delete-event">{{ icon('trash-2') }}<span>{{ _("Supprimer l'événement") }}</span></button>
+    </form>
+  </section>
+</div>
+{% endblock %}
