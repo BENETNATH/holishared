@@ -4,15 +4,24 @@ from datetime import date, datetime
 from typing import cast
 
 from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
+from flask_babel import gettext as _
 from werkzeug.wrappers import Response
 
 from app.context import load_event_context, log_event
 from app.extensions import db, limiter
+from app.i18n import CURRENCIES, is_valid
 from app.models import Event, Expense, Household, PaymentRequest, Transfer
 
 costs_bp = Blueprint("costs", __name__)
 
-CURRENCIES = ["EUR", "USD", "GBP", "CHF", "CAD", "AUD", "JPY"]
+EXPENSE_CATEGORY_ICONS = {
+    "general": "🧾",
+    "food": "🍔",
+    "transport": "🚗",
+    "lodging": "🏡",
+    "activities": "🎟️",
+    "other": "📦",
+}
 
 
 def _household_in_event(household_id: str, event: Event) -> bool:
@@ -192,7 +201,7 @@ def index(code: str) -> str | Response | tuple[str, int]:
                            total_expenses=total_expenses,
                             category_breakdown=category_breakdown,
                             personal_by_household=personal_by_household,
-                            currencies=CURRENCIES,
+                            category_icons=EXPENSE_CATEGORY_ICONS,
                            default_adult_weight=default_adult_weight,
                            default_child_weight=default_child_weight,
                            my_household=my_household,
@@ -277,6 +286,8 @@ def add_expense(code: str) -> Response | tuple[str, int]:
             errors.append("Montant invalide.")
     except (ValueError, TypeError):
         errors.append("Montant invalide.")
+    if not is_valid("expense_category", category):
+        errors.append(_("Catégorie invalide."))
     if not household_id:
         errors.append("Foyer payeur requis.")
     elif not _household_in_event(household_id, event):

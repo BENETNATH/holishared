@@ -59,10 +59,10 @@
     <ol class="dash-timeline" aria-label="{{ _("Programme du jour") }}">
       {% for entry in timeline %}
       <li class="tl-item{% if entry.kind == 'meal' %} tl-meal{% endif %}">
-        <span class="time">{{ entry.time.strftime("%H:%M") }}</span>
+        <span class="time">{{ entry.time|time }}</span>
         <div class="tl-body">
           {% if entry.kind == 'meal' %}
-          <span class="tl-meal-slot">{{ _("Soir") if entry.slot == 'dinner' else _("Midi") }}</span>
+          <span class="tl-meal-slot">{{ entry.slot|label('meal_slot') }}</span>
           {% if "meals" in enabled_modules %}
           <a href="{{ url_for('meals.index', code=event.code) }}">{{ entry.title }}</a>
           {% else %}<span class="tl-title">{{ entry.title }}</span>{% endif %}
@@ -183,7 +183,7 @@
   <div class="info-grid">
     {% for item in logistics_items %}
     <div class="card info-card">
-      <span class="tag">{{ category_labels.get(item.category, item.category) }}</span>
+      <span class="tag">{{ item.category|label('info_category') }}</span>
       <h3>{{ item.title }}</h3>
       <p>{{ item.content }}</p>
       {% if "logistics" in enabled_modules %}

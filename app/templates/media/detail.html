@@ -16,9 +16,9 @@
   <img src="{{ url_for('media.file', code=event.code, item_id=item.id) }}" alt="{{ item.caption or item.original_name }}">
   {% endif %}
   <figcaption class="meta">
-    {% if item.display_date %}{{ _("Pris le") }} {{ item.display_date.strftime("%d/%m/%Y %H:%M") }}{% endif %}
+    {% if item.display_date %}{{ _("Pris le") }} {{ item.display_date|datetime_short }}{% endif %}
     · {{ item.uploaded_by_name }}
-    {% if item.has_location %} · 📍 {{ "%.4f"|format(item.latitude) }}, {{ "%.4f"|format(item.longitude) }}{% endif %}
+    {% if item.has_location %} · 📍 {{ item.latitude|number(4) }}, {{ item.longitude|number(4) }}{% endif %}
   </figcaption>
 </figure>
 

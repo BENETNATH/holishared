@@ -18,11 +18,11 @@ from werkzeug.wrappers import Response
 
 from app.context import load_event_context, log_event
 from app.extensions import db, limiter
+from app.i18n import RSVP_STATUSES
 from app.models import Activity, ActivityRSVP, Event
 
 planning_bp = Blueprint("planning", __name__)
 
-RSVP_STATUSES = frozenset({"yes", "no", "maybe"})
 
 
 @dataclass

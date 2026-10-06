@@ -146,7 +146,7 @@
                 <span class="meal-check-box" aria-hidden="true">{% if a.id in covered_act_ids %}✓{% else %}&nbsp;{% endif %}</span>
               </label>
               <span class="meal-check-name">
-                {% if a.start_time %}<span class="meal-check-time">{{ a.start_time.strftime("%H:%M") }}</span>{% endif %}
+                {% if a.start_time %}<span class="meal-check-time">{{ a.start_time|time }}</span>{% endif %}
                 {{ a.title }}
               </span>
             </form>

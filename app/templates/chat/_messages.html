@@ -12,7 +12,7 @@
         <span class="avatar" aria-hidden="true">{{ msg.author_name[:1] | upper }}</span>
         <div class="chat-body">
           <span class="chat-author">{{ msg.author_name }}</span>
-          <time datetime="{{ msg.created_at.isoformat() }}">{{ msg.created_at.strftime("%H:%M") }}</time>
+          <time datetime="{{ msg.created_at.isoformat() }}">{{ msg.created_at|time }}</time>
           <p class="chat-content">{{ msg.content }}</p>
           {% if ctx.can_delete(msg) %}
             <form method="post" action="{{ url_for('chat.delete', code=event.code, msg_id=msg.id) }}">

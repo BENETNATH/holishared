@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 20:19+0200\n"
+"POT-Creation-Date: 2026-10-06 22:22+0200\n"
 "PO-Revision-Date: 2026-10-04 11:18+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -18,2486 +18,2226 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: app/chat/__init__.py:116
-msgid "Message vide."
+#: app/i18n.py
+msgid "Général"
 msgstr ""
 
-#: app/chat/__init__.py:119
-msgid "Message trop long (max 2000)."
+#: app/i18n.py
+msgid "Alimentation"
 msgstr ""
 
-#: app/chat/__init__.py:161 app/lists/__init__.py:335 app/lists/__init__.py:358
-#: app/logistics/__init__.py:259 app/planning/__init__.py:271
-#: app/planning/__init__.py:335 app/voting/__init__.py:259
-msgid "Pas autorisé."
+#: app/i18n.py
+msgid "Transport"
 msgstr ""
 
-#: app/chat/__init__.py:175
-msgid "Message supprimé."
+#: app/i18n.py
+msgid "Hébergement"
 msgstr ""
 
-#: app/lists/__init__.py:98 app/logistics/__init__.py:90
-#: app/planning/__init__.py:112
-msgid "Titre requis (min 2 caractères)."
+#: app/i18n.py app/templates/lists/detail.html
+msgid "Activités"
 msgstr ""
 
-#: app/lists/__init__.py:100 app/logistics/__init__.py:92
-msgid "Titre trop long (max 200)."
+#: app/i18n.py
+msgid "Autre"
 msgstr ""
 
-#: app/lists/__init__.py:107
-msgid "Liste créée."
+#: app/i18n.py
+msgid "Adresse"
 msgstr ""
 
-#: app/lists/__init__.py:191
-msgid "Nom requis."
+#: app/i18n.py
+msgid "Accès / Parking"
 msgstr ""
 
-#: app/lists/__init__.py:193
-msgid "Nom trop long (max 300)."
+#: app/i18n.py
+msgid "Horaires"
 msgstr ""
 
-#: app/lists/__init__.py:195
-msgid "Quantité trop longue (max 50)."
+#: app/i18n.py
+msgid "Documents"
 msgstr ""
 
-#: app/lists/__init__.py:197
-msgid "Section trop longue (max 100)."
+#: app/i18n.py
+msgid "Notes diverses"
 msgstr ""
 
-#: app/lists/__init__.py:199
-msgid "Nom trop long (max 50)."
+#: app/i18n.py
+msgid "Divers"
 msgstr ""
 
-#: app/lists/__init__.py:240
-msgid "Article ajouté."
+#: app/i18n.py
+msgid "Liste"
 msgstr ""
 
-#: app/lists/__init__.py:294
-msgid "Article supprimé."
+#: app/i18n.py
+msgid "Courses"
 msgstr ""
 
-#: app/lists/__init__.py:318
-msgid "Vous vous êtes attribué cet article."
+#: app/i18n.py
+msgid "Bagages"
 msgstr ""
 
-#: app/lists/__init__.py:345
-msgid "Article libéré."
+#: app/i18n.py
+msgid "Matériel"
 msgstr ""
 
-#: app/lists/__init__.py:366
-msgid "Liste supprimée."
+#: app/i18n.py
+msgid "Buffet"
 msgstr ""
 
-#: app/logistics/__init__.py:95
-msgid "Contenu requis."
+#: app/i18n.py app/templates/main/ui_catalog.html
+msgid "Oui"
 msgstr ""
 
-#: app/logistics/__init__.py:97
-msgid "Contenu trop long (max 5000)."
+#: app/i18n.py app/templates/main/ui_catalog.html
+msgid "Peut-être"
 msgstr ""
 
-#: app/logistics/__init__.py:100
-msgid "Catégorie invalide."
+#: app/i18n.py app/templates/main/ui_catalog.html
+msgid "Non"
 msgstr ""
 
-#: app/logistics/__init__.py:107
-msgid "Ordre invalide."
+#: app/i18n.py app/templates/lists/detail.html app/templates/meals/index.html
+msgid "Midi"
 msgstr ""
 
-#: app/logistics/__init__.py:186
-msgid "Info pratique créée."
+#: app/i18n.py app/templates/lists/detail.html app/templates/meals/index.html
+msgid "Soir"
 msgstr ""
 
-#: app/logistics/__init__.py:244
-msgid "Info pratique modifiée."
+#: app/i18n.py
+msgid "Activité créée"
 msgstr ""
 
-#: app/logistics/__init__.py:267
-msgid "Info pratique supprimée."
+#: app/i18n.py
+msgid "Activité modifiée"
 msgstr ""
 
-#: app/planning/__init__.py:114
-msgid "Description trop longue (max 2000)."
+#: app/i18n.py
+msgid "Activité supprimée"
 msgstr ""
 
-#: app/planning/__init__.py:118 app/planning/__init__.py:123
-#: app/planning/__init__.py:126
-msgid "Date hors de la période de l'événement."
+#: app/i18n.py
+msgid "Réponse à une activité"
 msgstr ""
 
-#: app/planning/__init__.py:131 app/planning/__init__.py:133
-msgid "Heure de fin avant heure de début."
+#: app/i18n.py
+msgid "Repas ajouté"
 msgstr ""
 
-#: app/planning/__init__.py:136
-msgid "Lieu trop long (max 300)."
+#: app/i18n.py
+msgid "Repas modifié"
 msgstr ""
 
-#: app/planning/__init__.py:143 app/planning/__init__.py:146
-msgid "Nombre entre 1 et 50."
+#: app/i18n.py
+msgid "Repas supprimé"
 msgstr ""
 
-#: app/planning/__init__.py:149
-msgid "Champ trop long (max 500)."
+#: app/i18n.py
+msgid "Repas déplacé"
 msgstr ""
 
-#: app/planning/__init__.py:256
-msgid "Activité créée."
+#: app/i18n.py
+msgid "Liste créée"
 msgstr ""
 
-#: app/planning/__init__.py:320
-msgid "Activité modifiée."
+#: app/i18n.py
+msgid "Liste supprimée"
 msgstr ""
 
-#: app/planning/__init__.py:343
-msgid "Activité supprimée."
+#: app/i18n.py
+msgid "Article ajouté"
 msgstr ""
 
-#: app/planning/__init__.py:353
-msgid "Le créateur ne fait pas de RSVP."
+#: app/i18n.py
+msgid "Article coché ou décoché"
 msgstr ""
 
-#: app/planning/__init__.py:369
-msgid "Statut invalide."
+#: app/i18n.py
+msgid "Article supprimé"
 msgstr ""
 
-#: app/templates/base.html:73
-msgid "Navigation principale"
+#: app/i18n.py
+msgid "Article pris en charge"
 msgstr ""
 
-#: app/templates/base.html:85 app/templates/base.html:135
-#: app/templates/planning/index.html:2 app/templates/planning/index.html:6
-msgid "Planning"
+#: app/i18n.py
+msgid "Article libéré"
 msgstr ""
 
-#: app/templates/base.html:88 app/templates/base.html:192
-#: app/templates/lists/detail.html:33 app/templates/meals/index.html:2
-#: app/templates/meals/index.html:6
-msgid "Repas"
+#: app/i18n.py
+msgid "Info pratique ajoutée"
 msgstr ""
 
-#: app/templates/base.html:91 app/templates/base.html:143
-#: app/templates/lists/detail.html:5 app/templates/lists/index.html:2
-#: app/templates/lists/index.html:6
-msgid "Listes"
+#: app/i18n.py
+msgid "Info pratique modifiée"
 msgstr ""
 
-#: app/templates/base.html:94 app/templates/base.html:186
-msgid "Infos"
+#: app/i18n.py
+msgid "Info pratique supprimée"
 msgstr ""
 
-#: app/templates/base.html:97 app/templates/base.html:180
-#: app/templates/voting/index.html:2 app/templates/voting/index.html:6
-msgid "Sondages"
+#: app/i18n.py
+msgid "Sondage créé"
 msgstr ""
 
-#: app/templates/base.html:100 app/templates/base.html:151
-msgid "Frais"
+#: app/i18n.py
+msgid "Vote enregistré"
 msgstr ""
 
-#: app/templates/base.html:103 app/templates/base.html:168
-#: app/templates/media/gallery.html:2 app/templates/media/gallery.html:6
-msgid "Media"
+#: app/i18n.py
+msgid "Sondage clos"
 msgstr ""
 
-#: app/templates/base.html:106 app/templates/base.html:174
-#: app/templates/chat/index.html:2 app/templates/chat/index.html:6
-#: app/templates/events/dashboard.html:162
-msgid "Chat"
+#: app/i18n.py
+msgid "Message envoyé"
 msgstr ""
 
-#: app/templates/base.html:110 app/templates/errors/404.html:11
-#: app/templates/events/index.html:2 app/templates/events/index.html:6
-msgid "Mes événements"
+#: app/i18n.py
+msgid "Message supprimé"
 msgstr ""
 
-#: app/templates/base.html:111
-msgid "Déconnexion"
+#: app/i18n.py
+msgid "Média ajouté"
 msgstr ""
 
-#: app/templates/base.html:113 app/templates/events/index.html:28
-#: app/templates/main/landing.html:12
-msgid "Créer un événement"
+#: app/i18n.py
+msgid "Média supprimé"
 msgstr ""
 
-#: app/templates/base.html:122
-msgid "Navigation"
+#: app/i18n.py
+msgid "Foyer ajouté"
 msgstr ""
 
-#: app/templates/base.html:128
-msgid "Accueil"
+#: app/i18n.py
+msgid "Foyer supprimé"
 msgstr ""
 
-#: app/templates/base.html:157 app/templates/base.html:164
-msgid "Plus"
+#: app/i18n.py
+msgid "Dépense ajoutée"
 msgstr ""
 
-#: app/templates/base.html:196 app/templates/base.html:231
-#: app/templates/freemium/_upgrade_modal.html:5
+#: app/i18n.py
+msgid "Dépense supprimée"
+msgstr ""
+
+#: app/i18n.py
+msgid "Transfert enregistré"
+msgstr ""
+
+#: app/i18n.py
+msgid "Transfert supprimé"
+msgstr ""
+
+#: app/i18n.py
+msgid "Demande de paiement créée"
+msgstr ""
+
+#: app/i18n.py
+msgid "Demande de paiement réglée"
+msgstr ""
+
+#: app/i18n.py
+msgid "Demande de paiement supprimée"
+msgstr ""
+
+#: app/i18n.py
+msgid "Ratio de répartition modifié"
+msgstr ""
+
+#: app/ui.py
+msgid "Copié"
+msgstr ""
+
+#: app/ui.py
+msgid "Copie impossible"
+msgstr ""
+
+#: app/templates/base.html app/templates/freemium/_upgrade_modal.html
+#: app/templates/meals/index.html app/ui.py
 msgid "Fermer"
 msgstr ""
 
-#: app/templates/base.html:221
-msgid "Planification de vacances en groupe"
+#: app/templates/base.html app/ui.py
+msgid "Annuler"
 msgstr ""
 
-#: app/templates/base.html:224
+#: app/templates/base.html app/ui.py
+msgid "Confirmer"
+msgstr ""
+
+#: app/templates/base.html app/ui.py
+msgid "Confirmer l'action"
+msgstr ""
+
+#: app/ui.py
+msgid "Nouvelle version disponible"
+msgstr ""
+
+#: app/ui.py
+msgid "Recharger"
+msgstr ""
+
+#: app/templates/events/dashboard.html app/templates/events/members.html
+#: app/templates/main/ui_catalog.html app/ui.py
+msgid "Voir"
+msgstr ""
+
+#: app/ui.py
+msgid "Masquer"
+msgstr ""
+
+#: app/templates/events/dashboard.html app/templates/main/ui_catalog.html
+#: app/ui.py
+msgid "Chargement…"
+msgstr ""
+
+#: app/ui.py
+msgid "Accueil"
+msgstr ""
+
+#: app/templates/lists/index.html app/ui.py
+msgid "Créer"
+msgstr ""
+
+#: app/templates/errors/404.html app/templates/events/index.html app/ui.py
+msgid "Mes événements"
+msgstr ""
+
+#: app/templates/planning/index.html app/ui.py
+msgid "Planning"
+msgstr ""
+
+#: app/templates/lists/detail.html app/templates/meals/index.html app/ui.py
+msgid "Repas"
+msgstr ""
+
+#: app/templates/lists/detail.html app/templates/lists/index.html
+#: app/templates/main/ui_catalog.html app/ui.py
+msgid "Listes"
+msgstr ""
+
+#: app/ui.py
+msgid "Frais"
+msgstr ""
+
+#: app/templates/voting/index.html app/ui.py
+msgid "Sondages"
+msgstr ""
+
+#: app/ui.py
+msgid "Infos"
+msgstr ""
+
+#: app/templates/chat/index.html app/templates/events/dashboard.html app/ui.py
+msgid "Chat"
+msgstr ""
+
+#: app/templates/media/gallery.html app/ui.py
+msgid "Media"
+msgstr ""
+
+#: app/ui.py
+msgid "Participants"
+msgstr ""
+
+#: app/templates/events/dashboard.html app/ui.py
+msgid "Inviter"
+msgstr ""
+
+#: app/templates/events/log.html app/ui.py
+msgid "Journal"
+msgstr ""
+
+#: app/templates/base.html app/ui.py
+msgid "Déconnexion"
+msgstr ""
+
+#: app/chat/__init__.py
+msgid "Message vide."
+msgstr ""
+
+#: app/chat/__init__.py
+msgid "Message trop long (max 2000)."
+msgstr ""
+
+#: app/chat/__init__.py
+msgid "Message supprimé."
+msgstr ""
+
+#: app/costs/__init__.py app/logistics/__init__.py
+msgid "Catégorie invalide."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Le code créateur doit faire 8 caractères (lettres minuscules et chiffres)."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Ce code est déjà utilisé. Choisissez-en un autre."
+msgstr ""
+
+#: app/lists/__init__.py app/logistics/__init__.py app/planning/__init__.py
+msgid "Titre requis (min 2 caractères)."
+msgstr ""
+
+#: app/lists/__init__.py app/logistics/__init__.py
+msgid "Titre trop long (max 200)."
+msgstr ""
+
+#: app/lists/__init__.py
+msgid "Liste créée."
+msgstr ""
+
+#: app/lists/__init__.py
+msgid "Nom requis."
+msgstr ""
+
+#: app/lists/__init__.py
+msgid "Nom trop long (max 300)."
+msgstr ""
+
+#: app/lists/__init__.py
+msgid "Quantité trop longue (max 50)."
+msgstr ""
+
+#: app/lists/__init__.py
+msgid "Section trop longue (max 100)."
+msgstr ""
+
+#: app/lists/__init__.py
+msgid "Nom trop long (max 50)."
+msgstr ""
+
+#: app/lists/__init__.py
+msgid "Article ajouté."
+msgstr ""
+
+#: app/lists/__init__.py
+msgid "Article supprimé."
+msgstr ""
+
+#: app/lists/__init__.py
+msgid "Vous vous êtes attribué cet article."
+msgstr ""
+
+#: app/lists/__init__.py
+msgid "Article libéré."
+msgstr ""
+
+#: app/lists/__init__.py
+msgid "Liste supprimée."
+msgstr ""
+
+#: app/logistics/__init__.py
+msgid "Contenu requis."
+msgstr ""
+
+#: app/logistics/__init__.py
+msgid "Contenu trop long (max 5000)."
+msgstr ""
+
+#: app/logistics/__init__.py
+msgid "Ordre invalide."
+msgstr ""
+
+#: app/logistics/__init__.py
+msgid "Info pratique créée."
+msgstr ""
+
+#: app/logistics/__init__.py
+msgid "Info pratique modifiée."
+msgstr ""
+
+#: app/logistics/__init__.py
+msgid "Info pratique supprimée."
+msgstr ""
+
+#: app/meals/__init__.py
+msgid "Nom requis (min 2 caractères)."
+msgstr ""
+
+#: app/meals/__init__.py
+msgid "Nom trop long (max 200)."
+msgstr ""
+
+#: app/meals/__init__.py app/planning/__init__.py
+msgid "Date hors de la période de l'événement."
+msgstr ""
+
+#: app/meals/__init__.py
+msgid "Créneau invalide."
+msgstr ""
+
+#: app/meals/__init__.py
+msgid "Cette case est déjà occupée."
+msgstr ""
+
+#: app/meals/__init__.py
+msgid "Repas ajouté."
+msgstr ""
+
+#: app/meals/__init__.py
+msgid "Repas modifié."
+msgstr ""
+
+#: app/meals/__init__.py
+msgid "Repas supprimé."
+msgstr ""
+
+#: app/planning/__init__.py
+msgid "Description trop longue (max 2000)."
+msgstr ""
+
+#: app/planning/__init__.py
+msgid "Heure de fin avant heure de début."
+msgstr ""
+
+#: app/planning/__init__.py
+msgid "Lieu trop long (max 300)."
+msgstr ""
+
+#: app/planning/__init__.py
+msgid "Nombre entre 1 et 50."
+msgstr ""
+
+#: app/planning/__init__.py
+msgid "Champ trop long (max 500)."
+msgstr ""
+
+#: app/planning/__init__.py
+msgid "Activité créée."
+msgstr ""
+
+#: app/planning/__init__.py
+msgid "Activité modifiée."
+msgstr ""
+
+#: app/planning/__init__.py
+msgid "Activité supprimée."
+msgstr ""
+
+#: app/planning/__init__.py
+msgid "Statut invalide."
+msgstr ""
+
+#: app/templates/base.html
 msgid "Confidentialité"
 msgstr ""
 
-#: app/templates/base.html:225 app/templates/base.html:234
+#: app/templates/base.html app/templates/events/members.html
+msgid "Créateur"
+msgstr ""
+
+#: app/templates/base.html
+msgid "Aller au contenu"
+msgstr ""
+
+#: app/templates/base.html
+msgid "Accueil holishared"
+msgstr ""
+
+#: app/templates/base.html
+msgid "Navigation principale"
+msgstr ""
+
+#: app/templates/base.html app/templates/events/index.html
+#: app/templates/main/landing.html
+msgid "Créer un événement"
+msgstr ""
+
+#: app/templates/base.html
+msgid "Thème sombre"
+msgstr ""
+
+#: app/templates/base.html
+msgid "Événement"
+msgstr ""
+
+#: app/templates/base.html
+msgid "Plus"
+msgstr ""
+
+#: app/templates/base.html
+msgid "Préférences"
+msgstr ""
+
+#: app/templates/base.html
+msgid "Compte"
+msgstr ""
+
+#: app/templates/base.html
 msgid "Confidentialité garantie"
 msgstr ""
 
-#: app/templates/base.html:235
+#: app/templates/base.html
 msgid ""
 "Holishared respecte ta vie privée : 0 cookie tiers, 0 pistage, 0 revente "
 "de données."
 msgstr ""
 
-#: app/templates/base.html:240
+#: app/templates/base.html
 msgid "Aucun compte forcé"
 msgstr ""
 
-#: app/templates/base.html:241
+#: app/templates/base.html
 msgid "Les invités rejoignent avec un code, sans e-mail ni inscription."
 msgstr ""
 
-#: app/templates/base.html:247
+#: app/templates/base.html
 msgid "Aucun cookie tiers, aucun pistage"
 msgstr ""
 
-#: app/templates/base.html:248
+#: app/templates/base.html
 msgid ""
 "Aucun script tiers, aucune analyse publicitaire, aucune revente de "
 "données."
 msgstr ""
 
-#: app/templates/base.html:254
+#: app/templates/base.html
 msgid "Vos données restent vos données"
 msgstr ""
 
-#: app/templates/base.html:255
+#: app/templates/base.html
 msgid ""
 "Export complet en 1 clic, et effacement définitif (base + photos) quand "
 "vous voulez."
 msgstr ""
 
-#: app/templates/auth/login.html:2 app/templates/auth/login.html:23
+#: app/templates/base.html
+msgid "Notifications"
+msgstr ""
+
+#: app/templates/auth/login.html
 msgid "Connexion"
 msgstr ""
 
-#: app/templates/auth/login.html:24
+#: app/templates/auth/login.html
 msgid "Accédez à vos événements."
 msgstr ""
 
-#: app/templates/auth/login.html:28 app/templates/events/members.html:24
+#: app/templates/auth/login.html app/templates/events/members.html
 msgid "Email"
 msgstr ""
 
-#: app/templates/auth/login.html:33
+#: app/templates/auth/login.html
 msgid "Mot de passe"
 msgstr ""
 
-#: app/templates/auth/login.html:38
+#: app/templates/auth/login.html
 msgid "Se connecter"
 msgstr ""
 
-#: app/templates/chat/_messages.html:5
+#: app/templates/chat/_messages.html
 msgid "Aucun message"
 msgstr ""
 
-#: app/templates/chat/_messages.html:6
+#: app/templates/chat/_messages.html
 msgid "Lancez la conversation !"
 msgstr ""
 
-#: app/templates/chat/_messages.html:21
+#: app/templates/chat/_messages.html
 msgid "Supprimer le message de"
 msgstr ""
 
-#: app/templates/chat/_messages.html:21 app/templates/costs/index.html:176
-#: app/templates/costs/index.html:229 app/templates/costs/index.html:292
-#: app/templates/costs/index.html:348 app/templates/lists/detail.html:107
-#: app/templates/logistics/index.html:34 app/templates/meals/index.html:43
-#: app/templates/media/detail.html:28 app/templates/planning/index.html:39
+#: app/templates/chat/_messages.html app/templates/costs/index.html
+#: app/templates/lists/detail.html app/templates/logistics/index.html
+#: app/templates/main/ui_catalog.html app/templates/media/detail.html
+#: app/templates/planning/index.html
 msgid "Supprimer"
 msgstr ""
 
-#: app/templates/chat/index.html:24
+#: app/templates/chat/index.html
 msgid "Votre message"
 msgstr ""
 
-#: app/templates/chat/index.html:28 app/templates/costs/index.html:325
+#: app/templates/chat/index.html app/templates/costs/index.html
 msgid "Envoyer"
 msgstr ""
 
-#: app/templates/costs/household_form.html:2
+#: app/templates/costs/household_form.html
 msgid "Nouveau foyer"
 msgstr ""
 
-#: app/templates/costs/household_form.html:6
+#: app/templates/costs/household_form.html
 msgid "Nouveau groupe"
 msgstr ""
 
-#: app/templates/costs/household_form.html:15
+#: app/templates/costs/household_form.html
 msgid "Nom du groupe"
 msgstr ""
 
-#: app/templates/costs/household_form.html:17
+#: app/templates/costs/household_form.html
 msgid "Ex : Famille Dupont, Alice + Bob"
 msgstr ""
 
-#: app/templates/costs/household_form.html:22
+#: app/templates/costs/household_form.html
 msgid "Nombre d'adultes"
 msgstr ""
 
-#: app/templates/costs/household_form.html:26
+#: app/templates/costs/household_form.html
 msgid "Nombre d'enfants"
 msgstr ""
 
-#: app/templates/costs/household_form.html:31
+#: app/templates/costs/household_form.html
 msgid "Le ratio adulte/enfant se définit sur la page des frais."
 msgstr ""
 
-#: app/templates/costs/household_form.html:34
+#: app/templates/costs/household_form.html
 msgid "Ajouter le groupe"
 msgstr ""
 
-#: app/templates/costs/index.html:5
+#: app/templates/costs/index.html
 msgid "Partage de frais"
 msgstr ""
 
-#: app/templates/costs/index.html:6
+#: app/templates/costs/index.html
 msgid "Suivi des dépenses partagées par foyer et des soldes entre membres."
 msgstr ""
 
-#: app/templates/costs/index.html:13
+#: app/templates/costs/index.html
 msgid "Ton solde"
 msgstr ""
 
-#: app/templates/costs/index.html:18
+#: app/templates/costs/index.html
 msgid "On te doit de l'argent"
 msgstr ""
 
-#: app/templates/costs/index.html:28
+#: app/templates/costs/index.html
 msgid "Tu dois de l'argent au groupe"
 msgstr ""
 
-#: app/templates/costs/index.html:38
+#: app/templates/costs/index.html
 msgid "Tu es quitte ! 👌"
 msgstr ""
 
-#: app/templates/costs/index.html:45
+#: app/templates/costs/index.html
 msgid "Ajouter une dépense"
 msgstr ""
 
-#: app/templates/costs/index.html:47
+#: app/templates/costs/index.html
 msgid "Ajoute d'abord un foyer pour pouvoir ajouter des dépenses."
 msgstr ""
 
-#: app/templates/costs/index.html:53 app/templates/events/create.html:68
-#: app/templates/planning/form.html:36
+#: app/templates/costs/index.html app/templates/events/create.html
+#: app/templates/main/ui_catalog.html app/templates/planning/form.html
 msgid "Description"
 msgstr ""
 
-#: app/templates/costs/index.html:55
+#: app/templates/costs/index.html
 msgid "Ex : Supermarché, essence…"
 msgstr ""
 
-#: app/templates/costs/index.html:58 app/templates/costs/index.html:278
-#: app/templates/costs/index.html:322
+#: app/templates/costs/index.html
 msgid "Montant"
 msgstr ""
 
-#: app/templates/costs/index.html:62
+#: app/templates/costs/index.html
 msgid "Devise"
 msgstr ""
 
-#: app/templates/costs/index.html:68 app/templates/costs/index.html:69
-#: app/templates/logistics/form.html:33
+#: app/templates/costs/index.html app/templates/logistics/form.html
 msgid "Catégorie"
 msgstr ""
 
-#: app/templates/costs/index.html:80
+#: app/templates/costs/index.html
 msgid "Payé par"
 msgstr ""
 
-#: app/templates/costs/index.html:86 app/templates/costs/index.html:159
-#: app/templates/events/members.html:29 app/templates/lists/detail.html:65
-#: app/templates/meals/index.html:55 app/templates/planning/index.html:64
+#: app/templates/costs/index.html
+msgid "Partagé"
+msgstr ""
+
+#: app/templates/costs/index.html
+msgid "Décochez pour une dépense personnelle (non partagée)."
+msgstr ""
+
+#: app/templates/costs/index.html app/templates/events/members.html
+#: app/templates/lists/detail.html app/templates/main/ui_catalog.html
+#: app/templates/planning/index.html
 msgid "Ajouter"
 msgstr ""
 
-#: app/templates/costs/index.html:95
+#: app/templates/costs/index.html
 msgid "Ratio de répartition"
 msgstr ""
 
-#: app/templates/costs/index.html:96
+#: app/templates/costs/index.html
 msgid "1 adulte = X parts, 1 enfant = Y parts. S'applique à tous les groupes."
 msgstr ""
 
-#: app/templates/costs/index.html:101
+#: app/templates/costs/index.html
 msgid "Parts par adulte"
 msgstr ""
 
-#: app/templates/costs/index.html:105
+#: app/templates/costs/index.html
 msgid "Parts par enfant"
 msgstr ""
 
-#: app/templates/costs/index.html:109
+#: app/templates/costs/index.html
 msgid "Appliquer à tous les groupes"
 msgstr ""
 
-#: app/templates/costs/index.html:119
+#: app/templates/costs/index.html
 msgid "Qui doit à qui"
 msgstr ""
 
-#: app/templates/costs/index.html:136
+#: app/templates/costs/index.html
 msgid "Marquer comme remboursé"
 msgstr ""
 
-#: app/templates/costs/index.html:137
+#: app/templates/costs/index.html
 msgid "Rembourser"
 msgstr ""
 
-#: app/templates/costs/index.html:148
+#: app/templates/costs/index.html
 msgid "Foyers"
 msgstr ""
 
-#: app/templates/costs/index.html:151
+#: app/templates/costs/index.html
 msgid "Ajouter un foyer"
 msgstr ""
 
-#: app/templates/costs/index.html:155
+#: app/templates/costs/index.html
 msgid "Nom du foyer"
 msgstr ""
 
-#: app/templates/costs/index.html:174
+#: app/templates/costs/index.html
 msgid "Supprimer ce foyer ?"
 msgstr ""
 
-#: app/templates/costs/index.html:187
+#: app/templates/costs/index.html
 msgid "part"
 msgstr ""
 
-#: app/templates/costs/index.html:189
+#: app/templates/costs/index.html
 msgid "payé"
 msgstr ""
 
-#: app/templates/costs/index.html:193
+#: app/templates/costs/index.html
+msgid "Dépenses personnelles"
+msgstr ""
+
+#: app/templates/costs/index.html
 msgid "reçoit"
 msgstr ""
 
-#: app/templates/costs/index.html:196
+#: app/templates/costs/index.html
 msgid "doit"
 msgstr ""
 
-#: app/templates/costs/index.html:199
+#: app/templates/costs/index.html
 msgid "réglé"
 msgstr ""
 
-#: app/templates/costs/index.html:206
+#: app/templates/costs/index.html
 msgid "Aucun foyer encore. Ajoutez le vôtre pour commencer."
 msgstr ""
 
-#: app/templates/costs/index.html:213
+#: app/templates/costs/index.html
 msgid "Dépenses du séjour"
 msgstr ""
 
-#: app/templates/costs/index.html:227
+#: app/templates/costs/index.html
+msgid "Personnel"
+msgstr ""
+
+#: app/templates/costs/index.html
 msgid "Supprimer cette dépense ?"
 msgstr ""
 
-#: app/templates/costs/index.html:240
+#: app/templates/costs/index.html
 msgid "Aucune dépense enregistrée pour le moment."
 msgstr ""
 
-#: app/templates/costs/index.html:247
+#: app/templates/costs/index.html
 msgid "Répartition par catégorie"
 msgstr ""
 
-#: app/templates/costs/index.html:264
+#: app/templates/costs/index.html
 msgid "Remboursements effectués"
 msgstr ""
 
-#: app/templates/costs/index.html:266
+#: app/templates/costs/index.html
 msgid "Transfert"
 msgstr ""
 
-#: app/templates/costs/index.html:271 app/templates/costs/index.html:315
+#: app/templates/costs/index.html
 msgid "De"
 msgstr ""
 
-#: app/templates/costs/index.html:275 app/templates/costs/index.html:319
+#: app/templates/costs/index.html
 msgid "À"
 msgstr ""
 
-#: app/templates/costs/index.html:280 app/templates/costs/index.html:324
+#: app/templates/costs/index.html
 msgid "Note (optionnel)"
 msgstr ""
 
-#: app/templates/costs/index.html:281 app/templates/logistics/form.html:47
-#: app/templates/planning/form.html:88
+#: app/templates/costs/index.html app/templates/logistics/form.html
+#: app/templates/meals/index.html app/templates/planning/form.html
 msgid "Enregistrer"
 msgstr ""
 
-#: app/templates/costs/index.html:291
+#: app/templates/costs/index.html
 msgid "Supprimer ce transfert ?"
 msgstr ""
 
-#: app/templates/costs/index.html:308
+#: app/templates/costs/index.html
 msgid "Demandes de paiement"
 msgstr ""
 
-#: app/templates/costs/index.html:310
+#: app/templates/costs/index.html
 msgid "Demande"
 msgstr ""
 
-#: app/templates/costs/index.html:336
+#: app/templates/costs/index.html
 msgid "Réglé"
 msgstr ""
 
-#: app/templates/costs/index.html:336
+#: app/templates/costs/index.html app/templates/main/ui_catalog.html
 msgid "En attente"
 msgstr ""
 
-#: app/templates/costs/index.html:341
+#: app/templates/costs/index.html
 msgid "Marquer réglé"
 msgstr ""
 
-#: app/templates/costs/index.html:347
+#: app/templates/costs/index.html
 msgid "Supprimer cette demande ?"
 msgstr ""
 
-#: app/templates/costs/index.html:359
+#: app/templates/costs/index.html
 msgid "Aucune demande de paiement pour le moment."
 msgstr ""
 
-#: app/templates/errors/403.html:2 app/templates/errors/403.html:6
+#: app/templates/errors/403.html
 msgid "Accès refusé"
 msgstr ""
 
-#: app/templates/errors/403.html:7
+#: app/templates/errors/403.html
 msgid ""
 "Vous n'avez pas la permission d'accéder à cette page. Connectez-vous ou "
 "utilisez votre code personnel pour rejoindre l'événement."
 msgstr ""
 
-#: app/templates/errors/403.html:9 app/templates/errors/404.html:9
+#: app/templates/errors/403.html app/templates/errors/404.html
 msgid "Retour à l'accueil"
 msgstr ""
 
-#: app/templates/errors/404.html:2 app/templates/errors/404.html:6
+#: app/templates/errors/404.html
 msgid "Page introuvable"
 msgstr ""
 
-#: app/templates/errors/404.html:7
+#: app/templates/errors/404.html
 msgid ""
 "Cette page n'existe pas ou a été déplacée. Vérifiez le lien, ou retournez"
 " à votre événement."
 msgstr ""
 
-#: app/templates/events/create.html:2 app/templates/events/create.html:15
-#: app/templates/events/index.html:10
+#: app/templates/events/create.html app/templates/events/index.html
 msgid "Nouvel événement"
 msgstr ""
 
-#: app/templates/events/create.html:16
+#: app/templates/events/create.html
 msgid "Créez un événement et invitez vos proches à planifier ensemble."
 msgstr ""
 
-#: app/templates/events/create.html:24
+#: app/templates/events/create.html
 msgid "Basiques"
 msgstr ""
 
-#: app/templates/events/create.html:27
+#: app/templates/events/create.html
 msgid "Votre email"
 msgstr ""
 
-#: app/templates/events/create.html:30 app/templates/events/recover.html:16
+#: app/templates/events/create.html app/templates/events/recover.html
 msgid "Ex : alice@mail.com"
 msgstr ""
 
-#: app/templates/events/create.html:36 app/templates/logistics/form.html:21
-#: app/templates/planning/form.html:28 app/templates/planning/index.html:59
+#: app/templates/events/create.html app/templates/logistics/form.html
+#: app/templates/main/ui_catalog.html app/templates/planning/form.html
+#: app/templates/planning/index.html
 msgid "Titre"
 msgstr ""
 
-#: app/templates/events/create.html:38
+#: app/templates/events/create.html
 msgid "Ex : Anniversaire de Léa"
 msgstr ""
 
-#: app/templates/events/create.html:45
+#: app/templates/events/create.html
 msgid "Date de début"
 msgstr ""
 
-#: app/templates/events/create.html:52
+#: app/templates/events/create.html
 msgid "Date de fin"
 msgstr ""
 
-#: app/templates/events/create.html:59 app/templates/planning/form.html:51
+#: app/templates/events/create.html app/templates/main/ui_catalog.html
+#: app/templates/planning/form.html
 msgid "Lieu"
 msgstr ""
 
-#: app/templates/events/create.html:61
+#: app/templates/events/create.html
 msgid "Ex : Gîte de la Vallée, Annecy"
 msgstr ""
 
-#: app/templates/events/create.html:66 app/templates/voting/form.html:27
+#: app/templates/events/create.html app/templates/voting/form.html
 msgid "Options"
 msgstr ""
 
-#: app/templates/events/create.html:66
+#: app/templates/events/create.html
 msgid "description"
 msgstr ""
 
-#: app/templates/events/create.html:70
+#: app/templates/events/create.html
 msgid "Quelques mots pour situer le contexte…"
 msgstr ""
 
-#: app/templates/events/create.html:75
+#: app/templates/events/create.html
 msgid ""
 "Un email de vérification vous sera envoyé pour activer l'événement (lien "
 "valide 3 jours). Il ne sera conservé que si vous le demandez à la "
 "validation."
 msgstr ""
 
-#: app/templates/events/create.html:79
+#: app/templates/events/create.html
 msgid "Créer l'événement"
 msgstr ""
 
-#: app/templates/events/dashboard.html:31 app/templates/events/verify.html:27
+#: app/templates/events/dashboard.html app/templates/events/verify.html
 msgid "Ton code personnel"
 msgstr ""
 
-#: app/templates/events/dashboard.html:32 app/templates/events/mycode.html:31
+#: app/templates/events/dashboard.html app/templates/events/mycode.html
 msgid "Code personnel"
 msgstr ""
 
-#: app/templates/events/dashboard.html:33 app/templates/events/members.html:52
-msgid "Masquer"
-msgstr ""
-
-#: app/templates/events/dashboard.html:33 app/templates/events/members.html:52
-msgid "Voir"
-msgstr ""
-
-#: app/templates/events/dashboard.html:34 app/templates/events/invite.html:43
-#: app/templates/events/members.html:54
+#: app/templates/events/dashboard.html app/templates/events/invite.html
+#: app/templates/events/members.html app/templates/main/ui_catalog.html
 msgid "Copier"
 msgstr ""
 
-#: app/templates/events/dashboard.html:39
+#: app/templates/events/dashboard.html
 msgid "Actions rapides"
 msgstr ""
 
-#: app/templates/events/dashboard.html:41
+#: app/templates/events/dashboard.html
 msgid "Planifier les repas"
 msgstr ""
 
-#: app/templates/events/dashboard.html:42
-#: app/templates/events/dashboard.html:216 app/templates/planning/index.html:53
+#: app/templates/events/dashboard.html app/templates/planning/index.html
 msgid "Ajouter une activité"
 msgstr ""
 
-#: app/templates/events/dashboard.html:45
-msgid "Inviter"
-msgstr ""
-
-#: app/templates/events/dashboard.html:49
-msgid "Lien copié !"
-msgstr ""
-
-#: app/templates/events/dashboard.html:49
+#: app/templates/events/dashboard.html
 msgid "Partager"
 msgstr ""
 
-#: app/templates/events/dashboard.html:56
+#: app/templates/events/dashboard.html
 msgid "Aujourd'hui"
 msgstr ""
 
-#: app/templates/events/dashboard.html:60
+#: app/templates/events/dashboard.html
 msgid "Programme du jour"
 msgstr ""
 
-#: app/templates/events/dashboard.html:66 app/templates/lists/detail.html:43
-#: app/templates/lists/detail.html:49 app/templates/meals/index.html:18
-msgid "Soir"
-msgstr ""
-
-#: app/templates/events/dashboard.html:66 app/templates/lists/detail.html:43
-#: app/templates/lists/detail.html:49 app/templates/meals/index.html:17
-msgid "Midi"
-msgstr ""
-
-#: app/templates/events/dashboard.html:71
+#: app/templates/events/dashboard.html
 msgid "Ingrédients dans la liste de courses"
 msgstr ""
 
-#: app/templates/events/dashboard.html:71
+#: app/templates/events/dashboard.html
 msgid "Courses notées"
 msgstr ""
 
-#: app/templates/events/dashboard.html:73
+#: app/templates/events/dashboard.html
 msgid "Ingrédients pas encore en liste de courses"
 msgstr ""
 
-#: app/templates/events/dashboard.html:73
+#: app/templates/events/dashboard.html
 msgid "À lister"
 msgstr ""
 
-#: app/templates/events/dashboard.html:86
+#: app/templates/events/dashboard.html
 msgid "Rien prévu aujourd'hui."
 msgstr ""
 
-#: app/templates/events/dashboard.html:89
+#: app/templates/events/dashboard.html
 msgid "Voir le planning"
 msgstr ""
 
-#: app/templates/events/dashboard.html:95
+#: app/templates/events/dashboard.html
 msgid "Sondages ouverts"
 msgstr ""
 
-#: app/templates/events/dashboard.html:107
+#: app/templates/events/dashboard.html
 msgid "autres"
 msgstr ""
 
-#: app/templates/events/dashboard.html:110
+#: app/templates/events/dashboard.html
 msgid "Aucun sondage ouvert."
 msgstr ""
 
-#: app/templates/events/dashboard.html:113
+#: app/templates/events/dashboard.html
 msgid "Voir les sondages"
 msgstr ""
 
-#: app/templates/events/dashboard.html:119
+#: app/templates/events/dashboard.html
 msgid "À répartir"
 msgstr ""
 
-#: app/templates/events/dashboard.html:123
+#: app/templates/events/dashboard.html
 msgid "articles sans responsable dans vos listes."
 msgstr ""
 
-#: app/templates/events/dashboard.html:125
+#: app/templates/events/dashboard.html
 msgid "Tout est réparti. 👌"
 msgstr ""
 
-#: app/templates/events/dashboard.html:128
-#: app/templates/events/dashboard.html:154
+#: app/templates/events/dashboard.html
 msgid "Voir les listes"
 msgstr ""
 
-#: app/templates/events/dashboard.html:135
+#: app/templates/events/dashboard.html
 msgid "Mes items"
 msgstr ""
 
-#: app/templates/events/dashboard.html:145
+#: app/templates/events/dashboard.html
 msgid "Cocher"
 msgstr ""
 
-#: app/templates/events/dashboard.html:170
-msgid "Chargement…"
-msgstr ""
-
-#: app/templates/events/dashboard.html:172
+#: app/templates/events/dashboard.html
 msgid "Ouvrir le chat"
 msgstr ""
 
-#: app/templates/events/dashboard.html:180
+#: app/templates/events/dashboard.html
 msgid "Infos importantes"
 msgstr ""
 
-#: app/templates/events/dashboard.html:182
+#: app/templates/events/dashboard.html
 msgid "+ Ajouter une info"
 msgstr ""
 
-#: app/templates/events/dashboard.html:193 app/templates/logistics/form.html:2
-#: app/templates/logistics/index.html:30 app/templates/planning/form.html:2
-#: app/templates/planning/index.html:36
+#: app/templates/events/dashboard.html app/templates/logistics/form.html
+#: app/templates/logistics/index.html app/templates/main/ui_catalog.html
+#: app/templates/planning/form.html app/templates/planning/index.html
 msgid "Modifier"
 msgstr ""
 
-#: app/templates/events/dashboard.html:201
+#: app/templates/events/dashboard.html
 msgid "Aucune info pour l'instant"
 msgstr ""
 
-#: app/templates/events/dashboard.html:202
+#: app/templates/events/dashboard.html
 msgid "Adresse du gîte, code d'accès, horaires, documents… chacun peut compléter."
 msgstr ""
 
-#: app/templates/events/dashboard.html:204 app/templates/logistics/form.html:2
-#: app/templates/logistics/form.html:6 app/templates/logistics/index.html:10
-#: app/templates/logistics/index.html:19
+#: app/templates/events/dashboard.html app/templates/logistics/form.html
+#: app/templates/logistics/index.html
 msgid "Ajouter une info"
 msgstr ""
 
-#: app/templates/events/dashboard.html:213
+#: app/templates/events/dashboard.html
 msgid "Rien à afficher pour l'instant"
 msgstr ""
 
-#: app/templates/events/dashboard.html:214
+#: app/templates/events/dashboard.html
 msgid "Commencez par ajouter une activité ou une info pratique."
 msgstr ""
 
-#: app/templates/events/dashboard.html:225
+#: app/templates/events/dashboard.html
 msgid "Zone de gestion"
 msgstr ""
 
-#: app/templates/events/dashboard.html:226
+#: app/templates/events/dashboard.html
 msgid "Cet événement et ses photos seront purgés 30 jours après la fin du séjour."
 msgstr ""
 
-#: app/templates/events/dashboard.html:230
+#: app/templates/events/dashboard.html
 msgid "Télécharger l'archive complète (ZIP)"
 msgstr ""
 
-#: app/templates/events/dashboard.html:233
+#: app/templates/events/dashboard.html
 msgid "Supprimer définitivement cet événement et toutes ses données ?"
 msgstr ""
 
-#: app/templates/events/dashboard.html:236
+#: app/templates/events/dashboard.html
 msgid "Supprimer définitivement l'événement et toutes ses données"
 msgstr ""
 
-#: app/templates/events/index.html:7
+#: app/templates/events/index.html
 msgid "Retrouvez vos événements et leurs invités."
 msgstr ""
 
-#: app/templates/events/index.html:19 app/templates/events/invite.html:7
+#: app/templates/events/index.html app/templates/events/invite.html
 msgid "invités"
 msgstr ""
 
-#: app/templates/events/index.html:26
+#: app/templates/events/index.html
 msgid "Aucun événement"
 msgstr ""
 
-#: app/templates/events/index.html:27
+#: app/templates/events/index.html
 msgid "Créez votre premier événement pour commencer à planifier avec vos proches."
 msgstr ""
 
-#: app/templates/events/invite.html:2 app/templates/events/invite.html:6
+#: app/templates/events/invite.html
 msgid "Invitations"
 msgstr ""
 
-#: app/templates/events/invite.html:15 app/templates/events/invite.html:69
+#: app/templates/events/invite.html
 msgid "Invités"
 msgstr ""
 
-#: app/templates/events/invite.html:17
+#: app/templates/events/invite.html
 msgid "illimité"
 msgstr ""
 
-#: app/templates/events/invite.html:23
+#: app/templates/events/invite.html
 msgid "Invités utilisés"
 msgstr ""
 
-#: app/templates/events/invite.html:29
+#: app/templates/events/invite.html
 msgid ""
 "Vous avez atteint le maximum d'invités du plan gratuit. Passez à "
 "Vacances+ pour en inviter autant que vous voulez."
 msgstr ""
 
-#: app/templates/events/invite.html:30
-#: app/templates/freemium/_upgrade_modal.html:38
-#: app/templates/freemium/_upgrade_modal.html:39
-#: app/templates/media/gallery.html:24
+#: app/templates/events/invite.html app/templates/freemium/_upgrade_modal.html
+#: app/templates/media/gallery.html
 msgid "Passer à Vacances+"
 msgstr ""
 
-#: app/templates/events/invite.html:33
+#: app/templates/events/invite.html
 msgid "Participants illimités (Vacances+)"
 msgstr ""
 
-#: app/templates/events/invite.html:39
+#: app/templates/events/invite.html
 msgid "Partager l'événement"
 msgstr ""
 
-#: app/templates/events/invite.html:41
+#: app/templates/events/invite.html
 msgid "Lien d'invitation"
 msgstr ""
 
-#: app/templates/events/invite.html:47
+#: app/templates/events/invite.html
 msgid "QR code d'invitation"
 msgstr ""
 
-#: app/templates/events/invite.html:48
+#: app/templates/events/invite.html
 msgid "Scannez pour rejoindre l'événement et créer votre code personnel"
 msgstr ""
 
-#: app/templates/events/invite.html:53
+#: app/templates/events/invite.html
 msgid "Inviter par email"
 msgstr ""
 
-#: app/templates/events/invite.html:54
+#: app/templates/events/invite.html
 msgid "La personne reçoit un lien pour créer son code personnel."
 msgstr ""
 
-#: app/templates/events/invite.html:58
+#: app/templates/events/invite.html
 msgid "Adresse email de l'invité"
 msgstr ""
 
-#: app/templates/events/invite.html:62
+#: app/templates/events/invite.html
 msgid "Envoyer l'invitation"
 msgstr ""
 
-#: app/templates/events/invite.html:78
+#: app/templates/events/invite.html
 msgid "Renvoyer"
 msgstr ""
 
-#: app/templates/events/invite.html:81
+#: app/templates/events/invite.html
 msgid "pas d'email"
 msgstr ""
 
-#: app/templates/events/join.html:2 app/templates/events/join.html:6
+#: app/templates/events/join.html
 msgid "Rejoindre"
 msgstr ""
 
-#: app/templates/events/join.html:18
+#: app/templates/events/join.html
 msgid "Votre pseudo"
 msgstr ""
 
-#: app/templates/events/join.html:20 app/templates/events/verify.html:23
+#: app/templates/events/join.html app/templates/events/verify.html
 msgid "Ex : Alice, Bob…"
 msgstr ""
 
-#: app/templates/events/join.html:24
+#: app/templates/events/join.html
 msgid "Votre code personnel"
 msgstr ""
 
-#: app/templates/events/join.html:28 app/templates/events/verify.html:31
+#: app/templates/events/join.html app/templates/events/verify.html
 msgid "Ex : alice42"
 msgstr ""
 
-#: app/templates/events/join.html:29 app/templates/events/verify.html:32
-msgid "Générer"
-msgstr ""
-
-#: app/templates/events/join.html:31
+#: app/templates/events/join.html
 msgid ""
 "Choisissez un code que vous retiendrez : il vous servira à vous "
 "reconnecter sur un autre appareil. 4 à 8 lettres minuscules ou chiffres."
 msgstr ""
 
-#: app/templates/events/join.html:35
+#: app/templates/events/join.html
 msgid "Votre foyer"
 msgstr ""
 
-#: app/templates/events/join.html:36
+#: app/templates/events/join.html
 msgid "Pour la répartition des frais."
 msgstr ""
 
-#: app/templates/events/join.html:39 app/templates/events/verify.html:53
+#: app/templates/events/join.html app/templates/events/verify.html
 msgid "Adultes"
 msgstr ""
 
-#: app/templates/events/join.html:43 app/templates/events/verify.html:58
+#: app/templates/events/join.html app/templates/events/verify.html
 msgid "Enfants"
 msgstr ""
 
-#: app/templates/events/join.html:50
+#: app/templates/events/join.html
 msgid "Votre email (optionnel)"
 msgstr ""
 
-#: app/templates/events/join.html:55
+#: app/templates/events/join.html
 msgid "Rejoindre l'événement"
 msgstr ""
 
-#: app/templates/events/log.html:2 app/templates/events/log.html:6
-msgid "Journal"
-msgstr ""
-
-#: app/templates/events/log.html:7
+#: app/templates/events/log.html
 msgid "Historique des actions de l'événement"
 msgstr ""
 
-#: app/templates/events/log.html:14
+#: app/templates/events/log.html
 msgid "Journal des actions"
 msgstr ""
 
-#: app/templates/events/log.html:17 app/templates/events/log.html:27
+#: app/templates/events/log.html
 msgid "Quand"
 msgstr ""
 
-#: app/templates/events/log.html:18 app/templates/events/log.html:28
+#: app/templates/events/log.html
 msgid "Qui"
 msgstr ""
 
-#: app/templates/events/log.html:19 app/templates/events/log.html:29
+#: app/templates/events/log.html
 msgid "Action"
 msgstr ""
 
-#: app/templates/events/log.html:20 app/templates/events/log.html:30
+#: app/templates/events/log.html
 msgid "Cible"
 msgstr ""
 
-#: app/templates/events/log.html:21 app/templates/events/log.html:31
+#: app/templates/events/log.html
 msgid "Détails"
 msgstr ""
 
-#: app/templates/events/log.html:40
+#: app/templates/events/log.html
 msgid "Aucune action enregistrée"
 msgstr ""
 
-#: app/templates/events/log.html:41
+#: app/templates/events/log.html
 msgid ""
 "Les actions de l'événement (créations, modifications, votes…) "
 "apparaîtront ici."
 msgstr ""
 
-#: app/templates/events/members.html:2 app/templates/events/members.html:6
+#: app/templates/events/members.html
 msgid "Membres"
 msgstr ""
 
-#: app/templates/events/members.html:7
+#: app/templates/events/members.html
 msgid "membres"
 msgstr ""
 
-#: app/templates/events/members.html:13
+#: app/templates/events/members.html
 msgid "Ajouter un membre"
 msgstr ""
 
-#: app/templates/events/members.html:19
+#: app/templates/events/members.html app/templates/main/ui_catalog.html
 msgid "Nom"
 msgstr ""
 
-#: app/templates/events/members.html:21
+#: app/templates/events/members.html
 msgid "Ex : Alice Martin"
 msgstr ""
 
-#: app/templates/events/members.html:24
+#: app/templates/events/members.html
 msgid "optionnel"
 msgstr ""
 
-#: app/templates/events/members.html:26
+#: app/templates/events/members.html
 msgid "alice@example.com"
 msgstr ""
 
-#: app/templates/events/members.html:37
+#: app/templates/events/members.html
 msgid "Liste des membres"
 msgstr ""
 
-#: app/templates/events/members.html:45
-msgid "Créateur"
+#: app/templates/events/members.html
+#, python-format
+msgid "Retirer %(name)s ?"
 msgstr ""
 
-#: app/templates/events/members.html:62
+#: app/templates/events/members.html
 msgid "Retirer"
 msgstr ""
 
-#: app/templates/events/members.html:71
+#: app/templates/events/members.html
 msgid "Aucun membre pour l'instant"
 msgstr ""
 
-#: app/templates/events/members.html:72
+#: app/templates/events/members.html
 msgid "Ajoutez des invités ci-dessus ou partagez le lien d'invitation."
 msgstr ""
 
-#: app/templates/events/members.html:72
+#: app/templates/events/members.html
 msgid "Le créateur peut vous ajouter."
 msgstr ""
 
-#: app/templates/events/mycode.html:2 app/templates/events/mycode.html:23
-#: app/templates/main/landing.html:21
+#: app/templates/events/mycode.html app/templates/main/landing.html
 msgid "Votre code"
 msgstr ""
 
-#: app/templates/events/mycode.html:25
+#: app/templates/events/mycode.html
 msgid "Saisissez votre code personnel pour accéder à l'événement."
 msgstr ""
 
-#: app/templates/events/mycode.html:38
+#: app/templates/events/mycode.html
 msgid "Accéder à l'événement"
 msgstr ""
 
-#: app/templates/events/mycode.html:43
+#: app/templates/events/mycode.html
 msgid "Vous n'avez pas encore de code ?"
 msgstr ""
 
-#: app/templates/events/mycode.html:44
+#: app/templates/events/mycode.html
 msgid "Créez votre code personnel"
 msgstr ""
 
-#: app/templates/events/recover.html:2 app/templates/events/recover.html:6
-#: app/templates/events/recover.html:19
+#: app/templates/events/recover.html
 msgid "Récupérer mon code"
 msgstr ""
 
-#: app/templates/events/recover.html:7
+#: app/templates/events/recover.html
 msgid ""
 "Si tu avais coché « conserver mon email » à la création, ton code sera "
 "renvoyé par email."
 msgstr ""
 
-#: app/templates/events/recover.html:14 app/templates/events/verify.html:66
+#: app/templates/events/recover.html app/templates/events/verify.html
 msgid "Ton email"
 msgstr ""
 
-#: app/templates/events/recover.html:23
+#: app/templates/events/recover.html
 msgid ""
 "Si tu n'avais pas conservé ton email, le code est définitivement perdu. "
 "Il faudra créer un nouvel événement."
 msgstr ""
 
-#: app/templates/events/verify.html:6
+#: app/templates/events/verify.html
 msgid "Valider ton événement"
 msgstr ""
 
-#: app/templates/events/verify.html:21
+#: app/templates/events/verify.html
 msgid "Ton pseudo"
 msgstr ""
 
-#: app/templates/events/verify.html:34
+#: app/templates/events/verify.html
+msgid ""
+"Votre code créateur actuel est conservé. Laissez ce champ vide pour le "
+"garder, ou saisissez un nouveau code de 8 caractères pour le remplacer."
+msgstr ""
+
+#: app/templates/events/verify.html
 msgid ""
 "Ce code te sert à accéder à l'événement sur n'importe quel appareil. 4 à "
 "8 lettres minuscules ou chiffres."
 msgstr ""
 
-#: app/templates/events/verify.html:38
+#: app/templates/events/verify.html
 msgid "Inviter des proches (optionnel)"
 msgstr ""
 
-#: app/templates/events/verify.html:40
+#: app/templates/events/verify.html
 msgid "Emails (séparés par des virgules)"
 msgstr ""
 
-#: app/templates/events/verify.html:43
+#: app/templates/events/verify.html
 msgid "Ex : alice@mail.com, bob@mail.fr"
 msgstr ""
 
-#: app/templates/events/verify.html:45
+#: app/templates/events/verify.html
 msgid ""
 "Ces emails ne servent qu'à envoyer l'invitation : ils ne sont PAS "
 "conservés."
 msgstr ""
 
-#: app/templates/events/verify.html:49
+#: app/templates/events/verify.html
 msgid "Ton groupe (ménage)"
 msgstr ""
 
-#: app/templates/events/verify.html:50
+#: app/templates/events/verify.html
 msgid ""
 "Indique ta composition pour le partage des frais et les groupes. Tu "
 "pourras la modifier plus tard."
 msgstr ""
 
-#: app/templates/events/verify.html:69
+#: app/templates/events/verify.html
 msgid "Conserver mon email pour récupérer mon code si perdu"
 msgstr ""
 
-#: app/templates/events/verify.html:71
+#: app/templates/events/verify.html
 msgid ""
 "Si non coché, ton email est effacé après validation. Tu ne pourras pas "
 "récupérer ton code."
 msgstr ""
 
-#: app/templates/events/verify.html:75
+#: app/templates/events/verify.html
 msgid "Confirmer et accéder"
 msgstr ""
 
-#: app/templates/events/verify_sent.html:2
-#: app/templates/events/verify_sent.html:6
+#: app/templates/events/verify_sent.html
 msgid "Vérification envoyée"
 msgstr ""
 
-#: app/templates/events/verify_sent.html:14
+#: app/templates/events/verify_sent.html
 msgid "Un email de vérification a été envoyé à"
 msgstr ""
 
-#: app/templates/events/verify_sent.html:16
+#: app/templates/events/verify_sent.html
 msgid "Un email de vérification a été envoyé."
 msgstr ""
 
-#: app/templates/events/verify_sent.html:18
+#: app/templates/events/verify_sent.html
 msgid ""
 "Clique sur le lien pour définir ton code personnel et ton pseudo. Le lien"
 " est valide 3 jours."
 msgstr ""
 
-#: app/templates/events/verify_sent.html:19
+#: app/templates/events/verify_sent.html
 msgid ""
 "Sans vérification, l'événement sera supprimé automatiquement au bout de 3"
 " jours."
 msgstr ""
 
-#: app/templates/freemium/_upgrade_modal.html:10
-#: app/templates/freemium/paywall.html:2
+#: app/templates/freemium/_upgrade_modal.html
+#: app/templates/freemium/paywall.html
 msgid "Holishared Vacances+"
 msgstr ""
 
-#: app/templates/freemium/_upgrade_modal.html:11
+#: app/templates/freemium/_upgrade_modal.html
 msgid "Tout pour profiter du séjour, sans compter."
 msgstr ""
 
-#: app/templates/freemium/_upgrade_modal.html:17
+#: app/templates/freemium/_upgrade_modal.html
 msgid "Stockage photos 50 Go"
 msgstr ""
 
-#: app/templates/freemium/_upgrade_modal.html:18
+#: app/templates/freemium/_upgrade_modal.html
 msgid "Gardez toute la galerie du séjour, en haute qualité."
 msgstr ""
 
-#: app/templates/freemium/_upgrade_modal.html:24
+#: app/templates/freemium/_upgrade_modal.html
 msgid "Export PDF des comptes certifié"
 msgstr ""
 
-#: app/templates/freemium/_upgrade_modal.html:25
+#: app/templates/freemium/_upgrade_modal.html
 msgid "Partagez la répartition des frais en un document pro."
 msgstr ""
 
-#: app/templates/freemium/_upgrade_modal.html:31
+#: app/templates/freemium/_upgrade_modal.html
 msgid "Participants illimités"
 msgstr ""
 
-#: app/templates/freemium/_upgrade_modal.html:32
+#: app/templates/freemium/_upgrade_modal.html
 msgid "Invitez tout le monde, sans plafond."
 msgstr ""
 
-#: app/templates/freemium/_upgrade_modal.html:41
+#: app/templates/freemium/_upgrade_modal.html
 msgid "Essai de 14 jours, sans carte. Annulable à tout moment."
 msgstr ""
 
-#: app/templates/freemium/paywall.html:7
+#: app/templates/freemium/paywall.html
 msgid "Fonctionnalité Vacances+"
 msgstr ""
 
-#: app/templates/freemium/paywall.html:8
+#: app/templates/freemium/paywall.html
 msgid ""
 "Cette fonctionnalité fait partie du pack « Holishared Vacances+ ». Elle "
 "n'est pas disponible sur le plan gratuit — mais tout le reste l'est."
 msgstr ""
 
-#: app/templates/freemium/paywall.html:9
+#: app/templates/freemium/paywall.html
 msgid "Fonctionnalité demandée"
 msgstr ""
 
-#: app/templates/freemium/paywall.html:16
+#: app/templates/freemium/paywall.html
 msgid "Retour à mes événements"
 msgstr ""
 
-#: app/templates/freemium/pdf_export.html:2
+#: app/templates/freemium/pdf_export.html
 msgid "Export PDF"
 msgstr ""
 
-#: app/templates/freemium/pdf_export.html:7
+#: app/templates/freemium/pdf_export.html
 msgid "Export PDF des comptes"
 msgstr ""
 
-#: app/templates/freemium/pdf_export.html:8
-msgid "Votre document comptable pour « {{ event.title }} » est prêt."
+#: app/templates/freemium/pdf_export.html
+#, python-format
+msgid "Votre document comptable pour « %(title)s » est prêt."
 msgstr ""
 
-#: app/templates/freemium/pdf_export.html:10
+#: app/templates/freemium/pdf_export.html
 msgid "Générer le PDF (PDF certifié)"
 msgstr ""
 
-#: app/templates/freemium/pdf_export.html:11
+#: app/templates/freemium/pdf_export.html
 msgid "Version ZIP"
 msgstr ""
 
-#: app/templates/freemium/pdf_export.html:13
+#: app/templates/freemium/pdf_export.html
 msgid "Généré par Holishared Vacances+ — prêt à partager ou à comptabiliser."
 msgstr ""
 
-#: app/templates/lists/detail.html:14 app/templates/lists/detail.html:129
-#: app/templates/lists/detail.html:130
-msgid "Activités"
-msgstr ""
-
-#: app/templates/lists/detail.html:31
+#: app/templates/lists/detail.html
 msgid "Repas planifiés"
 msgstr ""
 
-#: app/templates/lists/detail.html:34
+#: app/templates/lists/detail.html
 msgid "Cochez un repas quand ses ingrédients sont en liste."
 msgstr ""
 
-#: app/templates/lists/detail.html:63
+#: app/templates/lists/detail.html
 msgid "Ajouter un article… (Enter)"
 msgstr ""
 
-#: app/templates/lists/detail.html:68
+#: app/templates/lists/detail.html
 msgid "Articles de la liste"
 msgstr ""
 
-#: app/templates/lists/detail.html:78
+#: app/templates/lists/detail.html
 msgid "Je m'occupe"
 msgstr ""
 
-#: app/templates/lists/detail.html:95
+#: app/templates/lists/detail.html
 msgid "Libérer"
 msgstr ""
 
-#: app/templates/lists/detail.html:112
+#: app/templates/lists/detail.html
 msgid "Aucun article. Tapez ci-dessus et appuyez sur Enter."
 msgstr ""
 
-#: app/templates/lists/detail.html:120
+#: app/templates/lists/detail.html
 msgid "Supprimer la liste"
 msgstr ""
 
-#: app/templates/lists/detail.html:131
+#: app/templates/lists/detail.html
 msgid "Cochez les activités déjà préparées."
 msgstr ""
 
-#: app/templates/lists/detail.html:134
+#: app/templates/lists/detail.html
 msgid "Masquer les activités cochées"
 msgstr ""
 
-#: app/templates/lists/index.html:7
+#: app/templates/lists/index.html
 msgid "Courses, to-do, matériel…"
 msgstr ""
 
-#: app/templates/lists/index.html:14
+#: app/templates/lists/index.html
 msgid "Nouvelle liste — ex : Courses du samedi"
 msgstr ""
 
-#: app/templates/lists/index.html:15
-msgid "Créer"
-msgstr ""
-
-#: app/templates/lists/index.html:22
+#: app/templates/lists/index.html app/templates/main/ui_catalog.html
 msgid "Rien ici pour l'instant"
 msgstr ""
 
-#: app/templates/lists/index.html:23
+#: app/templates/lists/index.html
 msgid ""
 "Créez votre première liste ci-dessus — courses, to-do, matériel — et "
 "partagez-la avec le groupe."
 msgstr ""
 
-#: app/templates/lists/index.html:26
+#: app/templates/lists/index.html
 msgid "Listes de l'événement"
 msgstr ""
 
-#: app/templates/lists/index.html:36
+#: app/templates/lists/index.html app/templates/main/ui_catalog.html
 msgid "Progression"
 msgstr ""
 
-#: app/templates/logistics/form.html:6
+#: app/templates/logistics/form.html
 msgid "Modifier l'info"
 msgstr ""
 
-#: app/templates/logistics/form.html:23
+#: app/templates/logistics/form.html
 msgid "Ex : Adresse du gîte"
 msgstr ""
 
-#: app/templates/logistics/form.html:27
+#: app/templates/logistics/form.html
 msgid "Contenu"
 msgstr ""
 
-#: app/templates/logistics/form.html:41
+#: app/templates/logistics/form.html
 msgid "Ordre d'affichage"
 msgstr ""
 
-#: app/templates/logistics/form.html:47
+#: app/templates/logistics/form.html
 msgid "Créer l'info"
 msgstr ""
 
-#: app/templates/logistics/index.html:2 app/templates/logistics/index.html:6
+#: app/templates/logistics/index.html
 msgid "Infos pratiques"
 msgstr ""
 
-#: app/templates/logistics/index.html:7
+#: app/templates/logistics/index.html
 msgid "Adresse, accès, horaires, documents…"
 msgstr ""
 
-#: app/templates/logistics/index.html:17
+#: app/templates/logistics/index.html
 msgid "Aucune info pratique"
 msgstr ""
 
-#: app/templates/logistics/index.html:18
+#: app/templates/logistics/index.html
 msgid ""
 "Ajoutez l'adresse, l'accès, les horaires… pour que tout le monde soit au "
 "courant."
 msgstr ""
 
-#: app/templates/main/dashboard.html:6
+#: app/templates/main/dashboard.html
 msgid "Dashboard"
 msgstr ""
 
-#: app/templates/main/dashboard.html:7
+#: app/templates/main/dashboard.html
 msgid "Le SaaS est opérationnel."
 msgstr ""
 
-#: app/templates/main/dashboard.html:12
+#: app/templates/main/dashboard.html
 msgid "Statut"
 msgstr ""
 
-#: app/templates/main/landing.html:6
+#: app/templates/main/landing.html
 msgid "Planifiez vos vacances en groupe"
 msgstr ""
 
-#: app/templates/main/landing.html:7
+#: app/templates/main/landing.html
 msgid "Repas, activités, listes, frais — tout le monde participe."
 msgstr ""
 
-#: app/templates/main/landing.html:13
+#: app/templates/main/landing.html
 msgid "Vacances, week-end, projet…"
 msgstr ""
 
-#: app/templates/main/landing.html:17
+#: app/templates/main/landing.html
 msgid "Accéder à mon événement"
 msgstr ""
 
-#: app/templates/main/landing.html:25
+#: app/templates/main/landing.html
 msgid "Accéder"
 msgstr ""
 
-#: app/templates/main/landing.html:31
+#: app/templates/main/landing.html
 msgid "J'ai oublié mon code"
 msgstr ""
 
-#: app/templates/meals/index.html:11
+#: app/templates/main/offline.html
+msgid "Hors ligne"
+msgstr ""
+
+#: app/templates/main/offline.html
+msgid "Vous êtes hors ligne"
+msgstr ""
+
+#: app/templates/main/offline.html
+msgid "Vérifiez votre connexion puis réessayez."
+msgstr ""
+
+#: app/templates/main/offline.html
+msgid "Réessayer"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Catalogue de composants"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Tous les composants du kit, dans leurs états."
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Aller aux boutons"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Boutons"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Principal"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Secondaire"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Discret"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Danger"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Désactivé"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Petit"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Moyen"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Grand"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Pleine largeur"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Cartes"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Carte simple"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Un bloc de contenu."
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Carte cliquable"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Toute la carte est un lien."
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Champs de formulaire"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Visible par tous les participants."
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Le nom est trop court."
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Choix"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Option A"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Option B"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Sélecteur de segments"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Réponse"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Cases, boutons radio et interrupteurs"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Case décochée"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Case cochée"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Case désactivée"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Radio non sélectionné"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Radio sélectionné"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Radio désactivé"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Interrupteur éteint"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Interrupteur allumé"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Interrupteur désactivé"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Badges"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Neutre"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Confirmé"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Annulé"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Information"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "États vides"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Ajoutez un premier élément pour commencer."
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Squelettes de chargement"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Feuille"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Ouvrir la feuille"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Confirmation"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Supprimer cet élément de démonstration ?"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Toasts"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Enregistré."
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Information utile."
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Attention, vérifiez ce point."
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Une erreur s'est produite."
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Avancement"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Avatars"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Élément simple"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Élément cliquable"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Secret masqué"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Icônes"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Feuille de démonstration"
+msgstr ""
+
+#: app/templates/main/ui_catalog.html
+msgid "Les toasts restent visibles au-dessus d'une feuille ouverte."
+msgstr ""
+
+#: app/templates/meals/index.html
 msgid ""
-"Cliquez sur une case pour ajouter un repas. Glissez-déposez pour déplacer"
-" (swap si la case est occupée). Cliquez sur un repas pour l'éditer ou le "
-"supprimer."
+"Cliquez sur une case pour ajouter un repas, ou sur un repas pour le "
+"modifier. Glissez-déposez pour déplacer (swap si la case est occupée)."
 msgstr ""
 
-#: app/templates/meals/index.html:36
-msgid "OK"
+#: app/templates/meals/index.html
+msgid "Nom du repas"
 msgstr ""
 
-#: app/templates/meals/index.html:40
-msgid "Éditer"
+#: app/templates/meals/index.html
+msgid "Ex : Barbecue, Salade de pâtes…"
 msgstr ""
 
-#: app/templates/meals/index.html:54
-msgid "Repas…"
+#: app/templates/meals/index.html
+msgid "Supprimer ce repas"
 msgstr ""
 
-#: app/templates/media/detail.html:4 app/templates/media/gallery.html:48
+#: app/templates/media/detail.html app/templates/media/gallery.html
 msgid "Galerie"
 msgstr ""
 
-#: app/templates/media/detail.html:19
+#: app/templates/media/detail.html
 msgid "Pris le"
 msgstr ""
 
-#: app/templates/media/gallery.html:7
+#: app/templates/media/gallery.html
 msgid "Photos et vidéos du séjour"
 msgstr ""
 
-#: app/templates/media/gallery.html:15
+#: app/templates/media/gallery.html
 msgid "Stockage photos"
 msgstr ""
 
-#: app/templates/media/gallery.html:18
+#: app/templates/media/gallery.html
 msgid "Stockage utilisé"
 msgstr ""
 
-#: app/templates/media/gallery.html:23
+#: app/templates/media/gallery.html
 msgid ""
 "Vous avez atteint votre quota gratuit. Passez à Vacances+ pour garder "
 "toute la galerie."
 msgstr ""
 
-#: app/templates/media/gallery.html:27
+#: app/templates/media/gallery.html
 msgid "Espace presque plein — passez à Vacances+ pour 50 Go."
 msgstr ""
 
-#: app/templates/media/gallery.html:36
+#: app/templates/media/gallery.html
 msgid "Photo ou vidéo"
 msgstr ""
 
-#: app/templates/media/gallery.html:40
+#: app/templates/media/gallery.html
 msgid "Légende"
 msgstr ""
 
-#: app/templates/media/gallery.html:44
+#: app/templates/media/gallery.html
 msgid "Téléverser"
 msgstr ""
 
-#: app/templates/media/gallery.html:65
+#: app/templates/media/gallery.html
 msgid "Aucun media"
 msgstr ""
 
-#: app/templates/media/gallery.html:66
+#: app/templates/media/gallery.html
 msgid "Partagez les photos et vidéos du séjour."
 msgstr ""
 
-#: app/templates/planning/form.html:2 app/templates/planning/form.html:6
-#: app/templates/planning/index.html:10
+#: app/templates/planning/form.html app/templates/planning/index.html
 msgid "Nouvelle activité"
 msgstr ""
 
-#: app/templates/planning/form.html:6
+#: app/templates/planning/form.html
 msgid "Modifier l'activité"
 msgstr ""
 
-#: app/templates/planning/form.html:30
+#: app/templates/planning/form.html
 msgid "Ex : Randonnée au lac"
 msgstr ""
 
-#: app/templates/planning/form.html:43 app/templates/planning/index.html:62
+#: app/templates/planning/form.html app/templates/planning/index.html
 msgid "Date"
 msgstr ""
 
-#: app/templates/planning/form.html:60
+#: app/templates/planning/form.html
 msgid "Heure de début"
 msgstr ""
 
-#: app/templates/planning/form.html:64
+#: app/templates/planning/form.html
 msgid "Heure de fin"
 msgstr ""
 
-#: app/templates/planning/form.html:73
+#: app/templates/planning/form.html
 msgid "Nombre minimum de participants"
 msgstr ""
 
-#: app/templates/planning/form.html:79
+#: app/templates/planning/form.html
 msgid "Apporter"
 msgstr ""
 
-#: app/templates/planning/form.html:81
+#: app/templates/planning/form.html
 msgid "Ex : 2 chaises, 1 nappe"
 msgstr ""
 
-#: app/templates/planning/form.html:88
+#: app/templates/planning/form.html
 msgid "Créer l'activité"
 msgstr ""
 
-#: app/templates/planning/index.html:16
+#: app/templates/planning/index.html
 msgid "Aucune activité planifiée. Ajoutez-en une avec l'ajout rapide ci-dessous."
 msgstr ""
 
-#: app/templates/planning/index.html:54
+#: app/templates/planning/index.html
 msgid "Randonnée, piscine, sortie…"
 msgstr ""
 
-#: app/templates/planning/index.html:59
+#: app/templates/planning/index.html
 msgid "Ex : Randonnée, piscine, resto…"
 msgstr ""
 
-#: app/templates/planning/index.html:63
+#: app/templates/planning/index.html
 msgid "Heure"
 msgstr ""
 
-#: app/templates/planning/index.html:66
+#: app/templates/planning/index.html
 msgid "Plus d'options (description, lieu, effectif…) →"
 msgstr ""
 
-#: app/templates/planning/index.html:72
+#: app/templates/planning/index.html
 msgid "Indiquez votre participation"
 msgstr ""
 
-#: app/templates/planning/index.html:82
-msgid "Oui"
-msgstr ""
-
-#: app/templates/planning/index.html:83
-msgid "Peut-être"
-msgstr ""
-
-#: app/templates/planning/index.html:84
-msgid "Non"
-msgstr ""
-
-#: app/templates/voting/detail.html:4
+#: app/templates/voting/detail.html
 msgid "Retour aux sondages"
 msgstr ""
 
-#: app/templates/voting/detail.html:10 app/templates/voting/index.html:69
+#: app/templates/voting/detail.html app/templates/voting/index.html
 msgid "Sondage fermé"
 msgstr ""
 
-#: app/templates/voting/detail.html:18 app/templates/voting/detail.html:21
-#: app/templates/voting/index.html:31
+#: app/templates/voting/detail.html app/templates/voting/index.html
 msgid "Votre vote"
 msgstr ""
 
-#: app/templates/voting/detail.html:30 app/templates/voting/index.html:41
+#: app/templates/voting/detail.html app/templates/voting/index.html
 msgid "Voter"
 msgstr ""
 
-#: app/templates/voting/detail.html:32
+#: app/templates/voting/detail.html
 msgid "Vous avez voté :"
 msgstr ""
 
-#: app/templates/voting/detail.html:40
+#: app/templates/voting/detail.html
 msgid "Résultats"
 msgstr ""
 
-#: app/templates/voting/detail.html:41 app/templates/voting/index.html:46
-#: app/templates/voting/index.html:70
+#: app/templates/voting/detail.html app/templates/voting/index.html
 msgid "Résultats du sondage"
 msgstr ""
 
-#: app/templates/voting/detail.html:50 app/templates/voting/index.html:73
+#: app/templates/voting/detail.html app/templates/voting/index.html
 msgid "vote(s)"
 msgstr ""
 
-#: app/templates/voting/detail.html:54 app/templates/voting/index.html:59
-#: app/templates/voting/index.html:83
+#: app/templates/voting/detail.html app/templates/voting/index.html
 msgid "vote(s) au total"
 msgstr ""
 
-#: app/templates/voting/form.html:2 app/templates/voting/form.html:6
-#: app/templates/voting/index.html:10 app/templates/voting/index.html:19
+#: app/templates/voting/form.html app/templates/voting/index.html
 msgid "Nouveau sondage"
 msgstr ""
 
-#: app/templates/voting/form.html:21
+#: app/templates/voting/form.html
 msgid "Question"
 msgstr ""
 
-#: app/templates/voting/form.html:23
+#: app/templates/voting/form.html
 msgid "Ex : Quel menu pour samedi ?"
 msgstr ""
 
-#: app/templates/voting/form.html:28
+#: app/templates/voting/form.html
 msgid "Une option par ligne (2 à 10)."
 msgstr ""
 
-#: app/templates/voting/form.html:31
+#: app/templates/voting/form.html
 msgid ""
 "Poisson\n"
 "Poulet\n"
 "Végétarien"
 msgstr ""
 
-#: app/templates/voting/form.html:35
+#: app/templates/voting/form.html
 msgid "Créer le sondage"
 msgstr ""
 
-#: app/templates/voting/index.html:7
+#: app/templates/voting/index.html
 msgid "Votez et décidez ensemble"
 msgstr ""
 
-#: app/templates/voting/index.html:17
+#: app/templates/voting/index.html
 msgid "Aucun sondage"
 msgstr ""
 
-#: app/templates/voting/index.html:18
+#: app/templates/voting/index.html
 msgid ""
 "Créez un sondage pour laisser le groupe choisir (menu, activité, "
 "horaires…)."
 msgstr ""
 
-#: app/voting/__init__.py:95
+#: app/voting/__init__.py
 msgid "Question requise (min 2 caractères)."
 msgstr ""
 
-#: app/voting/__init__.py:97
+#: app/voting/__init__.py
 msgid "Question trop longue (max 300 caractères)."
 msgstr ""
 
-#: app/voting/__init__.py:101
+#: app/voting/__init__.py
 msgid "Au moins 2 options requises (une par ligne)."
 msgstr ""
 
-#: app/voting/__init__.py:103
+#: app/voting/__init__.py
 msgid "Maximum 10 options (une par ligne)."
 msgstr ""
 
-#: app/voting/__init__.py:105
+#: app/voting/__init__.py
 msgid "Option trop longue (max 200 caractères)."
 msgstr ""
 
-#: app/voting/__init__.py:173
+#: app/voting/__init__.py
 msgid "Sondage créé."
 msgstr ""
 
-#: app/voting/__init__.py:228 app/voting/__init__.py:276
+#: app/voting/__init__.py
 msgid "Sondage fermé."
 msgstr ""
 
-#: app/voting/__init__.py:250
+#: app/voting/__init__.py
 msgid "Vote enregistré."
 msgstr ""
-
-msgid "Événement"
-msgstr ""
-
-msgid "Participants"
-msgstr ""
-
-msgid "Préférences"
-msgstr ""
-
-msgid "Compte"
-msgstr ""
-
-msgid "Aller au contenu"
-msgstr ""
-
-msgid "Thème sombre"
-msgstr ""
-
-#, python-format
-msgid "Retirer %(name)s ?"
-msgstr ""
-
-msgid "Accueil holishared"
-msgstr ""
-
-msgid "Notifications"
-msgstr ""
-
-msgid "Annuler"
-msgstr ""
-
-msgid "Confirmer"
-msgstr ""
-
-msgid "Confirmer l'action"
-msgstr ""
-
-msgid "Copié"
-msgstr ""
-
-msgid "Copie impossible"
-msgstr ""
-
-msgid "Nouvelle version disponible"
-msgstr ""
-
-msgid "Recharger"
-msgstr ""
-
-msgid "Hors ligne"
-msgstr ""
-
-msgid "Vous êtes hors ligne"
-msgstr ""
-
-msgid "Vérifiez votre connexion puis réessayez."
-msgstr ""
-
-msgid "Réessayer"
-msgstr ""
-
-msgid "facultatif"
-msgstr ""
-
-msgid "Catalogue de composants"
-msgstr ""
-
-msgid "Ajoutez un premier élément pour commencer."
-msgstr ""
-
-msgid "Aller aux boutons"
-msgstr ""
-
-msgid "Annulé"
-msgstr ""
-
-msgid "Attention, vérifiez ce point."
-msgstr ""
-
-msgid "Avancement"
-msgstr ""
-
-msgid "Avatars"
-msgstr ""
-
-msgid "Badges"
-msgstr ""
-
-msgid "Boutons"
-msgstr ""
-
-msgid "Carte cliquable"
-msgstr ""
-
-msgid "Carte simple"
-msgstr ""
-
-msgid "Cartes"
-msgstr ""
-
-msgid "Case cochée"
-msgstr ""
-
-msgid "Case décochée"
-msgstr ""
-
-msgid "Case désactivée"
-msgstr ""
-
-msgid "Cases, boutons radio et interrupteurs"
-msgstr ""
-
-msgid "Champs de formulaire"
-msgstr ""
-
-msgid "Choix"
-msgstr ""
-
-msgid "Confirmation"
-msgstr ""
-
-msgid "Confirmé"
-msgstr ""
-
-msgid "Danger"
-msgstr ""
-
-msgid "Discret"
-msgstr ""
-
-msgid "Désactivé"
-msgstr ""
-
-msgid "Enregistré."
-msgstr ""
-
-msgid "Feuille"
-msgstr ""
-
-msgid "Feuille de démonstration"
-msgstr ""
-
-msgid "Grand"
-msgstr ""
-
-msgid "Icônes"
-msgstr ""
-
-msgid "Information"
-msgstr ""
-
-msgid "Information utile."
-msgstr ""
-
-msgid "Interrupteur allumé"
-msgstr ""
-
-msgid "Interrupteur désactivé"
-msgstr ""
-
-msgid "Interrupteur éteint"
-msgstr ""
-
-msgid "Le nom est trop court."
-msgstr ""
-
-msgid "Les toasts restent visibles au-dessus d'une feuille ouverte."
-msgstr ""
-
-msgid "Moyen"
-msgstr ""
-
-msgid "Neutre"
-msgstr ""
-
-msgid "Option A"
-msgstr ""
-
-msgid "Option B"
-msgstr ""
-
-msgid "Ouvrir la feuille"
-msgstr ""
-
-msgid "Petit"
-msgstr ""
-
-msgid "Pleine largeur"
-msgstr ""
-
-msgid "Principal"
-msgstr ""
-
-msgid "Radio désactivé"
-msgstr ""
-
-msgid "Radio non sélectionné"
-msgstr ""
-
-msgid "Radio sélectionné"
-msgstr ""
-
-msgid "Réponse"
-msgstr ""
-
-msgid "Secondaire"
-msgstr ""
-
-msgid "Secret masqué"
-msgstr ""
-
-msgid "Squelettes de chargement"
-msgstr ""
-
-msgid "Supprimer cet élément de démonstration ?"
-msgstr ""
-
-msgid "Sélecteur de segments"
-msgstr ""
-
-msgid "Toasts"
-msgstr ""
-
-msgid "Tous les composants du kit, dans leurs états."
-msgstr ""
-
-msgid "Toute la carte est un lien."
-msgstr ""
-
-msgid "Un bloc de contenu."
-msgstr ""
-
-msgid "Une erreur s'est produite."
-msgstr ""
-
-msgid "Visible par tous les participants."
-msgstr ""
-
-msgid "Élément cliquable"
-msgstr ""
-
-msgid "Élément simple"
-msgstr ""
-
-msgid "États vides"
-msgstr ""
-
-#~ msgid "+ Ajouter une info"
-#~ msgstr ""
-
-#~ msgid "+ Foyer"
-#~ msgstr ""
-
-#~ msgid "Accueil"
-#~ msgstr ""
-
-#~ msgid "Accéder"
-#~ msgstr ""
-
-#~ msgid "Action"
-#~ msgstr ""
-
-#~ msgid "Actions"
-#~ msgstr ""
-
-#~ msgid "Activités"
-#~ msgstr ""
-
-#~ msgid "Adultes"
-#~ msgstr ""
-
-#~ msgid "Ajouter"
-#~ msgstr ""
-
-#~ msgid "Ajouter le foyer"
-#~ msgstr ""
-
-#~ msgid "Ajouter le frais"
-#~ msgstr ""
-
-#~ msgid "Ajouter un article"
-#~ msgstr ""
-
-#~ msgid "Ajouter une info"
-#~ msgstr ""
-
-#~ msgid "Apporter"
-#~ msgstr ""
-
-#~ msgid "Articles de la liste"
-#~ msgstr ""
-
-#~ msgid "Assigné à"
-#~ msgstr ""
-
-#~ msgid "Aucun article dans cette liste."
-#~ msgstr ""
-
-#~ msgid "Aucun foyer. Ajoutez des foyers pour partager les frais."
-#~ msgstr ""
-
-#~ msgid "Aucun frais enregistré."
-#~ msgstr ""
-
-#~ msgid "Aucun media. Partagez les photos et vidéos du séjour."
-#~ msgstr ""
-
-#~ msgid "Aucun message. Lancez la conversation !"
-#~ msgstr ""
-
-#~ msgid "Aucun sondage. Créez-en un !"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Aucun transfert enregistré. Enregistrez les"
-#~ " remboursements déjà faits pour ajuster "
-#~ "le solde."
-#~ msgstr ""
-
-#~ msgid "Aucun événement. Créez-en un !"
-#~ msgstr ""
-
-#~ msgid "Aucune action enregistrée."
-#~ msgstr ""
-
-#~ msgid "Aucune activité planifiée. Ajoutez-en une !"
-#~ msgstr ""
-
-#~ msgid "Aucune demande de paiement."
-#~ msgstr ""
-
-#~ msgid "Aucune liste. Créez-en une !"
-#~ msgstr ""
-
-#~ msgid "Catégorie"
-#~ msgstr ""
-
-#~ msgid "Chat"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Choisissez un code que vous retiendrez"
-#~ " : il vous servira à vous "
-#~ "reconnecter sur un autre appareil. 4 "
-#~ "à 8 lettres minuscules ou chiffres."
-#~ msgstr ""
-
-#~ msgid "Cible"
-#~ msgstr ""
-
-#~ msgid "Code personnel"
-#~ msgstr ""
-
-#~ msgid "Contenu"
-#~ msgstr ""
-
-#~ msgid "Copier"
-#~ msgstr ""
-
-#~ msgid "Créer"
-#~ msgstr ""
-
-#~ msgid "Créer la demande"
-#~ msgstr ""
-
-#~ msgid "Créer le sondage"
-#~ msgstr ""
-
-#~ msgid "Créer un événement"
-#~ msgstr ""
-
-#~ msgid "Créez votre code personnel"
-#~ msgstr ""
-
-#~ msgid "Date"
-#~ msgstr ""
-
-#~ msgid "Date de début"
-#~ msgstr ""
-
-#~ msgid "Date de fin"
-#~ msgstr ""
-
-#~ msgid "De"
-#~ msgstr ""
-
-#~ msgid "Demandes de paiement"
-#~ msgstr ""
-
-#~ msgid "Description"
-#~ msgstr ""
-
-#~ msgid "Devise"
-#~ msgstr ""
-
-#~ msgid "Déconnexion"
-#~ msgstr ""
-
-#~ msgid "Détails"
-#~ msgstr ""
-
-#~ msgid "Enfants"
-#~ msgstr ""
-
-#~ msgid "Enregistrer le transfert"
-#~ msgstr ""
-
-#~ msgid "Envoyer"
-#~ msgstr ""
-
-#~ msgid "Ex : 2 chaises, 1 nappe"
-#~ msgstr ""
-
-#~ msgid "Ex : Alice, Bob…"
-#~ msgstr ""
-
-#~ msgid "Ex : Famille Dupont"
-#~ msgstr ""
-
-#~ msgid "Ex : alice42"
-#~ msgstr ""
-
-#~ msgid "Foyer"
-#~ msgstr ""
-
-#~ msgid "Foyers"
-#~ msgstr ""
-
-#~ msgid "Frais"
-#~ msgstr ""
-
-#~ msgid "Galerie"
-#~ msgstr ""
-
-#~ msgid "Général"
-#~ msgstr ""
-
-#~ msgid "Générer"
-#~ msgstr ""
-
-#~ msgid "Heure de début"
-#~ msgstr ""
-
-#~ msgid "Heure de fin"
-#~ msgstr ""
-
-#~ msgid "Hébergement"
-#~ msgstr ""
-
-#~ msgid "Infos importantes"
-#~ msgstr ""
-
-#~ msgid "Infos pratiques"
-#~ msgstr ""
-
-#~ msgid "Invitations"
-#~ msgstr ""
-
-#~ msgid "Inviter"
-#~ msgstr ""
-
-#~ msgid "Inviter par email"
-#~ msgstr ""
-
-#~ msgid "Invités"
-#~ msgstr ""
-
-#~ msgid "Journal"
-#~ msgstr ""
-
-#~ msgid "La personne reçoit un lien pour créer son code personnel."
-#~ msgstr ""
-
-#~ msgid "Libérer"
-#~ msgstr ""
-
-#~ msgid "Lieu"
-#~ msgstr ""
-
-#~ msgid "Liste des frais"
-#~ msgstr ""
-
-#~ msgid "Liste des transferts"
-#~ msgstr ""
-
-#~ msgid "Listes"
-#~ msgstr ""
-
-#~ msgid "Listes & to-do"
-#~ msgstr ""
-
-#~ msgid "Légende"
-#~ msgstr ""
-
-#~ msgid "Marquer comme fait"
-#~ msgstr ""
-
-#~ msgid "Marquer réglé"
-#~ msgstr ""
-
-#~ msgid "Media"
-#~ msgstr ""
-
-#~ msgid "Mes événements"
-#~ msgstr ""
-
-#~ msgid "Message"
-#~ msgstr ""
-
-#~ msgid "Modifier"
-#~ msgstr ""
-
-#~ msgid "Montant"
-#~ msgstr ""
-
-#~ msgid "Nom"
-#~ msgstr ""
-
-#~ msgid "Nom du foyer"
-#~ msgstr ""
-
-#~ msgid "Nombre minimum de participants"
-#~ msgstr ""
-
-#~ msgid "Non"
-#~ msgstr ""
-
-#~ msgid "Note"
-#~ msgstr ""
-
-#~ msgid "Nourriture"
-#~ msgstr ""
-
-#~ msgid "Nouveau foyer"
-#~ msgstr ""
-
-#~ msgid "Nouveau sondage"
-#~ msgstr ""
-
-#~ msgid "Nouvel événement"
-#~ msgstr ""
-
-#~ msgid "Nouvelle activité"
-#~ msgstr ""
-
-#~ msgid "Nouvelle liste"
-#~ msgstr ""
-
-#~ msgid "Options"
-#~ msgstr ""
-
-#~ msgid "Oui"
-#~ msgstr ""
-
-#~ msgid "Page introuvable."
-#~ msgstr ""
-
-#~ msgid "Part"
-#~ msgstr ""
-
-#~ msgid "Partage de frais"
-#~ msgstr ""
-
-#~ msgid "Parts par adulte"
-#~ msgstr ""
-
-#~ msgid "Parts par enfant"
-#~ msgstr ""
-
-#~ msgid "Payé"
-#~ msgstr ""
-
-#~ msgid "Payé par"
-#~ msgstr ""
-
-#~ msgid "Peut-être"
-#~ msgstr ""
-
-#~ msgid "Photo ou vidéo"
-#~ msgstr ""
-
-#~ msgid "Planification de vacances en groupe"
-#~ msgstr ""
-
-#~ msgid "Planning"
-#~ msgstr ""
-
-#~ msgid "Pris le"
-#~ msgstr ""
-
-#~ msgid "Quand"
-#~ msgstr ""
-
-#~ msgid "Quantité"
-#~ msgstr ""
-
-#~ msgid "Question"
-#~ msgstr ""
-
-#~ msgid "Qui"
-#~ msgstr ""
-
-#~ msgid "Qui rembourse qui"
-#~ msgstr ""
-
-#~ msgid "Rejoindre"
-#~ msgstr ""
-
-#~ msgid "Renvoyer"
-#~ msgstr ""
-
-#~ msgid "Retour aux sondages"
-#~ msgstr ""
-
-#~ msgid "Réglé"
-#~ msgstr ""
-
-#~ msgid "Répartition par catégorie"
-#~ msgstr ""
-
-#~ msgid "Répartition par foyer"
-#~ msgstr ""
-
-#~ msgid "Résultats du sondage"
-#~ msgstr ""
-
-#~ msgid "Résumé"
-#~ msgstr ""
-
-#~ msgid "Section"
-#~ msgstr ""
-
-#~ msgid "Solde"
-#~ msgstr ""
-
-#~ msgid "Sondage fermé"
-#~ msgstr ""
-
-#~ msgid "Sondages"
-#~ msgstr ""
-
-#~ msgid "Sondages ouverts"
-#~ msgstr ""
-
-#~ msgid "Supprimer"
-#~ msgstr ""
-
-#~ msgid "Supprimer la liste"
-#~ msgstr ""
-
-#~ msgid "Supprimer le message de"
-#~ msgstr ""
-
-#~ msgid "Taux (→ €)"
-#~ msgstr ""
-
-#~ msgid "Titre"
-#~ msgstr ""
-
-#~ msgid "Ton code personnel"
-#~ msgstr ""
-
-#~ msgid "Total"
-#~ msgstr ""
-
-#~ msgid "Total des frais"
-#~ msgstr ""
-
-#~ msgid "Transferts déjà effectués"
-#~ msgstr ""
-
-#~ msgid "Transport"
-#~ msgstr ""
-
-#~ msgid "Type de liste"
-#~ msgstr ""
-
-#~ msgid "Téléverser"
-#~ msgstr ""
-
-#~ msgid "Une option par ligne (2 à 10)."
-#~ msgstr ""
-
-#~ msgid "Voter"
-#~ msgstr ""
-
-#~ msgid "Votre code"
-#~ msgstr ""
-
-#~ msgid "Votre code personnel"
-#~ msgstr ""
-
-#~ msgid "Votre email"
-#~ msgstr ""
-
-#~ msgid "Votre email (optionnel, pour recevoir les invitations)"
-#~ msgstr ""
-
-#~ msgid "Votre message"
-#~ msgstr ""
-
-#~ msgid "Votre vote"
-#~ msgstr ""
-
-#~ msgid "articles"
-#~ msgstr ""
-
-#~ msgid "confirmés sur"
-#~ msgstr ""
-
-#~ msgid "demande de paiement"
-#~ msgstr ""
-
-#~ msgid "invités"
-#~ msgstr ""
-
-#~ msgid "requis"
-#~ msgstr ""
-
-#~ msgid "transfert"
-#~ msgstr ""
-
-#~ msgid "vote(s)"
-#~ msgstr ""
-
-#~ msgid "vote(s) au total"
-#~ msgstr ""
-
-#~ msgid "À"
-#~ msgstr ""
-
-#~ msgid "— insuffisant"
-#~ msgstr ""
-
-#~ msgid "Cochez les repas dont vous avez noté les ingrédients."
-#~ msgstr ""
-
-#~ msgid "Masquer les repas cochés"
-#~ msgstr ""
-
-#~ msgid "Ajouter un frais"
-#~ msgstr ""
-
-#~ msgid "Ex : Courses, essence…"
-#~ msgstr ""
-
-#~ msgid "Tout est réglé — aucun solde à compenser."
-#~ msgstr ""
-
-#~ msgid "Groupes"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Un groupe = un foyer ou une "
-#~ "personne qui partage les frais. Créé "
-#~ "automatiquement à l'inscription."
-#~ msgstr ""
-
-#~ msgid "+ Ajouter"
-#~ msgstr ""
-
-#~ msgid "Groupe"
-#~ msgstr ""
-
-#~ msgid "Aucun groupe"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Chaque invité crée son groupe "
-#~ "automatiquement en rejoignant. Ajoutez-en "
-#~ "un manuellement si besoin."
-#~ msgstr ""
-
-#~ msgid "Ajouter un groupe"
-#~ msgstr ""
-
-#~ msgid "Aucun frais enregistré"
-#~ msgstr ""
-
-#~ msgid "Ajoutez les dépenses du séjour pour les répartir entre les foyers."
-#~ msgstr ""
-
-#~ msgid "Aucun transfert enregistré"
-#~ msgstr ""
-
-#~ msgid "Enregistrez les remboursements déjà faits pour ajuster le solde."
-#~ msgstr ""
-
-#~ msgid "Aucune demande de paiement"
-#~ msgstr ""
-
-#~ msgid "Créez une demande pour demander un remboursement à un autre foyer."
-#~ msgstr ""
 

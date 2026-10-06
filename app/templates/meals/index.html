@@ -4,7 +4,7 @@
 <div class="page-head">
     <div>
         <h1>{{ _("Repas") }}</h1>
-        <p class="page-sub">{{ event.title }} · {{ event.start_date.strftime("%d/%m") }} → {{ event.end_date.strftime("%d/%m") }}</p>
+        <p class="page-sub">{{ event.title }} · {{ event.start_date|date_short }} → {{ event.end_date|date_short }}</p>
     </div>
 </div>
 
@@ -21,11 +21,11 @@
     {% for i in range(num_days) %}
     {% set day = event.start_date | add_days(i) %}
     <div class="meal-grid-row{% if day == today %} is-today{% endif %}">
-      <span class="meal-grid-day{% if day == today %} is-today-label{% endif %}">{{ day | format_date('EEE') }}<br><strong>{{ day.strftime("%d/%m") }}</strong></span>
-      {% for meal_type, slot in [('Midi', 'lunch'), ('Soir', 'dinner')] %}
+      <span class="meal-grid-day{% if day == today %} is-today-label{% endif %}">{{ day | format_date('EEE') }}<br><strong>{{ day|date_short }}</strong></span>
+      {% for slot, slot_label in choices('meal_slot') %}
         {% set meal = by_cell.get((day, slot)) %}
         <div class="meal-cell" data-date="{{ day.isoformat() }}" data-slot="{{ slot }}"
-             data-header="{{ day | format_date('EEEE d MMM') }} — {{ _('Midi') if slot == 'lunch' else _('Soir') }}">
+             data-header="{{ day | format_date('EEEE d MMM') }} — {{ slot_label }}">
           {% if meal %}
           <div class="meal-card" draggable="{{ 'true' if ctx.can_edit(meal) else 'false' }}"
                data-meal-id="{{ meal.id }}" data-title="{{ meal.title }}"

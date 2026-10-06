@@ -4,7 +4,7 @@
 <div class="page-head">
     <div>
         <h1>{{ _("Planning") }}</h1>
-        <p class="page-sub">{{ event.title }} · {{ event.start_date.strftime("%d/%m") }} → {{ event.end_date.strftime("%d/%m") }}</p>
+        <p class="page-sub">{{ event.title }} · {{ event.start_date|date_short }} → {{ event.end_date|date_short }}</p>
     </div>
     <div class="head-actions">
         <a href="{{ url_for('planning.create', code=event.code) }}" class="btn btn-primary">{{ _("Nouvelle activité") }}</a>
@@ -24,7 +24,7 @@
     {% for act in acts %}
       <div class="card activity-card">
         {% if act.start_time %}
-          <span class="time">{{ act.start_time.strftime("%H:%M") }}{% if act.end_time %} – {{ act.end_time.strftime("%H:%M") }}{% endif %}</span>
+          <span class="time">{{ act.start_time|time }}{% if act.end_time %} – {{ act.end_time|time }}{% endif %}</span>
         {% endif %}
         <div class="activity-main">
           <h3>{{ act.title }}</h3>
@@ -74,14 +74,14 @@
     <div class="card rsvp-card">
       <div class="rsvp-meta">
         <span class="rsvp-date">{{ act.date | format_date('full') }}</span>
-        {% if act.start_time %}<span class="time">{{ act.start_time.strftime("%H:%M") }}</span>{% endif %}
+        {% if act.start_time %}<span class="time">{{ act.start_time|time }}</span>{% endif %}
       </div>
       <h3>{{ act.title }}</h3>
       <form method="post" action="{{ url_for('planning.rsvp', code=event.code, activity_id=act.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" name="status" value="yes" class="rsvp-btn {% if guest_rsvps.get(act.id) == 'yes' %}active{% endif %}" aria-pressed="{{ 'true' if guest_rsvps.get(act.id) == 'yes' else 'false' }}">{{ _("Oui") }}</button>
-        <button type="submit" name="status" value="maybe" class="rsvp-btn {% if guest_rsvps.get(act.id) == 'maybe' %}active{% endif %}" aria-pressed="{{ 'true' if guest_rsvps.get(act.id) == 'maybe' else 'false' }}">{{ _("Peut-être") }}</button>
-        <button type="submit" name="status" value="no" class="rsvp-btn {% if guest_rsvps.get(act.id) == 'no' %}active{% endif %}" aria-pressed="{{ 'true' if guest_rsvps.get(act.id) == 'no' else 'false' }}">{{ _("Non") }}</button>
+        {% for status, status_label in choices('rsvp_status') %}
+        <button type="submit" name="status" value="{{ status }}" class="rsvp-btn {% if guest_rsvps.get(act.id) == status %}active{% endif %}" aria-pressed="{{ 'true' if guest_rsvps.get(act.id) == status else 'false' }}">{{ status_label }}</button>
+        {% endfor %}
       </form>
     </div>
   {% endfor %}

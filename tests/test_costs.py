@@ -203,7 +203,7 @@ class TestSettlement:
 
         resp = client.get(f"/e/{event.code}/costs")
         assert resp.status_code == 200
-        assert b"30.00" in resp.data
+        assert b"30,00" in resp.data
 
     def test_settlement_no_expenses(self, client, creator, event, db):
         _login_creator(client, creator)
@@ -227,7 +227,7 @@ class TestSettlement:
 
         resp = client.get(f"/e/{event.code}/costs")
         assert resp.status_code == 200
-        assert b"10.00" in resp.data
+        assert b"10,00" in resp.data
 
 
 class TestTransfers:
@@ -385,7 +385,7 @@ class TestPersonalExpenses:
         _make_expense(db, event, h1, "Perso", 4200, is_shared=False)
         resp = client.get(f"/e/{event.code}/costs")
         assert resp.status_code == 200
-        assert b"42.00" in resp.data
+        assert b"42,00" in resp.data
         assert "Dépenses personnelles".encode() in resp.data
 
     def test_mixed_shared_and_personal(self, client, creator, event, db):
@@ -400,6 +400,6 @@ class TestPersonalExpenses:
         resp = client.get(f"/e/{event.code}/costs")
         assert resp.status_code == 200
         # Settlement reflects only the shared 100€ (B receives 50€).
-        assert b"50.00" in resp.data
+        assert b"50,00" in resp.data
         # Personal total for A is shown.
-        assert b"20.00" in resp.data
+        assert b"20,00" in resp.data

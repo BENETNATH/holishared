@@ -4,7 +4,7 @@
 <div class="page-head">
     <div>
         <h1>{{ _("Valider ton événement") }}</h1>
-        <p class="page-sub">{{ event.title }} · {{ event.start_date.strftime("%d/%m") }} → {{ event.end_date.strftime("%d/%m") }}</p>
+        <p class="page-sub">{{ event.title }} · {{ event.start_date|date_short }} → {{ event.end_date|date_short }}</p>
     </div>
 </div>
 

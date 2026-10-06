@@ -14,27 +14,27 @@
     <span class="ubh-household">{{ my_household.name }}</span>
   </div>
   {% if my_balance and my_balance > 0.01 %}
-    <div class="ubh-amount">+{{ "%.2f"|format(my_balance) }}&nbsp;€</div>
+    <div class="ubh-amount">{{ my_balance|money(sign=True) }}</div>
     <div class="ubh-state positive-badge">{{ _("On te doit de l'argent") }}</div>
     {% if owed_to_me %}
     <div class="ubh-detail">
       {% for o in owed_to_me %}
-      <span class="ubh-who"><span class="avatar-pill">{{ o["from"].name[:1]|upper }}</span>{{ o["from"].name }} : {{ "%.2f"|format(o["amount"]) }}&nbsp;€</span>
+      <span class="ubh-who"><span class="avatar-pill">{{ o["from"].name[:1]|upper }}</span>{{ o["from"].name }} : {{ o["amount"]|money }}</span>
       {% endfor %}
     </div>
     {% endif %}
   {% elif my_balance and my_balance < -0.01 %}
-    <div class="ubh-amount">{{ "%.2f"|format(my_balance) }}&nbsp;€</div>
+    <div class="ubh-amount">{{ my_balance|money }}</div>
     <div class="ubh-state negative-badge">{{ _("Tu dois de l'argent au groupe") }}</div>
     {% if i_owe %}
     <div class="ubh-detail">
       {% for d in i_owe %}
-      <span class="ubh-who">→ <span class="avatar-pill">{{ d["to"].name[:1]|upper }}</span>{{ d["to"].name }} : {{ "%.2f"|format(d["amount"]) }}&nbsp;€</span>
+      <span class="ubh-who">→ <span class="avatar-pill">{{ d["to"].name[:1]|upper }}</span>{{ d["to"].name }} : {{ d["amount"]|money }}</span>
       {% endfor %}
     </div>
     {% endif %}
   {% else %}
-    <div class="ubh-amount">0,00&nbsp;€</div>
+    <div class="ubh-amount">{{ 0|money }}</div>
     <div class="ubh-state neutral-badge">{{ _("Tu es quitte ! 👌") }}</div>
   {% endif %}
 </div>
@@ -61,17 +61,17 @@
       <div>
         <label for="ef-currency">{{ _("Devise") }}</label>
         <select id="ef-currency" name="currency">
-          {% for c in currencies %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+          {% for c in CURRENCIES %}<option value="{{ c }}">{{ currency_label(c) }}</option>{% endfor %}
         </select>
       </div>
       <div class="ef-cat">
         <span class="ef-label">{{ _("Catégorie") }}</span>
         <div class="cat-chips" role="radiogroup" aria-label="{{ _('Catégorie') }}">
-          {% for cat, icon in [('general','🧾'),('food','🍔'),('transport','🚗'),('lodging','🏡'),('activities','🎟️'),('other','📦')] %}
+          {% for cat, cat_label in choices('expense_category') %}
           <label class="cat-chip{% if loop.first %} active{% endif %}">
             <input type="radio" name="category" value="{{ cat }}" {% if loop.first %}checked{% endif %}>
-            <span class="cat-chip-icon" aria-hidden="true">{{ icon }}</span>
-            <span class="cat-chip-name">{{ cat | capitalize }}</span>
+            <span class="cat-chip-icon" aria-hidden="true">{{ category_icons[cat] }}</span>
+            <span class="cat-chip-name">{{ cat_label }}</span>
           </label>
           {% endfor %}
         </div>
@@ -140,7 +140,7 @@
         <span class="woc-name">{{ s['to'].name }}</span>
         <span class="avatar-pill woc-avatar woc-avatar-in">{{ s['to'].name[:1]|upper }}</span>
       </div>
-      <div class="woc-amount">{{ "%.2f"|format(s['amount']) }}&nbsp;€</div>
+      <div class="woc-amount">{{ s['amount']|money }}</div>
       <button type="submit" class="btn btn-small woc-btn" aria-label="{{ _('Marquer comme remboursé') }}">
         {{ _("Rembourser") }}
       </button>
@@ -194,22 +194,22 @@
       <div class="gc-meta">
         <span>{{ hh.total_weight }} {{ _("part") }}</span>
         <span>·</span>
-        <span>{{ "%.2f"|format(entry["paid"]) }}&nbsp;€ {{ _("payé") }}</span>
+        <span>{{ entry["paid"]|money }} {{ _("payé") }}</span>
       </div>
       {% set personal_total = personal_by_household.get(hh.id, 0.0) %}
       {% if personal_total > 0.01 %}
       <div class="gc-personal">
         <span class="gc-personal-label">{{ _("Dépenses personnelles") }}</span>
-        <span class="gc-personal-amount">{{ "%.2f"|format(personal_total) }}&nbsp;€</span>
+        <span class="gc-personal-amount">{{ personal_total|money }}</span>
       </div>
       {% endif %}
       <div class="gc-status{% if bal > 0.01 %} gc-positive{% elif bal < -0.01 %} gc-negative{% else %} gc-zero{% endif %}">
         {% if bal > 0.01 %}
           <span class="gc-state">{{ _("reçoit") }}</span>
-          <span class="gc-amount">+{{ "%.2f"|format(bal) }}&nbsp;€</span>
+          <span class="gc-amount">{{ bal|money(sign=True) }}</span>
         {% elif bal < -0.01 %}
           <span class="gc-state">{{ _("doit") }}</span>
-          <span class="gc-amount">{{ "%.2f"|format(bal) }}&nbsp;€</span>
+          <span class="gc-amount">{{ bal|money }}</span>
         {% else %}
           <span class="gc-state gc-state-zero">✓ {{ _("réglé") }}</span>
         {% endif %}
@@ -226,18 +226,18 @@
 <section class="card">
   <div class="section-head">
     <h2>{{ _("Dépenses du séjour") }}</h2>
-    <span class="total-badge">{{ "%.2f"|format(total_expenses) }}&nbsp;€</span>
+    <span class="total-badge">{{ total_expenses|money }}</span>
   </div>
   {% if expenses %}
   <div class="expense-list">
     {% for exp in expenses %}
     <div class="expense-row">
-      <span class="expense-cat" title="{{ exp.category }}">{{ {'general':'🧾','food':'🍔','transport':'🚗','lodging':'🏡','activities':'🎟️','other':'📦'}.get(exp.category, '🧾') }}</span>
+      <span class="expense-cat" title="{{ exp.category|label('expense_category') }}">{{ category_icons.get(exp.category, category_icons['general']) }}</span>
       <div class="expense-info">
         <div class="expense-title">{{ exp.description }}{% if not exp.is_shared %} <span class="personal-badge">{{ _("Personnel") }}</span>{% endif %}</div>
         <div class="expense-sub">{{ exp.paid_by.name }} · {{ exp.date | format_date('medium') }}</div>
       </div>
-      <div class="expense-amount">{{ "%.2f"|format(exp.amount) }}<span class="exp-cur"> €</span></div>
+      <div class="expense-amount">{{ exp.amount|money }}</div>
       {% if ctx.is_creator %}
       <button class="expense-del" data-confirm="{{ _('Supprimer cette dépense ?') }}"
               formmethod="POST" type="submit"
@@ -263,9 +263,9 @@
   <div class="insight-breakdown">
     {% for item in category_breakdown %}
     <div class="insight-cat">
-      <span class="ic-name">{{ item["category"] | capitalize }}</span>
+      <span class="ic-name">{{ item['category']|label('expense_category') }}</span>
       <div class="ic-bar"><div class="ic-fill" style="width: {{ (item["amount"] / total_expenses * 100) if total_expenses > 0 else 0 }}%"></div></div>
-      <span class="ic-val">{{ "%.2f"|format(item["amount"]) }}&nbsp;€</span>
+      <span class="ic-val">{{ item["amount"]|money }}</span>
     </div>
     {% endfor %}
   </div>
@@ -301,7 +301,7 @@
     {% for t in transfers %}
     <li class="transfer-row">
       <span class="tf-arrow">{{ t.from_household.name }} <span class="arrow">→</span> {{ t.to_household.name }}</span>
-      <span class="tf-amount">{{ "%.2f"|format(t.amount) }}<span class="cur"> €</span></span>
+      <span class="tf-amount">{{ t.amount|money }}</span>
       {% if ctx.is_creator %}
       <button class="tfr-del" data-confirm="{{ _('Supprimer ce transfert ?') }}"
               formmethod="POST" type="submit" form="tfr-{{ t.id }}" aria-label="{{ _('Supprimer') }}">
@@ -347,7 +347,7 @@
     <li class="pr-item{% if pr.is_resolved %} pr-resolved{% endif %}">
       <div class="pr-head">
         <span class="pr-arrow">{{ pr.from_household.name }} <span class="arrow">→</span> {{ pr.to_household.name }}</span>
-        <span class="pr-amount">{{ "%.2f"|format(pr.amount) }}<span class="cur"> €</span></span>
+        <span class="pr-amount">{{ pr.amount|money }}</span>
         <span class="pr-status">{{ _("Réglé") if pr.is_resolved else _("En attente") }}</span>
       </div>
       {% if pr.note %}<div class="pr-note">{{ pr.note }}</div>{% endif %}

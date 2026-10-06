@@ -306,9 +306,6 @@ def dashboard(code: str) -> str | Response:
     lists = event.lists.all()
     polls = event.polls.filter_by(is_closed=False).all()
 
-    from flask_babel import _ as _tr
-
-    from app.logistics import CATEGORY_LABELS
     from app.models import LogisticsItem
 
     logistics_items = (
@@ -316,7 +313,6 @@ def dashboard(code: str) -> str | Response:
         .order_by(LogisticsItem.category.asc(), LogisticsItem.order.asc())
         .all()
     )
-    category_labels = {k: _tr(v) for k, v in CATEGORY_LABELS.items()}
 
     # Courses status: a meal is "covered" when its ingredients are already
     # checked off in any of the event's shared lists.
@@ -355,8 +351,7 @@ def dashboard(code: str) -> str | Response:
                            timeline=timeline,
                            covered_meal_ids=covered_meal_ids,
                            lists=lists, polls=polls,
-                           logistics_items=logistics_items,
-                           category_labels=category_labels)
+                           logistics_items=logistics_items)
 
 
 @events_bp.route("/<code>/members", methods=["GET", "POST"])

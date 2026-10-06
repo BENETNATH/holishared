@@ -14,28 +14,13 @@ from werkzeug.wrappers import Response
 
 from app.context import load_event_context, log_event
 from app.extensions import db, limiter
+from app.i18n import is_valid
 from app.models import LogisticsItem
 
 logistics_bp = Blueprint("logistics", __name__)
 
-CATEGORIES = frozenset({"address", "access", "timing", "docs", "notes", "general"})
-
-CATEGORY_LABELS = {
-    "address": "Adresse",
-    "access": "Accès / Parking",
-    "timing": "Horaires",
-    "docs": "Documents",
-    "notes": "Notes diverses",
-    "general": "Divers",
-}
-
 MAX_TITLE = 200
 MAX_CONTENT = 5000
-
-
-def _category_labels() -> dict[str, str]:
-    """Translated category labels, in display order."""
-    return {key: _(label) for key, label in CATEGORY_LABELS.items()}
 
 
 def _validate_form() -> tuple[list[str], dict[str, str], tuple[str, str, str, int]]:
@@ -61,7 +46,7 @@ def _validate_form() -> tuple[list[str], dict[str, str], tuple[str, str, str, in
     elif len(content) > MAX_CONTENT:
         errors.append(_("Contenu trop long (max 5000)."))
 
-    if category not in CATEGORIES:
+    if not is_valid("info_category", category):
         errors.append(_("Catégorie invalide."))
 
     order = 0
@@ -96,7 +81,6 @@ def index(code: str) -> Response | str:
         "logistics/index.html",
         event=event,
         items=items,
-        category_labels=_category_labels(),
     )
 
 
@@ -114,7 +98,6 @@ def create(code: str) -> Response | str:
             item=None,
             form_data={},
             errors=[],
-            category_labels=_category_labels(),
             action_url=url_for("logistics.create", code=code),
         )
 
@@ -126,7 +109,6 @@ def create(code: str) -> Response | str:
             item=None,
             form_data=form_data,
             errors=errors,
-            category_labels=_category_labels(),
             action_url=url_for("logistics.create", code=code),
         )
 
@@ -173,7 +155,6 @@ def edit(code: str, item_id: str) -> Response | tuple[str, int] | str:
             item=item,
             form_data=form_data,
             errors=[],
-            category_labels=_category_labels(),
             action_url=action_url,
         )
 
@@ -185,7 +166,6 @@ def edit(code: str, item_id: str) -> Response | tuple[str, int] | str:
             item=item,
             form_data=form_data,
             errors=errors,
-            category_labels=_category_labels(),
             action_url=action_url,
         )
 

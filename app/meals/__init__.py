@@ -16,11 +16,11 @@ from werkzeug.wrappers import Response
 
 from app.context import load_event_context, log_event
 from app.extensions import db, limiter
+from app.i18n import MEAL_SLOTS
 from app.models import Meal
 
 meals_bp = Blueprint("meals", __name__)
 
-SLOTS = frozenset({"lunch", "dinner"})
 
 
 def _parse_date(value: str) -> date | None:
@@ -75,7 +75,7 @@ def create(code: str) -> Response:
     if meal_date is None or not (event.start_date <= meal_date <= event.end_date):
         flash(_("Date hors de la période de l'événement."))
         return redirect(url_for("meals.index", code=code))
-    if slot not in SLOTS:
+    if slot not in MEAL_SLOTS:
         flash(_("Créneau invalide."))
         return redirect(url_for("meals.index", code=code))
 
@@ -162,7 +162,7 @@ def move(code: str) -> Response:
     if target_date is None or not (event.start_date <= target_date <= event.end_date):
         flash(_("Date hors de la période de l'événement."))
         return redirect(url_for("meals.index", code=code))
-    if target_slot not in SLOTS:
+    if target_slot not in MEAL_SLOTS:
         flash(_("Créneau invalide."))
         return redirect(url_for("meals.index", code=code))
 

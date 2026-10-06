@@ -32,7 +32,7 @@
     <div class="form-group">
       <label for="category">{{ _("Catégorie") }}</label>
       <select id="category" name="category">
-        {% for value, label in category_labels.items() %}
+        {% for value, label in choices('info_category') %}
         <option value="{{ value }}"{% if form_data.get('category', 'general') == value %} selected{% endif %}>{{ label }}</option>
         {% endfor %}
       </select>

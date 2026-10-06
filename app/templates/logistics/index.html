@@ -21,7 +21,7 @@
 {% else %}
   {% for category, cat_items in items | groupby("category") %}
     <section aria-labelledby="cat-{{ category }}">
-      <h2 id="cat-{{ category }}">{{ category_labels.get(category, category) }}</h2>
+      <h2 id="cat-{{ category }}">{{ category|label('info_category') }}</h2>
       {% for item in cat_items %}
         <div class="card logistics-card">
           <h3>{{ item.title }}</h3>

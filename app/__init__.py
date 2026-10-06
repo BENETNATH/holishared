@@ -201,17 +201,10 @@ def create_app() -> Flask:
             if fb is not None and hasattr(fb, "babel_locale"):
                 fb.babel_locale = None
 
-    # Date formatting for templates
-    from flask_babel import format_date as babel_format_date
-    from flask_babel import format_datetime as babel_format_datetime
+    # Libellés et formats localisés (filtres label, money, number, time, format_date…).
+    from app import i18n
 
-    @app.template_filter("format_date")
-    def format_date_filter(value: object, fmt: str = "medium") -> str:
-        return cast("str", babel_format_date(value, format=fmt))
-
-    @app.template_filter("format_datetime")
-    def format_datetime_filter(value: object, fmt: str = "medium") -> str:
-        return cast("str", babel_format_datetime(value, format=fmt))
+    i18n.register(app)
 
     @app.template_filter("add_days")
     def add_days_filter(value: object, days: int) -> object:
