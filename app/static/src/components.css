@@ -825,6 +825,13 @@
     color: var(--color-ink);
     text-decoration: none;
   }
+  @media (min-width: 64rem) {
+    .ui-brand + .ui-header__event {
+      margin-left: 0.5rem;
+      padding-left: 0.875rem;
+      border-left: 1px solid var(--color-line);
+    }
+  }
   .ui-header__spacer {
     flex: 1;
     min-width: 0;
