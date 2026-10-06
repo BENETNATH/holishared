@@ -1,16 +1,14 @@
 {% extends "base.html" %}
 {% block title %}{{ event.title }} — holishared{% endblock %}
 {% block content %}
-{% set is_creator = current_user.is_authenticated and current_user.id == event.creator_id %}
 {# Unclaimed items across all lists (template-side count, no backend change). #}
 {% set unclaimed = [] %}
-{# Items assigned to me (creator or guest). #}
-{% set my_name = guest.display_name if guest else (current_user.display_name or current_user.email.split('@').first) %}
+{# Items assigned to me (creator or guest), matched by participant id. #}
 {% set my_items = [] %}
 {% for lst in lists %}
   {% for item in lst.items %}
     {% if not item.assigned_to %}{% set _ = unclaimed.append(item) %}{% endif %}
-    {% if item.assigned_to == my_name and not item.is_done %}{% set _ = my_items.append((item, lst)) %}{% endif %}
+    {% if item.assigned_to_id == ctx.participant.id and not item.is_done %}{% set _ = my_items.append((item, lst)) %}{% endif %}
   {% endfor %}
 {% endfor %}
 
@@ -26,12 +24,12 @@
 
 {% if event.description %}<p class="prose">{{ event.description }}</p>{% endif %}
 
-{% if guest %}
+{% if ctx.role == "guest" %}
 <div class="code-box">
   <span class="code-label">{{ _("Ton code personnel") }} :</span>
-  <code class="guest-code" id="guest-code-{{ guest.id }}" data-secret data-masked="true" aria-label="{{ _('Code personnel') }}">{{ guest.code }}</code>
-  <button type="button" class="btn btn-small" data-reveal aria-controls="guest-code-{{ guest.id }}" aria-pressed="false"><span data-reveal-label>{{ _("Voir") }}</span></button>
-  <button type="button" class="btn btn-small" data-copy="{{ guest.code }}">{{ _("Copier") }}</button>
+  <code class="guest-code" id="guest-code-{{ ctx.participant.id }}" data-secret data-masked="true" aria-label="{{ _('Code personnel') }}">{{ ctx.participant.code }}</code>
+  <button type="button" class="btn btn-small" data-reveal aria-controls="guest-code-{{ ctx.participant.id }}" aria-pressed="false"><span data-reveal-label>{{ _("Voir") }}</span></button>
+  <button type="button" class="btn btn-small" data-copy="{{ ctx.participant.code }}">{{ _("Copier") }}</button>
 </div>
 {% endif %}
 
@@ -41,7 +39,7 @@
   <a href="{{ url_for('planning.index', code=event.code) }}" class="btn btn-secondary quick-action">🍽 {{ _("Planifier les repas") }}</a>
   <a href="{{ url_for('planning.create', code=event.code) }}" class="btn btn-secondary quick-action">＋ {{ _("Ajouter une activité") }}</a>
   {% endif %}
-  {% if is_creator %}
+  {% if ctx.is_creator %}
   <a href="{{ url_for('events.invite', code=event.code) }}" class="btn btn-secondary quick-action">✉ {{ _("Inviter") }}</a>
   {% endif %}
   <button type="button" class="btn btn-secondary quick-action"
@@ -218,7 +216,7 @@
 {% endif %}
 
 {# Zone de gestion (créateur) : export ZIP + suppression définitive #}
-{% if is_creator %}
+{% if ctx.is_creator %}
 <section class="card mgmt-zone" aria-labelledby="h-mgmt">
   <div class="section-head">
     <h2 id="h-mgmt">{{ _("Zone de gestion") }}</h2>

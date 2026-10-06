@@ -311,6 +311,14 @@ def create_app() -> Flask:
                 event_role = "creator"
             elif current_guest is not None:
                 event_role = "guest"
+        from app.context import get_event_context
+
+        ctx = get_event_context()
+        participant = ctx.participant if ctx else None
+        if ctx is not None:
+            current_event = ctx.event
+            current_guest = participant if ctx.role == "guest" else None
+            event_role = ctx.role if ctx.role != "visitor" else None
         return {
             "app_name": "holishared",
             "event_role": event_role,
@@ -318,6 +326,8 @@ def create_app() -> Flask:
             "current_lang": loc.language if loc else None,
             "current_event": current_event,
             "current_guest": current_guest,
+            "ctx": ctx,
+            "current_participant": participant,
         }
 
     # Error handlers

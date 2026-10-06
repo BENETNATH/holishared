@@ -296,23 +296,8 @@ def verify(token: str) -> str | Response:
 @events_bp.route("/<code>")
 def dashboard(code: str) -> str | Response:
     """Event dashboard (accessible by creator or guest with valid code)."""
-    event = Event.query.filter_by(code=code, is_active=True).first()
-    if not event:
-        flash("Événement introuvable.", "danger")
-        return redirect(url_for("events.index"))
-
-    # Check access: creator or guest. Returning guests re-enter their own
-    # personal code (my_code); new guests arrive via the invite link/QR (join).
-    guest = _get_current_guest(event)
-    if not guest and not (current_user.is_authenticated and current_user.id == event.creator_id):
-        return redirect(url_for("events.my_code", code=code))
-
-    # The creator is a participant in their own event: ensure their participant
-    # identity (Guest + Household) exists so they can vote and appear in the
-    # groups. Idempotent — a no-op once created (at verification).
-    if current_user.is_authenticated and current_user.id == event.creator_id:
-        ensure_creator_guest(event, current_user)
-        db.session.commit()
+    ctx = load_event_context(code)
+    event = ctx.event
 
     # Load data
     today = date.today()
@@ -365,7 +350,7 @@ def dashboard(code: str) -> str | Response:
     timeline.sort(key=lambda e: cast("time", e["time"]))
 
     return render_template("events/dashboard.html",
-                           event=event, guest=guest,
+                           event=event,
                            activities=activities, today_meals=today_meals,
                            timeline=timeline,
                            covered_meal_ids=covered_meal_ids,
@@ -377,17 +362,10 @@ def dashboard(code: str) -> str | Response:
 @events_bp.route("/<code>/members", methods=["GET", "POST"])
 def members(code: str) -> str | Response:
     """Event members page: list all guests, creator can add/remove."""
-    event = Event.query.filter_by(code=code, is_active=True).first()
-    if not event:
-        flash("Événement introuvable.", "danger")
-        return redirect(url_for("events.index"))
+    ctx = load_event_context(code)
+    event = ctx.event
 
-    is_creator = current_user.is_authenticated and current_user.id == event.creator_id
-    guest = _get_current_guest(event)
-    if not guest and not is_creator:
-        return redirect(url_for("events.my_code", code=code))
-
-    if request.method == "POST" and is_creator:
+    if request.method == "POST" and ctx.is_creator:
         action = request.form.get("action", "")
         if action == "add":
             display_name = request.form.get("display_name", "").strip()
@@ -419,19 +397,17 @@ def members(code: str) -> str | Response:
         elif action == "remove":
             guest_id = request.form.get("guest_id", "")
             target = Guest.query.filter_by(id=guest_id, event_id=event.id).first()
-            if target:
-                target.is_active = False
-                db.session.commit()
-                flash(f"{target.display_name} retiré·e.", "success")
+            if target is None:
+                abort(404)
+            if not ctx.can_delete(target):
+                abort(403)
+            target.is_active = False
+            db.session.commit()
+            flash(f"{target.display_name} retiré·e.", "success")
             return redirect(url_for("events.members", code=code))
 
     all_guests = Guest.query.filter_by(event_id=event.id, is_active=True).order_by(Guest.display_name).all()
-    return render_template("events/members.html", event=event, guests=all_guests, is_creator=is_creator)
-
-
-def _is_event_creator(event: Event) -> bool:
-    """True if the current session belongs to the event's creator."""
-    return bool(current_user.is_authenticated and current_user.id == event.creator_id)
+    return render_template("events/members.html", event=event, guests=all_guests)
 
 
 @events_bp.route("/<code>/export")
@@ -444,12 +420,7 @@ def export_event(code: str) -> Response:
     from app.costs import _per_expense_shares, _settlement
     from app.models import Activity, Expense, MediaItem, Poll, SharedList
 
-    event = Event.query.filter_by(code=code, is_active=True).first()
-    if not event:
-        flash("Événement introuvable.", "danger")
-        return redirect(url_for("events.index"))
-    if not _is_event_creator(event):
-        abort(403)
+    event = load_event_context(code, require="creator").event
 
     guests = event.guests.all()
     households = Household.query.filter_by(event_id=event.id).all()
@@ -546,12 +517,7 @@ def delete_event(code: str) -> Response:
     """Creator-only: permanently delete the event (DB cascade + media on disk)."""
     import shutil
 
-    event = Event.query.filter_by(code=code, is_active=True).first()
-    if not event:
-        flash("Événement introuvable.", "danger")
-        return redirect(url_for("events.index"))
-    if not _is_event_creator(event):
-        abort(403)
+    event = load_event_context(code, require="creator").event
 
     event_code = event.code
     event_title = event.title
@@ -586,17 +552,14 @@ def export_pdf(code: str) -> Response | str:
     Free tier → soft paywall (no raw 400/403). Pro+ → a placeholder response;
     the real PDF generation is a Stripe/LemonSqueezy-locked hook.
     """
-    from flask_login import current_user as _cu
-
-    event = Event.query.filter_by(code=code, creator_id=_cu.id, is_active=True).first_or_404()
+    event = load_event_context(code, require="creator").event
     return render_template("freemium/pdf_export.html", event=event, code=code)
 
 
 @events_bp.route("/<code>/invite")
-@login_required  # type: ignore[untyped-decorator]
 def invite(code: str) -> str | Response:
     """Generate invite links for guests."""
-    event = Event.query.filter_by(code=code, creator_id=current_user.id).first_or_404()
+    event = load_event_context(code, require="creator").event
     if not can_add_guest(event):
         flash("Limite d'invités atteinte.", "warning")
         return redirect(url_for("events.dashboard", code=code))
@@ -634,7 +597,7 @@ def invite_qr(code: str) -> tuple[bytes, int, dict[str, str]]:
 
     import qrcode
 
-    Event.query.filter_by(code=code).first_or_404()
+    load_event_context(code, require="none")
     invite_url = current_app.config["APP_URL"].rstrip("/") + url_for("events.guest_access", code=code)
     qr = qrcode.QRCode(
         error_correction=qrcode.constants.ERROR_CORRECT_M,
@@ -652,10 +615,9 @@ def invite_qr(code: str) -> tuple[bytes, int, dict[str, str]]:
 
 @events_bp.route("/<code>/invite/email", methods=["POST"])
 @limiter.limit("20 per hour")
-@login_required  # type: ignore[untyped-decorator]
 def invite_email(code: str) -> Response:
     """Creator invites a person by email to create their personal code."""
-    event = Event.query.filter_by(code=code, creator_id=current_user.id).first_or_404()
+    event = load_event_context(code, require="creator").event
     email = request.form.get("email", "").strip().lower()
 
     if not email:
@@ -676,10 +638,9 @@ def invite_email(code: str) -> Response:
 
 
 @events_bp.route("/<code>/invite/resend/<guest_id>", methods=["POST"])
-@login_required  # type: ignore[untyped-decorator]
 def invite_resend(code: str, guest_id: str) -> Response:
     """Creator re-sends the code-creation invitation to an existing member."""
-    event = Event.query.filter_by(code=code, creator_id=current_user.id).first_or_404()
+    event = load_event_context(code, require="creator").event
     guest = Guest.query.filter_by(id=guest_id, event_id=event.id, is_active=True).first_or_404()
 
     if guest.email:
@@ -810,14 +771,6 @@ def my_code(code: str) -> str | Response:
 
 # === Helpers ===
 
-def _get_current_guest(event: Event) -> Guest | None:
-    """Get the current guest from session for this event."""
-    guest_id = session.get(f"guest_{event.code}")
-    if guest_id:
-        return cast("Guest | None", Guest.query.filter_by(id=guest_id, event_id=event.id, is_active=True).first())
-    return None
-
-
 def _rq_queue():
     """Get the RQ queue (lazy import)."""
     from redis import Redis
@@ -881,13 +834,7 @@ def _send_invite_email(to_addr: str, event: Event) -> None:
 def log(code: str) -> str | Response | tuple[str, int]:
     """Activity log for an event (traceability)."""
     from app.models import ActivityLog
-    event = Event.query.filter_by(code=code, is_active=True).first()
-    if not event:
-        return "Not found", 404
-
-    guest = _get_current_guest(event)
-    if not guest and not (current_user.is_authenticated and current_user.id == event.creator_id):
-        return redirect(url_for("events.guest_access", code=code))
+    event = load_event_context(code).event
 
     logs = ActivityLog.query.filter_by(event_id=event.id).order_by(ActivityLog.created_at.desc()).limit(100).all()
     return render_template("events/log.html", event=event, logs=logs)
