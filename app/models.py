@@ -11,16 +11,22 @@ from sqlalchemy.orm import Mapped
 from app.extensions import db
 
 
+CODE_ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789"  # sans 0 1 i l o
+RESERVED_EVENT_CODES = frozenset({"access", "verify"})
+
+
 def generate_event_code(length: int = 6) -> str:
-    """Generate a short event code (URL-safe)."""
+    """Generate a short event code (URL-safe), never a reserved route word."""
     alphabet = string.ascii_lowercase + string.digits
-    return "".join(secrets.choice(alphabet) for _ in range(length))
+    while True:
+        code = "".join(secrets.choice(alphabet) for _ in range(length))
+        if code not in RESERVED_EVENT_CODES:
+            return code
 
 
 def generate_guest_code(length: int = 8) -> str:
-    """Generate a guest access code."""
-    alphabet = string.ascii_lowercase + string.digits
-    return "".join(secrets.choice(alphabet) for _ in range(length))
+    """Generate an access code over an unambiguous alphabet."""
+    return "".join(secrets.choice(CODE_ALPHABET) for _ in range(length))
 
 
 class Creator(UserMixin, db.Model):  # type: ignore[misc,name-defined]
