@@ -10,6 +10,17 @@ sous chaque lot.
 
 ## [Unreleased]
 
+### B018 — Internationalisation complète (FR/EN)
+
+- `feat(i18n)` : `app/i18n.py` (registre unique des catégories de frais/infos, types de liste, statuts RSVP, créneaux de repas ; filtres `label`, `money`, `number`, `time`, `date_short`, `datetime_short`, `filesize`, `action_label` ; devises traduites) ; plus de clé brute ni de `|capitalize` ; catégorie de frais validée côté serveur ; `format_date(None)` renvoie `""`.
+- `feat(i18n)` : `scripts/i18n.py` (`extract`, `compile`, `check`) remplace `extract_i18n.py` et `translate_en.py` ; `babel.cfg` extrait aussi `app/meals` et `_components/` ; catalogue EN complet (0 vide, 0 fuzzy, 0 obsolète), `.mo` commités, vérifié par un test.
+- `feat(i18n)` : `app/forms.py` (`FormErrors` `{champ: [messages]}`, itérable comme une liste) et macros `aria_invalid`/`field_errors`/`form_errors` ; création d'événement, validation, rejoindre, planning, infos pratiques, sondage, liste : erreurs par champ avec `aria-invalid`/`aria-describedby`, plus de détection par sous-chaînes françaises.
+- `feat(i18n)` : 100 % des `flash()` et erreurs via `_()` (placeholders, `ngettext`), vouvoiement du français, chaînes JS (`lists_noted`), `FEATURE_LABELS` en lazy, `{{ event.title }}` hors de `_()` dans `pdf_export.html`.
+- `feat(i18n)` : e-mails (`app/tasks.py`) traduits et vouvoyés, paramètre `lang="fr"`, catalogue chargé via `babel.support.Translations`, invitation envoyée dans la langue de l'invitant.
+- `test(i18n)` : garde i18n (toutes les pages GET en EN puis FR, créateur et invité), journal d'actions traduit (registre des codes).
+- `fix(models)` : `PaymentRequest.amount` manquant (la page des frais renvoyait 500 dès qu'une demande de paiement existait).
+- Audit B017/B029 : `fix(events)` oracle de codes sur `/join` supprimé et créations d'invités limitées à 20/heure/IP ; `fix(lists)` `claim_item` respecte `can_edit` ; `fix(events)` e-mails des invités visibles du seul créateur ; `fix(infra)` sauvegarde privée dès la création, `SKIP_STARTUP_MIGRATION` strict (`1`), repli de `get_or_create_creator_participant` commité.
+
 ### B029 — Contexte d'événement & identité participant unique
 
 - `feat(context)` : `app/context.py` (`load_event_context`, `EventContext`, `can_edit`/`can_delete`, `log_event`), cache vidé à chaque requête ; les 8 copies de `_get_event_or_404`/`_resolve_actor`/`_actor_name` sont supprimées.

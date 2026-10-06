@@ -214,6 +214,23 @@ Fonctions dans `app/freemium.py` :
 
 Écarts de spec : `my_code` et `guest_access` passent par `load_event_context(require="none")` dès le commit des codes (D11, D14, D15 actifs un commit plus tôt) ; deux variables d'environnement ajoutées pour l'outillage et les tests, `INSTANCE_PATH` (dossier instance) et `SKIP_STARTUP_MIGRATION` (utilisée par `python -m app.migrations check` pour rester en lecture seule) ; le purge/migration au démarrage partagent le même `try/except` ; nouveaux messages `verify` (code créateur) sans traduction EN compilée (B018).
 
+### 2026-10-06 — B018 Internationalisation complète (FR/EN)
+
+| Zone | Fichiers | Résumé |
+|---|---|---|
+| Libellés et formats | `app/i18n.py`, `app/__init__.py`, gabarits costs/meals/planning/logistics/events | Registre unique de libellés, filtres Babel (`money`, `number`, `time`, `date_short`…), `strftime` et `"%.2f"` supprimés des gabarits |
+| Erreurs par champ | `app/forms.py`, `_components/ui.html`, formulaires events/planning/logistics/voting/lists | `FormErrors` + macros d'accessibilité ; `join` affiche ses erreurs dans la page |
+| Messages | modules `events`, `costs`, `media`, `auth`, `planning` | `_()` partout, placeholders, `ngettext` (durée), vouvoiement ; nouveaux messages « Date requise. », « Heure invalide. » |
+| E-mails | `app/tasks.py`, `app/events/__init__.py` | `lang="fr"`, `Translations.load`, `EmailMessage` ; l'invitation part dans la langue de l'invitant |
+| Catalogue | `scripts/i18n.py`, `babel.cfg`, `translations/` | `extract`/`compile`/`check` ; Babel saute les dossiers en `_` : `_components/` est passé en entrée explicite |
+| Tests | `test_i18n*.py`, `test_forms.py`, `test_tasks.py` | Garde i18n sur 31 pages x 2 langues x 2 rôles |
+
+Écarts de spec : pas de migration des acteurs `@creator`/`@system` (caduque depuis B029 : le créateur est un `Guest`) ; le registre du journal ne sert qu'au libellé court (phrases complètes : B020) ; `Media` (libellé de navigation) reste tel quel, des tests du shell l'attendent ; `main/dashboard.html` (gabarit mort) supprimé ; `PaymentRequest.amount` ajouté (bogue préexistant) ; `join` renvoie 429 au-delà de 20 créations/heure/IP.
+
+Requêtes de restauration/vérification : `python scripts/i18n.py check` (catalogue), `python scripts/i18n.py extract && python scripts/i18n.py compile` après tout nouveau texte ; EN : renseigner le `.po` EN (le FR est la langue source, `msgstr` FR vides).
+
+Audit B017/B029 : constats 1 à 6 corrigés (variables `INSTANCE_PATH` et `SKIP_STARTUP_MIGRATION` documentées dans `.env.example`, seule la valeur `1` désactive la migration) ; constat 7 (`ruff format` sur les fichiers préexistants) volontairement ignoré.
+
 ### À faire (backlog)
 
 | Priorité | Tâche | Statut |

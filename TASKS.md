@@ -423,7 +423,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B018 — Internationalisation complète
 
-**Statut** : ⬜ · **Réf.** §5 de l'audit, F17, F18 (libellés)
+**Statut** : ✅ (2026-10-06) · **Réf.** §5 de l'audit, F17, F18 (libellés)
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
