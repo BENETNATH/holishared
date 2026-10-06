@@ -273,6 +273,7 @@ def dashboard(code: str) -> str | Response:
     # groups. Idempotent — a no-op once created (at verification).
     if current_user.is_authenticated and current_user.id == event.creator_id:
         ensure_creator_guest(event, current_user)
+        db.session.commit()
 
     # Load data
     today = date.today()

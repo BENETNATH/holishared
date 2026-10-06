@@ -229,6 +229,11 @@ def create_app() -> Flask:
             return {"event_days": days}
         return {"event_days": []}
 
+    # Le contexte d'événement est mis en cache sur g pour UNE requête (B029).
+    from app.context import reset_event_context
+
+    app.before_request(reset_event_context)
+
     # Core blueprints (always registered)
     from app.auth import auth_bp
     from app.events import events_bp

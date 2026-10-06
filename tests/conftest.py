@@ -74,7 +74,7 @@ def event(db, creator):
         end_date=date(2026, 12, 7),
         location="Strasbourg",
         creator_id=creator.id,
-        verified_at=datetime(2026, 1, 1),
+        verified_at=datetime(2026, 1, 1),  # noqa: DTZ001
     )
     db.session.add(e)
     db.session.commit()

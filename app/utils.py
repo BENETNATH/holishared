@@ -40,50 +40,43 @@ def ensure_creator_guest(
     creator: Creator,
     num_adults: int = 1,
     num_children: int = 0,
+    *,
+    with_household: bool = True,
 ) -> Guest:
-    """Ensure the creator has a participant identity for this event.
+    """Participant créateur de l'événement (idempotent, flush sans commit).
 
-    The creator is a participant in their own event: they can vote, RSVP to
-    activities, and appear in the groups (households). This lazily creates
-    their ``Guest`` record (linked via ``creator_id``) and a ``Household`` if
-    they don't exist yet, then returns the Guest.
-
-    The Guest code is a random 16-char token (not guessable, not used by the
-    creator who accesses the event via their personal code).
-
-    If new records are created, they are committed immediately so the creator's
-    identity persists even when this is called from a read-only (GET) route.
+    Réutilise le participant canonique actif (le plus ancien), sinon réactive
+    le plus récent inactif, sinon en crée un. Le foyer n'est créé que si
+    ``with_household`` est vrai et qu'aucun foyer n'existe pour ce Guest.
+    L'appelant valide la transaction.
     """
-    created = False
-    guest = Guest.query.filter_by(
-        creator_id=creator.id, event_id=event.id, is_active=True
-    ).first()
+    from app.context import CREATOR_FALLBACK_NAME
+
+    mine = Guest.query.filter_by(creator_id=creator.id, event_id=event.id)
+    guest: Guest | None = mine.filter_by(is_active=True).order_by(Guest.joined_at, Guest.id).first()
+    if guest is None:
+        guest = mine.filter_by(is_active=False).order_by(Guest.joined_at.desc()).first()
+        if guest is not None:
+            guest.is_active = True
     if guest is None:
         guest = Guest(
             code=secrets.token_hex(8),
-            display_name=creator.display_name or "Créateur",
+            display_name=(creator.display_name or CREATOR_FALLBACK_NAME)[:50],
             event_id=event.id,
             creator_id=creator.id,
         )
         db.session.add(guest)
-        db.session.flush()
-        created = True
+    db.session.flush()
 
-    # Ensure a Household exists for the creator (so they appear in the groups).
-    household = Household.query.filter_by(guest_id=guest.id, event_id=event.id).first()
-    if household is None:
-        household = Household(
-            name=f"Foyer {guest.display_name}",
-            num_adults=max(1, num_adults),
-            num_children=max(0, num_children),
-            event_id=event.id,
-            guest_id=guest.id,
+    if with_household and Household.query.filter_by(guest_id=guest.id, event_id=event.id).first() is None:
+        db.session.add(
+            Household(
+                name=f"Foyer {guest.display_name}",
+                num_adults=max(1, num_adults),
+                num_children=max(0, num_children),
+                event_id=event.id,
+                guest_id=guest.id,
+            )
         )
-        db.session.add(household)
         db.session.flush()
-        created = True
-
-    if created:
-        db.session.commit()
-
     return guest

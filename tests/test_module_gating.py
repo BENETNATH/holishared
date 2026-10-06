@@ -38,7 +38,7 @@ def _seed(app):
     e = Event(
         code=generate_event_code(), title="V",
         start_date=date(2026, 12, 1), end_date=date(2026, 12, 7),
-        creator_id=c.id, verified_at=datetime(2026, 1, 1),
+        creator_id=c.id, verified_at=datetime(2026, 1, 1),  # noqa: DTZ001
     )
     _db.session.add(e)
     _db.session.commit()

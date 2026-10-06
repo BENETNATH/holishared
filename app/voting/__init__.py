@@ -46,6 +46,7 @@ def _resolve_actor(event: Event, code: str) -> tuple[Guest | None, bool, Respons
     """
     if current_user.is_authenticated and current_user.id == event.creator_id:
         creator_guest = ensure_creator_guest(event, current_user)
+        db.session.commit()
         return creator_guest, True, None
     guest_id = session.get(f"guest_{code}")
     if guest_id:

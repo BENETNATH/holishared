@@ -10,7 +10,6 @@ from sqlalchemy.orm import Mapped
 
 from app.extensions import db
 
-
 CODE_ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789"  # sans 0 1 i l o
 RESERVED_EVENT_CODES = frozenset({"access", "verify"})
 
