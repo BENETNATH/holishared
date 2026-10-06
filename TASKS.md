@@ -366,6 +366,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 - Tailwind CSS v4 (CLI via npm, Node 22), CSS compilé commité dans `app/static/css/` : la prod (Docker) n'a pas besoin de Node, aucun CDN.
 - Navigation mobile : barre du bas à 5 onglets (Accueil, Planning, Repas, Listes, Frais) + feuille « Plus » ancrée en bas.
 - Repas : glisser-déposer tactile (pointer events, sans bibliothèque) **et** action « Déplacer vers… » accessible.
+- Bureau (≥ 1024 px) : barre latérale à la place de la barre du bas (confirmé par l'utilisateur) ; la barre du bas reste en dessous de 1024 px.
 - Migration « big-bang » sur la branche `ui/tailwind-refonte` : `main.css` historique reste isolé en couche basse jusqu'à B028, qui le supprime. Merge en `main` à la clôture de B028 (un seul merge pour le programme).
 
 **Ordre d'exécution** : B017 → **B029** → **B030** → B018 → B019 → B020 → B021 → B022 → B023 → B024 → B025 → B026 → B027 → B028 (B029 est numéroté après coup mais s'exécute juste après le socle : toutes les vues qui suivent en dépendent).
