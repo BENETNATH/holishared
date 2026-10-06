@@ -42,7 +42,7 @@
             data-delete-url="{{ url_for('meals.delete', code=event.code, meal_id=meal.id) }}"
             class="flex items-stretch rounded-md border border-line bg-surface">
           <button type="button" data-meal-open data-sheet-open="meal-sheet" aria-haspopup="dialog"
-                  class="min-h-[44px] min-w-0 flex-1 break-words rounded-md px-3 py-2 text-left text-small font-medium text-ink">{{ meal.title }}</button>
+                  class="min-h-[44px] min-w-0 flex-1 break-words rounded-md border-0 bg-transparent px-3 py-2 text-left text-small font-medium text-ink">{{ meal.title }}</button>
           {%- if editable %}
           <span data-meal-handle aria-hidden="true" class="flex min-h-[44px] w-11 shrink-0 cursor-grab touch-none items-center justify-center text-ink-muted">{{ icon('grip-vertical') }}</span>
           {%- endif %}
