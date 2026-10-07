@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 06:29+0200\n"
+"POT-Creation-Date: 2026-10-07 07:02+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -328,6 +328,331 @@ msgid "Ratio de répartition modifié"
 msgstr "Split ratio updated"
 
 #: app/i18n.py
+msgid "Participant ajouté"
+msgstr "Participant added"
+
+#: app/i18n.py
+msgid "Participant retiré"
+msgstr "Participant removed"
+
+#: app/i18n.py
+msgid "Nom d'affichage modifié"
+msgstr "Display name changed"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a ajouté une activité"
+msgstr "%(actor)s added an activity"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a modifié une activité"
+msgstr "%(actor)s edited an activity"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a supprimé une activité"
+msgstr "%(actor)s deleted an activity"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a répondu « %(detail)s » à une activité"
+msgstr "%(actor)s answered \"%(detail)s\" to an activity"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a ajouté un repas"
+msgstr "%(actor)s added a meal"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a modifié un repas"
+msgstr "%(actor)s edited a meal"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a supprimé un repas"
+msgstr "%(actor)s deleted a meal"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a déplacé un repas"
+msgstr "%(actor)s moved a meal"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a échangé deux repas"
+msgstr "%(actor)s swapped two meals"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a créé une liste"
+msgstr "%(actor)s created a list"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a supprimé une liste"
+msgstr "%(actor)s deleted a list"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a ajouté un article"
+msgstr "%(actor)s added an item"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a modifié un article"
+msgstr "%(actor)s edited an item"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a supprimé un article"
+msgstr "%(actor)s deleted an item"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s s'occupe d'un article"
+msgstr "%(actor)s is taking care of an item"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s ne s'occupe plus d'un article"
+msgstr "%(actor)s is no longer taking care of an item"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a rétabli un article"
+msgstr "%(actor)s restored an item"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a pris en compte un repas dans une liste"
+msgstr "%(actor)s marked a meal as covered in a list"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a retiré un repas d'une liste"
+msgstr "%(actor)s removed a meal from a list"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a pris en compte une activité dans une liste"
+msgstr "%(actor)s marked an activity as covered in a list"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a retiré une activité d'une liste"
+msgstr "%(actor)s removed an activity from a list"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a ajouté une info pratique"
+msgstr "%(actor)s added a practical info"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a modifié une info pratique"
+msgstr "%(actor)s edited a practical info"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a supprimé une info pratique"
+msgstr "%(actor)s deleted a practical info"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a créé un sondage"
+msgstr "%(actor)s created a poll"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a voté à un sondage"
+msgstr "%(actor)s voted in a poll"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a clos un sondage"
+msgstr "%(actor)s closed a poll"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a rouvert un sondage"
+msgstr "%(actor)s reopened a poll"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a supprimé un sondage"
+msgstr "%(actor)s deleted a poll"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a retenu une activité"
+msgstr "%(actor)s kept an activity"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a restauré une activité"
+msgstr "%(actor)s restored an activity"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a écarté une activité"
+msgstr "%(actor)s dropped an activity"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a écrit un message"
+msgstr "%(actor)s wrote a message"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a supprimé un message"
+msgstr "%(actor)s deleted a message"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a ajouté un média"
+msgstr "%(actor)s added a media file"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a supprimé un média"
+msgstr "%(actor)s deleted a media file"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a ajouté un foyer"
+msgstr "%(actor)s added a household"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a modifié un foyer"
+msgstr "%(actor)s edited a household"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a supprimé un foyer"
+msgstr "%(actor)s deleted a household"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a ajouté une dépense"
+msgstr "%(actor)s added an expense"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a modifié une dépense"
+msgstr "%(actor)s edited an expense"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a supprimé une dépense"
+msgstr "%(actor)s deleted an expense"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a enregistré un transfert"
+msgstr "%(actor)s recorded a transfer"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a supprimé un transfert"
+msgstr "%(actor)s deleted a transfer"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a demandé un paiement"
+msgstr "%(actor)s requested a payment"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a marqué une demande de paiement comme réglée"
+msgstr "%(actor)s marked a payment request as settled"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a supprimé une demande de paiement"
+msgstr "%(actor)s deleted a payment request"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a modifié les parts de répartition"
+msgstr "%(actor)s changed the split shares"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a ajouté un participant"
+msgstr "%(actor)s added a participant"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a retiré un participant"
+msgstr "%(actor)s removed a participant"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a changé de nom d'affichage"
+msgstr "%(actor)s changed their display name"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a coché un article"
+msgstr "%(actor)s checked an item"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a décoché un article"
+msgstr "%(actor)s unchecked an item"
+
+#: app/i18n.py app/templates/planning/index.html app/ui.py
+msgid "Planning"
+msgstr "Schedule"
+
+#: app/i18n.py app/templates/lists/_panel.html app/templates/meals/index.html
+#: app/templates/planning/index.html app/ui.py
+msgid "Repas"
+msgstr "Meals"
+
+#: app/i18n.py app/templates/lists/detail.html app/templates/lists/index.html
+#: app/templates/main/ui_catalog.html app/ui.py
+msgid "Listes"
+msgstr "Lists"
+
+#: app/i18n.py app/templates/costs/index.html app/ui.py
+msgid "Frais"
+msgstr "Expenses"
+
+#: app/i18n.py app/templates/voting/index.html app/ui.py
+msgid "Sondages"
+msgstr "Polls"
+
+#: app/i18n.py app/ui.py
+msgid "Infos"
+msgstr "Info"
+
+#: app/i18n.py app/templates/chat/index.html app/ui.py
+msgid "Chat"
+msgstr "Chat"
+
+#: app/i18n.py app/templates/media/gallery.html app/ui.py
+msgid "Media"
+msgstr "Media"
+
+#: app/i18n.py app/ui.py
+msgid "Participants"
+msgstr "Participants"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a effectué une action"
+msgstr "%(actor)s did something"
+
+#: app/i18n.py
+#, python-format
+msgid "%(sentence)s : %(target)s"
+msgstr "%(sentence)s: %(target)s"
+
+#: app/i18n.py
 #, python-format
 msgid "Foyer %(name)s"
 msgstr "%(name)s household"
@@ -560,44 +885,6 @@ msgstr "Create"
 #: app/templates/events/index.html app/ui.py
 msgid "Mes événements"
 msgstr "My events"
-
-#: app/templates/planning/index.html app/ui.py
-msgid "Planning"
-msgstr "Schedule"
-
-#: app/templates/lists/_panel.html app/templates/meals/index.html
-#: app/templates/planning/index.html app/ui.py
-msgid "Repas"
-msgstr "Meals"
-
-#: app/templates/lists/detail.html app/templates/lists/index.html
-#: app/templates/main/ui_catalog.html app/ui.py
-msgid "Listes"
-msgstr "Lists"
-
-#: app/templates/costs/index.html app/ui.py
-msgid "Frais"
-msgstr "Expenses"
-
-#: app/templates/voting/index.html app/ui.py
-msgid "Sondages"
-msgstr "Polls"
-
-#: app/ui.py
-msgid "Infos"
-msgstr "Info"
-
-#: app/templates/chat/index.html app/ui.py
-msgid "Chat"
-msgstr "Chat"
-
-#: app/templates/media/gallery.html app/ui.py
-msgid "Media"
-msgstr "Media"
-
-#: app/ui.py
-msgid "Participants"
-msgstr "Participants"
 
 #: app/templates/events/dashboard.html app/ui.py
 msgid "Inviter"
@@ -2245,36 +2532,60 @@ msgid "Retrouver mon accès"
 msgstr "Recover my access"
 
 #: app/templates/events/log.html
-msgid "Historique des actions de l'événement"
-msgstr "Event action history"
+msgid "Ce qui s'est passé dans l'événement"
+msgstr "What happened in the event"
 
 #: app/templates/events/log.html
-msgid "Journal des actions"
-msgstr "Action log"
+msgid "Filtrer le journal"
+msgstr "Filter the log"
 
 #: app/templates/events/log.html
-msgid "Quand"
-msgstr "When"
+msgid "Type d'action"
+msgstr "Type of action"
 
 #: app/templates/events/log.html
-msgid "Qui"
-msgstr "Who"
+msgid "Toutes les actions"
+msgstr "All actions"
 
 #: app/templates/events/log.html
-msgid "Action"
-msgstr "Action"
+msgid "Personne"
+msgstr "Person"
 
 #: app/templates/events/log.html
-msgid "Cible"
-msgstr "To"
+msgid "Tout le monde"
+msgstr "Everyone"
 
-#: app/templates/events/log.html app/templates/planning/form.html
-msgid "Détails"
-msgstr "Details"
+#: app/templates/events/log.html
+msgid "Filtrer"
+msgstr "Filter"
+
+#: app/templates/events/log.html
+msgid "Réinitialiser les filtres"
+msgstr "Reset filters"
+
+#: app/templates/events/log.html
+msgid "Pages du journal"
+msgstr "Log pages"
+
+#: app/templates/events/log.html
+msgid "Plus récent"
+msgstr "Newer"
+
+#: app/templates/events/log.html
+msgid "Plus ancien"
+msgstr "Older"
+
+#: app/templates/events/log.html
+msgid "Rien à afficher"
+msgstr "Nothing to show"
 
 #: app/templates/events/log.html
 msgid "Aucune action enregistrée"
 msgstr "No actions recorded"
+
+#: app/templates/events/log.html
+msgid "Aucune action ne correspond à ces filtres."
+msgstr "No action matches these filters."
 
 #: app/templates/events/log.html
 msgid ""
@@ -3422,6 +3733,10 @@ msgstr "Edit activity"
 #: app/templates/planning/form.html
 msgid "L'essentiel"
 msgstr "The essentials"
+
+#: app/templates/planning/form.html
+msgid "Détails"
+msgstr "Details"
 
 #: app/templates/planning/form.html
 msgid "Créer l'activité"

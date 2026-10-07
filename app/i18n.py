@@ -117,6 +117,103 @@ ACTION_LABELS: Final[dict[str, Any]] = {
     "payment_request.resolved": _l("Demande de paiement réglée"),
     "payment_request.deleted": _l("Demande de paiement supprimée"),
     "ratio.updated": _l("Ratio de répartition modifié"),
+    "participant.added": _l("Participant ajouté"),
+    "participant.removed": _l("Participant retiré"),
+    "participant.renamed": _l("Nom d'affichage modifié"),
+}
+
+# Journal lisible (B020) : phrase par code d'action, ``%(actor)s`` = auteur de l'action.
+# La cible (titre, nom…) est ajoutée après « : » ; les détails vont sur une seconde ligne.
+ACTION_SENTENCES: Final[dict[str, Any]] = {
+    "activity.created": _l("%(actor)s a ajouté une activité"),
+    "activity.updated": _l("%(actor)s a modifié une activité"),
+    "activity.deleted": _l("%(actor)s a supprimé une activité"),
+    "rsvp.updated": _l("%(actor)s a répondu « %(detail)s » à une activité"),
+    "meal.created": _l("%(actor)s a ajouté un repas"),
+    "meal.updated": _l("%(actor)s a modifié un repas"),
+    "meal.deleted": _l("%(actor)s a supprimé un repas"),
+    "meal.moved": _l("%(actor)s a déplacé un repas"),
+    "meal.swapped": _l("%(actor)s a échangé deux repas"),
+    "list.created": _l("%(actor)s a créé une liste"),
+    "list.deleted": _l("%(actor)s a supprimé une liste"),
+    "list_item.created": _l("%(actor)s a ajouté un article"),
+    "list_item.toggled": _l("%(actor)s a modifié un article"),
+    "list_item.deleted": _l("%(actor)s a supprimé un article"),
+    "list_item.claimed": _l("%(actor)s s'occupe d'un article"),
+    "list_item.unclaimed": _l("%(actor)s ne s'occupe plus d'un article"),
+    "list_item.restored": _l("%(actor)s a rétabli un article"),
+    "list.meal_covered": _l("%(actor)s a pris en compte un repas dans une liste"),
+    "list.meal_uncovered": _l("%(actor)s a retiré un repas d'une liste"),
+    "list.activity_covered": _l("%(actor)s a pris en compte une activité dans une liste"),
+    "list.activity_uncovered": _l("%(actor)s a retiré une activité d'une liste"),
+    "logistics.created": _l("%(actor)s a ajouté une info pratique"),
+    "logistics.updated": _l("%(actor)s a modifié une info pratique"),
+    "logistics.deleted": _l("%(actor)s a supprimé une info pratique"),
+    "poll.created": _l("%(actor)s a créé un sondage"),
+    "poll.voted": _l("%(actor)s a voté à un sondage"),
+    "poll.closed": _l("%(actor)s a clos un sondage"),
+    "poll.reopened": _l("%(actor)s a rouvert un sondage"),
+    "poll.deleted": _l("%(actor)s a supprimé un sondage"),
+    "activity.retained": _l("%(actor)s a retenu une activité"),
+    "activity.restored": _l("%(actor)s a restauré une activité"),
+    "activity.dropped": _l("%(actor)s a écarté une activité"),
+    "chat.message": _l("%(actor)s a écrit un message"),
+    "chat.message_deleted": _l("%(actor)s a supprimé un message"),
+    "media.uploaded": _l("%(actor)s a ajouté un média"),
+    "media.deleted": _l("%(actor)s a supprimé un média"),
+    "household.created": _l("%(actor)s a ajouté un foyer"),
+    "household.updated": _l("%(actor)s a modifié un foyer"),
+    "household.deleted": _l("%(actor)s a supprimé un foyer"),
+    "expense.created": _l("%(actor)s a ajouté une dépense"),
+    "expense.updated": _l("%(actor)s a modifié une dépense"),
+    "expense.deleted": _l("%(actor)s a supprimé une dépense"),
+    "transfer.created": _l("%(actor)s a enregistré un transfert"),
+    "transfer.deleted": _l("%(actor)s a supprimé un transfert"),
+    "payment_request.created": _l("%(actor)s a demandé un paiement"),
+    "payment_request.resolved": _l("%(actor)s a marqué une demande de paiement comme réglée"),
+    "payment_request.deleted": _l("%(actor)s a supprimé une demande de paiement"),
+    "ratio.updated": _l("%(actor)s a modifié les parts de répartition"),
+    "participant.added": _l("%(actor)s a ajouté un participant"),
+    "participant.removed": _l("%(actor)s a retiré un participant"),
+    "participant.renamed": _l("%(actor)s a changé de nom d'affichage"),
+}
+# Variantes selon les détails enregistrés (cocher / décocher un article).
+ACTION_VARIANTS: Final[dict[tuple[str, str], Any]] = {
+    ("list_item.toggled", "done"): _l("%(actor)s a coché un article"),
+    ("list_item.toggled", "undone"): _l("%(actor)s a décoché un article"),
+}
+# Détails techniques ou déjà intégrés à la phrase : jamais affichés sur la seconde ligne.
+ACTION_HIDDEN_DETAILS: Final = frozenset(
+    {"list_item.toggled", "ratio.updated", "media.uploaded", "rsvp.updated"}
+)
+# Préfixe du code d'action -> module (filtre du journal).
+ACTION_MODULES: Final[dict[str, str]] = {
+    "activity": "planning",
+    "rsvp": "planning",
+    "meal": "meals",
+    "list": "lists",
+    "list_item": "lists",
+    "logistics": "logistics",
+    "poll": "voting",
+    "chat": "chat",
+    "media": "media",
+    "household": "costs",
+    "expense": "costs",
+    "transfer": "costs",
+    "payment_request": "costs",
+    "ratio": "costs",
+    "participant": "participants",
+}
+LOG_MODULE_LABELS: Final[dict[str, Any]] = {
+    "planning": _l("Planning"),
+    "meals": _l("Repas"),
+    "lists": _l("Listes"),
+    "costs": _l("Frais"),
+    "voting": _l("Sondages"),
+    "logistics": _l("Infos"),
+    "chat": _l("Chat"),
+    "media": _l("Media"),
+    "participants": _l("Participants"),
 }
 
 
@@ -145,6 +242,37 @@ def action_label(code: str | None) -> str:
     if code:
         log.warning("unknown action code: %r", code)
     return code or ""
+
+
+def action_module(code: str | None) -> str | None:
+    """Module (clé de ``LOG_MODULE_LABELS``) d'un code d'action, ``None`` si inconnu."""
+    return ACTION_MODULES.get((code or "").partition(".")[0])
+
+
+def action_codes(module: str) -> list[str]:
+    return [c for c in ACTION_LABELS if action_module(c) == module]
+
+
+def describe_action(
+    code: str | None, actor: str, target: str | None = None, details: str | None = None
+) -> dict[str, str]:
+    """Phrase lisible et traduite d'une entrée du journal (jamais le code technique).
+
+    ``sentence`` : « Antoine a ajouté une activité : Randonnée » ; ``detail`` : ligne secondaire.
+    Les valeurs (acteur, cible, détails) sont des données utilisateur : le gabarit les échappe.
+    """
+    template = ACTION_VARIANTS.get((code or "", details or "")) or ACTION_SENTENCES.get(code or "")
+    if template is None:
+        if code:
+            log.warning("unknown action code: %r", code)
+        sentence = gettext("%(actor)s a effectué une action", actor=actor)
+    else:
+        inline = label(details, "rsvp_status") if code == "rsvp.updated" else ""
+        sentence = str(template) % {"actor": actor, "detail": inline}
+    if target:
+        sentence = gettext("%(sentence)s : %(target)s", sentence=sentence, target=target)
+    shown = details if details and code not in ACTION_HIDDEN_DETAILS else ""
+    return {"sentence": sentence, "detail": shown or ""}
 
 
 def household_default_name(display_name: str) -> str:

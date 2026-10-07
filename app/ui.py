@@ -48,6 +48,8 @@ _MODULE_ICONS: Final[dict[str, str]] = {
     "chat": "message-circle",
     "media": "image",
 }
+# Icône par module du journal (B020) : modules de la navigation + participants.
+LOG_ICONS: Final[dict[str, str]] = {**_MODULE_ICONS, "participants": "users"}
 _EVENT_SECTIONS: Final[dict[str, str]] = {
     "events.dashboard": "home",
     "events.members": "participants",

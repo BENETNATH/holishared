@@ -44,7 +44,7 @@ from app.context import device_events, load_event_context
 from app.extensions import db, limiter
 from app.forms import FormErrors
 from app.freemium import can_add_guest, has_feature, max_duration_days, require_tier
-from app.i18n import current_locale, household_default_name
+from app.i18n import action_module, current_locale, household_default_name
 from app.main import render_landing
 from app.models import Activity, Creator, Event, Guest, Household, Meal, generate_guest_code
 from app.utils import ensure_creator_guest
@@ -65,11 +65,13 @@ def _parse_date_field(errors: FormErrors, field: str, raw: str | None, missing: 
 def _valid_email(email: str) -> bool:
     """Validate email format using email-validator."""
     from email_validator import EmailNotValidError, validate_email
+
     try:
         validate_email(email, check_deliverability=False)
         return True
     except EmailNotValidError:
         return False
+
 
 def event_status(event: Event, today: date) -> dict[str, Any]:
     """Phase de l'événement (``upcoming``/``ongoing``/``past``) avec libellés traduits."""
@@ -101,6 +103,7 @@ INFOS_ON_HOME = 3
 
 
 # === Creator: Event Management ===
+
 
 def event_cards(events: Iterable[Event]) -> list[dict[str, Any]]:
     """Cartes d'événements triées : en cours, à venir, puis terminés (B020a)."""
@@ -155,10 +158,7 @@ def access_by_code() -> str | Response:
             errors = FormErrors()
             errors.add(
                 "code",
-                _(
-                    "Ce code n'est pas valable. Vérifiez-le, ou utilisez "
-                    "« J'ai oublié mon code »."
-                ),
+                _("Ce code n'est pas valable. Vérifiez-le, ou utilisez « J'ai oublié mon code »."),
             )
             return render_landing(errors, raw[:64])
         if match.creator is not None:
@@ -207,9 +207,14 @@ def create() -> str | Response:
                 "events/create.html",
                 errors=errors,
                 max_days=max_duration_days(),
-                form={"title": title, "description": description,
-                      "start_date": start_date, "end_date": end_date,
-                      "location": location, "email": email},
+                form={
+                    "title": title,
+                    "description": description,
+                    "start_date": start_date,
+                    "end_date": end_date,
+                    "location": location,
+                    "email": email,
+                },
             )
 
         # Auto-create or reuse Creator from email. personal_code is set later,
@@ -227,20 +232,24 @@ def create() -> str | Response:
         existing_count = Event.query.filter_by(creator_id=creator.id, is_active=True).count()
         if existing_count >= int(current_app.config["MAX_EVENTS_PER_CREATOR"]):
             db.session.rollback()
-            errors.add_global(
-                _("Limite d'événements atteinte (%(count)d).", count=existing_count)
-            )
+            errors.add_global(_("Limite d'événements atteinte (%(count)d).", count=existing_count))
             return render_template(
                 "events/create.html",
                 errors=errors,
                 max_days=max_duration_days(),
-                form={"title": title, "description": description,
-                      "start_date": start_date, "end_date": end_date,
-                      "location": location, "email": email},
+                form={
+                    "title": title,
+                    "description": description,
+                    "start_date": start_date,
+                    "end_date": end_date,
+                    "location": location,
+                    "email": email,
+                },
             )
 
         # Create event with verification token (unverified until link clicked).
         import secrets as _secrets
+
         token = _secrets.token_urlsafe(32)
         event = Event(
             title=title,
@@ -382,14 +391,20 @@ def verify(token: str) -> str | Response:
         def _form_error(messages: FormErrors) -> str:
             suggestion = personal_code or ("" if has_existing_code else suggest_creator_code())
             return render_template(
-                "events/verify.html", event=event, token=token, errors=messages,
+                "events/verify.html",
+                event=event,
+                token=token,
+                errors=messages,
                 mail_enabled=bool(current_app.config["SMTP_HOST"]),
                 has_existing_code=has_existing_code,
-                form_data={"display_name": display_name,
-                           "personal_code": suggestion,
-                           "invite_emails": invite_emails_raw,
-                           "num_adults": num_adults,
-                           "num_children": num_children})
+                form_data={
+                    "display_name": display_name,
+                    "personal_code": suggestion,
+                    "invite_emails": invite_emails_raw,
+                    "num_adults": num_adults,
+                    "num_children": num_children,
+                },
+            )
 
         if errors:
             return _form_error(errors)
@@ -469,21 +484,25 @@ def dashboard(code: str) -> str | Response:
     slot_hour = {"lunch": (12, 0), "dinner": (20, 0)}
     timeline: list[dict[str, object]] = []
     for act in event.activities.filter_by(date=today).filter(Activity.status != "dropped"):
-        timeline.append({
-            "kind": "activity",
-            "time": act.start_time or time(23, 59),
-            "title": act.title,
-            "location": act.location,
-        })
+        timeline.append(
+            {
+                "kind": "activity",
+                "time": act.start_time or time(23, 59),
+                "title": act.title,
+                "location": act.location,
+            }
+        )
     for meal in event.meals.filter_by(date=today).order_by(*Meal.ordering()):
         h, m = slot_hour.get(meal.slot, (12, 0))
-        timeline.append({
-            "kind": "meal",
-            "time": time(h, m),
-            "title": meal.title,
-            "slot": meal.slot,
-            "covered": meal.id in covered_meal_ids,
-        })
+        timeline.append(
+            {
+                "kind": "meal",
+                "time": time(h, m),
+                "title": meal.title,
+                "slot": meal.slot,
+                "covered": meal.id in covered_meal_ids,
+            }
+        )
     timeline.sort(key=lambda e: cast("time", e["time"]))
 
     recent_messages = []
@@ -504,7 +523,9 @@ def dashboard(code: str) -> str | Response:
         timeline=timeline,
         polls=sorted(  # à voter en premier (tri stable : les plus récents d'abord)
             poll_views(
-                event.polls.filter_by(is_closed=False).order_by(Poll.created_at.desc(), Poll.id).all(),
+                event.polls.filter_by(is_closed=False)
+                .order_by(Poll.created_at.desc(), Poll.id)
+                .all(),
                 ctx.participant,
             ),
             key=lambda view: view.has_voted,
@@ -596,7 +617,9 @@ def members(code: str) -> str | Response:
             flash(_("%(name)s retiré·e.", name=target.display_name), "success")
             return redirect(url_for("events.members", code=code))
 
-    all_guests = Guest.query.filter_by(event_id=event.id, is_active=True).order_by(Guest.display_name).all()
+    all_guests = (
+        Guest.query.filter_by(event_id=event.id, is_active=True).order_by(Guest.display_name).all()
+    )
     return render_template("events/members.html", event=event, guests=all_guests)
 
 
@@ -641,7 +664,8 @@ def export_event(code: str) -> Response:
     shares, paid = _per_expense_shares(households, expenses)
     balances = {h.name: (paid[h.id] - shares[h.id]) / 100.0 for h in households}
     settlements = [
-        {"from": f[0], "to": f[1], "amount": f[2] / 100.0} for f in _settlement(households, expenses, [])
+        {"from": f[0], "to": f[1], "amount": f[2] / 100.0}
+        for f in _settlement(households, expenses, [])
     ]
 
     def _iso(value: Any) -> str | None:
@@ -653,9 +677,7 @@ def export_event(code: str) -> Response:
         "description": event.description,
         "date_debut": _iso(event.start_date),
         "date_fin": _iso(event.end_date),
-        "invites": [
-            {"nom": g.display_name, "code": g.code, "email": g.email} for g in guests
-        ],
+        "invites": [{"nom": g.display_name, "code": g.code, "email": g.email} for g in guests],
         "foyers": [
             {"nom": h.name, "adultes": h.num_adults, "enfants": h.num_children} for h in households
         ],
@@ -687,14 +709,13 @@ def export_event(code: str) -> Response:
                 "titre": lst.title,
                 "type": lst.list_type,
                 "articles": [
-                    {"nom": i.name, "fait": i.is_done, "assigne": i.assigned_to}
-                    for i in lst.items
+                    {"nom": i.name, "fait": i.is_done, "assigne": i.assigned_to} for i in lst.items
                 ],
                 "repas_pris_en_compte": [
                     m.title
-                    for m in Meal.query.join(ListMealCoverage, ListMealCoverage.meal_id == Meal.id).filter(
-                        ListMealCoverage.list_id == lst.id
-                    )
+                    for m in Meal.query.join(
+                        ListMealCoverage, ListMealCoverage.meal_id == Meal.id
+                    ).filter(ListMealCoverage.list_id == lst.id)
                 ],
                 "activites_pris_en_compte": [
                     a.title
@@ -705,9 +726,7 @@ def export_event(code: str) -> Response:
             }
             for lst in lists
         ],
-        "sondages": [
-            {"question": p.question, "ferme": p.is_closed} for p in polls
-        ],
+        "sondages": [{"question": p.question, "ferme": p.is_closed} for p in polls],
     }
 
     buf = io.BytesIO()
@@ -718,7 +737,11 @@ def export_event(code: str) -> Response:
             for file in sorted(media_dir.iterdir()):
                 if file.is_file():
                     item = MediaItem.query.filter_by(event_id=event.id, filename=file.name).first()
-                    arcname = f"medias/{item.original_name}" if (item and item.original_name) else f"medias/{file.name}"
+                    arcname = (
+                        f"medias/{item.original_name}"
+                        if (item and item.original_name)
+                        else f"medias/{file.name}"
+                    )
                     zf.write(file, arcname)
     buf.seek(0)
 
@@ -792,8 +815,11 @@ def invite(code: str) -> str | Response:
         return redirect(url_for("events.dashboard", code=code))
 
     invite_url = f"{current_app.config['APP_URL']}/e/{code}/join"
-    guests = Guest.query.filter_by(event_id=event.id, is_active=True)\
-        .order_by(Guest.display_name.asc()).all()
+    guests = (
+        Guest.query.filter_by(event_id=event.id, is_active=True)
+        .order_by(Guest.display_name.asc())
+        .all()
+    )
 
     # Guest-cap gauge + premium state (Lot 5 freemium).
     max_guests = int(current_app.config.get("MAX_GUESTS_PER_EVENT", 10))
@@ -809,8 +835,13 @@ def invite(code: str) -> str | Response:
         "unlimited": unlimited,
         "at_limit": (not unlimited) and count >= max_guests,
     }
-    return render_template("events/invite.html", event=event, invite_url=invite_url,
-                           guests=guests, guest_gauge=guest_gauge)
+    return render_template(
+        "events/invite.html",
+        event=event,
+        invite_url=invite_url,
+        guests=guests,
+        guest_gauge=guest_gauge,
+    )
 
 
 @events_bp.route("/<code>/invite/qr")
@@ -825,7 +856,9 @@ def invite_qr(code: str) -> tuple[bytes, int, dict[str, str]]:
     import qrcode
 
     load_event_context(code, require="none")
-    invite_url = current_app.config["APP_URL"].rstrip("/") + url_for("events.guest_access", code=code)
+    invite_url = current_app.config["APP_URL"].rstrip("/") + url_for(
+        "events.guest_access", code=code
+    )
     qr = qrcode.QRCode(
         error_correction=qrcode.constants.ERROR_CORRECT_M,
         box_size=6,
@@ -880,6 +913,7 @@ def invite_resend(code: str, guest_id: str) -> Response:
 
 
 # === Guest Access ===
+
 
 @events_bp.route("/<code>/join", methods=["GET", "POST"])
 @IP_FAILURES
@@ -1021,13 +1055,16 @@ def my_code(code: str) -> str | Response:
 
 # === Helpers ===
 
+
 def _rq_queue():
     """Get the RQ queue (lazy import)."""
     from redis import Redis
     from rq import Queue
-    return Queue("default", connection=Redis.from_url(
-        current_app.config.get("REDIS_URL", "redis://localhost:6379/0")
-    ))
+
+    return Queue(
+        "default",
+        connection=Redis.from_url(current_app.config.get("REDIS_URL", "redis://localhost:6379/0")),
+    )
 
 
 def _smtp_cfg() -> tuple[str, int, str, str, str]:
@@ -1039,11 +1076,17 @@ def _smtp_cfg() -> tuple[str, int, str, str, str]:
 def _send_guest_invite_email(event: Event, email: str, display_name: str | None = None) -> None:
     """Enqueue guest invite email (RQ)."""
     from app import tasks
+
     join_url = f"{current_app.config['APP_URL']}/e/{event.code}/join"
     host, port, user, pw, frm = _smtp_cfg()
     _rq_queue().enqueue(
         tasks.send_guest_invite_email,
-        host, port, user, pw, frm, email,
+        host,
+        port,
+        user,
+        pw,
+        frm,
+        email,
         event.title,
         format_date(event.start_date, "long"),
         format_date(event.end_date, "long"),
@@ -1056,12 +1099,20 @@ def _send_guest_invite_email(event: Event, email: str, display_name: str | None 
 def _send_verification_email(creator: Creator, event: Event, token: str) -> None:
     """Enqueue verification email (RQ)."""
     from app import tasks
+
     url = url_for("events.verify", token=token, _external=True)
     to_addr = event.creator_email or creator.email
     host, port, user, pw, frm = _smtp_cfg()
     _rq_queue().enqueue(
         tasks.send_verification_email,
-        host, port, user, pw, frm, to_addr, event.title, url,
+        host,
+        port,
+        user,
+        pw,
+        frm,
+        to_addr,
+        event.title,
+        url,
         lang=current_locale(),
     )
 
@@ -1069,11 +1120,17 @@ def _send_verification_email(creator: Creator, event: Event, token: str) -> None
 def _send_invite_email(to_addr: str, event: Event) -> None:
     """Enqueue invite email (RQ)."""
     from app import tasks
+
     join_url = f"{current_app.config['APP_URL']}/e/{event.code}/join"
     host, port, user, pw, frm = _smtp_cfg()
     _rq_queue().enqueue(
         tasks.send_invite_email,
-        host, port, user, pw, frm, to_addr,
+        host,
+        port,
+        user,
+        pw,
+        frm,
+        to_addr,
         event.title,
         format_date(event.start_date, "long"),
         format_date(event.end_date, "long"),
@@ -1083,14 +1140,72 @@ def _send_invite_email(to_addr: str, event: Event) -> None:
     )
 
 
+LOG_PAGE_SIZE = 50
+
+
 @events_bp.route("/<code>/log")
 def log(code: str) -> str | Response | tuple[str, int]:
-    """Activity log for an event (traceability)."""
+    """Journal de l'événement (B020) : phrases lisibles, filtres module/personne, 50 par page."""
+    from app.i18n import LOG_MODULE_LABELS, action_codes, describe_action
     from app.models import ActivityLog
-    event = load_event_context(code).event
+    from app.ui import LOG_ICONS
 
-    logs = ActivityLog.query.filter_by(event_id=event.id).order_by(ActivityLog.created_at.desc()).limit(100).all()
-    return render_template("events/log.html", event=event, logs=logs)
+    event = load_event_context(code).event
+    module = request.args.get("type", "")
+    who = request.args.get("who", "")
+    page = max(1, request.args.get("page", 1, type=int) or 1)
+
+    query = ActivityLog.query.filter_by(event_id=event.id)
+    if module in LOG_MODULE_LABELS:
+        query = query.filter(ActivityLog.action.in_(action_codes(module)))
+    else:
+        module = ""
+    if who:
+        query = query.filter(ActivityLog.actor_name == who)
+    rows = (
+        query.order_by(ActivityLog.created_at.desc(), ActivityLog.id)
+        .offset((page - 1) * LOG_PAGE_SIZE)
+        .limit(LOG_PAGE_SIZE + 1)
+        .all()
+    )
+    has_older = len(rows) > LOG_PAGE_SIZE
+    days: list[dict[str, Any]] = []
+    for row in rows[:LOG_PAGE_SIZE]:
+        entry = {
+            "time": row.created_at,
+            "icon": LOG_ICONS.get(action_module(row.action) or "", "scroll-text"),
+            **describe_action(row.action, row.actor_name, row.target, row.details),
+        }
+        day = row.created_at.date()
+        if not days or days[-1]["day"] != day:
+            days.append({"day": day, "entries": []})
+        days[-1]["entries"].append(entry)
+    people = [
+        (name, name)
+        for (name,) in db.session.query(ActivityLog.actor_name)
+        .filter_by(event_id=event.id)
+        .distinct()
+        .order_by(ActivityLog.actor_name)
+    ]
+    filters: dict[str, Any] = {k: v for k, v in (("type", module), ("who", who)) if v}
+    return render_template(
+        "events/log.html",
+        event=event,
+        days=days,
+        modules=[(key, str(text)) for key, text in LOG_MODULE_LABELS.items()],
+        people=people,
+        module=module,
+        who=who,
+        page=page,
+        older_url=url_for("events.log", code=code, **{**filters, "page": page + 1})
+        if has_older
+        else None,
+        newer_url=url_for(
+            "events.log", code=code, **({**filters, "page": page - 1} if page > 2 else filters)
+        )
+        if page > 1
+        else None,
+    )
 
 
 @events_bp.route("/recover", methods=["GET", "POST"])
@@ -1127,7 +1242,11 @@ def _send_recovery(email: str) -> None:
         try:
             _rq_queue().enqueue(
                 tasks.send_recovery_email,
-                host, port, user, pw, frm,
+                host,
+                port,
+                user,
+                pw,
+                frm,
                 email,
                 creator.personal_code,
                 creator.display_name,

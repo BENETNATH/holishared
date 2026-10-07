@@ -223,5 +223,5 @@ def test_log_page_shows_translated_action_labels(creator_client, db, event, crea
     )
     db.session.commit()
     html = creator_client.get(f"/e/{event.code}/log?lang=en").get_data(as_text=True)
-    assert "Expense added" in html
+    assert "Zorgnick added an expense" in html  # B020 : phrase complète (plus le libellé court)
     assert "expense.created" not in html

@@ -1,44 +1,55 @@
 {% extends "base.html" %}
+{% from "_components/ui.html" import field, empty_state %}
 {% block title %}{{ _("Journal") }} — {{ event.title }}{% endblock %}
 {% block content %}
-<div class="page-head">
+<div class="mx-auto flex max-w-2xl flex-col gap-4" data-testid="log-page">
+  <div class="ui-page-header">
     <div>
-        <h1>{{ _("Journal") }}</h1>
-        <p class="page-sub">{{ event.title }} · {{ _("Historique des actions de l'événement") }}</p>
+      <h1>{{ _("Journal") }}</h1>
+      <p>{{ event.title }} · {{ _("Ce qui s'est passé dans l'événement") }}</p>
     </div>
-</div>
+  </div>
 
-{% if logs %}
-<div class="table-wrap">
-<table class="log-table">
-  <caption class="sr-only">{{ _("Journal des actions") }}</caption>
-  <thead>
-    <tr>
-      <th scope="col">{{ _("Quand") }}</th>
-      <th scope="col">{{ _("Qui") }}</th>
-      <th scope="col">{{ _("Action") }}</th>
-      <th scope="col">{{ _("Cible") }}</th>
-      <th scope="col">{{ _("Détails") }}</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for log in logs %}
-    <tr>
-      <td data-label="{{ _('Quand') }}">{{ log.created_at | format_datetime('short') }}</td>
-      <td data-label="{{ _('Qui') }}">{{ log.actor_name }}</td>
-      <td data-label="{{ _('Action') }}">{{ log.action|action_label }}</td>
-      <td data-label="{{ _('Cible') }}">{{ log.target or "" }}</td>
-      <td data-label="{{ _('Détails') }}">{{ log.details or "" }}</td>
-    </tr>
+  <form method="get" action="{{ url_for('events.log', code=event.code) }}" class="ui-card ui-form" data-testid="log-filters" aria-label="{{ _('Filtrer le journal') }}">
+    <div class="grid gap-3 sm:grid-cols-2">
+      {{ field('type', _("Type d'action"), type='select', value=module, required=True, id='log-type', options=[('', _("Toutes les actions"))] + modules) }}
+      {{ field('who', _("Personne"), type='select', value=who, required=True, id='log-who', options=[('', _("Tout le monde"))] + people) }}
+    </div>
+    <div class="flex flex-wrap items-center gap-3">
+      <button type="submit" class="ui-btn ui-btn--secondary" data-testid="log-filter-submit">{{ icon('funnel') }}<span>{{ _("Filtrer") }}</span></button>
+      {% if module or who %}<a class="ui-link" href="{{ url_for('events.log', code=event.code) }}" data-testid="log-reset">{{ _("Réinitialiser les filtres") }}</a>{% endif %}
+    </div>
+  </form>
+
+  {% if days %}
+  <div class="flex flex-col gap-4" data-testid="log-list">
+    {% for d in days %}
+    <section class="ui-card" aria-labelledby="log-day-{{ d.day.isoformat() }}" data-testid="log-day">
+      <h2 id="log-day-{{ d.day.isoformat() }}" class="mt-0 mb-2 text-subheading font-semibold text-ink">{{ d.day | format_date('full') }}</h2>
+      <ul class="m-0 flex list-none flex-col gap-3 p-0">
+        {% for e in d.entries %}
+        <li class="flex items-start gap-3" data-testid="log-entry">
+          <span class="mt-0.5 shrink-0 text-ink-2">{{ icon(e.icon) }}</span>
+          <div class="min-w-0 flex-1">
+            <p class="m-0 break-words text-body text-ink" data-testid="log-sentence">{{ e.sentence }}</p>
+            {% if e.detail %}<p class="m-0 break-words text-small text-ink-2" data-testid="log-detail">{{ e.detail }}</p>{% endif %}
+          </div>
+          <time class="shrink-0 text-small text-ink-2" datetime="{{ e.time.isoformat() }}">{{ e.time | time }}</time>
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
     {% endfor %}
-  </tbody>
-</table>
+  </div>
+  <nav class="flex flex-wrap items-center justify-between gap-3" aria-label="{{ _('Pages du journal') }}">
+    {% if newer_url %}<a class="ui-btn ui-btn--secondary" href="{{ newer_url }}" data-testid="log-newer">{{ icon('chevron-left') }}<span>{{ _("Plus récent") }}</span></a>{% else %}<span></span>{% endif %}
+    {% if older_url %}<a class="ui-btn ui-btn--secondary" href="{{ older_url }}" data-testid="log-older"><span>{{ _("Plus ancien") }}</span>{{ icon('chevron-right') }}</a>{% endif %}
+  </nav>
+  {% else %}
+  <div data-testid="log-empty">
+    {% call empty_state('scroll-text', _("Rien à afficher") if (module or who) else _("Aucune action enregistrée"),
+        _("Aucune action ne correspond à ces filtres.") if (module or who) else _("Les actions de l'événement (créations, modifications, votes…) apparaîtront ici.")) %}{% endcall %}
+  </div>
+  {% endif %}
 </div>
-{% else %}
-<div class="empty-state">
-  <span class="empty-icon" aria-hidden="true">📝</span>
-  <h3>{{ _("Aucune action enregistrée") }}</h3>
-  <p>{{ _("Les actions de l'événement (créations, modifications, votes…) apparaîtront ici.") }}</p>
-</div>
-{% endif %}
 {% endblock %}
