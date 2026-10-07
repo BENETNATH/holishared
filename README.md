@@ -67,6 +67,24 @@ python manage.py logs         # tail des logs
 python manage.py reset-admin  # générer un nouveau mot de passe superadmin
 ```
 
+## Notifications push
+
+Web Push (VAPID) : message de chat, nouveau sondage et demande de remboursement, par appareil, sur
+abonnement du participant (« Mon profil » > « Notifications »). Rien n'est demandé au chargement :
+la permission du navigateur n'est sollicitée qu'au geste de l'utilisateur.
+
+- **Clés** : `python manage.py init` les génère (`VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_CLAIMS_SUBJECT`
+  dans `.env`). Sans clés, la section affiche « Notifications indisponibles sur ce serveur » : aucune erreur.
+- **Envoi** : tâche RQ `send_push` (Redis + worker). Sans Redis ou en cas d'erreur, l'envoi est abandonné et journalisé.
+  Docker : le service `worker` reçoit `VAPID_PRIVATE_KEY`, `VAPID_CLAIMS_SUBJECT`, `DATABASE_URL` et le volume
+  `holishared_data` (suppression des abonnements expirés 404/410), plus `SKIP_STARTUP_MIGRATION=1`.
+- **Payload** : nom de l'événement, texte tronqué à 90 caractères (ou « Nouveau message de X » sans aperçu), lien profond.
+  Jamais d'e-mail ni de montant.
+- **Tester avec Chrome** : HTTPS ou `http://localhost`, ouvrir `/e/<code>/me`, activer l'interrupteur et accepter,
+  poster un message avec un autre participant ; DevTools > Application > Service Workers > « Push » pour simuler.
+- **iOS** : la permission n'existe que pour l'application installée (iOS 16.4+, Partager > « Sur l'écran d'accueil »),
+  la page l'explique ; ce parcours n'est pas testable en CI.
+
 ## Sauvegardes avant migration et restauration
 
 Avant une migration qui écrit des lignes existantes, l'application copie la base dans

@@ -38,6 +38,14 @@ services:
     command: rq worker default --url redis://redis:6379/0
     environment:
       - REDIS_URL=redis://redis:6379/0
+      # Le worker n'exécute pas create_app : pas de migration au démarrage (B027)
+      - SKIP_STARTUP_MIGRATION=1
+      # Envoi Web Push (B027) : la tâche send_push lit la clé privée et la base ici, jamais dans Redis
+      - DATABASE_URL=sqlite:////app/instance/holishared.db
+      - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY:-}
+      - VAPID_CLAIMS_SUBJECT=${VAPID_CLAIMS_SUBJECT:-mailto:admin@holishared.local}
+    volumes:
+      - saas_data:/app/instance
     depends_on:
       - redis
     restart: unless-stopped
@@ -82,6 +90,10 @@ services:
       - PERMANENT_SESSION_LIFETIME=${PERMANENT_SESSION_LIFETIME:-2592000}
       # Sans SMTP : mettre true pour afficher le lien de vérification / le code en test (jamais en production)
       - DEV_SHOW_SECRETS=${DEV_SHOW_SECRETS:-false}
+      # Web Push (B027) : vides = notifications indisponibles (clés : python manage.py init)
+      - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY:-}
+      - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY:-}
+      - VAPID_CLAIMS_SUBJECT=${VAPID_CLAIMS_SUBJECT:-mailto:admin@holishared.local}
     depends_on:
       - redis
     volumes:
