@@ -23,7 +23,7 @@
     <h2 id="h-code" class="m-0 text-subheading font-semibold text-ink">{{ _("J'ai un code") }}</h2>
     <form method="post" action="{{ url_for('events.access_by_code') }}" class="ui-form" data-testid="code-form">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      {{ field('code', _("Votre code"), value=code, id='code', required=True, help=_("Le code d'un événement ou votre code personnel (4 à 8 caractères)."), error=errors.text('code'), autocomplete='off', attrs={'maxlength': 8, 'autocapitalize': 'none', 'spellcheck': 'false', 'data-testid': 'code-input'}) }}
+      {{ field('code', _("Votre code"), value=code, required=True, help=_("Le code d'un événement ou votre code personnel (4 à 8 caractères)."), error=errors.text('code'), autocomplete='off', attrs={'maxlength': 8, 'autocapitalize': 'none', 'spellcheck': 'false', 'data-testid': 'code-input'}) }}
       <button type="submit" class="ui-btn ui-btn--secondary ui-btn--block" data-testid="code-submit">{{ _("Continuer") }}</button>
     </form>
     <a href="{{ url_for('events.recover_code') }}" class="ui-link inline-flex min-h-11 items-center text-small" data-testid="forgot-code">{{ _("J'ai oublié mon code") }}</a>

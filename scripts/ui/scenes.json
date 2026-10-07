@@ -2196,7 +2196,7 @@
       "actions": [
         {
           "type": "assert",
-          "expr": "(() => { const f = document.querySelector('[data-testid=code-form]'); document.getElementById('code').value = 'zzzz12'; return fetch(f.action, { method: 'POST', credentials: 'same-origin', body: new URLSearchParams(new FormData(f)) }).then((r) => r.text()).then((h) => { const next = new DOMParser().parseFromString(h, 'text/html'); document.querySelector('main').replaceWith(next.querySelector('main')); return true; }); })()",
+          "expr": "(() => { const f = document.querySelector('[data-testid=code-form]'); document.getElementById('f-code').value = 'zzzz12'; return fetch(f.action, { method: 'POST', credentials: 'same-origin', body: new URLSearchParams(new FormData(f)) }).then((r) => r.text()).then((h) => { const next = new DOMParser().parseFromString(h, 'text/html'); document.querySelector('main').replaceWith(next.querySelector('main')); return true; }); })()",
           "message": "envoi du formulaire"
         },
         {
@@ -2267,7 +2267,7 @@
       "actions": [
         {
           "type": "assert",
-          "expr": "(() => { const f = document.querySelector('[data-testid=create-form]'); document.getElementById('email').value = 'x@y.fr'; return fetch(f.action, { method: 'POST', credentials: 'same-origin', body: new URLSearchParams(new FormData(f)) }).then((r) => r.text()).then((h) => { const next = new DOMParser().parseFromString(h, 'text/html'); document.querySelector('main').replaceWith(next.querySelector('main')); return true; }); })()",
+          "expr": "(() => { const f = document.querySelector('[data-testid=create-form]'); document.getElementById('f-email').value = 'x@y.fr'; return fetch(f.action, { method: 'POST', credentials: 'same-origin', body: new URLSearchParams(new FormData(f)) }).then((r) => r.text()).then((h) => { const next = new DOMParser().parseFromString(h, 'text/html'); document.querySelector('main').replaceWith(next.querySelector('main')); return true; }); })()",
           "message": "envoi du formulaire"
         },
         {
@@ -2324,7 +2324,7 @@
       "actions": [
         {
           "type": "assert",
-          "expr": "(() => { const f = document.querySelector('[data-testid=join-form]'); document.getElementById('display_name').value = 'Z'; return fetch(f.action, { method: 'POST', credentials: 'same-origin', body: new URLSearchParams(new FormData(f)) }).then((r) => r.text()).then((h) => { const next = new DOMParser().parseFromString(h, 'text/html'); document.querySelector('main').replaceWith(next.querySelector('main')); return true; }); })()",
+          "expr": "(() => { const f = document.querySelector('[data-testid=join-form]'); document.getElementById('f-display_name').value = 'Z'; return fetch(f.action, { method: 'POST', credentials: 'same-origin', body: new URLSearchParams(new FormData(f)) }).then((r) => r.text()).then((h) => { const next = new DOMParser().parseFromString(h, 'text/html'); document.querySelector('main').replaceWith(next.querySelector('main')); return true; }); })()",
           "message": "envoi du formulaire"
         },
         {
@@ -2367,7 +2367,7 @@
       "actions": [
         {
           "type": "assert",
-          "expr": "(() => { const f = document.querySelector('[data-testid=mycode-form]'); document.getElementById('guest_code').value = 'zzzz9999'; return fetch(f.action, { method: 'POST', credentials: 'same-origin', body: new URLSearchParams(new FormData(f)) }).then((r) => r.text()).then((h) => { const next = new DOMParser().parseFromString(h, 'text/html'); document.querySelector('main').replaceWith(next.querySelector('main')); return true; }); })()",
+          "expr": "(() => { const f = document.querySelector('[data-testid=mycode-form]'); document.getElementById('f-guest_code').value = 'zzzz9999'; return fetch(f.action, { method: 'POST', credentials: 'same-origin', body: new URLSearchParams(new FormData(f)) }).then((r) => r.text()).then((h) => { const next = new DOMParser().parseFromString(h, 'text/html'); document.querySelector('main').replaceWith(next.querySelector('main')); return true; }); })()",
           "message": "envoi du formulaire"
         },
         {

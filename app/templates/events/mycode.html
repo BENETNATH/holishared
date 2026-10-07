@@ -12,7 +12,7 @@
 
   <form method="post" action="{{ url_for('events.my_code', code=event.code) }}" class="ui-card ui-form" data-testid="mycode-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    {{ field('guest_code', _("Code personnel"), value=typed or '', id='guest_code', required=True, help=_("Le code choisi à votre arrivée sur l'événement (4 à 8 caractères)."), error=errors.text('guest_code') if errors else None, autocomplete='off', attrs={'maxlength': 8, 'autocapitalize': 'none', 'spellcheck': 'false', 'autofocus': True, 'data-testid': 'code-input'}) }}
+    {{ field('guest_code', _("Code personnel"), value=typed or '', required=True, help=_("Le code choisi à votre arrivée sur l'événement (4 à 8 caractères)."), error=errors.text('guest_code') if errors else None, autocomplete='off', attrs={'maxlength': 8, 'autocapitalize': 'none', 'spellcheck': 'false', 'autofocus': True, 'data-testid': 'code-input'}) }}
     <button type="submit" class="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" data-testid="mycode-submit">{{ _("Accéder à l'événement") }}</button>
   </form>
 

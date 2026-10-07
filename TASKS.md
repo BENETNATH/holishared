@@ -437,7 +437,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B019 — Accès, comptes & parcours d'entrée
 
-**Statut** : ⬜ · **Réf.** F01, F09, F15, F16, F17, F22, V9
+**Statut** : ✅ (2026-10-07) · **Réf.** F01, F09, F15, F16, F17, F22, V9
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|

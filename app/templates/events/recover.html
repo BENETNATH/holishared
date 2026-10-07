@@ -11,7 +11,7 @@
   </div>
   <form method="post" action="{{ url_for('events.recover_code') }}" class="ui-card ui-form" data-testid="recover-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    {{ field('email', _("Votre e-mail"), type='email', value=email or '', id='email', required=True, autocomplete='email', placeholder=_('Ex : alice@mail.com'), error=errors.text('email')) }}
+    {{ field('email', _("Votre e-mail"), type='email', value=email or '', required=True, autocomplete='email', placeholder=_('Ex : alice@mail.com'), error=errors.text('email')) }}
     <button type="submit" class="ui-btn ui-btn--primary ui-btn--lg" data-testid="recover-submit">{{ _("Envoyer mon code") }}</button>
   </form>
   <section class="ui-card" aria-labelledby="h-nomail">

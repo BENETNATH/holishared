@@ -7,23 +7,23 @@
   <div class="ui-page-header">
     <div>
       <h1>{{ _("Nouvel événement") }}</h1>
-      <p>{{ _("Quatre informations suffisent : vous pourrez tout compléter ensuite.") }}</p>
+      <p>{{ _("Quelques informations suffisent : vous pourrez tout compléter ensuite.") }}</p>
     </div>
   </div>
 
   {{ form_errors(errors, 'title', 'start_date', 'end_date', 'email') }}
   <form method="post" action="{{ url_for('events.create') }}" class="ui-card ui-form" data-testid="create-form" data-date-range>
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    {{ field('title', _("Titre"), value=form.title or '', id='title', required=True, placeholder=_('Ex : Anniversaire de Léa'), error=errors.text('title'), attrs={'maxlength': 200}) }}
+    {{ field('title', _("Titre"), value=form.title or '', required=True, placeholder=_('Ex : Anniversaire de Léa'), error=errors.text('title'), attrs={'maxlength': 200}) }}
     <div class="grid gap-4 sm:grid-cols-2">
-      {{ field('start_date', _("Date de début"), type='date', value=form.start_date or '', id='start_date', required=True, error=errors.text('start_date'), attrs={'data-date-start': ''}) }}
-      {{ field('end_date', _("Date de fin"), type='date', value=form.end_date or '', id='end_date', required=True, error=errors.text('end_date'), help=ngettext("Durée max : %(n)d jour.", "Durée max : %(n)d jours.", max_days, n=max_days), attrs={'data-date-end': ''}) }}
+      {{ field('start_date', _("Date de début"), type='date', value=form.start_date or '', required=True, error=errors.text('start_date'), attrs={'data-date-start': ''}) }}
+      {{ field('end_date', _("Date de fin"), type='date', value=form.end_date or '', required=True, error=errors.text('end_date'), help=ngettext("Durée max : %(n)d jour.", "Durée max : %(n)d jours.", max_days, n=max_days), attrs={'data-date-end': ''}) }}
     </div>
-    {{ field('location', _("Lieu"), value=form.location or '', id='location', placeholder=_('Ex : Gîte de la Vallée, Annecy'), attrs={'maxlength': 300}) }}
+    {{ field('location', _("Lieu"), value=form.location or '', placeholder=_('Ex : Gîte de la Vallée, Annecy'), attrs={'maxlength': 300}) }}
     <details class="rounded-md border border-line px-3" data-testid="create-description"{% if form.description %} open{% endif %}>
       <summary class="flex min-h-11 cursor-pointer items-center text-small font-semibold text-ink">{{ _("Ajouter une description") }}</summary>
       <div class="pb-3">
-        {{ field('description', _("Description"), type='textarea', value=form.description or '', id='description', placeholder=_('Quelques mots pour situer le contexte…'), attrs={'maxlength': 2000}) }}
+        {{ field('description', _("Description"), type='textarea', value=form.description or '', placeholder=_('Quelques mots pour situer le contexte…'), attrs={'maxlength': 2000}) }}
       </div>
     </details>
 
@@ -31,7 +31,7 @@
       <h2 id="h-verify" class="m-0 flex items-center gap-2 text-small font-semibold text-ink">{{ icon('mail', size=16) }}{{ _("Confirmation par e-mail") }}</h2>
       <p class="m-0 text-small text-ink-2">{{ _("Pour activer l'événement, nous envoyons un lien de confirmation à l'adresse ci-dessous. Il est valable 3 jours. Votre e-mail n'est conservé que si vous le demandez ensuite.") }}</p>
     </section>
-    {{ field('email', _("Votre e-mail"), type='email', value=form.email or (current_user.email if current_user.is_authenticated and current_user.email else ''), id='email', required=True, placeholder=_('Ex : alice@mail.com'), autocomplete='email', error=errors.text('email')) }}
+    {{ field('email', _("Votre e-mail"), type='email', value=form.email or (current_user.email if current_user.is_authenticated and current_user.email else ''), required=True, placeholder=_('Ex : alice@mail.com'), autocomplete='email', error=errors.text('email')) }}
 
     <button type="submit" class="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" data-testid="create-submit">{{ _("Créer l'événement") }}</button>
   </form>

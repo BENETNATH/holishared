@@ -12,8 +12,8 @@
   {{ form_errors(errors) }}
   <form method="post" action="{{ url_for('auth.login', next=request.args.get('next', '')) }}" class="ui-card ui-form" data-testid="login-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    {{ field('email', _("E-mail"), type='email', value=email or '', id='email', required=True, autocomplete='email', attrs={'autofocus': True}) }}
-    {{ field('password', _("Mot de passe"), type='password', id='password', required=True, autocomplete='current-password') }}
+    {{ field('email', _("E-mail"), type='email', value=email or '', required=True, autocomplete='email', attrs={'autofocus': True}) }}
+    {{ field('password', _("Mot de passe"), type='password', required=True, autocomplete='current-password') }}
     <button type="submit" class="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" data-testid="login-submit">{{ _("Se connecter") }}</button>
   </form>
   <p class="m-0 text-small text-ink-2"><a class="ui-link inline-flex min-h-11 items-center" href="{{ url_for('main.index') }}">{{ _("Retour à l'accueil") }}</a></p>

@@ -15,12 +15,12 @@
   <form method="post" action="{{ url_for('events.verify', token=token) }}" class="ui-card ui-form" data-testid="verify-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-    {{ field('display_name', _("Votre pseudo"), value=fd.get('display_name', ''), id='display_name', required=True, placeholder=_('Ex : Alice, Bob…'), help=_("Le nom que les participants verront."), error=errors.text('display_name'), attrs={'minlength': 2, 'maxlength': 50}) }}
+    {{ field('display_name', _("Votre pseudo"), value=fd.get('display_name', ''), required=True, placeholder=_('Ex : Alice, Bob…'), help=_("Le nom que les participants verront."), error=errors.text('display_name'), attrs={'minlength': 2, 'maxlength': 50}) }}
 
     {% if has_existing_code %}
-    {{ field('personal_code', _("Votre code personnel"), value=fd.get('personal_code', ''), id='personal_code', help=_("Votre code actuel est conservé. Laissez ce champ vide pour le garder, ou saisissez un nouveau code de 8 caractères pour le remplacer."), error=errors.text('personal_code'), autocomplete='off', attrs={'maxlength': 8, 'autocapitalize': 'none', 'spellcheck': 'false'}) }}
+    {{ field('personal_code', _("Votre code personnel"), value=fd.get('personal_code', ''), help=_("Votre code actuel est conservé. Laissez ce champ vide pour le garder, ou saisissez un nouveau code de 8 caractères pour le remplacer."), error=errors.text('personal_code'), autocomplete='off', attrs={'maxlength': 8, 'autocapitalize': 'none', 'spellcheck': 'false'}) }}
     {% else %}
-    {{ field('personal_code', _("Votre code personnel"), value=fd.get('personal_code', ''), id='personal_code', required=True, help=_("Nous vous proposons un code : gardez-le ou changez-le (8 lettres minuscules ou chiffres). Notez-le, c'est votre clé pour revenir sur l'événement depuis n'importe quel appareil."), error=errors.text('personal_code'), autocomplete='off', attrs={'minlength': 8, 'maxlength': 8, 'pattern': '[a-z0-9]{8}', 'autocapitalize': 'none', 'spellcheck': 'false', 'data-testid': 'personal-code-input'}) }}
+    {{ field('personal_code', _("Votre code personnel"), value=fd.get('personal_code', ''), required=True, help=_("Nous vous proposons un code : gardez-le ou changez-le (8 lettres minuscules ou chiffres). Notez-le, c'est votre clé pour revenir sur l'événement depuis n'importe quel appareil."), error=errors.text('personal_code'), autocomplete='off', attrs={'minlength': 8, 'maxlength': 8, 'pattern': '[a-z0-9]{8}', 'autocapitalize': 'none', 'spellcheck': 'false', 'data-testid': 'personal-code-input'}) }}
     {% endif %}
 
     <section class="flex flex-col gap-2" aria-labelledby="h-keep-email" data-testid="keep-email">
@@ -37,8 +37,8 @@
       <div class="flex flex-col gap-3 pb-3">
         <p class="ui-help m-0">{{ _("Sert au partage des frais et aux groupes. Vous pourrez la modifier plus tard.") }}</p>
         <div class="grid grid-cols-2 gap-4">
-          {{ field('num_adults', _("Adultes"), type='number', value=fd.get('num_adults', 1), id='num_adults', required=True, attrs={'min': 1, 'max': 20, 'inputmode': 'numeric'}) }}
-          {{ field('num_children', _("Enfants"), type='number', value=fd.get('num_children', 0), id='num_children', required=True, attrs={'min': 0, 'max': 20, 'inputmode': 'numeric'}) }}
+          {{ field('num_adults', _("Adultes"), type='number', value=fd.get('num_adults', 1), required=True, attrs={'min': 1, 'max': 20, 'inputmode': 'numeric'}) }}
+          {{ field('num_children', _("Enfants"), type='number', value=fd.get('num_children', 0), required=True, attrs={'min': 0, 'max': 20, 'inputmode': 'numeric'}) }}
         </div>
       </div>
     </details>
@@ -47,7 +47,7 @@
     <details class="rounded-md border border-line px-3" data-testid="verify-invites"{% if fd.get('invite_emails') %} open{% endif %}>
       <summary class="flex min-h-11 cursor-pointer items-center text-small font-semibold text-ink">{{ _("Inviter des proches par e-mail (facultatif)") }}</summary>
       <div class="pb-3">
-        {{ field('invite_emails', _("E-mails, séparés par des virgules"), value=fd.get('invite_emails', ''), id='invite_emails', placeholder=_('Ex : alice@mail.com, bob@mail.fr'), help=_("Ces adresses ne servent qu'à envoyer l'invitation : elles ne sont pas conservées."), attrs={'inputmode': 'email'}) }}
+        {{ field('invite_emails', _("E-mails, séparés par des virgules"), value=fd.get('invite_emails', ''), placeholder=_('Ex : alice@mail.com, bob@mail.fr'), help=_("Ces adresses ne servent qu'à envoyer l'invitation : elles ne sont pas conservées."), attrs={'inputmode': 'email'}) }}
       </div>
     </details>
     {% endif %}

@@ -10,6 +10,18 @@ sous chaque lot.
 
 ## [Unreleased]
 
+### B019 — Accès, comptes & parcours d'entrée
+
+- `feat(auth)` : sessions durables (F15) : `session.permanent` + cookie « se souvenir » du créateur, 30 jours glissants (`PERMANENT_SESSION_LIFETIME`, `REMEMBER_COOKIE_DURATION` équivalent), cookies `HttpOnly`/`SameSite=Lax`/`Secure` selon l'environnement ; déconnexion en POST (CSRF) qui efface aussi les accès invité de l'appareil (« Se déconnecter » / « Oublier cet appareil », menu, en-tête et `/e/`).
+- `fix(auth)` : plus aucune fuite de secret sans SMTP (F16) : l'indicateur `DEV_SHOW_SECRETS` (défaut désactivé, documenté dans `.env.example`) est seul à autoriser l'affichage du lien de vérification et du code ; `recover` répond de la même façon que l'adresse existe ou non ; page refaite et vouvoyée.
+- `feat(events)` : « Mes événements » accessible aux invités (F01) : liste dérivée des sessions `guest_<code>` valides de l'appareil, isolation entre sessions, redirection explicative vers l'accueil sans accès connu ; macro de carte partagée.
+- `feat(auth)` : accueil à deux chemins (Créer en primaire, « J'ai un code » : un champ, 4 à 8 caractères, événement ou créateur) avec « Vos événements » ; échec neutre et identique pour tous les cas, saisie conservée.
+- `feat(events)` : création en parcours court (F17 : erreurs par champ, description repliée, durée max, explication de la vérification avant l'envoi, cohérence des dates) ; `verify_sent` (e-mail masqué, délai de 3 jours, que faire si rien n'arrive, renvoi limité au navigateur créateur et à 3 par heure) ; `verify` refaite (code suggéré, foyer et invitations repliés, case « conserver mon e-mail » expliquée honnêtement).
+- `feat(events)` : `/join` et `/mycode` lisibles (erreurs par champ, foyer et e-mail repliés, aide « Vous n'avez pas encore de code ? Rejoindre ») ; aucun JS de génération de secret.
+- `feat(ui)` : pages 403/404/500 du kit avec chemin de retour (accueil, « Vos événements », retour à l'événement), gestionnaire 500 sans trace, connexion admin restylée.
+- `test` : `test_sessions_b019.py`, `test_recover_b019.py`, `test_device_events_b019.py`, `test_home_access_b019.py`, `test_creation_b019.py`, `test_join_b019.py`, `test_errors_b019.py`, `test_ui_scenes_b019.py` ; 17 scènes de garde (page entière, FR/EN, clair/sombre).
+- Tests existants adaptés : message d'échec du code (flash -> erreur inline), titre « Confirmez votre événement », « Se déconnecter » dans la liste des msgids du shell, connexion admin en POST.
+
 ### B025b — Infos pratiques & Chat (clôture de B025)
 
 - `feat(logistics)` : infos en cartes groupées par catégorie dans l'ordre du registre (adresse, accès, horaires, documents, notes, divers ; clés inconnues à la fin) puis `order`, puis ancienneté ; bouton « Copier » ; liens http(s) cliquables et échappés (`app/infos.py`, filtre `linkify`, aucun HTML brut) ; menu Modifier/Supprimer ; ajout et modification dans une feuille ancrée en bas (HTMX, fragment de liste, erreurs par champ). Le champ « Ordre d'affichage » disparaît de l'interface : la colonne reste en base, la valeur postée est ignorée (les anciennes valeurs continuent de trier dans leur catégorie). Droits inchangés (modifier : tout participant ; supprimer : créateur). L'accueil affiche les 3 premières infos dans le même ordre. `confirm.js` gère `data-confirm` sur les formulaires HTMX (`htmx:confirm`).

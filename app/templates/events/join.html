@@ -19,19 +19,19 @@
   <form method="post" action="{{ url_for('events.guest_access', code=event.code) }}" class="ui-card ui-form" data-testid="join-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-    {{ field('display_name', _("Votre pseudo"), value=display_name or '', id='display_name', required=True, placeholder=_('Ex : Alice, Bob…'), help=_("Le nom que les autres participants verront."), error=errors.text('display_name'), autocomplete='nickname', attrs={'minlength': 2, 'maxlength': 50}) }}
+    {{ field('display_name', _("Votre pseudo"), value=display_name or '', required=True, placeholder=_('Ex : Alice, Bob…'), help=_("Le nom que les autres participants verront."), error=errors.text('display_name'), autocomplete='nickname', attrs={'minlength': 2, 'maxlength': 50}) }}
 
-    {{ field('code', _("Votre code personnel"), value=code or '', id='code', required=True, help=_("Il vous permet de revenir sur l'événement depuis un autre appareil ou après avoir quitté celui-ci. Nous vous en proposons un : gardez-le (notez-le) ou choisissez le vôtre, de 4 à 8 lettres minuscules ou chiffres."), error=errors.text('code'), autocomplete='off', attrs={'minlength': 4, 'maxlength': 8, 'autocapitalize': 'none', 'spellcheck': 'false', 'data-testid': 'personal-code-input'}) }}
+    {{ field('code', _("Votre code personnel"), value=code or '', required=True, help=_("Il vous permet de revenir sur l'événement depuis un autre appareil ou après avoir quitté celui-ci. Nous vous en proposons un : gardez-le (notez-le) ou choisissez le vôtre, de 4 à 8 lettres minuscules ou chiffres."), error=errors.text('code'), autocomplete='off', attrs={'minlength': 4, 'maxlength': 8, 'autocapitalize': 'none', 'spellcheck': 'false', 'data-testid': 'personal-code-input'}) }}
 
     <details class="rounded-md border border-line px-3" data-testid="join-options"{% if more_open %} open{% endif %}>
       <summary class="flex min-h-11 cursor-pointer items-center text-small font-semibold text-ink">{{ _("Foyer et e-mail (facultatif)") }}</summary>
       <div class="flex flex-col gap-3 pb-3">
         <p class="ui-help m-0">{{ _("Votre foyer sert à répartir les frais. Vous pourrez le modifier plus tard.") }}</p>
         <div class="grid grid-cols-2 gap-4">
-          {{ field('num_adults', _("Adultes"), type='number', value=num_adults or 1, id='num_adults', required=True, attrs={'min': 1, 'max': 20, 'inputmode': 'numeric'}) }}
-          {{ field('num_children', _("Enfants"), type='number', value=num_children or 0, id='num_children', required=True, attrs={'min': 0, 'max': 20, 'inputmode': 'numeric'}) }}
+          {{ field('num_adults', _("Adultes"), type='number', value=num_adults or 1, required=True, attrs={'min': 1, 'max': 20, 'inputmode': 'numeric'}) }}
+          {{ field('num_children', _("Enfants"), type='number', value=num_children or 0, required=True, attrs={'min': 0, 'max': 20, 'inputmode': 'numeric'}) }}
         </div>
-        {{ field('email', _("Votre e-mail"), type='email', value=email or '', id='email', autocomplete='email', error=errors.text('email')) }}
+        {{ field('email', _("Votre e-mail"), type='email', value=email or '', autocomplete='email', error=errors.text('email')) }}
       </div>
     </details>
 

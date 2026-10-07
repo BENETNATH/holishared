@@ -298,6 +298,16 @@ Audit B017/B029 : constats 1 à 6 corrigés (variables `INSTANCE_PATH` et `SKIP_
 - Piège CSS : le CSS historique impose `flex-direction: column` et une largeur max aux `<form>` : le composeur les redéfinit explicitement. Le menu d'un message du bas doit passer au-dessus du composeur collant (`z-index: 30`).
 - Gate tests : la suite complète dure environ 6,5 minutes.
 
+### 2026-10-07 — B019 Accès, comptes & parcours d'entrée
+
+- Sessions : `app/access.py::start_guest_session` / `start_creator_session` posent `session.permanent` (durée 30 jours glissants) ; un `before_request` global est volontairement évité (il ferait poser un cookie à tout visiteur anonyme). Le cookie `session` d'un visiteur anonyme (jeton CSRF) reste un cookie de navigateur. Compromis : un appareil partagé reste connecté 30 jours sauf « Se déconnecter » / « Oublier cet appareil » (`POST /admin/logout`, plus de GET). Le `.env` de dev peut encore fixer `PERMANENT_SESSION_LIFETIME=86400` : le retirer ou le passer à 2592000.
+- Secrets : `DEV_SHOW_SECRETS=true` est la seule voie pour voir le lien de vérification (création, renvoi) ou le code (recover) sans SMTP ; avec SMTP configuré, l'indicateur n'a aucun effet. Sans SMTP ni indicateur, un événement ne peut pas être confirmé : `verify_sent` le dit honnêtement (« L'envoi d'e-mails n'est pas configuré ») et un avertissement est journalisé.
+- Appareil : `app/context.py::device_events` (créateur connecté + `guest_<code>` dont l'id désigne un participant actif de l'événement de CE code) alimente l'accueil, `/e/`, la navigation (onglet « Mes événements » dès qu'un `guest_*` existe) et les pages d'erreur.
+- Renvoi de vérification : marqueur de session `pending_<code>` posé à la création ; sans lui, 404 ; 3 renvois par heure.
+- 500 : Flask journalise l'exception, le gestionnaire fait `rollback`, rend `errors/500.html`, ou une page minimale si le rendu échoue.
+- Garde UI : les formulaires en erreur sont testés en remplaçant `<main>` par la réponse du POST (aucune navigation) ; `expectStatus` dans une scène tolère la seule ligne console du 403/404 voulu.
+- Gate tests : suite complète ≈ 7 minutes.
+
 ### À faire (backlog)
 
 | Priorité | Tâche | Statut |

@@ -20,7 +20,7 @@ def test_create_errors_attach_to_their_field_not_to_a_french_substring(client):
     assert 'id="f-title-error"' in html
     assert 'id="f-end_date-error"' in html
     assert 'id="f-email-error"' not in html
-    assert re.search(r'id="title"[^>]*aria-invalid="true"', html)
+    assert re.search(r'id="f-title"[^>]*aria-invalid="true"', html)
     assert "Title required." in html
     assert "End date required." in html
 

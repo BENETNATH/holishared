@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 06:19+0200\n"
+"POT-Creation-Date: 2026-10-07 06:29+0200\n"
 "PO-Revision-Date: 2026-10-04 11:18+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -1850,7 +1850,7 @@ msgid "Nouvel événement"
 msgstr ""
 
 #: app/templates/events/create.html
-msgid "Quatre informations suffisent : vous pourrez tout compléter ensuite."
+msgid "Quelques informations suffisent : vous pourrez tout compléter ensuite."
 msgstr ""
 
 #: app/templates/events/create.html app/templates/logistics/_fields.html
