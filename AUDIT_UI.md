@@ -287,3 +287,10 @@ Cible (lot B030) : `Plan` (clé, nom, limites : invités par événement, évén
 
 ### Reste à corriger après B017 (relevé à la recette visuelle)
 - Liseré rectangulaire parasite autour de l'onglet actif « Plus » dans la barre du bas mobile (à traiter dans B028 ou au prochain lot touchant le shell).
+
+## 12. Retours du test utilisateur en Docker Compose (2026-10-08)
+1. **Repas mobile** : la vue « un jour à la fois » empêche de voir l'ensemble et déplace à l'aveugle → vue d'ensemble complète en grille compacte avec le même glisser-déposer que sur bureau (lot B022c, en cours).
+2. **Bug repas desktop** : après un ajout, le bouton orange de la feuille tourne en permanence ; impossible d'ajouter un second repas sans rafraîchir (état « envoi en cours » jamais retiré ?) → correction à la source dans le JS partagé (B022c, en cours).
+3. **Accueil** : les cartes sont sur une trame fixe qui laisse des espaces vides → colonnes adaptatives (B022c, en fin de lot).
+4. **Foyer** : introuvable — aucun endroit évident pour indiquer ou modifier la composition de son foyer (adultes/enfants) → section « Mon foyer » dans « Mon profil » (`/e/<code>/me`) + lien depuis « Mon solde » des Frais et la liste des participants (lot de finitions).
+5. **Listes** : gros espace vertical entre le champ « Nouvelle liste » et la suite sur `/lists` → corriger l'espacement (lot de finitions).
