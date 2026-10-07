@@ -2,16 +2,31 @@
 
 from flask import Blueprint, Response, abort, current_app, render_template
 
+from app.context import device_events
+from app.forms import FormErrors
 from app.icons import ICON_NAMES
 from app.ui import asset_version, precache_urls
 
 main_bp = Blueprint("main", __name__)
+LANDING_EVENTS = 3  # « Vos événements » sur l'accueil ; la liste complète est sur /e/
+
+
+def render_landing(errors: FormErrors | None = None, code: str = "") -> str:
+    """Accueil : « Vos événements » (appareil connu), créer, ou saisir un code."""
+    from app.events import event_cards
+
+    return render_template(
+        "main/landing.html",
+        cards=event_cards(device_events())[:LANDING_EVENTS],
+        errors=errors or FormErrors(),
+        code=code,
+    )
 
 
 @main_bp.route("/")
 def index() -> str:
     """Landing page: create event or access by code."""
-    return render_template("main/landing.html")
+    return render_landing()
 
 
 @main_bp.route("/sw.js")

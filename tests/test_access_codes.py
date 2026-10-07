@@ -143,14 +143,13 @@ def test_access_event_code_redirects_mycode(client, event):
     assert resp.headers["Location"].endswith(f"/e/{event.code}/mycode")
 
 
-def test_access_bad_format_and_unknown_same_flash(app):
-    flashes = []
+def test_access_bad_format_and_unknown_same_message(app):
+    pages = []
     for code in ("ab", "zzzzzzzz"):
         client = app.test_client()
-        client.post("/e/access", data={"code": code})
-        with client.session_transaction() as sess:
-            flashes.append(sess["_flashes"])
-    assert flashes[0] == flashes[1]
+        html = client.post("/e/access", data={"code": code}).get_data(as_text=True)
+        pages.append(re.search(r'data-testid="err-code".*?</p>', html, re.S).group(0))
+    assert pages[0] == pages[1]
 
 
 def test_mycode_creator_code_logs_in_creator(app, db, event, creator):

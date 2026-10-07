@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 06:07+0200\n"
+"POT-Creation-Date: 2026-10-07 06:09+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -833,8 +833,10 @@ msgid ""
 msgstr "No event is saved on this device. Create an event or enter your code."
 
 #: app/events/__init__.py
-msgid "Code non reconnu."
-msgstr "Unrecognized code."
+msgid ""
+"Ce code n'est pas valable. Vérifiez-le, ou utilisez « J'ai oublié mon "
+"code »."
+msgstr "This code is not valid. Check it, or use \"I forgot my code\"."
 
 #: app/events/__init__.py
 msgid "Titre requis."
@@ -2773,24 +2775,36 @@ msgid "Adresse, accès, horaires, documents…"
 msgstr "Address, access, schedule, documents…"
 
 #: app/templates/main/landing.html
-msgid "Planifiez vos vacances en groupe"
-msgstr "Plan your vacation in a group"
+msgid "Vos événements"
+msgstr "Your events"
 
 #: app/templates/main/landing.html
-msgid "Repas, activités, listes, frais — tout le monde participe."
-msgstr "Meals, activities, lists, costs — everyone joins in."
+msgid "Voir tous mes événements"
+msgstr "See all my events"
 
 #: app/templates/main/landing.html
-msgid "Vacances, week-end, projet…"
-msgstr "Vacation, week-end, project…"
+msgid "Organisez vos vacances en groupe"
+msgstr "Plan your group holidays"
 
 #: app/templates/main/landing.html
-msgid "Accéder à mon événement"
-msgstr "Access my event"
+msgid ""
+"Planning, repas, listes et frais : tout le monde au même endroit. Vos "
+"invités rejoignent avec un simple code, sans compte."
+msgstr ""
+"Schedule, meals, lists and expenses: everyone in one place. Your guests "
+"join with a simple code, no account needed."
 
 #: app/templates/main/landing.html
-msgid "Accéder"
-msgstr "Access"
+msgid "J'ai un code"
+msgstr "I have a code"
+
+#: app/templates/main/landing.html
+msgid "Le code d'un événement ou votre code personnel (4 à 8 caractères)."
+msgstr "An event code or your personal code (4 to 8 characters)."
+
+#: app/templates/main/landing.html
+msgid "Continuer"
+msgstr "Continue"
 
 #: app/templates/main/landing.html
 msgid "J'ai oublié mon code"

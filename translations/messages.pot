@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 06:07+0200\n"
+"POT-Creation-Date: 2026-10-07 06:09+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -790,7 +790,9 @@ msgid ""
 msgstr ""
 
 #: app/events/__init__.py
-msgid "Code non reconnu."
+msgid ""
+"Ce code n'est pas valable. Vérifiez-le, ou utilisez « J'ai oublié mon "
+"code »."
 msgstr ""
 
 #: app/events/__init__.py
@@ -2678,23 +2680,33 @@ msgid "Adresse, accès, horaires, documents…"
 msgstr ""
 
 #: app/templates/main/landing.html
-msgid "Planifiez vos vacances en groupe"
+msgid "Vos événements"
 msgstr ""
 
 #: app/templates/main/landing.html
-msgid "Repas, activités, listes, frais — tout le monde participe."
+msgid "Voir tous mes événements"
 msgstr ""
 
 #: app/templates/main/landing.html
-msgid "Vacances, week-end, projet…"
+msgid "Organisez vos vacances en groupe"
 msgstr ""
 
 #: app/templates/main/landing.html
-msgid "Accéder à mon événement"
+msgid ""
+"Planning, repas, listes et frais : tout le monde au même endroit. Vos "
+"invités rejoignent avec un simple code, sans compte."
 msgstr ""
 
 #: app/templates/main/landing.html
-msgid "Accéder"
+msgid "J'ai un code"
+msgstr ""
+
+#: app/templates/main/landing.html
+msgid "Le code d'un événement ou votre code personnel (4 à 8 caractères)."
+msgstr ""
+
+#: app/templates/main/landing.html
+msgid "Continuer"
 msgstr ""
 
 #: app/templates/main/landing.html

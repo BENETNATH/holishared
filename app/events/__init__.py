@@ -45,6 +45,7 @@ from app.extensions import db, limiter
 from app.forms import FormErrors
 from app.freemium import can_add_guest, has_feature, max_duration_days, require_tier
 from app.i18n import current_locale, household_default_name
+from app.main import render_landing
 from app.models import Activity, Creator, Event, Guest, Household, Meal, generate_guest_code
 from app.utils import ensure_creator_guest
 
@@ -142,13 +143,24 @@ def index() -> str | Response:
 @events_bp.route("/access", methods=["GET", "POST"])
 @IP_FAILURES
 def access_by_code() -> str | Response:
-    """Access events by personal code (no login required)."""
+    """Code saisi à l'accueil : code d'événement -> page d'accès, code créateur -> connexion.
+
+    Tout échec (mal formé, inconnu, code d'invité) donne le même message : rien ne dit si le code existe.
+    """
     if request.method == "POST":
-        match = resolve_home_code(request.form.get("code", ""))
+        raw = request.form.get("code", "").strip()
+        match = resolve_home_code(raw)
         if match is None or match.kind == "guest":
             mark_attempt_failed("home", None)
-            flash(_("Code non reconnu."), "danger")
-            return redirect(url_for("main.index"))
+            errors = FormErrors()
+            errors.add(
+                "code",
+                _(
+                    "Ce code n'est pas valable. Vérifiez-le, ou utilisez "
+                    "« J'ai oublié mon code »."
+                ),
+            )
+            return render_landing(errors, raw[:64])
         if match.creator is not None:
             start_creator_session(match.creator)
             log_code_login("creator", None)

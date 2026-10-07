@@ -281,7 +281,7 @@ def test_identity_chip_absent_for_anonymous_visitor(client):
 
 
 def test_flash_message_rendered_as_danger_toast(client):
-    html = _html(client.post("/e/access", data={"code": "x"}, follow_redirects=True))
+    html = _html(client.get("/e/verify/jeton-inconnu", follow_redirects=True))
     assert 'data-tone="danger"' in tag(html, "toast")
 
 

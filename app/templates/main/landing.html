@@ -1,34 +1,32 @@
 {% extends "base.html" %}
+{% from "_components/ui.html" import field, event_card %}
 {% block title %}holishared{% endblock %}
 {% block content %}
-<div class="landing">
-    <div class="landing-hero">
-        <h1>{{ _("Planifiez vos vacances en groupe") }}</h1>
-        <p class="landing-sub">{{ _("Repas, activités, listes, frais — tout le monde participe.") }}</p>
-    </div>
+<div class="mx-auto flex max-w-xl flex-col gap-6" data-testid="landing">
+  {% if cards %}
+  <section class="flex flex-col gap-3" aria-labelledby="h-yours" data-testid="landing-events">
+    <h2 id="h-yours" class="m-0 text-heading font-semibold text-ink">{{ _("Vos événements") }}</h2>
+    <ul class="m-0 grid list-none gap-3 p-0" data-testid="event-list">
+      {% for c in cards %}<li>{{ event_card(c) }}</li>{% endfor %}
+    </ul>
+    <a href="{{ url_for('events.index') }}" class="ui-link text-small" data-testid="all-events-link">{{ _("Voir tous mes événements") }}</a>
+  </section>
+  {% endif %}
 
-    <div class="landing-actions">
-        <a href="{{ url_for('events.create') }}" class="landing-card landing-card-primary">
-            <span class="landing-card-title">{{ _("Créer un événement") }}</span>
-            <span class="landing-card-desc">{{ _("Vacances, week-end, projet…") }}</span>
-        </a>
+  <section class="flex flex-col gap-2" aria-labelledby="h-hero">
+    <h1 id="h-hero" class="m-0 text-title font-bold text-ink">{{ _("Organisez vos vacances en groupe") }}</h1>
+    <p class="m-0 text-body text-ink-2">{{ _("Planning, repas, listes et frais : tout le monde au même endroit. Vos invités rejoignent avec un simple code, sans compte.") }}</p>
+    <a href="{{ url_for('events.create') }}" class="ui-btn ui-btn--primary ui-btn--lg ui-btn--block mt-2" data-testid="landing-create">{{ icon('calendar-plus') }}<span>{{ _("Créer un événement") }}</span></a>
+  </section>
 
-        <div class="landing-card landing-card-code">
-            <span class="landing-card-title">{{ _("Accéder à mon événement") }}</span>
-            <form method="post" action="{{ url_for('events.access_by_code') }}" class="code-form">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <input type="text" name="code" class="code-input"
-                       placeholder="{{ _("Votre code") }}"
-                       pattern="[a-z0-9]{8}" required
-                       autocomplete="off" spellcheck="false"
-                       maxlength="8">
-                <button type="submit" class="btn btn-primary">{{ _("Accéder") }}</button>
-            </form>
-        </div>
-    </div>
-
-    <p class="landing-hint">
-        <a href="{{ url_for('events.recover_code') }}">{{ _("J'ai oublié mon code") }}</a>
-    </p>
+  <section class="ui-card flex flex-col gap-3" aria-labelledby="h-code" data-testid="landing-code">
+    <h2 id="h-code" class="m-0 text-subheading font-semibold text-ink">{{ _("J'ai un code") }}</h2>
+    <form method="post" action="{{ url_for('events.access_by_code') }}" class="ui-form" data-testid="code-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      {{ field('code', _("Votre code"), value=code, id='code', required=True, help=_("Le code d'un événement ou votre code personnel (4 à 8 caractères)."), error=errors.text('code'), autocomplete='off', attrs={'maxlength': 8, 'autocapitalize': 'none', 'spellcheck': 'false', 'data-testid': 'code-input'}) }}
+      <button type="submit" class="ui-btn ui-btn--secondary ui-btn--block" data-testid="code-submit">{{ _("Continuer") }}</button>
+    </form>
+    <a href="{{ url_for('events.recover_code') }}" class="ui-link text-small" data-testid="forgot-code">{{ _("J'ai oublié mon code") }}</a>
+  </section>
 </div>
 {% endblock %}
