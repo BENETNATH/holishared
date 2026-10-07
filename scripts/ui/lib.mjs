@@ -346,17 +346,21 @@ export async function runActions(cdp, page, actions) {
       await s('Input.dispatchMouseEvent', { type: 'mouseReleased', x, y, button: 'left', clickCount: 1 });
       await evaluate(cdp, page.sessionId, settleAfter(250), 5000);
     } else if (a.type === 'drag') {
-      // Glisser réel à la souris (CDP) : de `from` (index `fromIndex`) vers `to` (index `toIndex`).
-      // L'id du repas saisi est gardé dans sessionStorage.__dragMealId pour les assertions après rechargement.
-      const point = (sel, index, scroll) => evaluate(cdp, page.sessionId, `(() => { const els = document.querySelectorAll(${JSON.stringify(sel)}); const el = els[${index ?? 0}]; if (!el) return null; if (${scroll}) el.scrollIntoView({ block: 'center', inline: 'center' }); const b = el.getBoundingClientRect(); const card = el.closest('[data-meal-id]'); if (card) sessionStorage.setItem('__dragMealId', card.dataset.mealId); return { x: b.left + b.width / 2, y: b.top + b.height / 2, inView: b.top >= 0 && b.bottom <= innerHeight }; })()`, 5000);
-      const from = await point(a.from, a.fromIndex, true);
+      // Glisser réel à la souris (CDP) : de `from` (index `fromIndex`) vers `to` (index `toIndex`, négatif = depuis la fin).
+      // `from`/`to` peut être `expr:<js>` (renvoie l'élément ; évalué au moment de la résolution). La cible est résolue APRÈS un premier déplacement : les zones de dépôt n'existent à l'écran qu'une fois le glisser actif.
+      // Gardés dans sessionStorage pour les assertions après rechargement : __dragMealId (carte saisie), __dragFromCell et
+      // __dropCell ("date|créneau"), __dropMealId (carte visée, si la cible est une carte).
+      const point = (sel, index, scroll, role) => evaluate(cdp, page.sessionId, `(() => { let el; if (${JSON.stringify(sel)}.startsWith('expr:')) { el = (0, eval)(${JSON.stringify(sel)}.slice(5)); } else { const els = document.querySelectorAll(${JSON.stringify(sel)}); const i = ${index ?? 0}; el = els[i < 0 ? els.length + i : i]; } if (!el) return null; if (${scroll} && !${JSON.stringify(sel)}.startsWith('expr:')) el.scrollIntoView({ block: 'center', inline: 'center' }); const b = el.getBoundingClientRect(); const card = el.closest('[data-meal-id]'); const cell = el.closest('[data-testid=meal-cell]'); if (cell) sessionStorage.setItem(${JSON.stringify(role)} === 'from' ? '__dragFromCell' : '__dropCell', cell.dataset.date + '|' + cell.dataset.slot); if (card) sessionStorage.setItem(${JSON.stringify(role)} === 'from' ? '__dragMealId' : '__dropMealId', card.dataset.mealId); return { x: b.left + b.width / 2, y: b.top + b.height / 2, inView: b.top >= 0 && b.bottom <= innerHeight }; })()`, 5000);
+      const from = await point(a.from, a.fromIndex, true, 'from');
       if (!from.ok || !from.value) {
         page.failures.push(`drag : source introuvable ${a.from}`);
         return;
       }
       await s('Input.dispatchMouseEvent', { type: 'mouseMoved', x: from.value.x, y: from.value.y });
       await s('Input.dispatchMouseEvent', { type: 'mousePressed', x: from.value.x, y: from.value.y, button: 'left', clickCount: 1 });
-      const to = await point(a.to, a.toIndex, false);
+      await s('Input.dispatchMouseEvent', { type: 'mouseMoved', x: from.value.x + 14, y: from.value.y + 14, button: 'left', buttons: 1 });
+      await sleep(60);
+      const to = await point(a.to, a.toIndex, false, 'to');
       if (!to.ok || !to.value || !to.value.inView) {
         await s('Input.dispatchMouseEvent', { type: 'mouseReleased', x: from.value.x, y: from.value.y, button: 'left', clickCount: 1 });
         page.failures.push(`drag : cible introuvable ou hors écran ${a.to}`);

@@ -462,7 +462,7 @@
       "langs": [
         "fr"
       ],
-      "id": "meals-day-tabs",
+      "id": "meals-overview",
       "viewports": [
         360,
         390,
@@ -470,20 +470,32 @@
       ],
       "actions": [
         {
-          "type": "click",
-          "target": "[data-meal-day-tab]:nth-child(4)"
+          "type": "assert",
+          "expr": "!document.querySelector('[data-meal-day-tab]') && !document.querySelector('[data-meal-tabs]')",
+          "message": "plus de sélecteur de jours"
         },
         {
           "type": "assert",
-          "expr": "document.querySelectorAll('[data-meal-day-tab]')[3].getAttribute('aria-pressed') === 'true'",
-          "message": "le 4e jour est sélectionné"
+          "expr": "(s => s.length > 1 && s.every(e => e.getBoundingClientRect().height > 0))([...document.querySelectorAll('[data-meal-day]')])",
+          "message": "tous les jours de l'événement sont visibles"
         },
         {
           "type": "assert",
-          "expr": "[...document.querySelectorAll('[data-meal-day]')].filter(s => s.getBoundingClientRect().height > 0).length === 1",
-          "message": "un seul jour est visible sur mobile"
+          "expr": "document.documentElement.scrollWidth <= document.documentElement.clientWidth",
+          "message": "aucun défilement horizontal"
+        },
+        {
+          "type": "assert",
+          "expr": "[...document.querySelectorAll('[data-testid=meal-card] [data-meal-open], [data-testid=meal-add]:not([disabled])')].every(e => e.getBoundingClientRect().height >= 44)",
+          "message": "cartes et boutons « + » : au moins 44 px de haut"
+        },
+        {
+          "type": "assert",
+          "expr": "[...document.querySelectorAll('[data-testid=meal-cell]')].every(c => c.getBoundingClientRect().width > 80)",
+          "message": "les cases restent lisibles (deux colonnes Midi / Soir)"
         }
-      ]
+      ],
+      "note": "vue d'ensemble mobile : tous les jours visibles d'un seul défilement, sans sélecteur de jours, sans défilement horizontal, cibles >= 44 px"
     },
     {
       "lot": "B022",
@@ -539,6 +551,206 @@
           "type": "assert",
           "expr": "(c => c.length > 1 && c[c.length - 1].dataset.mealId === sessionStorage.getItem('__dragMealId'))(document.querySelectorAll('[data-testid=meal-cell][data-slot=lunch]')[1].querySelectorAll('[data-testid=meal-card]'))",
           "message": "l'ordre persiste après rechargement"
+        }
+      ]
+    },
+    {
+      "lot": "B022c",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/meals",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ],
+      "id": "meals-drag-add-zone",
+      "viewports": [
+        360,
+        390,
+        1280
+      ],
+      "themes": [
+        "light"
+      ],
+      "note": "glisser vers la zone « Ajouter ici » d'une case occupée (zone visible seulement pendant le glisser)",
+      "actions": [
+        {
+          "type": "drag",
+          "from": "expr:(() => { const h = document.querySelector('[data-meal-handle]'); h.scrollIntoView({ block: 'start' }); window.scrollBy(0, -150); return h; })()",
+          "to": "expr:(() => { const src = document.querySelector('[data-drag-source]'); const home = src.closest('[data-testid=meal-cell]'); const y0 = src.getBoundingClientRect().top; return [...document.querySelectorAll('[data-testid=meal-drop-add]')].filter(z => z.closest('[data-testid=meal-cell]') !== home && z.getBoundingClientRect().height > 0).sort((a, b) => Math.abs(a.getBoundingClientRect().top - y0) - Math.abs(b.getBoundingClientRect().top - y0))[0]; })()"
+        },
+        {
+          "type": "waitFor",
+          "expr": "(() => { const [d, s] = sessionStorage.getItem('__dropCell').split('|'); const c = document.querySelector('[data-testid=meal-cell][data-date=\"' + d + '\"][data-slot=\"' + s + '\"]'); return !!c && !!c.querySelector('[data-meal-id=\"' + sessionStorage.getItem('__dragMealId') + '\"]'); })()",
+          "message": "la carte glissée a rejoint la case de la zone « Ajouter ici »"
+        },
+        {
+          "type": "assert",
+          "expr": "(() => { const [d, s] = sessionStorage.getItem('__dropCell').split('|'); return document.querySelector('[data-testid=meal-cell][data-date=\"' + d + '\"][data-slot=\"' + s + '\"]').querySelectorAll('[data-testid=meal-card]').length >= 2; })()",
+          "message": "la case contient désormais au moins deux repas (ajout, pas échange)"
+        },
+        {
+          "type": "reload"
+        },
+        {
+          "type": "assert",
+          "expr": "(() => { const [d, s] = sessionStorage.getItem('__dropCell').split('|'); const c = document.querySelector('[data-testid=meal-cell][data-date=\"' + d + '\"][data-slot=\"' + s + '\"]'); return !!c && !!c.querySelector('[data-meal-id=\"' + sessionStorage.getItem('__dragMealId') + '\"]'); })()",
+          "message": "l'ajout persiste après rechargement"
+        }
+      ]
+    },
+    {
+      "lot": "B022c",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/meals",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ],
+      "id": "meals-drag-swap-zone",
+      "viewports": [
+        360,
+        390,
+        1280
+      ],
+      "themes": [
+        "light"
+      ],
+      "note": "glisser sur une carte (zone « Échanger ») : les deux repas permutent leurs cases",
+      "actions": [
+        {
+          "type": "drag",
+          "from": "expr:(() => { const h = document.querySelector('[data-meal-handle]'); h.scrollIntoView({ block: 'start' }); window.scrollBy(0, -150); return h; })()",
+          "to": "expr:(() => { const src = document.querySelector('[data-drag-source]'); const home = src.closest('[data-testid=meal-cell]'); const y0 = src.getBoundingClientRect().top; return [...document.querySelectorAll('[data-testid=meal-drop-swap]')].filter(z => z.closest('[data-testid=meal-cell]') !== home && z.getBoundingClientRect().height > 0).sort((a, b) => Math.abs(a.getBoundingClientRect().top - y0) - Math.abs(b.getBoundingClientRect().top - y0))[0]; })()"
+        },
+        {
+          "type": "waitFor",
+          "expr": "(() => { const [d, s] = sessionStorage.getItem('__dropCell').split('|'); const c = document.querySelector('[data-testid=meal-cell][data-date=\"' + d + '\"][data-slot=\"' + s + '\"]'); return !!c && !!c.querySelector('[data-meal-id=\"' + sessionStorage.getItem('__dragMealId') + '\"]'); })()",
+          "message": "la carte glissée est dans la case de la carte visée"
+        },
+        {
+          "type": "assert",
+          "expr": "(() => { const [d, s] = sessionStorage.getItem('__dragFromCell').split('|'); const c = document.querySelector('[data-testid=meal-cell][data-date=\"' + d + '\"][data-slot=\"' + s + '\"]'); return !!c && !!c.querySelector('[data-meal-id=\"' + sessionStorage.getItem('__dropMealId') + '\"]'); })()",
+          "message": "la carte visée est dans la case d'origine"
+        },
+        {
+          "type": "reload"
+        },
+        {
+          "type": "assert",
+          "expr": "(() => { const [d, s] = sessionStorage.getItem('__dropCell').split('|'); const c = document.querySelector('[data-testid=meal-cell][data-date=\"' + d + '\"][data-slot=\"' + s + '\"]'); return !!c && !!c.querySelector('[data-meal-id=\"' + sessionStorage.getItem('__dragMealId') + '\"]'); })() && (() => { const [d, s] = sessionStorage.getItem('__dragFromCell').split('|'); const c = document.querySelector('[data-testid=meal-cell][data-date=\"' + d + '\"][data-slot=\"' + s + '\"]'); return !!c && !!c.querySelector('[data-meal-id=\"' + sessionStorage.getItem('__dropMealId') + '\"]'); })()",
+          "message": "l'échange persiste après rechargement"
+        }
+      ]
+    },
+    {
+      "lot": "B022c",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/meals",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "id": "meals-drop-zones",
+      "note": "aperçu statique des zones de dépôt (état « glisser en cours » simulé) : libellé + icône + teinte, zone active, contraste clair/sombre",
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "(() => { const g = document.getElementById('meal-grid'); g.dataset.dragging = 'true'; const cards = g.querySelectorAll('[data-meal-day]:not(.hidden) [data-testid=meal-card]'); if (cards[0]) cards[0].dataset.dragSource = ''; const sw = g.querySelectorAll('[data-meal-day]:not(.hidden) [data-testid=meal-drop-swap]'); if (sw[1]) sw[1].dataset.active = ''; const ad = g.querySelector('[data-meal-day]:not(.hidden) [data-testid=meal-drop-add]'); if (ad) ad.dataset.active = ''; return g.querySelectorAll('.meal-drop').length > 0; })()",
+          "message": "les zones de dépôt sont rendues pendant le glisser"
+        },
+        {
+          "type": "assert",
+          "expr": "[...document.querySelectorAll('.meal-drop')].filter(e => e.offsetParent !== null).every(e => e.getBoundingClientRect().height >= 44)",
+          "message": "zones de dépôt visibles : au moins 44 px de haut"
+        },
+        {
+          "type": "assert",
+          "expr": "document.documentElement.scrollWidth <= document.documentElement.clientWidth",
+          "message": "aucun défilement horizontal pendant le glisser"
+        }
+      ],
+      "viewports": [
+        360,
+        390,
+        1280
+      ]
+    },
+    {
+      "lot": "B022c",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/meals",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ],
+      "themes": [
+        "light"
+      ],
+      "id": "meals-add-twice",
+      "viewports": [
+        390,
+        1280
+      ],
+      "note": "deux ajouts de suite par la feuille : le second bouton d'envoi n'est pas resté en chargement (verrou de forms.js)",
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "(window.__n = document.querySelectorAll('[data-testid=meal-card]').length, true)",
+          "message": "état initial"
+        },
+        {
+          "type": "click",
+          "target": "[data-meal-day]:last-of-type [data-testid=meal-add]:not([disabled])"
+        },
+        {
+          "type": "assert",
+          "expr": "(() => { document.getElementById('meal-add-title').value = 'Plat un'; return true; })()",
+          "message": "nom saisi"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=meal-add-form] button[type=submit]"
+        },
+        {
+          "type": "waitFor",
+          "expr": "document.querySelectorAll('[data-testid=meal-card]').length === window.__n + 1 && !document.querySelector('[data-testid=meal-add-sheet]').open",
+          "message": "premier repas ajouté, feuille fermée"
+        },
+        {
+          "type": "click",
+          "target": "[data-meal-day]:last-of-type [data-testid=meal-add]:not([disabled])"
+        },
+        {
+          "type": "assert",
+          "expr": "(b => !b.hasAttribute('aria-busy') && b.getAttribute('aria-disabled') !== 'true' && !b.hasAttribute('data-loading'))(document.querySelector('[data-testid=meal-add-form] button[type=submit]'))",
+          "message": "le bouton d'envoi n'est pas en chargement à la réouverture"
+        },
+        {
+          "type": "assert",
+          "expr": "(() => { document.getElementById('meal-add-title').value = 'Plat deux'; return true; })()",
+          "message": "nom saisi"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=meal-add-form] button[type=submit]"
+        },
+        {
+          "type": "waitFor",
+          "expr": "document.querySelectorAll('[data-testid=meal-card]').length === window.__n + 2",
+          "message": "second repas ajouté dans la même case"
         }
       ]
     },
