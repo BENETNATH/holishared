@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 06:01+0200\n"
+"POT-Creation-Date: 2026-10-07 06:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -827,10 +827,6 @@ msgstr ""
 msgid "Limite d'événements atteinte (%(count)d)."
 msgstr ""
 
-#: app/events/__init__.py app/templates/events/verify_sent.html
-msgid "Un email de vérification a été envoyé."
-msgstr ""
-
 #: app/events/__init__.py
 #, python-format
 msgid ""
@@ -930,17 +926,13 @@ msgid "Code invalide."
 msgstr ""
 
 #: app/events/__init__.py
-msgid "Email invalide."
+msgid "Format d'e-mail invalide."
 msgstr ""
 
 #: app/events/__init__.py
 msgid ""
-"Aucun compte trouvé avec cet email. Si vous n'aviez pas coché « conserver"
-" mon email », le code est perdu."
-msgstr ""
-
-#: app/events/__init__.py
-msgid "Votre code vous a été envoyé par email."
+"Si un code est associé à cette adresse, il vient de vous être envoyé par "
+"e-mail. Pensez à vérifier vos courriers indésirables."
 msgstr ""
 
 #: app/events/__init__.py
@@ -1171,7 +1163,7 @@ msgid "Navigation principale"
 msgstr ""
 
 #: app/templates/base.html app/templates/events/index.html
-#: app/templates/main/landing.html
+#: app/templates/events/recover.html app/templates/main/landing.html
 msgid "Créer un événement"
 msgstr ""
 
@@ -1821,8 +1813,7 @@ msgstr ""
 msgid "Basiques"
 msgstr ""
 
-#: app/templates/events/create.html app/templates/events/recover.html
-#: app/templates/events/verify.html
+#: app/templates/events/create.html app/templates/events/verify.html
 msgid "Votre email"
 msgstr ""
 
@@ -2319,19 +2310,32 @@ msgid "Créez votre code personnel"
 msgstr ""
 
 #: app/templates/events/recover.html
-msgid "Récupérer mon code"
+msgid "Retrouver mon code"
 msgstr ""
 
 #: app/templates/events/recover.html
 msgid ""
-"Si vous aviez coché « conserver mon email » à la création, votre code "
-"vous sera renvoyé par email."
+"Indiquez l'adresse e-mail de votre événement : si un code y est associé, "
+"nous vous l'enverrons."
+msgstr ""
+
+#: app/templates/events/recover.html
+msgid "Votre e-mail"
+msgstr ""
+
+#: app/templates/events/recover.html
+msgid "Envoyer mon code"
+msgstr ""
+
+#: app/templates/events/recover.html
+msgid "Pas d'e-mail enregistré ?"
 msgstr ""
 
 #: app/templates/events/recover.html
 msgid ""
-"Si vous n'aviez pas conservé votre email, le code est définitivement "
-"perdu. Il faudra créer un nouvel événement."
+"Votre e-mail n'est conservé que si vous avez coché « Conserver mon e-mail"
+" » à la validation. Sinon, le code ne peut pas être renvoyé : vous pouvez"
+" créer un nouvel événement."
 msgstr ""
 
 #: app/templates/events/verify.html
@@ -2398,6 +2402,10 @@ msgstr ""
 
 #: app/templates/events/verify_sent.html
 msgid "Un email de vérification a été envoyé à"
+msgstr ""
+
+#: app/templates/events/verify_sent.html
+msgid "Un email de vérification a été envoyé."
 msgstr ""
 
 #: app/templates/events/verify_sent.html

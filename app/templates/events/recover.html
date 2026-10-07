@@ -1,24 +1,23 @@
 {% extends "base.html" %}
-{% block title %}{{ _("Récupérer mon code") }}{% endblock %}
+{% from "_components/ui.html" import field %}
+{% block title %}{{ _("Retrouver mon code") }} — holishared{% endblock %}
 {% block content %}
-<div class="page-head">
+<div class="mx-auto flex max-w-xl flex-col gap-4">
+  <div class="ui-page-header">
     <div>
-        <h1>{{ _("Récupérer mon code") }}</h1>
-        <p class="page-sub">{{ _("Si vous aviez coché « conserver mon email » à la création, votre code vous sera renvoyé par email.") }}</p>
+      <h1>{{ _("Retrouver mon code") }}</h1>
+      <p>{{ _("Indiquez l'adresse e-mail de votre événement : si un code y est associé, nous vous l'enverrons.") }}</p>
     </div>
+  </div>
+  <form method="post" action="{{ url_for('events.recover_code') }}" class="ui-card ui-form" data-testid="recover-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {{ field('email', _("Votre e-mail"), type='email', value=email or '', id='email', required=True, autocomplete='email', placeholder=_('Ex : alice@mail.com'), error=errors.text('email')) }}
+    <button type="submit" class="ui-btn ui-btn--primary ui-btn--lg" data-testid="recover-submit">{{ _("Envoyer mon code") }}</button>
+  </form>
+  <section class="ui-card" aria-labelledby="h-nomail">
+    <h2 id="h-nomail" class="mt-0 text-subheading font-semibold text-ink">{{ _("Pas d'e-mail enregistré ?") }}</h2>
+    <p class="m-0 text-small text-ink-2">{{ _("Votre e-mail n'est conservé que si vous avez coché « Conserver mon e-mail » à la validation. Sinon, le code ne peut pas être renvoyé : vous pouvez créer un nouvel événement.") }}</p>
+    <a href="{{ url_for('events.create') }}" class="ui-link mt-2 inline-block text-small">{{ _("Créer un événement") }}</a>
+  </section>
 </div>
-
-<form method="post" action="{{ url_for('events.recover_code') }}">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  <div class="form-group">
-    <label for="email">{{ _("Votre email") }} *</label>
-    <input type="email" id="email" name="email" required autocomplete="email"
-           placeholder="{{ _('Ex : alice@mail.com') }}">
-  </div>
-  <div class="form-actions">
-    <button type="submit" class="btn btn-primary">{{ _("Récupérer mon code") }}</button>
-  </div>
-</form>
-
-<p class="hint">{{ _("Si vous n'aviez pas conservé votre email, le code est définitivement perdu. Il faudra créer un nouvel événement.") }}</p>
 {% endblock %}

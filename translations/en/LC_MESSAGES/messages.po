@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 06:01+0200\n"
+"POT-Creation-Date: 2026-10-07 06:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -870,10 +870,6 @@ msgstr "Email domain not accepted (disposable)."
 msgid "Limite d'événements atteinte (%(count)d)."
 msgstr "Event limit reached (%(count)d)."
 
-#: app/events/__init__.py app/templates/events/verify_sent.html
-msgid "Un email de vérification a été envoyé."
-msgstr "A verification email has been sent."
-
 #: app/events/__init__.py
 #, python-format
 msgid ""
@@ -975,20 +971,16 @@ msgid "Code invalide."
 msgstr "Invalid code."
 
 #: app/events/__init__.py
-msgid "Email invalide."
-msgstr "Invalid email."
+msgid "Format d'e-mail invalide."
+msgstr "Invalid e-mail format."
 
 #: app/events/__init__.py
 msgid ""
-"Aucun compte trouvé avec cet email. Si vous n'aviez pas coché « conserver"
-" mon email », le code est perdu."
+"Si un code est associé à cette adresse, il vient de vous être envoyé par "
+"e-mail. Pensez à vérifier vos courriers indésirables."
 msgstr ""
-"No account found with this email. If you did not tick “keep my email”, "
-"the code is lost."
-
-#: app/events/__init__.py
-msgid "Votre code vous a été envoyé par email."
-msgstr "Your code has been sent by email."
+"If a code is linked to this address, it has just been sent to you by "
+"e-mail. Remember to check your spam folder."
 
 #: app/events/__init__.py
 #, python-format
@@ -1218,7 +1210,7 @@ msgid "Navigation principale"
 msgstr "Main navigation"
 
 #: app/templates/base.html app/templates/events/index.html
-#: app/templates/main/landing.html
+#: app/templates/events/recover.html app/templates/main/landing.html
 msgid "Créer un événement"
 msgstr "Create an event"
 
@@ -1882,8 +1874,7 @@ msgstr "Create an event and invite your loved ones to plan together."
 msgid "Basiques"
 msgstr "Basics"
 
-#: app/templates/events/create.html app/templates/events/recover.html
-#: app/templates/events/verify.html
+#: app/templates/events/create.html app/templates/events/verify.html
 msgid "Votre email"
 msgstr "Your email"
 
@@ -2388,24 +2379,38 @@ msgid "Créez votre code personnel"
 msgstr "Create your personal code"
 
 #: app/templates/events/recover.html
-msgid "Récupérer mon code"
-msgstr "Recover my code"
+msgid "Retrouver mon code"
+msgstr "Find my code"
 
 #: app/templates/events/recover.html
 msgid ""
-"Si vous aviez coché « conserver mon email » à la création, votre code "
-"vous sera renvoyé par email."
+"Indiquez l'adresse e-mail de votre événement : si un code y est associé, "
+"nous vous l'enverrons."
 msgstr ""
-"If you ticked “keep my email” at creation, your code will be sent to you "
-"by email."
+"Enter the e-mail address of your event: if a code is linked to it, we "
+"will send it to you."
+
+#: app/templates/events/recover.html
+msgid "Votre e-mail"
+msgstr "Your e-mail"
+
+#: app/templates/events/recover.html
+msgid "Envoyer mon code"
+msgstr "Send my code"
+
+#: app/templates/events/recover.html
+msgid "Pas d'e-mail enregistré ?"
+msgstr "No e-mail on file?"
 
 #: app/templates/events/recover.html
 msgid ""
-"Si vous n'aviez pas conservé votre email, le code est définitivement "
-"perdu. Il faudra créer un nouvel événement."
+"Votre e-mail n'est conservé que si vous avez coché « Conserver mon e-mail"
+" » à la validation. Sinon, le code ne peut pas être renvoyé : vous pouvez"
+" créer un nouvel événement."
 msgstr ""
-"If you did not keep your email, the code is permanently lost. You will "
-"need to create a new event."
+"Your e-mail is only kept if you ticked \"Keep my e-mail\" at "
+"confirmation. Otherwise the code cannot be sent again: you can create a "
+"new event."
 
 #: app/templates/events/verify.html
 msgid "Validation"
@@ -2480,6 +2485,10 @@ msgstr "Verification sent"
 #: app/templates/events/verify_sent.html
 msgid "Un email de vérification a été envoyé à"
 msgstr "A verification email has been sent to"
+
+#: app/templates/events/verify_sent.html
+msgid "Un email de vérification a été envoyé."
+msgstr "A verification email has been sent."
 
 #: app/templates/events/verify_sent.html
 msgid ""

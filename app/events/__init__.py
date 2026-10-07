@@ -1,5 +1,6 @@
 """Events blueprint - creation, invites, guest access."""
 
+import logging
 import re
 from datetime import date, datetime, time
 from pathlib import Path
@@ -91,6 +92,7 @@ def event_status(event: Event, today: date) -> dict[str, Any]:
 
 
 events_bp = Blueprint("events", __name__)
+logger = logging.getLogger(__name__)
 
 RECENT_MESSAGES = 3
 INFOS_ON_HOME = 3
@@ -215,12 +217,11 @@ def create() -> str | Response:
         db.session.add(event)
         db.session.commit()
 
-        # Send verification email (if SMTP configured); otherwise show the
-        # link directly (dev mode, no SMTP).
+        # E-mail de vérification. Sans SMTP, le lien n'est montré que si DEV_SHOW_SECRETS
+        # (dev/staging) l'autorise : jamais de secret affiché par défaut (F16).
         if current_app.config["SMTP_HOST"]:
             _send_verification_email(creator, event, token)
-            flash(_("Un email de vérification a été envoyé."), "success")
-        else:
+        elif current_app.config["DEV_SHOW_SECRETS"]:
             flash(
                 _(
                     "Mode développement (SMTP non configuré) : cliquez sur le lien de vérification : %(url)s",
@@ -228,6 +229,8 @@ def create() -> str | Response:
                 ),
                 "warning",
             )
+        else:
+            logger.warning("verification_mail_not_sent smtp=unconfigured event=%s", event.code)
         return redirect(url_for("events.verify_sent", code=event.code))
 
     return render_template("events/create.html", errors=FormErrors())
@@ -1005,46 +1008,46 @@ def log(code: str) -> str | Response | tuple[str, int]:
 @events_bp.route("/recover", methods=["GET", "POST"])
 @limiter.limit("5 per 15 minutes")
 def recover_code() -> str | Response:
-    """Recover personal code via stored email."""
+    """Récupération du code par e-mail ; la réponse ne dit jamais si l'adresse existe (F16)."""
+    errors = FormErrors()
+    email = ""
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
         if not email or not _valid_email(email):
-            flash(_("Email invalide."), "danger")
-            return render_template("events/recover.html")
-
-        creator = Creator.query.filter_by(email=email).first()
-        if not creator or not creator.personal_code:
+            errors.add("email", _("Format d'e-mail invalide."))
+        else:
+            _send_recovery(email)
             flash(
                 _(
-                    "Aucun compte trouvé avec cet email. "
-                    "Si vous n'aviez pas coché « conserver mon email », le code est perdu."
+                    "Si un code est associé à cette adresse, il vient de vous être envoyé "
+                    "par e-mail. Pensez à vérifier vos courriers indésirables."
                 ),
-                "danger",
+                "success",
             )
-            return render_template("events/recover.html")
+            return redirect(url_for("events.recover_code"))
+    return render_template("events/recover.html", errors=errors, email=email)
 
-        # Send recovery email with the code (RQ)
-        if current_app.config["SMTP_HOST"]:
-            from app import tasks
 
-            host, port, user, pw, frm = _smtp_cfg()
+def _send_recovery(email: str) -> None:
+    creator = Creator.query.filter_by(email=email).first()
+    if creator is None or not creator.personal_code:
+        return
+    if current_app.config["SMTP_HOST"]:
+        from app import tasks
+
+        host, port, user, pw, frm = _smtp_cfg()
+        try:
             _rq_queue().enqueue(
                 tasks.send_recovery_email,
-                host,
-                port,
-                user,
-                pw,
-                frm,
+                host, port, user, pw, frm,
                 email,
                 creator.personal_code,
                 creator.display_name,
                 lang=current_locale(),
             )
-            flash(_("Votre code vous a été envoyé par email."), "success")
-        else:
-            # Dev mode: show code directly
-            flash(_("Votre code : %(code)s", code=creator.personal_code), "success")
-
-        return redirect(url_for("events.recover_code"))
-
-    return render_template("events/recover.html")
+        except Exception:  # la réponse reste identique : pas d'écart observable entre adresses
+            logger.exception("recovery_mail_enqueue_failed")
+    elif current_app.config["DEV_SHOW_SECRETS"]:
+        flash(_("Votre code : %(code)s", code=creator.personal_code), "warning")
+    else:
+        logger.warning("recovery_mail_not_sent smtp=unconfigured")
