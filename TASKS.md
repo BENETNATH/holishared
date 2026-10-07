@@ -465,7 +465,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B021 — Planning
 
-**Statut** : ⬜ · **Réf.** F10, V1, V2
+**Statut** : ✅ (2026-10-07) — balayage tactile entre jours non fait (sélecteur seulement) · **Réf.** F10, V1, V2
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|

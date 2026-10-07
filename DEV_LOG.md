@@ -265,6 +265,17 @@ Audit B017/B029 : constats 1 à 6 corrigés (variables `INSTANCE_PATH` et `SKIP_
 - Seed de démo : noms de foyers neutres (la garde « pas de français en EN » lit les données saisies telles quelles).
 - Limites connues : un foyer sans propriétaire (créé par le créateur) n'est modifiable que par lui ; aucune répartition personnalisée (`custom_split`) n'est saisissable dans l'interface.
 
+### 2026-10-07 — B021 Planning
+
+- Le refus « Le créateur ne fait pas de RSVP » avait déjà disparu avec B029 (`ctx.participant` du créateur) : 21.4 se réduit à l'afficher dans la carte et à le tester.
+- RSVP : un seul formulaire `hx-post` par carte (cible `#activity-<id>`, `outerHTML`) ; les boutons du contrôle segmenté sont des `submit` de formulaire (htmx 1.9 joint le bouton cliqué). Retrait = appui sur la réponse active (`status=none`). Les `<details>` ouverts (participants) se referment après un RSVP (fragment remplacé).
+- Seuil : badge affiché seulement si `min_headcount > 1` (le défaut 1 serait du bruit) ; seules les réponses « Oui » comptent, « Peut-être » non. Réponses des invités désactivés ignorées.
+- Ordre du jour : activités « Journée » (sans heure) en tête, puis par heure.
+- Feuille d'ajout/édition : POST classique (pas de fetch) ; en cas d'erreur le serveur rend le formulaire page entière avec les erreurs par champ. Ids des champs `f-<nom>` (conservés pour les tests i18n existants).
+- Sans JS : les jours autres que le jour sélectionné (`?day=`) restent masqués sur mobile ; l'ajout mène au formulaire page entière.
+- `Activity.confirmed_count` reste inutilisé (propriété historique, non supprimée).
+- Piège extraction i18n : une erreur de syntaxe Jinja dans un gabarit fait silencieusement disparaître ses msgids du `.po` à l'extraction suivante.
+
 ### À faire (backlog)
 
 | Priorité | Tâche | Statut |

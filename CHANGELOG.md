@@ -10,6 +10,14 @@ sous chaque lot.
 
 ## [Unreleased]
 
+### B021 — Planning
+
+- `feat(planning)` : programme par jour — tous les jours de l'événement (jours vides inclus), sélecteur horizontal sur mobile (`aria-pressed`, jour courant `aria-current`, `?day=`), bouton « Aujourd'hui », chronologie multi-jours à en-têtes collants dès 1024 px ; repas du jour en lecture seule (Midi/Soir, plusieurs possibles, lien vers Repas seulement si le module est actif) ; la section RSVP séparée disparaît.
+- `feat(planning)` : carte d'activité — heure ou « Journée », lieu, description repliable (« Voir plus »), « À apporter » (`bring_items`), RSVP Oui / Peut-être / Non intégré (appui sur la réponse active = retrait, `status=none`), décompte « N oui · M peut-être », badge de seuil `min_headcount` (si > 1), liste des participants par réponse (prénoms d'affichage, jamais d'e-mail), auteur, menu Modifier/Supprimer (`can_edit`/`can_delete`, suppression confirmée). Le créateur répond comme tout participant.
+- `feat(planning)` : la route `rsvp` renvoie le fragment de carte en HTMX (422 si statut inconnu), redirection sinon ; les réponses de tout l'événement sont lues par une seule requête jointe (nombre de requêtes de la page indépendant du nombre d'activités).
+- `feat(ui)` : feuille d'ajout rapide (titre, date du jour sélectionné, heure + « Plus d'options ») également utilisée en édition (`ui/planning`, textes en `data-*`) ; formulaire page entière `/planning/new` et `/planning/<id>/edit` refondu en sections « L'essentiel » / « Détails » (kit `field`, erreurs par champ, dates bornées, `?date=`).
+- `test` : `test_planning_b021.py` (77 tests) ; aucun test existant modifié ; scènes de garde UI `planning-*` ; graine de démo enrichie.
+
 ### B024 — Frais
 
 - `feat(models)` : `created_by` sur `expenses`, `transfers`, `payment_requests` ; migration idempotente `migrate_costs` (calcul à blanc, sauvegarde `pre-costs-` seulement si des dates sont réécrites) : les `Expense.date` / `Transfer.date` NULL prennent la date de `created_at` (fin de « aujourd'hui » à chaque lecture).
