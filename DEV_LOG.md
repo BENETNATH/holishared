@@ -361,6 +361,14 @@ Audit B017/B029 : constats 1 à 6 corrigés (variables `INSTANCE_PATH` et `SKIP_
 
 ---
 
+### 2026-10-07 — B022c Repas (zones de dépôt)
+
+- Cause du bouton « qui tourne » : `forms.js` (écouteur sur `document`, enregistré avant `meals.js`) posait verrou et état de chargement avant le `preventDefault` de `meals.js`. Corrigé à la source en écoutant sur `window` (bulle après `document`) : vaut pour tous les formulaires envoyés par fetch.
+- Mobile : la grille compacte `3.25rem / minmax(0,1fr) × 2` remplace le sélecteur de jours ; mêmes zones de dépôt (CSS `#meal-grid[data-dragging] .meal-drop`), défilement automatique vertical existant.
+- Garde UI : la cible d'un `drag` est résolue après un premier déplacement (les zones n'existent que pendant le glisser) ; les scènes choisissent la zone la plus proche verticalement (`expr:`) pour éviter la zone de défilement automatique en bas d'écran.
+- Accueil : `columns` CSS (`.ui-masonry`), `#my-items` en `display: contents`. La grille reflue si la hauteur d'une carte change (colonnes équilibrées par le navigateur).
+- Flaky connu sans lien : `test_chat::test_history_shows_50_max` (« msg-09 » peut apparaître par hasard dans la page).
+
 ## 10. Variables d'environnement (.env)
 
 ```env

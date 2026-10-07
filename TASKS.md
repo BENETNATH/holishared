@@ -477,6 +477,8 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B022 — Repas
 
+**B022c** ✅ (2026-10-07) — zones de dépôt « Ajouter ici » / « Échanger », vue d'ensemble mobile (sans sélecteur de jours), correctif du verrou de formulaire (`forms.js`).
+
 **Statut** : ✅ (2026-10-07) — appui long tactile sur la carte non fait (la poignée glisse immédiatement) · **Réf.** I2, V5, F25
 
 | # | Tâche | Critère d'acceptation |

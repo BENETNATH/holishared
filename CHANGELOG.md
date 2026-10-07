@@ -10,6 +10,15 @@ sous chaque lot.
 
 ## [Unreleased]
 
+### B022c — Repas : zones de dépôt et vue d'ensemble mobile
+
+- `feat(meals)` : pendant le glisser, chaque carte (autre que celle saisie) est une zone « Échanger » (libellé, icône, titre), l'espace libre de la case une zone « Ajouter ici » (« Déposer ici » si vide) ; l'insertion entre deux cartes reste possible ; `swap` renumérote les deux cases sans trous (identifiants inchangés) ; un déplacement vers une autre case annonce « Repas ajouté à : … ».
+- `feat(meals)` : vue mobile d'ensemble (tous les jours, colonnes Midi / Soir compactes) à la place du sélecteur de jours et du balayage ; même glisser que sur desktop.
+- `fix(ui)` : `forms.js` écoute `submit` sur `window` (après les modules à envoi fetch) : le bouton de la feuille d'ajout ne reste plus en chargement et un second ajout est possible.
+- `feat(css)` / `fix(css)` : zones de dépôt (teintes info / succès, zone active nette, clair/sombre) ; cartes de l'accueil en colonnes maçonnerie.
+- `test(ui)` : scènes `meals-drag-add-zone`, `meals-drag-swap-zone`, `meals-drop-zones`, `meals-add-twice`, `meals-overview` (remplace `meals-day-tabs`) ; l'action `drag` résout sa cible après le début du glisser et accepte `expr:`.
+- Tests existants adaptés : `TestGridDays` (sélecteur de jours supprimé).
+
 ### B026 — Média
 
 - `feat(media)` : miniatures WebP (320 et 960 px) générées à la demande par Pillow et mises en cache sur disque (`<instance>/media/<code>/thumbs/<id>-<taille>.webp`), orientation EXIF appliquée, EXIF/GPS absents des dérivés, bornes anti-bombe de décompression (50 Mpx) et échecs de décodage sans 500 ; route `media.thumb` (mêmes droits que `media.file`, `Cache-Control: private, max-age=86400`, ETag/304) ; dérivés supprimés avec le média, purgés avec l'événement, absents de l'export ZIP et du quota ; les médias existants sont servis sans migration (génération au premier accès).
