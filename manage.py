@@ -429,6 +429,12 @@ def cmd_check_identity():
     sys.exit(run([str(venv_python()), "-m", "app.migrations", "check"]))
 
 
+def cmd_fk_check():
+    """Report foreign key orphans (read-only, no automatic repair)."""
+    load_env()
+    sys.exit(run([str(venv_python()), "-m", "app.migrations", "fk-check"]))
+
+
 def cmd_deploy():
     """Deploy: nginx + systemd (requires root)."""
     load_env()
@@ -519,6 +525,7 @@ COMMANDS = {
     "db-init": (cmd_db_init, "Create database tables"),
     "migrate": (cmd_migrate, "Apply schema migrations to existing DB"),
     "check-identity": (cmd_check_identity, "Check participant identity consistency"),
+    "fk-check": (cmd_fk_check, "Report foreign key orphans (read-only)"),
     "db-shell": (cmd_db_shell, "Open SQLite shell"),
     "deploy": (cmd_deploy, "Deploy nginx + systemd"),
     "logs": (cmd_logs, "Tail server logs"),

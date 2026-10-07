@@ -134,3 +134,127 @@ def test_create_app_purges_expired_voted_event_then_runs_identity_migration(monk
             Guest.query.filter_by(event_id=current_id).filter(Guest.creator_id.isnot(None)).count()
         )
     assert (remaining, creator_guests) == ({current_id}, 1)
+
+
+# --- Audit B018-B024 #3, #9, #10 ---
+
+
+def _file_app(monkeypatch, tmp_path):
+    from app import create_app
+
+    monkeypatch.setattr("app.load_dotenv", lambda *args, **kwargs: True)
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path}/t.db")
+    monkeypatch.setenv("INSTANCE_PATH", str(tmp_path / "inst"))
+    monkeypatch.setenv("SKIP_STARTUP_MIGRATION", "1")
+    return create_app()
+
+
+def _orphan_vote(tmp_path):
+    import sqlite3
+
+    con = sqlite3.connect(tmp_path / "t.db")
+    con.execute(
+        "INSERT INTO poll_votes (id, option_id, guest_id) VALUES ('v1', 'no-option', 'no-guest')"
+    )
+    con.commit()
+    con.close()
+
+
+def test_foreign_key_orphans_counts_rows_per_table_and_parent(monkeypatch, tmp_path):
+    from app.extensions import db as _db
+    from app.migrations import foreign_key_orphans
+
+    app = _file_app(monkeypatch, tmp_path)
+    _orphan_vote(tmp_path)
+    with app.app_context():
+        orphans = foreign_key_orphans(_db.engine)
+    assert orphans == {"poll_votes -> poll_options": 1, "poll_votes -> guests": 1}
+
+
+def test_startup_logs_foreign_key_orphans_as_warning(monkeypatch, tmp_path, caplog):
+    from app.migrations import log_foreign_key_orphans
+
+    app = _file_app(monkeypatch, tmp_path)
+    _orphan_vote(tmp_path)
+    monkeypatch.delenv("SKIP_STARTUP_MIGRATION")
+    with app.app_context(), caplog.at_level(logging.WARNING):
+        run_startup_steps(app, [("fk-check", log_foreign_key_orphans)])
+    assert "foreign key orphans: poll_votes -> guests: 1 row(s)" in caplog.text
+
+
+def test_fk_check_command_returns_one_and_lists_orphans(monkeypatch, tmp_path, capsys):
+    from app.migrations import main
+
+    _file_app(monkeypatch, tmp_path)
+    _orphan_vote(tmp_path)
+    code = main(["migrations", "fk-check"])
+    assert (code, "poll_votes -> guests: 1" in capsys.readouterr().out) == (1, True)
+
+
+def test_fk_check_command_returns_zero_on_clean_base(monkeypatch, tmp_path, capsys):
+    from app.migrations import main
+
+    _file_app(monkeypatch, tmp_path)
+    assert (
+        main(["migrations", "fk-check"]),
+        "no foreign key orphan" in capsys.readouterr().out,
+    ) == (0, True)
+
+
+def test_fk_check_command_repairs_nothing(monkeypatch, tmp_path):
+    import sqlite3
+
+    from app.migrations import main
+
+    _file_app(monkeypatch, tmp_path)
+    _orphan_vote(tmp_path)
+    main(["migrations", "fk-check"])
+    con = sqlite3.connect(tmp_path / "t.db")
+    assert con.execute("SELECT COUNT(*) FROM poll_votes").fetchone() == (1,)
+    con.close()
+
+
+def test_check_command_does_not_purge_expired_events(monkeypatch, tmp_path):
+    from app.extensions import db as _db
+    from app.migrations import main
+    from app.models import Creator
+
+    app = _file_app(monkeypatch, tmp_path)
+    with app.app_context():
+        creator = Creator(email="c@t.com", email_verified=True, display_name="C")
+        _db.session.add(creator)
+        _db.session.commit()
+        event = _voted_event(_db, creator, end=date.today() - timedelta(days=40))
+        event_id = event.id
+        _db.session.remove()
+    monkeypatch.delenv("SKIP_STARTUP_MIGRATION")
+    main(["migrations", "check"])
+    with app.app_context():
+        assert Event.query.filter_by(id=event_id).count() == 1
+
+
+def test_check_command_leaves_database_file_unchanged(monkeypatch, tmp_path):
+    import hashlib
+
+    from app.migrations import main
+
+    _file_app(monkeypatch, tmp_path)
+    path = tmp_path / "t.db"
+    before = hashlib.sha256(path.read_bytes()).hexdigest()
+    main(["migrations", "check"])
+    assert hashlib.sha256(path.read_bytes()).hexdigest() == before
+
+
+def test_me_page_is_served_no_store(creator_client, event):
+    resp = creator_client.get(f"/e/{event.code}/me")
+    assert resp.headers["Cache-Control"] == "no-store"
+
+
+def test_manage_page_is_served_no_store(creator_client, event):
+    resp = creator_client.get(f"/e/{event.code}/manage")
+    assert resp.headers["Cache-Control"] == "no-store"
+
+
+def test_other_pages_keep_revalidation_cache_control(creator_client, event):
+    resp = creator_client.get(f"/e/{event.code}")
+    assert resp.headers["Cache-Control"] == "no-cache, must-revalidate"

@@ -60,6 +60,7 @@ python manage.py stop         # arrêter le serveur
 python manage.py status       # état du serveur
 python manage.py db-init      # créer les tables
 python manage.py migrate      # appliquer les migrations de schéma
+python manage.py fk-check     # rapport des lignes orphelines (lecture seule, sans réparation)
 python manage.py db-shell     # shell SQLite
 python manage.py deploy       # nginx + systemd (hors Docker, nécessite root)
 python manage.py logs         # tail des logs

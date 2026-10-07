@@ -58,6 +58,7 @@ def purge_expired_events(app: Flask) -> int:
 def default_steps() -> list[Step]:
     """Migrations (avant la purge : elle charge les lignes), purge, puis identité."""
     from app.migrations import (
+        log_foreign_key_orphans,
         run_costs_migration,
         run_identity_migration,
         run_lists_migration,
@@ -72,6 +73,7 @@ def default_steps() -> list[Step]:
         ("polls", run_polls_migration),
         ("purge", purge_expired_events),
         ("identity", run_identity_migration),
+        ("fk-check", log_foreign_key_orphans),  # lecture seule
     ]
 
 

@@ -627,14 +627,43 @@ def run_polls_migration(app: Flask) -> dict[str, int]:
     return result
 
 
+def foreign_key_orphans(engine: Any) -> dict[str, int]:
+    """Lignes orphelines par ``table -> parent`` (``PRAGMA foreign_key_check``, lecture seule)."""
+    if engine.dialect.name != "sqlite":
+        return {}
+    with engine.connect() as conn:
+        rows = conn.exec_driver_sql("PRAGMA foreign_key_check").fetchall()
+    counts: dict[str, int] = {}
+    for table, _rowid, parent, _fkid in rows:
+        key = f"{table} -> {parent}"
+        counts[key] = counts.get(key, 0) + 1
+    return counts
+
+
+def log_foreign_key_orphans(app: Flask) -> dict[str, int]:
+    """Étape de démarrage en lecture seule : journalise (WARNING) le nombre d'orphelins par table."""
+    orphans = foreign_key_orphans(db.engine)
+    for key, count in sorted(orphans.items()):
+        logger.warning("foreign key orphans: %s: %d row(s) (python manage.py fk-check)", key, count)
+    return orphans
+
+
 def main(argv: list[str]) -> int:
-    if argv[1:] != ["check"]:
-        print("Usage: python -m app.migrations check")
+    if argv[1:] not in (["check"], ["fk-check"]):
+        print("Usage: python -m app.migrations check | fk-check")
         return 2
     os.environ["SKIP_STARTUP_MIGRATION"] = "1"  # `check` ne doit rien écrire
     from app import create_app
 
     app = create_app()
+    if argv[1] == "fk-check":
+        with app.app_context():
+            orphans = foreign_key_orphans(db.engine)
+        for key, count in sorted(orphans.items()):
+            print(f"{key}: {count}")
+        if not orphans:
+            print("[OK] no foreign key orphan")
+        return 1 if orphans else 0
     with app.app_context():
         problems = check_identity(db.session)
     for line in problems:

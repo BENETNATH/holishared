@@ -267,6 +267,8 @@ def create_app() -> Flask:
         if "text/html" in ctype and "/static/" not in request.path:
             response.headers["Cache-Control"] = "no-cache, must-revalidate"
             response.headers["Pragma"] = "no-cache"
+        if request.endpoint in ("events.me", "events.manage"):  # code personnel : jamais stocké
+            response.headers["Cache-Control"] = "no-store"
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
             "script-src 'self' 'unsafe-inline'; "  # scripts inline : thème, import map, pages historiques (durcissement en B028)
