@@ -1704,6 +1704,243 @@
           "message": "les actions de ligne sont assez grandes"
         }
       ]
+    },
+    {
+      "lot": "B025",
+      "role": "guest_household",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "id": "infos-cards",
+      "path": "/e/{event.rich}/logistics",
+      "langs": [
+        "fr"
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "[...document.querySelectorAll('[data-testid=info-category]')].map(e => e.dataset.category).join() === 'address,access,timing,docs'",
+          "message": "les catégories suivent l'ordre logique"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelectorAll('[data-testid=info-copy]').length >= 4 && !document.querySelector('[name=order]')",
+          "message": "chaque carte a un bouton Copier et il n'y a plus de champ d'ordre"
+        },
+        {
+          "type": "assert",
+          "expr": "[...document.querySelectorAll('main .ui-btn--primary')].filter(b => b.offsetParent !== null).length === 1",
+          "message": "un seul bouton primaire"
+        },
+        {
+          "type": "assert",
+          "expr": "!!document.querySelector('[data-testid=info-content] a[href^=\"https://\"]')",
+          "message": "les liens http(s) sont cliquables"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=info-copy]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=info-copy]').dataset.state === 'copied' || !!document.querySelector('[data-toast]')",
+          "message": "la copie donne un retour visuel"
+        }
+      ]
+    },
+    {
+      "lot": "B025",
+      "role": "guest_household",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "id": "infos-add",
+      "path": "/e/{event.rich}/logistics",
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "(window.__sameDoc = true, !!document.querySelector('[data-testid=info-add]'))",
+          "message": "le bouton d'ajout est présent"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=info-add]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=info-sheet]').open && document.activeElement && document.activeElement.id === 'sheet-title'",
+          "message": "la feuille s'ouvre avec le focus sur le titre"
+        },
+        {
+          "type": "assert",
+          "expr": "(document.getElementById('sheet-title').value = 'Wifi du gîte', document.getElementById('sheet-content').value = 'Réseau : gite38\\nMot de passe : bruyeres', true)",
+          "message": "saisie"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=info-sheet-submit]"
+        },
+        {
+          "type": "waitFor",
+          "expr": "[...document.querySelectorAll('[data-testid=info-title]')].some(e => e.textContent.trim() === 'Wifi du gîte') && !document.querySelector('[data-testid=info-sheet]').open",
+          "message": "l'info apparaît et la feuille se ferme sans rechargement"
+        },
+        {
+          "type": "assert",
+          "expr": "window.__sameDoc === true",
+          "message": "la page n'a pas été rechargée"
+        }
+      ]
+    },
+    {
+      "lot": "B025",
+      "role": "guest_household",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "id": "infos-add-error",
+      "path": "/e/{event.rich}/logistics",
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        390
+      ],
+      "actions": [
+        {
+          "type": "click",
+          "target": "[data-testid=info-add]"
+        },
+        {
+          "type": "assert",
+          "expr": "(document.querySelector('[data-testid=info-sheet-form]').noValidate = true, document.getElementById('sheet-title').value = 'x', true)",
+          "message": "titre trop court"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=info-sheet-submit]"
+        },
+        {
+          "type": "waitFor",
+          "expr": "!!document.querySelector('[data-testid=info-sheet] [data-testid=err-title]') && document.querySelector('[data-testid=info-sheet]').open",
+          "message": "l'erreur s'affiche dans la feuille, par champ"
+        }
+      ]
+    },
+    {
+      "lot": "B025",
+      "role": "guest_household",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "id": "infos-edit",
+      "path": "/e/{event.rich}/logistics",
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "actions": [
+        {
+          "type": "click",
+          "target": "[data-testid=info-menu] summary"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=info-edit]"
+        },
+        {
+          "type": "assert",
+          "expr": "(window.__t = document.querySelector('[data-testid=info-title]').textContent.trim(), document.querySelector('[data-testid=info-sheet]').open && document.getElementById('sheet-title').value === window.__t)",
+          "message": "la feuille est préremplie"
+        },
+        {
+          "type": "assert",
+          "expr": "(window.__t = window.__t.replace(/!$/, '') + (window.__t.endsWith('!') ? '' : '!'), document.getElementById('sheet-title').value = window.__t, true)",
+          "message": "saisie"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=info-sheet-submit]"
+        },
+        {
+          "type": "waitFor",
+          "expr": "[...document.querySelectorAll('[data-testid=info-title]')].some(e => e.textContent.trim() === window.__t)",
+          "message": "le titre est mis à jour sur place"
+        }
+      ]
+    },
+    {
+      "lot": "B025",
+      "role": "creator",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "id": "infos-delete",
+      "path": "/e/{event.rich}/logistics",
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        390
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "(window.__n = document.querySelectorAll('[data-testid=info-card]').length, true)",
+          "message": "compte"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=info-menu] summary"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=info-delete]"
+        },
+        {
+          "type": "assert",
+          "expr": "!!document.querySelector('dialog[open]')",
+          "message": "la suppression demande confirmation"
+        },
+        {
+          "type": "click",
+          "target": "dialog[open] [data-confirm-accept]"
+        },
+        {
+          "type": "waitFor",
+          "expr": "document.querySelectorAll('[data-testid=info-card]').length === window.__n - 1",
+          "message": "l'info disparaît sans rechargement"
+        }
+      ]
+    },
+    {
+      "lot": "B025",
+      "role": "guest_household",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "id": "infos-form",
+      "path": "/e/{event.rich}/logistics/new",
+      "langs": [
+        "fr",
+        "en"
+      ]
     }
   ]
 }

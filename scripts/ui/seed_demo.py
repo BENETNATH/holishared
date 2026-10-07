@@ -227,6 +227,22 @@ def _populate_rich(db: Any, models: Any, rich: Any, creator_guest: Any) -> dict[
             event_id=rich.id,
         )
     )
+    db.session.add(
+        m.LogisticsItem(
+            title="Arrivée et départ",
+            content="Arrivée samedi dès 16 h\nDépart dimanche avant 10 h",
+            category="timing",
+            event_id=rich.id,
+        )
+    )
+    db.session.add(
+        m.LogisticsItem(
+            title="Réservation",
+            content="Confirmation : https://example.org/reservation/4821 (à présenter à l'arrivée).",
+            category="docs",
+            event_id=rich.id,
+        )
+    )
 
     for content, author, guest_id, author_type in (
         ("On part à quelle heure samedi ?", "Antoine", antoine.id, "guest"),
