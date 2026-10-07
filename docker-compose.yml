@@ -79,6 +79,9 @@ services:
       - DEFAULT_LANGUAGE=${DEFAULT_LANGUAGE:-fr}
       - SUPPORTED_LANGUAGES=${SUPPORTED_LANGUAGES:-fr,en}
       - SESSION_COOKIE_SECURE=${SESSION_COOKIE_SECURE:-false}
+      - PERMANENT_SESSION_LIFETIME=${PERMANENT_SESSION_LIFETIME:-2592000}
+      # Sans SMTP : mettre true pour afficher le lien de vérification / le code en test (jamais en production)
+      - DEV_SHOW_SECRETS=${DEV_SHOW_SECRETS:-false}
     depends_on:
       - redis
     volumes:
