@@ -206,12 +206,13 @@ def consume_media_quota(creator: Creator, size_bytes: int) -> None:
     db.session.commit()
 
 
-def release_media_quota(creator: Creator, size_bytes: int) -> None:
-    """Release quota when media is deleted."""
+def release_media_quota(creator: Creator, size_bytes: int, *, commit: bool = True) -> None:
+    """Release quota when media is deleted (``commit=False`` : le commit est à la charge de l'appelant)."""
     quota = get_media_quota(creator)
     quota.used_bytes = max(0, quota.used_bytes - size_bytes)
-    from app.extensions import db
-    db.session.commit()
+    if commit:
+        from app.extensions import db
+        db.session.commit()
 
 
 def set_media_tier(creator: Creator, tier: str) -> None:

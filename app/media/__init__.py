@@ -25,13 +25,17 @@ from app.context import load_event_context, log_event
 from app.extensions import db, limiter
 from app.freemium import can_upload_media, consume_media_quota, release_media_quota
 from app.i18n import format_filesize
-from app.models import MediaItem
+from app.models import Expense, MediaItem
 
 media_bp = Blueprint("media", __name__)
 
 ALLOWED_MIME = {
-    "image/jpeg", "image/png", "image/webp", "image/heic",
-    "video/mp4", "video/webm",
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/heic",
+    "video/mp4",
+    "video/webm",
 }
 MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MB per file
 
@@ -105,6 +109,7 @@ def _extract_exif(file_storage: FileStorage) -> tuple[float | None, float | None
         # GPS
         gps_info = exif.get(34853, {})  # GPSInfo tag
         if gps_info:
+
             def _dms(value: tuple[Any, Any, Any]) -> float:
                 d = int(value[0])
                 m = int(value[1])
@@ -258,18 +263,19 @@ def delete(code: str, item_id: str) -> Response:
     if not ctx.can_delete(item):
         abort(403)
 
-    # Delete file
+    # Références (justificatifs de frais) mises à NULL ; fichier et quota seulement après le commit réussi.
     path = _media_dir(code) / item.filename
-    if path.exists():
-        path.unlink()
-
-    # Release quota
-    release_media_quota(event.creator, item.size_bytes)
-
-    # Log
+    Expense.query.filter_by(receipt_media_id=item.id).update({"receipt_media_id": None})
+    release_media_quota(event.creator, item.size_bytes, commit=False)
     log_event(ctx, "media.deleted", target=item.original_name)
     db.session.delete(item)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        flash(_("La suppression a échoué. Réessayez."), "danger")
+        return redirect(url_for("media.detail", code=code, item_id=item_id))
+    path.unlink(missing_ok=True)
 
     flash(_("Média supprimé."), "success")
     return redirect(url_for("media.gallery", code=code))

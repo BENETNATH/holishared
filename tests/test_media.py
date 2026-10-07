@@ -75,3 +75,73 @@ class TestMediaAccess:
         assert resp.status_code == 403  # refus rendu par le gabarit 403, média conservé
         db.session.refresh(other)
         assert other.id is not None
+
+
+def _expense_with_receipt(db, event, item):
+    from app.models import Expense, Household
+
+    household = Household(name="Foyer", event_id=event.id)
+    db.session.add(household)
+    db.session.flush()
+    expense = Expense(
+        description="Courses",
+        amount_cents=1000,
+        paid_by_household_id=household.id,
+        receipt_media_id=item.id,
+        event_id=event.id,
+    )
+    db.session.add(expense)
+    db.session.commit()
+    return expense
+
+
+def test_delete_media_referenced_by_expense_receipt_returns_302(creator_client, db, event):
+    item = _make_item(db, event)
+    _expense_with_receipt(db, event, item)
+    resp = creator_client.post(f"/e/{event.code}/media/{item.id}/delete")
+    assert resp.status_code == 302
+
+
+def test_delete_media_referenced_by_expense_receipt_nulls_the_reference(creator_client, db, event):
+    item = _make_item(db, event)
+    expense = _expense_with_receipt(db, event, item)
+    creator_client.post(f"/e/{event.code}/media/{item.id}/delete")
+    db.session.refresh(expense)
+    assert expense.receipt_media_id is None
+
+
+def test_delete_media_removes_row_and_file_after_commit(creator_client, app, db, event):
+    from pathlib import Path
+
+    item = _make_item(db, event)
+    folder = Path(app.instance_path) / "media" / event.code
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / item.filename).write_bytes(b"x")
+    creator_client.post(f"/e/{event.code}/media/{item.id}/delete")
+    assert (MediaItem.query.count(), (folder / item.filename).exists()) == (0, False)
+
+
+def test_failed_media_delete_keeps_file_and_quota(
+    creator_client, creator_guest, app, db, event, monkeypatch
+):
+    from pathlib import Path
+
+    from app.freemium import get_media_quota
+
+    item = _make_item(db, event)
+    quota = get_media_quota(event.creator)
+    quota.used_bytes = 1000
+    db.session.commit()
+    folder = Path(app.instance_path) / "media" / event.code
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / item.filename).write_bytes(b"x")
+
+    def boom():
+        raise RuntimeError("commit failed")
+
+    monkeypatch.setattr(db.session, "commit", boom)
+    creator_client.post(f"/e/{event.code}/media/{item.id}/delete")
+    monkeypatch.undo()
+    db.session.rollback()
+    db.session.refresh(quota)
+    assert ((folder / item.filename).exists(), quota.used_bytes) == (True, 1000)
