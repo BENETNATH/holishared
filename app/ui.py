@@ -78,6 +78,9 @@ JS_STRINGS: Final[dict[str, str]] = {
     "confirm_title": N_("Confirmer l'action"),
     "new_version": N_("Nouvelle version disponible"),
     "reload": N_("Recharger"),
+    "update_applying": N_(
+        "Mise à jour de l'application… la page va se recharger, réactivez ensuite les notifications."
+    ),
     "show": N_("Voir"),
     "hide": N_("Masquer"),
     "loading": N_("Chargement…"),

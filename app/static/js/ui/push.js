@@ -56,10 +56,40 @@ function showPrefs(card, prefs) {
   });
 }
 
+// Le service worker « actif » peut être une ancienne version, sans gestionnaire push, tant que la nouvelle
+// attend la confirmation de la bannière de mise à jour : on active la dernière avant de s'abonner,
+// sinon le navigateur affiche seulement « ce site a été mis à jour » au lieu du message.
+async function latestRegistration() {
+  const registration = await navigator.serviceWorker.ready;
+  try {
+    await registration.update();
+  } catch (error) {
+    // Hors ligne : on garde le worker actif.
+  }
+  const worker = registration.installing || registration.waiting;
+  if (!worker) return registration;
+  if (worker.state !== 'installed') {
+    await new Promise((resolve) => {
+      const done = () => {
+        if (worker.state !== 'installed' && worker.state !== 'redundant') return;
+        worker.removeEventListener('statechange', done);
+        resolve();
+      };
+      worker.addEventListener('statechange', done);
+      done();
+    });
+  }
+  if (!registration.waiting) return registration;
+  toast(t('update_applying'), { tone: 'info' });
+  registration.waiting.postMessage({ type: 'SKIP_WAITING' }); // la page se recharge (ui/pwa)
+  return null;
+}
+
 async function enable(card) {
   const permission = await Notification.requestPermission();
   if (permission !== 'granted') return initCardState(card);
-  const registration = await navigator.serviceWorker.ready;
+  const registration = await latestRegistration();
+  if (!registration) return undefined;
   const subscription =
     (await registration.pushManager.getSubscription()) ||
     (await registration.pushManager.subscribe({

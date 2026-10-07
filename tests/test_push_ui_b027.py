@@ -211,3 +211,16 @@ def test_push_module_uses_only_registered_string_keys():
 
 def test_privacy_sheet_mentions_push_notifications(guest_client, event):
     assert "service de notification de votre navigateur" in home(guest_client, event)
+
+
+def test_enable_activates_the_latest_service_worker_before_subscribing():
+    source = JS.read_text(encoding="utf-8")
+    assert "registration.update()" in source
+    assert "{ type: 'SKIP_WAITING' }" in source
+    assert source.index("latestRegistration()") < source.index("pushManager.subscribe")
+
+
+def test_update_applying_message_is_a_translated_js_string():
+    from app.ui import JS_STRINGS
+
+    assert "update_applying" in JS_STRINGS

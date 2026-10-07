@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 11:32+0200\n"
+"POT-Creation-Date: 2026-10-07 13:43+0200\n"
 "PO-Revision-Date: 2026-10-04 11:18+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -831,6 +831,12 @@ msgstr ""
 
 #: app/ui.py
 msgid "Recharger"
+msgstr ""
+
+#: app/ui.py
+msgid ""
+"Mise à jour de l'application… la page va se recharger, réactivez ensuite "
+"les notifications."
 msgstr ""
 
 #: app/templates/events/me.html app/templates/events/members.html
