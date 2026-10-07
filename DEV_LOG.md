@@ -308,6 +308,16 @@ Audit B017/B029 : constats 1 à 6 corrigés (variables `INSTANCE_PATH` et `SKIP_
 - Garde UI : les formulaires en erreur sont testés en remplaçant `<main>` par la réponse du POST (aucune navigation) ; `expectStatus` dans une scène tolère la seule ligne console du 403/404 voulu.
 - Gate tests : suite complète ≈ 7 minutes.
 
+### 2026-10-07 — B026 Média
+
+- Dérivés : `app/media/thumbs.py` (`ensure_thumb`) ; WebP qualité 80, `ImageOps.exif_transpose`, `draft()` pour les JPEG, aucun `exif=`/`icc_profile=` à l'enregistrement (rien n'est recopié). Écriture atomique (fichier temporaire + `os.replace`). Échec de décodage ou image > 50 Mpx : `None` -> 404, sans fichier ni 500 ; `Image.MAX_IMAGE_PIXELS` borné en plus du contrôle d'en-tête.
+- Ordre de la galerie : `coalesce(taken_at, uploaded_at) DESC, id DESC` ; précédent/suivant et position sont calculés par comparaison sur cette clé (requêtes `count`/`first`, pas de chargement de la liste). `?upto=<position>` rend assez de pages pour retrouver la tuile au retour de la visionneuse (`#m-<id>`).
+- Envoi : une requête = un fichier ; réponse JSON si `Accept: application/json`, sinon flash + redirection (repli sans JS, plusieurs fichiers acceptés). Statuts : 415 format/contenu, 413 taille, 409 stockage plein, 429 débit (réponse HTML par défaut, le client la traduit). `request.max_content_length` est posé par requête (MAX_FILE_SIZE + 1 Mo).
+- Pièges : un nom de fichier contenant `"` est tronqué par l'analyseur multipart (les navigateurs l'encodent en `%22`) ; `Image.Exif` vide n'est « faux » que s'il n'a pas de sous-IFD (utiliser `is not None`) ; les champs `<input type="file">` masqués en `sr-only` échouent au contrôle de cible/contraste de la garde UI : un vrai `<button>` ouvre le sélecteur.
+- Garde UI : le contenu saisi par les utilisateurs (légendes) porte `translate="no"` ; un échec réseau/HTTP volontaire est une erreur console, la scène de file d'envoi utilise donc le refus côté client (fichier > 50 Mo) plutôt qu'un 415.
+- Les tests n'écrivent plus dans `instance/media` (fixture `app` -> `tmp_path`).
+- Gate tests : suite complète de plusieurs minutes (pas de xdist).
+
 ### À faire (backlog)
 
 | Priorité | Tâche | Statut |

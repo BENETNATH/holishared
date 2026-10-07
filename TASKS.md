@@ -526,14 +526,16 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B026 — Média
 
-**Statut** : ⬜ · **Réf.** F13
+**Statut** : ✅ 2026-10-07 · **Réf.** F13
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
-| 26.1 | Miniatures | Génération côté serveur (Pillow), grille légère, originaux à la demande |
-| 26.2 | Formats | HEIC converti ou refusé avec message clair ; vidéo avec affiche |
-| 26.3 | Envoi | Multi-sélection, progression, limite de débit adaptée |
-| 26.4 | Visionneuse | Précédent/suivant, balayage, téléchargement, légende, date et lieu lisibles |
+| 26.1 | Miniatures | Génération côté serveur (Pillow), grille légère, originaux à la demande — ✅ |
+| 26.2 | Formats | HEIC converti ou refusé avec message clair ; vidéo avec affiche — ✅ HEIC refusé ; vidéo : tuile à icône de lecture (pas d'affiche ni de durée : aucune dépendance de décodage vidéo) |
+| 26.3 | Envoi | Multi-sélection, progression, limite de débit adaptée — ✅ |
+| 26.4 | Visionneuse | Précédent/suivant, balayage, téléchargement, légende, date et lieu lisibles — ✅ |
+
+**Hors périmètre / suites** : quota média relationnel (lot ultérieur) ; affiche et durée des vidéos (nécessitent ffmpeg) ; nettoyage des CSS historiques `.media-*` devenues inutilisées ; `scripts/cleanup_media.py` ne contrôle pas les dérivés orphelins.
 
 ## B027 — Notifications Web Push (PWA)
 

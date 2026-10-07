@@ -10,6 +10,18 @@ sous chaque lot.
 
 ## [Unreleased]
 
+### B026 — Média
+
+- `feat(media)` : miniatures WebP (320 et 960 px) générées à la demande par Pillow et mises en cache sur disque (`<instance>/media/<code>/thumbs/<id>-<taille>.webp`), orientation EXIF appliquée, EXIF/GPS absents des dérivés, bornes anti-bombe de décompression (50 Mpx) et échecs de décodage sans 500 ; route `media.thumb` (mêmes droits que `media.file`, `Cache-Control: private, max-age=86400`, ETag/304) ; dérivés supprimés avec le média, purgés avec l'événement, absents de l'export ZIP et du quota ; les médias existants sont servis sans migration (génération au premier accès).
+- `feat(media)` : HEIC/HEIF refusé avec un message clair (réglage iPhone « Le plus compatible ») et plus annoncé dans `accept` ; vidéos en tuile à icône de lecture (sans chargement du fichier) ; extraction EXIF corrigée (secondes et décimales des coordonnées, `DateTimeOriginal`).
+- `feat(media)` : envoi multiple fichier par fichier (`ui/media.js` : XHR, barre de progression, concurrence 2, annulation, réessai, glisser-déposer, légende commune), erreurs traduites par fichier (format, taille, stockage plein, trop d'envois), grille rafraîchie sans rechargement ; limite de débit portée de 10 à 200 envois/heure/IP ; `MAX_CONTENT_LENGTH` par requête ; noms d'origine assainis.
+- `feat(media)` : galerie en grille de miniatures carrées groupées par jour de prise de vue (EXIF, sinon envoi), compteur, pagination de 60 par « Afficher plus » (HTMX), état vide ; la jauge de stockage n'affiche plus de faux bouton de paiement (texte honnête : supprimer des médias).
+- `feat(media)` : visionneuse (mêmes URLs) : miniature 960 puis original à la demande, précédent/suivant (`rel=prev/next`, préchargement), flèches clavier, balayage tactile, Échap vers la galerie à la bonne position, téléchargement (`attachment`, nom assaini), légende modifiable par l'auteur ou le créateur (`MediaItem` : édition `author` dans `app/context.py`), date et lieu lisibles, lien « Voir sur la carte » OpenStreetMap en nouvel onglet (aucune requête tierce avant le clic), suppression avec confirmation.
+- `feat(ui)` : icônes `play` et `rotate-cw` ; chaînes JS `media_*`.
+- `test(ui)` : `tests/test_media_b026.py` (86 tests) ; graine de démo avec de vraies images (paysage, portrait, carré, EXIF GPS/date) et une vidéo ; scènes `media`, `media-creator`, `media-empty`, `media-upload-sheet`, `media-upload-queue`, `media-viewer`, `media-viewer-located`, `media-caption-sheet` ; touches fléchées dans l'outil de garde.
+- `test(infra)` : le fixture `app` isole `instance_path` dans un dossier temporaire (les tests n'écrivent plus dans le vrai `instance/media`).
+- Tests existants adaptés : `test_rights.py` (la légende d'un média est modifiable par l'auteur et le créateur), `test_ui_assets.py` (deux icônes ajoutées au jeu d'icônes).
+
 ### B019 — Accès, comptes & parcours d'entrée
 
 - `feat(auth)` : sessions durables (F15) : `session.permanent` + cookie « se souvenir » du créateur, 30 jours glissants (`PERMANENT_SESSION_LIFETIME`, `REMEMBER_COOKIE_DURATION` équivalent), cookies `HttpOnly`/`SameSite=Lax`/`Secure` selon l'environnement ; déconnexion en POST (CSRF) qui efface aussi les accès invité de l'appareil (« Se déconnecter » / « Oublier cet appareil », menu, en-tête et `/e/`).
