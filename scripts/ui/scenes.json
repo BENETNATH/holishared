@@ -840,7 +840,17 @@
           "type": "assert",
           "expr": "(() => { const f = document.querySelector('[data-testid=list-create-form]').getBoundingClientRect(); const c = document.querySelector('[data-testid=list-cards]').getBoundingClientRect(); return f.height < 130 && c.top - f.bottom < 40; })()",
           "message": "pas d'écart vertical entre la création rapide et les cartes (règle legacy form en colonne)"
+        },
+        {
+          "type": "assert",
+          "expr": "(() => { const r = (q) => document.querySelector(q).getBoundingClientRect(); const n = r('#list-create-title'), t = r('#list-create-type'), b = r('[data-testid=list-create-submit]'); const sameRow = Math.abs(t.top - b.top) < 8; const gap = t.top >= n.bottom ? t.top - n.bottom : 0; const oneLine = Math.abs(n.top - t.top) < 8; return sameRow && gap <= 16 && (innerWidth >= 640 ? oneLine : t.top >= n.bottom); })()",
+          "message": "nom, type et « Créer » compacts : écart vertical ≤ 16 px, type et bouton sur la même ligne (une seule ligne sur bureau)"
         }
+      ],
+      "viewports": [
+        360,
+        390,
+        1280
       ]
     },
     {
