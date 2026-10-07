@@ -1941,6 +1941,241 @@
         "fr",
         "en"
       ]
+    },
+    {
+      "lot": "B025",
+      "role": "guest_household",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "id": "chat-page",
+      "path": "/e/{event.rich}/chat",
+      "langs": [
+        "fr"
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "!!document.querySelector('[data-testid=chat-composer]') && !!document.querySelector('[data-testid=chat-older]')",
+          "message": "composeur et « Messages précédents » présents"
+        },
+        {
+          "type": "assert",
+          "expr": "(() => { const c = document.querySelector('.ui-chat__dock').getBoundingClientRect(); const n = document.querySelector('[data-testid=nav-bottom]'); const nb = n && getComputedStyle(n).display !== 'none' ? n.getBoundingClientRect() : null; return c.bottom <= innerHeight + 1 && c.top >= 0 && (!nb || c.bottom <= nb.top + 1); })()",
+          "message": "le composeur est visible, au-dessus de la barre du bas"
+        },
+        {
+          "type": "assert",
+          "expr": "document.documentElement.scrollWidth <= innerWidth",
+          "message": "pas de défilement horizontal"
+        },
+        {
+          "type": "assert",
+          "expr": "!document.querySelector('.chat-delete') && document.querySelectorAll('[data-testid=chat-menu]').length >= 0",
+          "message": "plus de gros bouton Supprimer"
+        },
+        {
+          "type": "assert",
+          "expr": "!!document.querySelector('[data-testid=chat-message][data-mine=true] [data-testid=chat-author]') && /^Vous$/.test(document.querySelector('[data-testid=chat-message][data-mine=true] [data-testid=chat-author]').textContent.trim()) || !document.querySelector('[data-testid=chat-message][data-mine=true]')",
+          "message": "mes messages portent le libellé « Vous »"
+        },
+        {
+          "type": "assert",
+          "expr": "Math.abs(document.documentElement.scrollHeight - (scrollY + innerHeight)) < 4",
+          "message": "la page s'ouvre en bas de conversation"
+        }
+      ]
+    },
+    {
+      "lot": "B025",
+      "role": "guest_household",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "id": "chat-send",
+      "path": "/e/{event.rich}/chat",
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "(window.__sameDoc = true, window.__n = document.querySelectorAll('[data-testid=chat-message]').length, true)",
+          "message": "compte"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=chat-input]"
+        },
+        {
+          "type": "assert",
+          "expr": "(document.getElementById('chat-input').value = 'Je prends le pain !', document.getElementById('chat-input').dispatchEvent(new Event('input')), true)",
+          "message": "saisie"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=chat-send]"
+        },
+        {
+          "type": "waitFor",
+          "expr": "document.querySelectorAll('[data-testid=chat-message]').length === window.__n + 1 && document.getElementById('chat-input').value === ''",
+          "message": "le message apparaît et le champ est vidé"
+        },
+        {
+          "type": "assert",
+          "expr": "window.__sameDoc === true && document.activeElement.id === 'chat-input'",
+          "message": "sans rechargement, champ refocalisé"
+        },
+        {
+          "type": "assert",
+          "expr": "Math.abs(document.documentElement.scrollHeight - (scrollY + innerHeight)) < 4",
+          "message": "la conversation reste en bas"
+        }
+      ]
+    },
+    {
+      "lot": "B025",
+      "role": "guest_household",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "id": "chat-older",
+      "path": "/e/{event.rich}/chat",
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        390
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "(window.__n = document.querySelectorAll('[data-testid=chat-message]').length, true)",
+          "message": "compte"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=chat-older]"
+        },
+        {
+          "type": "waitFor",
+          "expr": "document.querySelectorAll('[data-testid=chat-message]').length > window.__n",
+          "message": "les messages précédents sont ajoutés en haut"
+        },
+        {
+          "type": "assert",
+          "expr": "new Set([...document.querySelectorAll('[data-message-id]')].map(e => e.dataset.messageId)).size === document.querySelectorAll('[data-message-id]').length",
+          "message": "aucun doublon"
+        }
+      ]
+    },
+    {
+      "lot": "B025",
+      "role": "guest_household",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "id": "chat-new-messages",
+      "path": "/e/{event.rich}/chat",
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        390
+      ],
+      "actions": [
+        {
+          "type": "scroll",
+          "to": "top"
+        },
+        {
+          "type": "assert",
+          "expr": "(window.__y = scrollY, window.__n = document.querySelectorAll('[data-testid=chat-message]').length, (() => { const f = new FormData(document.querySelector('[data-testid=chat-composer]')); f.set('content', 'Message venu d\\'ailleurs'); f.delete('after'); f.delete('ts'); fetch(document.querySelector('[data-testid=chat-composer]').action, { method: 'POST', body: f, headers: { 'HX-Request': 'true' }, credentials: 'same-origin' }).then(() => { window.__posted = true; }); })(), true)",
+          "message": "un autre message est envoyé pendant que la personne lit l'historique"
+        },
+        {
+          "type": "waitFor",
+          "expr": "window.__posted === true",
+          "message": "envoyé"
+        },
+        {
+          "type": "assert",
+          "expr": "(document.dispatchEvent(new Event('visibilitychange')), true)",
+          "message": "relève immédiate"
+        },
+        {
+          "type": "waitFor",
+          "expr": "document.querySelectorAll('[data-testid=chat-message]').length === window.__n + 1",
+          "message": "le nouveau message est ajouté"
+        },
+        {
+          "type": "assert",
+          "expr": "!document.getElementById('chat-new').hidden && Math.abs(scrollY - window.__y) < 4",
+          "message": "le défilement n'est pas forcé et le bouton « Nouveaux messages » apparaît"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=chat-new-messages]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.getElementById('chat-new').hidden && Math.abs(document.documentElement.scrollHeight - (scrollY + innerHeight)) < 4",
+          "message": "le bouton ramène en bas et disparaît"
+        }
+      ]
+    },
+    {
+      "lot": "B025",
+      "role": "creator",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "id": "chat-delete",
+      "path": "/e/{event.rich}/chat",
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        390
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "(window.__n = document.querySelectorAll('[data-testid=chat-message]').length, true)",
+          "message": "compte"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=chat-message]:last-of-type [data-testid=chat-menu] summary"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=chat-message]:last-of-type [data-testid=chat-delete-form] button"
+        },
+        {
+          "type": "assert",
+          "expr": "!!document.querySelector('dialog[open]')",
+          "message": "la suppression demande confirmation"
+        },
+        {
+          "type": "click",
+          "target": "dialog[open] [data-confirm-accept]"
+        },
+        {
+          "type": "waitFor",
+          "expr": "document.querySelectorAll('[data-testid=chat-message]').length === window.__n - 1",
+          "message": "le message disparaît sans rechargement"
+        }
+      ]
     }
   ]
 }

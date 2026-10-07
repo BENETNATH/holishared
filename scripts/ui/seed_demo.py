@@ -244,6 +244,19 @@ def _populate_rich(db: Any, models: Any, rich: Any, creator_guest: Any) -> dict[
         )
     )
 
+    archive_start = datetime.utcnow() - timedelta(days=2)
+    for i in range(55):  # historique ancien : fait apparaître « Messages précédents »
+        who, who_id = ("Antoine", antoine.id) if i % 3 else ("Chloé", chloe.id)
+        db.session.add(
+            m.ChatMessage(
+                content=f"Message d'archive {i + 1}",
+                created_at=archive_start + timedelta(minutes=7 * i),
+                author_name=who,
+                guest_id=who_id,
+                author_type="guest",
+                event_id=rich.id,
+            )
+        )
     for content, author, guest_id, author_type in (
         ("On part à quelle heure samedi ?", "Antoine", antoine.id, "guest"),
         ("Vers 9 h, ça vous va ?", "Chloé", chloe.id, "guest"),
