@@ -385,7 +385,8 @@ def test_before_ignores_cursor_from_other_event(db, guest_client, event, other_e
 def test_before_without_htmx_renders_full_page(db, guest_client, event):
     ms = _many(db, event, 60)
     html = guest_client.get(f"/e/{event.code}/chat?before={ms[10].id}").text
-    assert ("<html" in html, "msg-09" in html, "msg-10" in html) == (True, True, False)
+    texts = _contents(html)
+    assert ("<html" in html, "msg-09" in texts, "msg-10" in texts) == (True, True, False)
 
 
 def test_htmx_index_still_returns_fragment(db, guest_client, event):

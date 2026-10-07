@@ -4,6 +4,7 @@
 Ces tests DOIVENT échouer avant le codage (TDD).
 """
 
+import re
 from datetime import UTC, datetime, timedelta
 
 import pytest
@@ -189,6 +190,6 @@ class TestChatHistory:
         resp = client.get(f"/e/{event.code}/chat")
         assert resp.status_code == 200
         # Les 10 plus anciens (msg-00..msg-09) sont coupés, les 50 derniers restent.
-        assert b"msg-09" not in resp.data
-        assert b"msg-10" in resp.data
-        assert b"msg-59" in resp.data
+        # On lit le texte des messages : l'attribut id="msg-<hex>" de chaque <li> peut contenir « msg-09 ».
+        texts = re.findall(r'data-testid="chat-content"[^>]*>([^<]*)<', resp.get_data(as_text=True))
+        assert texts == [f"msg-{i:02d}" for i in range(10, 60)]
