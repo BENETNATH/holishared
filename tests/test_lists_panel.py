@@ -537,3 +537,29 @@ def test_dashboard_ignores_coverage_of_another_event(
     db.session.add(ListMealCoverage(list_id=foreign_list.id, meal_id=meal.id))
     db.session.commit()
     assert "À lister" in guest_client.get(f"/e/{event.code}").data.decode()
+
+
+def test_toggle_meal_double_click_integrity_error_returns_panel_not_500(
+    db, guest_client, event, shopping, monkeypatch
+):
+    """Deux clics simultanés : la seconde insertion viole la clé primaire -> pas de 500."""
+    meal = _meal(db, event, "Pâtes")
+    real_commit = db.session.commit
+    calls = []
+
+    def racing_commit():
+        if not calls:
+            calls.append(1)
+            with db.session.no_autoflush:
+                db.session.execute(
+                    db.text(
+                        "INSERT INTO list_meal_coverages (list_id, meal_id, covered_at) VALUES (:l, :m, '2026-01-01')"
+                    ),
+                    {"l": shopping.id, "m": meal.id},
+                )
+        real_commit()
+
+    monkeypatch.setattr(db.session, "commit", racing_commit)
+    resp = _toggle(guest_client, event, shopping, "meal", meal)
+    monkeypatch.undo()
+    assert resp.status_code == 200

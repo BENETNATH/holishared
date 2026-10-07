@@ -18,6 +18,7 @@ from flask import (
 from flask_babel import _
 from flask_wtf.csrf import generate_csrf
 from sqlalchemy import case, func, or_
+from sqlalchemy.exc import IntegrityError
 from werkzeug.wrappers import Response
 
 from app.context import EventContext, load_event_context, log_event
@@ -594,7 +595,12 @@ def _toggle_coverage(
             target=target.title,
             details=shared_list.title,
         )
-    db.session.commit()
+    try:
+        db.session.commit()
+    except (
+        IntegrityError
+    ):  # double clic concurrent : la couverture existe déjà, l'opération est idempotente
+        db.session.rollback()
     if _is_htmx():
         mode, hide = _panel_args()
         return _panel_fragment(ctx, shared_list, mode, hide)

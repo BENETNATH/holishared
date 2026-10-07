@@ -572,3 +572,49 @@ class TestGridDays:
     def test_en_labels_are_translated(self, creator_client, event, cell3):
         html = creator_client.get(f"/e/{event.code}/meals?lang=en").get_data(as_text=True)
         assert 'aria-label="Thursday 3 December, lunch, 3 meals"' in html
+
+
+def test_create_takes_write_lock_before_reading_the_cell(client, creator, event, app, db):
+    """La limite de 6 repas se vérifie sous verrou d'écriture (BEGIN IMMEDIATE avant la lecture de la case)."""
+    from sqlalchemy import event as sa_event
+
+    _login_creator(client, creator)
+    client.get(f"/e/{event.code}/meals")  # crée le participant créateur (commit) avant l'écoute
+    statements = []
+
+    def record(_conn, _cursor, statement, *_args):
+        statements.append(statement)
+
+    sa_event.listen(db.engine, "before_cursor_execute", record)
+    try:
+        client.post(
+            f"/e/{event.code}/meals/create",
+            data={"title": "Pâtes", "date": "2026-12-03", "slot": "lunch"},
+        )
+    finally:
+        sa_event.remove(db.engine, "before_cursor_execute", record)
+    first_meal_read = next(i for i, s in enumerate(statements) if "FROM meals" in s)
+    assert any(s.startswith("BEGIN IMMEDIATE") for s in statements[:first_meal_read])
+
+
+def test_move_takes_write_lock_before_reading_the_target_cell(client, creator, event, meal, db):
+    from sqlalchemy import event as sa_event
+
+    _login_creator(client, creator)
+    client.get(f"/e/{event.code}/meals")
+    statements = []
+
+    def record(_conn, _cursor, statement, *_args):
+        statements.append(statement)
+
+    sa_event.listen(db.engine, "before_cursor_execute", record)
+    try:
+        client.post(
+            f"/e/{event.code}/meals/move",
+            data={"meal_id": meal.id, "date": "2026-12-04", "slot": "dinner"},
+        )
+    finally:
+        sa_event.remove(db.engine, "before_cursor_execute", record)
+    lock = next(i for i, s in enumerate(statements) if s.startswith("BEGIN IMMEDIATE"))
+    last_meal_read = max(i for i, s in enumerate(statements) if "FROM meals" in s)
+    assert lock < last_meal_read

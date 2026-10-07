@@ -22,6 +22,7 @@ from flask import (
     url_for,
 )
 from flask_babel import _
+from sqlalchemy import text
 from werkzeug.wrappers import Response
 
 from app.context import EventContext, load_event_context, log_event
@@ -107,6 +108,15 @@ def _target(ctx: EventContext) -> tuple[date, str, str | None]:
     return day, slot, None
 
 
+def _lock_for_write() -> None:
+    """SQLite : prend le verrou d'écriture AVANT de relire la case (la limite ne se contourne pas par course)."""
+    if db.engine.dialect.name != "sqlite":
+        return
+    raw = db.session.connection().connection
+    if not raw.in_transaction:
+        db.session.execute(text("BEGIN IMMEDIATE"))
+
+
 def _full_message() -> str:
     return str(_("Cette case est pleine (%(max)d repas maximum).", max=MAX_MEALS_PER_CELL))
 
@@ -137,6 +147,7 @@ def create(code: str) -> Response:
     error = error or target_error
     if error:
         return _respond(ctx, error, ok=False)
+    _lock_for_write()
     cell = _cell(ctx.event.id, day, slot)
     if len(cell) >= MAX_MEALS_PER_CELL:
         return _respond(ctx, _full_message(), ok=False)
@@ -200,6 +211,7 @@ def move(code: str) -> Response:
         return _respond(ctx, error, ok=False)
 
     source = (meal.date, meal.slot)
+    _lock_for_write()
     others = [m for m in _cell(ctx.event.id, day, slot) if m.id != meal.id]
     before_id = request.form.get("before_id", "")
     if source != (day, slot) and len(others) >= MAX_MEALS_PER_CELL:

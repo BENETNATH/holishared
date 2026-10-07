@@ -46,7 +46,7 @@ def check_templates() -> list[str]:
     """Erreurs de syntaxe Jinja (``chemin:ligne: message``) : Babel ignore ces gabarits sans rien dire."""
     from jinja2 import Environment, TemplateSyntaxError
 
-    env = Environment(extensions=["jinja2.ext.i18n"])
+    env = Environment(extensions=["jinja2.ext.i18n"], autoescape=False)  # noqa: S701 - analyse seule, aucun rendu
     found = []
     for path in sorted(TEMPLATES.rglob("*.html")):
         try:
