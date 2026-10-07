@@ -89,3 +89,18 @@
 {% macro status_badge(status) -%}
 <span class="ui-badge shrink-0 whitespace-nowrap ui-badge--{{ {'upcoming': 'info', 'ongoing': 'success', 'past': 'neutral'}[status.key] }}" data-testid="event-status" data-status="{{ status.key }}">{{ status.badge }}</span>
 {%- endmacro %}
+
+{# Carte d'événement cliquable en entier (B020a, B019) : ``c`` vient de events.event_cards. #}
+{% macro event_card(c) -%}
+<article class="ui-card ui-card--link" data-testid="event-card" data-status="{{ c.status.key }}">
+  <div class="flex items-start justify-between gap-3">
+    <h2 class="ui-card__title m-0 min-w-0 break-words">
+      <a class="ui-card__link" href="{{ url_for('events.dashboard', code=c.event.code) }}" data-testid="event-card-link">{{ c.event.title }}</a>
+    </h2>
+    {{ status_badge(c.status) }}
+  </div>
+  <p class="m-0 inline-flex items-center gap-1 text-small text-ink-2">{{ icon('calendar-days', size=16) }}{{ c.event.start_date | format_date('medium') }} → {{ c.event.end_date | format_date('medium') }}</p>
+  {% if c.event.location %}<p class="m-0 flex items-center gap-1 text-small text-ink-2">{{ icon('map-pin', size=16) }}{{ c.event.location }}</p>{% endif %}
+  <p class="m-0 flex items-center gap-1 text-small text-ink-2" data-testid="event-participants">{{ icon('users', size=16) }}{{ ngettext("%(n)d participant", "%(n)d participants", c.participants, n=c.participants) }}</p>
+</article>
+{%- endmacro %}

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 06:05+0200\n"
+"POT-Creation-Date: 2026-10-07 06:07+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -567,11 +567,11 @@ msgstr ""
 msgid "Gérer l'événement"
 msgstr ""
 
-#: app/templates/base.html app/ui.py
+#: app/templates/base.html app/templates/events/index.html app/ui.py
 msgid "Se déconnecter"
 msgstr ""
 
-#: app/templates/base.html app/ui.py
+#: app/templates/base.html app/templates/events/index.html app/ui.py
 msgid "Oublier cet appareil"
 msgstr ""
 
@@ -781,6 +781,12 @@ msgstr ""
 #: app/events/__init__.py
 #, python-format
 msgid "Jour %(day)d sur %(total)d"
+msgstr ""
+
+#: app/events/__init__.py
+msgid ""
+"Aucun événement n'est enregistré sur cet appareil. Créez un événement ou "
+"saisissez votre code."
 msgstr ""
 
 #: app/events/__init__.py
@@ -1989,18 +1995,22 @@ msgid "Retrouvez vos événements et leurs participants."
 msgstr ""
 
 #: app/templates/events/index.html
-#, python-format
-msgid "%(n)d participant"
-msgid_plural "%(n)d participants"
-msgstr[0] ""
-msgstr[1] ""
-
-#: app/templates/events/index.html
 msgid "Aucun événement"
 msgstr ""
 
 #: app/templates/events/index.html
 msgid "Créez votre premier événement pour commencer à planifier avec vos proches."
+msgstr ""
+
+#: app/templates/events/index.html
+msgid "Cet appareil"
+msgstr ""
+
+#: app/templates/events/index.html
+msgid ""
+"Les événements ci-dessus sont ceux de cet appareil. Pour le quitter, "
+"effacez la connexion et les accès enregistrés ici : vos événements "
+"restent accessibles avec vos codes."
 msgstr ""
 
 #: app/templates/events/invite.html
@@ -3478,4 +3488,11 @@ msgstr ""
 #: app/templates/_components/ui.html
 msgid "facultatif"
 msgstr ""
+
+#: app/templates/_components/ui.html
+#, python-format
+msgid "%(n)d participant"
+msgid_plural "%(n)d participants"
+msgstr[0] ""
+msgstr[1] ""
 

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_components/ui.html" import empty_state, status_badge %}
+{% from "_components/ui.html" import empty_state, event_card %}
 {% block title %}{{ _("Mes événements") }} — holishared{% endblock %}
 {% block content %}
 <div class="ui-page-header">
@@ -13,19 +13,7 @@
 {% if cards %}
 <ul class="m-0 grid list-none gap-3 p-0 md:grid-cols-2" data-testid="event-list">
   {% for c in cards %}
-  <li>
-    <article class="ui-card ui-card--link" data-testid="event-card" data-status="{{ c.status.key }}">
-      <div class="flex items-start justify-between gap-3">
-        <h2 class="ui-card__title m-0 min-w-0 break-words">
-          <a class="ui-card__link" href="{{ url_for('events.dashboard', code=c.event.code) }}" data-testid="event-card-link">{{ c.event.title }}</a>
-        </h2>
-        {{ status_badge(c.status) }}
-      </div>
-      <p class="m-0 inline-flex items-center gap-1 text-small text-ink-2">{{ icon('calendar-days', size=16) }}{{ c.event.start_date | format_date('medium') }} → {{ c.event.end_date | format_date('medium') }}</p>
-      {% if c.event.location %}<p class="m-0 flex items-center gap-1 text-small text-ink-2">{{ icon('map-pin', size=16) }}{{ c.event.location }}</p>{% endif %}
-      <p class="m-0 flex items-center gap-1 text-small text-ink-2" data-testid="event-participants">{{ icon('users', size=16) }}{{ ngettext("%(n)d participant", "%(n)d participants", c.participants, n=c.participants) }}</p>
-    </article>
-  </li>
+  <li>{{ event_card(c) }}</li>
   {% endfor %}
 </ul>
 {% else %}
@@ -33,4 +21,13 @@
 <a href="{{ url_for('events.create') }}" class="ui-btn ui-btn--primary">{{ _("Créer un événement") }}</a>
 {% endcall %}
 {% endif %}
+
+<section class="mt-6 flex flex-col gap-2" aria-labelledby="h-device" data-testid="device-section">
+  <h2 id="h-device" class="m-0 text-subheading font-semibold text-ink">{{ _("Cet appareil") }}</h2>
+  <p class="m-0 text-small text-ink-2">{{ _("Les événements ci-dessus sont ceux de cet appareil. Pour le quitter, effacez la connexion et les accès enregistrés ici : vos événements restent accessibles avec vos codes.") }}</p>
+  <form method="post" action="{{ url_for('auth.logout') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="ui-btn ui-btn--secondary" data-testid="forget-device">{{ icon('log-out') }}<span>{{ _("Se déconnecter") if current_user.is_authenticated else _("Oublier cet appareil") }}</span></button>
+  </form>
+</section>
 {% endblock %}

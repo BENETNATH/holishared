@@ -212,6 +212,41 @@ def load_event_context(code: str, *, require: Requirement = "participant") -> Ev
     return ctx
 
 
+def device_events() -> list[Event]:
+    """Événements actifs et vérifiés connus de CET appareil (jamais ceux d'une autre session).
+
+    Créateur connecté : ses événements ; accès invité : ceux dont la session ``guest_<code>``
+    désigne un participant valide de l'événement de ce code.
+    """
+    found: dict[str, Event] = {}
+    if current_user.is_authenticated:
+        for event in current_user.events.filter(
+            Event.is_active.is_(True), Event.verified_at.isnot(None)
+        ):
+            found[event.id] = event
+    ids = {
+        key.removeprefix("guest_"): value
+        for key, value in session.items()
+        if key.startswith("guest_") and isinstance(value, str)
+    }
+    if ids:
+        guests = (
+            Guest.query.join(Event, Guest.event_id == Event.id)
+            .filter(
+                Guest.id.in_(list(ids.values())),
+                Guest.is_active.is_(True),
+                Guest.creator_id.is_(None),
+                Event.is_active.is_(True),
+                Event.verified_at.isnot(None),
+            )
+            .all()
+        )
+        for guest in guests:
+            if ids.get(guest.event.code) == guest.id:
+                found.setdefault(guest.event.id, guest.event)
+    return list(found.values())
+
+
 def log_event(
     ctx: EventContext, action: str, target: str | None = None, details: str | None = None
 ) -> ActivityLog:

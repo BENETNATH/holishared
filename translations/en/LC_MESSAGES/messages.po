@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 06:05+0200\n"
+"POT-Creation-Date: 2026-10-07 06:07+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -610,11 +610,11 @@ msgstr "My code"
 msgid "Gérer l'événement"
 msgstr "Manage event"
 
-#: app/templates/base.html app/ui.py
+#: app/templates/base.html app/templates/events/index.html app/ui.py
 msgid "Se déconnecter"
 msgstr "Sign out"
 
-#: app/templates/base.html app/ui.py
+#: app/templates/base.html app/templates/events/index.html app/ui.py
 msgid "Oublier cet appareil"
 msgstr "Forget this device"
 
@@ -825,6 +825,12 @@ msgstr "In progress"
 #, python-format
 msgid "Jour %(day)d sur %(total)d"
 msgstr "Day %(day)d of %(total)d"
+
+#: app/events/__init__.py
+msgid ""
+"Aucun événement n'est enregistré sur cet appareil. Créez un événement ou "
+"saisissez votre code."
+msgstr "No event is saved on this device. Create an event or enter your code."
 
 #: app/events/__init__.py
 msgid "Code non reconnu."
@@ -2052,19 +2058,26 @@ msgid "Retrouvez vos événements et leurs participants."
 msgstr "Find your events and their participants."
 
 #: app/templates/events/index.html
-#, python-format
-msgid "%(n)d participant"
-msgid_plural "%(n)d participants"
-msgstr[0] "%(n)d participant"
-msgstr[1] "%(n)d participants"
-
-#: app/templates/events/index.html
 msgid "Aucun événement"
 msgstr "No events"
 
 #: app/templates/events/index.html
 msgid "Créez votre premier événement pour commencer à planifier avec vos proches."
 msgstr "Create your first event to start planning with your loved ones."
+
+#: app/templates/events/index.html
+msgid "Cet appareil"
+msgstr "This device"
+
+#: app/templates/events/index.html
+msgid ""
+"Les événements ci-dessus sont ceux de cet appareil. Pour le quitter, "
+"effacez la connexion et les accès enregistrés ici : vos événements "
+"restent accessibles avec vos codes."
+msgstr ""
+"The events above are the ones on this device. To leave it, erase the "
+"sign-in and the access saved here: your events remain reachable with your"
+" codes."
 
 #: app/templates/events/invite.html
 msgid "Invitations"
@@ -3581,4 +3594,11 @@ msgstr "Poll deleted."
 #: app/templates/_components/ui.html
 msgid "facultatif"
 msgstr "optional"
+
+#: app/templates/_components/ui.html
+#, python-format
+msgid "%(n)d participant"
+msgid_plural "%(n)d participants"
+msgstr[0] "%(n)d participant"
+msgstr[1] "%(n)d participants"
 

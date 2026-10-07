@@ -2,6 +2,7 @@
 
 import logging
 import re
+from collections.abc import Iterable
 from datetime import date, datetime, time
 from pathlib import Path
 from typing import Any, cast
@@ -39,7 +40,7 @@ from app.access import (
     suggest_guest_code,
 )
 from app.auth import is_disposable_email
-from app.context import load_event_context
+from app.context import device_events, load_event_context
 from app.extensions import db, limiter
 from app.forms import FormErrors
 from app.freemium import can_add_guest, has_feature, max_duration_days, require_tier
@@ -100,10 +101,8 @@ INFOS_ON_HOME = 3
 
 # === Creator: Event Management ===
 
-@events_bp.route("/")
-@login_required  # type: ignore[untyped-decorator]
-def index() -> str:
-    """Mes événements : en cours, à venir, puis terminés (B020a)."""
+def event_cards(events: Iterable[Event]) -> list[dict[str, Any]]:
+    """Cartes d'événements triées : en cours, à venir, puis terminés (B020a)."""
     today = date.today()
     cards = [
         {
@@ -111,7 +110,7 @@ def index() -> str:
             "status": event_status(e, today),
             "participants": e.guests.filter_by(is_active=True).count(),
         }
-        for e in current_user.events.filter_by(is_active=True)
+        for e in events
     ]
     rank = {"ongoing": 0, "upcoming": 1, "past": 2}
 
@@ -121,7 +120,23 @@ def index() -> str:
         return rank[key], -card["event"].end_date.toordinal() if key == "past" else day
 
     cards.sort(key=order)
-    return render_template("events/index.html", cards=cards)
+    return cards
+
+
+@events_bp.route("/")
+def index() -> str | Response:
+    """Mes événements : ceux de l'appareil, créateur connecté ou invité (F01)."""
+    events = device_events()
+    if not events and not current_user.is_authenticated:
+        flash(
+            _(
+                "Aucun événement n'est enregistré sur cet appareil. "
+                "Créez un événement ou saisissez votre code."
+            ),
+            "info",
+        )
+        return redirect(url_for("main.index"))
+    return render_template("events/index.html", cards=event_cards(events))
 
 
 @events_bp.route("/access", methods=["GET", "POST"])
