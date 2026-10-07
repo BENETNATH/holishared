@@ -1922,7 +1922,7 @@ msgstr "Title"
 
 #: app/templates/events/create.html
 msgid "Ex : Anniversaire de Léa"
-msgstr "E.g. Léa's birthday"
+msgstr "E.g. Sam's birthday"
 
 #: app/templates/events/create.html
 msgid "Date de début"
@@ -1939,7 +1939,7 @@ msgstr "Location"
 
 #: app/templates/events/create.html
 msgid "Ex : Gîte de la Vallée, Annecy"
-msgstr "E.g. Gîte de la Vallée, Annecy"
+msgstr "E.g. Mountain cabin, Annecy"
 
 #: app/templates/events/create.html
 msgid "Ajouter une description"

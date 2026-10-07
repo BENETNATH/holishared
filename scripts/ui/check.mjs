@@ -385,7 +385,10 @@ async function main() {
         const r = await evaluate(cdp, page.sessionId, `(${audit.toString()})(${JSON.stringify(params)})`, 10000);
         if (!r.ok) throw new Error(`audit : ${r.error}`);
         entry.results = r.value;
-        entry.results.console = { ok: page.console.length === 0, details: page.console };
+        // expectStatus : la page d'erreur voulue (403/404) est journalisée par Chrome ; seule cette ligne est tolérée.
+        const expectedLog = run.scene.expectStatus ? `status of ${run.scene.expectStatus} ` : null;
+        const logs = page.console.filter((m) => !(expectedLog && m.startsWith('log.error: Failed to load resource') && m.includes(expectedLog)));
+        entry.results.console = { ok: logs.length === 0, details: logs };
         entry.results.assert = { ok: page.failures.length === 0, details: page.failures };
         for (const skip of run.scene.skip ?? []) delete entry.results[skip];
       } catch (err) {

@@ -17,7 +17,7 @@
   <section class="ui-card" aria-labelledby="h-nomail">
     <h2 id="h-nomail" class="mt-0 text-subheading font-semibold text-ink">{{ _("Pas d'e-mail enregistré ?") }}</h2>
     <p class="m-0 text-small text-ink-2">{{ _("Votre e-mail n'est conservé que si vous avez coché « Conserver mon e-mail » à la validation. Sinon, le code ne peut pas être renvoyé : vous pouvez créer un nouvel événement.") }}</p>
-    <a href="{{ url_for('events.create') }}" class="ui-link mt-2 inline-block text-small">{{ _("Créer un événement") }}</a>
+    <a href="{{ url_for('events.create') }}" class="ui-link inline-flex min-h-11 items-center text-small">{{ _("Créer un événement") }}</a>
   </section>
 </div>
 {% endblock %}

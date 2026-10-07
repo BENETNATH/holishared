@@ -9,7 +9,7 @@
     <ul class="m-0 grid list-none gap-3 p-0" data-testid="event-list">
       {% for c in cards %}<li>{{ event_card(c) }}</li>{% endfor %}
     </ul>
-    <a href="{{ url_for('events.index') }}" class="ui-link text-small" data-testid="all-events-link">{{ _("Voir tous mes événements") }}</a>
+    <a href="{{ url_for('events.index') }}" class="ui-link inline-flex min-h-11 items-center text-small" data-testid="all-events-link">{{ _("Voir tous mes événements") }}</a>
   </section>
   {% endif %}
 
@@ -26,7 +26,7 @@
       {{ field('code', _("Votre code"), value=code, id='code', required=True, help=_("Le code d'un événement ou votre code personnel (4 à 8 caractères)."), error=errors.text('code'), autocomplete='off', attrs={'maxlength': 8, 'autocapitalize': 'none', 'spellcheck': 'false', 'data-testid': 'code-input'}) }}
       <button type="submit" class="ui-btn ui-btn--secondary ui-btn--block" data-testid="code-submit">{{ _("Continuer") }}</button>
     </form>
-    <a href="{{ url_for('events.recover_code') }}" class="ui-link text-small" data-testid="forgot-code">{{ _("J'ai oublié mon code") }}</a>
+    <a href="{{ url_for('events.recover_code') }}" class="ui-link inline-flex min-h-11 items-center text-small" data-testid="forgot-code">{{ _("J'ai oublié mon code") }}</a>
   </section>
 </div>
 {% endblock %}

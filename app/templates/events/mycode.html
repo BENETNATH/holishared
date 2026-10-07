@@ -21,7 +21,7 @@
     <a class="ui-link" href="{{ url_for('events.guest_access', code=event.code) }}" data-testid="join-link">{{ _("Rejoindre l'événement") }}</a>
   </p>
   <p class="m-0 text-small text-ink-2">
-    <a class="ui-link" href="{{ url_for('events.recover_code') }}">{{ _("J'ai oublié mon code") }}</a>
+    <a class="ui-link inline-flex min-h-11 items-center" href="{{ url_for('events.recover_code') }}">{{ _("J'ai oublié mon code") }}</a>
   </p>
 </div>
 {% endblock %}

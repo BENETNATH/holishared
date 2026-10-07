@@ -39,7 +39,7 @@
       "lot": "B017",
       "role": "anonymous",
       "path": "/",
-      "scope": "shell",
+      "scope": "page",
       "expect": {
         "nav": "global"
       },
@@ -53,7 +53,7 @@
       "lot": "B017",
       "role": "anonymous",
       "path": "/admin/login",
-      "scope": "shell",
+      "scope": "page",
       "expect": {
         "nav": "global"
       },
@@ -80,7 +80,7 @@
       "lot": "B017",
       "role": "anonymous",
       "path": "/e/{event.rich}/join",
-      "scope": "shell",
+      "scope": "page",
       "expect": {
         "nav": "global"
       },
@@ -1095,7 +1095,7 @@
       "lot": "B017",
       "role": "anonymous",
       "path": "/e/new/sent/{event.unverified}",
-      "scope": "shell",
+      "scope": "page",
       "expect": {
         "nav": "global"
       },
@@ -2176,6 +2176,250 @@
           "message": "le message disparaît sans rechargement"
         }
       ]
+    },
+    {
+      "id": "landing-code-error",
+      "lot": "B019",
+      "role": "anonymous",
+      "path": "/",
+      "scope": "page",
+      "expect": {
+        "nav": "global"
+      },
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "(() => { const f = document.querySelector('[data-testid=code-form]'); document.getElementById('code').value = 'zzzz12'; return fetch(f.action, { method: 'POST', credentials: 'same-origin', body: new URLSearchParams(new FormData(f)) }).then((r) => r.text()).then((h) => { const next = new DOMParser().parseFromString(h, 'text/html'); document.querySelector('main').replaceWith(next.querySelector('main')); return true; }); })()",
+          "message": "envoi du formulaire"
+        },
+        {
+          "type": "waitFor",
+          "expr": "!!document.querySelector('[data-testid=err-code]') && [...document.styleSheets].some((s) => (s.href || '').includes('app.css')) && document.readyState === 'complete'",
+          "message": "erreur inline sur le code (page réaffichée)"
+        }
+      ]
+    },
+    {
+      "id": "landing-device",
+      "lot": "B019",
+      "role": "guest_household",
+      "path": "/",
+      "scope": "page",
+      "expect": {
+        "nav": "global"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ]
+    },
+    {
+      "id": "events-index-guest",
+      "lot": "B019",
+      "role": "guest_household",
+      "path": "/e/",
+      "scope": "page",
+      "expect": {
+        "nav": "global"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ]
+    },
+    {
+      "id": "create",
+      "lot": "B019",
+      "role": "anonymous",
+      "path": "/e/new",
+      "scope": "page",
+      "expect": {
+        "nav": "global"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ]
+    },
+    {
+      "id": "create-error",
+      "lot": "B019",
+      "role": "anonymous",
+      "path": "/e/new",
+      "scope": "page",
+      "expect": {
+        "nav": "global"
+      },
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "(() => { const f = document.querySelector('[data-testid=create-form]'); document.getElementById('email').value = 'x@y.fr'; return fetch(f.action, { method: 'POST', credentials: 'same-origin', body: new URLSearchParams(new FormData(f)) }).then((r) => r.text()).then((h) => { const next = new DOMParser().parseFromString(h, 'text/html'); document.querySelector('main').replaceWith(next.querySelector('main')); return true; }); })()",
+          "message": "envoi du formulaire"
+        },
+        {
+          "type": "waitFor",
+          "expr": "!!document.querySelector('[data-testid=err-title]') && [...document.styleSheets].some((s) => (s.href || '').includes('app.css')) && document.readyState === 'complete'",
+          "message": "erreurs par champ à la création"
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "lot": "B019",
+      "role": "anonymous",
+      "path": "/e/verify/{token.unverified}",
+      "scope": "page",
+      "expect": {
+        "nav": "global"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ]
+    },
+    {
+      "id": "recover",
+      "lot": "B019",
+      "role": "anonymous",
+      "path": "/e/recover",
+      "scope": "page",
+      "expect": {
+        "nav": "global"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ]
+    },
+    {
+      "id": "join-error",
+      "lot": "B019",
+      "role": "anonymous",
+      "path": "/e/{event.rich}/join",
+      "scope": "page",
+      "expect": {
+        "nav": "global"
+      },
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "(() => { const f = document.querySelector('[data-testid=join-form]'); document.getElementById('display_name').value = 'Z'; return fetch(f.action, { method: 'POST', credentials: 'same-origin', body: new URLSearchParams(new FormData(f)) }).then((r) => r.text()).then((h) => { const next = new DOMParser().parseFromString(h, 'text/html'); document.querySelector('main').replaceWith(next.querySelector('main')); return true; }); })()",
+          "message": "envoi du formulaire"
+        },
+        {
+          "type": "waitFor",
+          "expr": "!!document.querySelector('[data-testid=err-display_name]') && [...document.styleSheets].some((s) => (s.href || '').includes('app.css')) && document.readyState === 'complete'",
+          "message": "erreur par champ sur le pseudo"
+        }
+      ]
+    },
+    {
+      "id": "mycode",
+      "lot": "B019",
+      "role": "anonymous",
+      "path": "/e/{event.rich}/mycode",
+      "scope": "page",
+      "expect": {
+        "nav": "global"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ]
+    },
+    {
+      "id": "mycode-error",
+      "lot": "B019",
+      "role": "anonymous",
+      "path": "/e/{event.rich}/mycode",
+      "scope": "page",
+      "expect": {
+        "nav": "global"
+      },
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "(() => { const f = document.querySelector('[data-testid=mycode-form]'); document.getElementById('guest_code').value = 'zzzz9999'; return fetch(f.action, { method: 'POST', credentials: 'same-origin', body: new URLSearchParams(new FormData(f)) }).then((r) => r.text()).then((h) => { const next = new DOMParser().parseFromString(h, 'text/html'); document.querySelector('main').replaceWith(next.querySelector('main')); return true; }); })()",
+          "message": "envoi du formulaire"
+        },
+        {
+          "type": "waitFor",
+          "expr": "!!document.querySelector('[data-testid=err-guest_code]') && [...document.styleSheets].some((s) => (s.href || '').includes('app.css')) && document.readyState === 'complete'",
+          "message": "erreur inline sur le code"
+        }
+      ]
+    },
+    {
+      "id": "error-404",
+      "lot": "B019",
+      "role": "anonymous",
+      "path": "/nowhere",
+      "scope": "page",
+      "expect": {
+        "nav": "global"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "expectStatus": 404
+    },
+    {
+      "id": "error-404-event",
+      "lot": "B019",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/lists/introuvable",
+      "scope": "page",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ],
+      "expectStatus": 404
+    },
+    {
+      "id": "error-403-event",
+      "lot": "B019",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/manage",
+      "scope": "page",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "expectStatus": 403
     }
   ]
 }

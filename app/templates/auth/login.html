@@ -16,6 +16,6 @@
     {{ field('password', _("Mot de passe"), type='password', id='password', required=True, autocomplete='current-password') }}
     <button type="submit" class="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" data-testid="login-submit">{{ _("Se connecter") }}</button>
   </form>
-  <p class="m-0 text-small text-ink-2"><a class="ui-link" href="{{ url_for('main.index') }}">{{ _("Retour à l'accueil") }}</a></p>
+  <p class="m-0 text-small text-ink-2"><a class="ui-link inline-flex min-h-11 items-center" href="{{ url_for('main.index') }}">{{ _("Retour à l'accueil") }}</a></p>
 </div>
 {% endblock %}
