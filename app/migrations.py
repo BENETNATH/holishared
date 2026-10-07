@@ -36,6 +36,7 @@ BACKUP_PREFIX = "pre-identity-"
 MEALS_BACKUP_PREFIX = "pre-meals-"
 LISTS_BACKUP_PREFIX = "pre-lists-"
 COSTS_BACKUP_PREFIX = "pre-costs-"
+POLLS_BACKUP_PREFIX = "pre-polls-"
 _KEYS = (
     "creator_guests_reactivated",
     "creator_guests_created",
@@ -552,6 +553,69 @@ def run_costs_migration(app: Flask) -> dict[str, int]:
         prune_backups(app.instance_path)
     result = migrate_costs(db.engine)
     logger.info("costs migration %s backup=%s", result, backup or "-")
+    return result
+
+
+POLLS_COLUMNS = (
+    ("polls", "kind", "VARCHAR(20) DEFAULT 'free' NOT NULL"),
+    ("polls", "created_by", "VARCHAR(32) REFERENCES guests (id)"),
+    ("poll_options", "activity_id", "VARCHAR(32) REFERENCES activities (id) ON DELETE SET NULL"),
+    ("activities", "status", "VARCHAR(10) DEFAULT 'planned' NOT NULL"),
+)
+
+
+def _polls_state(conn: Any) -> list[tuple[str, str, str]]:
+    """Calcul à blanc B025 : colonnes manquantes (table absente : create_all la créera)."""
+    missing = []
+    for table, column, ddl in POLLS_COLUMNS:
+        columns = {row[1] for row in conn.exec_driver_sql(f"PRAGMA table_info({table})")}
+        if columns and column not in columns:
+            missing.append((table, column, ddl))
+    return missing
+
+
+def _polls_plan(conn: Any, missing: list[tuple[str, str, str]]) -> dict[str, int]:
+    tables = {table for table, _column, _ddl in missing}
+    rows = sum(
+        conn.exec_driver_sql(f"SELECT COUNT(*) FROM {table}").scalar() or 0  # noqa: S608 - constantes
+        for table in tables
+    )
+    return {"poll_columns": len(missing), "poll_rows": int(rows)}
+
+
+def plan_polls_migration(engine: Any) -> dict[str, int]:
+    """Calcul à blanc B025 (aucune écriture) : colonnes à ajouter, lignes existantes concernées."""
+    with engine.connect() as conn:
+        return _polls_plan(conn, _polls_state(conn))
+
+
+def migrate_polls(engine: Any) -> dict[str, int]:
+    """Colonnes B025 : `polls.kind`/`created_by`, `poll_options.activity_id`, `activities.status`.
+
+    Valeurs par défaut pour l'existant : sondages `free` sans auteur (seul le créateur les gère),
+    activités `planned`. Une seule transaction ; idempotente (colonnes déjà présentes : rien).
+    """
+    with engine.begin() as conn:
+        missing = _polls_state(conn)
+        plan = _polls_plan(conn, missing)
+        for table, column, ddl in missing:
+            conn.exec_driver_sql(f"ALTER TABLE {table} ADD COLUMN {column} {ddl}")
+    return plan
+
+
+def run_polls_migration(app: Flask) -> dict[str, int]:
+    """Migration des sondages au démarrage : sauvegarde seulement si des lignes existent."""
+    plan = plan_polls_migration(db.engine)
+    if not plan["poll_columns"]:
+        return plan
+    backup = None
+    if plan["poll_rows"]:
+        backup = backup_sqlite_database(
+            app.config["SQLALCHEMY_DATABASE_URI"], app.instance_path, POLLS_BACKUP_PREFIX
+        )
+        prune_backups(app.instance_path)
+    result = migrate_polls(db.engine)
+    logger.info("polls migration %s backup=%s", result, backup or "-")
     return result
 
 

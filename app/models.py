@@ -145,6 +145,10 @@ class Activity(db.Model):  # type: ignore[misc,name-defined]
     location: Mapped[str] = db.Column(db.String(300), default="")
     min_headcount: Mapped[int] = db.Column(db.Integer, default=1)
     bring_items: Mapped[str] = db.Column(db.Text, default="")  # "who brings what"
+    # B025 : issue d'un sondage d'activités ('planned' | 'retained' | 'dropped').
+    status: Mapped[str] = db.Column(
+        db.String(10), nullable=False, default="planned", server_default="planned"
+    )
     created_by: Mapped[str | None] = db.Column(db.String(32), db.ForeignKey("guests.id"), default=None)
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -304,6 +308,9 @@ class Poll(db.Model):  # type: ignore[misc,name-defined]
     id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
     question: Mapped[str] = db.Column(db.String(300), nullable=False)
     is_closed: Mapped[bool] = db.Column(db.Boolean, default=False)
+    # B025 : 'free' (question libre) | 'activities' (départager des activités du Planning).
+    kind: Mapped[str] = db.Column(db.String(20), nullable=False, default="free", server_default="free")
+    created_by: Mapped[str | None] = db.Column(db.String(32), db.ForeignKey("guests.id"), default=None)
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
 
     event_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False)
@@ -323,8 +330,15 @@ class PollOption(db.Model):  # type: ignore[misc,name-defined]
     order: Mapped[int] = db.Column(db.Integer, default=0)
 
     poll_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("polls.id"), nullable=False)
+    # B025 : activité départagée ; supprimée -> NULL, l'option garde son libellé.
+    activity_id: Mapped[str | None] = db.Column(
+        db.String(32), db.ForeignKey("activities.id", ondelete="SET NULL"), default=None
+    )
 
-    votes = db.relationship("PollVote", backref="option", lazy="dynamic")
+    votes = db.relationship(
+        "PollVote", backref="option", lazy="dynamic", cascade="all, delete-orphan"
+    )
+    activity = db.relationship("Activity", lazy="joined")
 
 
 class PollVote(db.Model):  # type: ignore[misc,name-defined]

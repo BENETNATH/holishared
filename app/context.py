@@ -70,7 +70,7 @@ _RIGHTS: dict[type, tuple[str, str, str | tuple[str, str] | None]] = {
     # édition : la personne qui a pris l'article ; suppression : la personne qui l'a ajouté (B023)
     ListItem: (_AUTHOR, _AUTHOR, ("assigned_to_id", "created_by")),
     LogisticsItem: (_ANY, _CREATOR, None),
-    Poll: (_CREATOR, _CREATOR, None),
+    Poll: (_AUTHOR, _AUTHOR, "created_by"),  # B025 : créateur ou auteur du sondage
     ChatMessage: (_NEVER, _AUTHOR, "guest_id"),
     MediaItem: (_NEVER, _AUTHOR, "uploaded_by"),
     # B024 : foyer modifié par son propriétaire ; dépense par son auteur ou le propriétaire du foyer payeur ;
