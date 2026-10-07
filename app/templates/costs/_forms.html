@@ -1,0 +1,119 @@
+{# Formulaires des feuilles (B024). Une feuille = un <dialog> ; en cas d'erreur le serveur la rouvre (data-autoopen). #}
+{% from "_components/ui.html" import field, form_errors %}
+
+{% macro hidden(tab) -%}
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<input type="hidden" name="tab" value="{{ tab }}">
+{%- endmacro %}
+
+{% macro expense_form(sid, action, exp=None) %}
+{%- set fv = form_data if open_sheet == sid else {} -%}
+{%- set e = errors if open_sheet == sid else no_errors -%}
+{%- set cur = fv.get('currency', exp.currency if exp else base_currency) -%}
+{%- set cat = fv.get('category', exp.category if exp else 'general') -%}
+{%- set payer = fv.get('household_id', exp.paid_by_household_id if exp else (my_household.id if my_household else households[0].id)) -%}
+{%- set shared = (fv.get('is_shared') == 'on') if fv else (exp.is_shared if exp else true) -%}
+<form method="post" action="{{ action }}" class="ui-form" data-testid="{{ sid }}-form" novalidate>
+  {{ hidden(tab) }}
+  {{ form_errors(e, 'description', 'amount', 'currency', 'exchange_rate', 'category', 'household_id', 'date', 'is_shared') }}
+  {{ field('description', _('Description'), id=sid ~ '-description', required=True, value=fv.get('description', exp.description if exp else ''), error=e.text('description'), attrs={'maxlength': 300, 'autocomplete': 'off', 'placeholder': _('Ex : Supermarché, essence…')}) }}
+  <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
+    {{ field('amount', _('Montant'), id=sid ~ '-amount', required=True, value=fv.get('amount', ('%.2f'|format(exp.amount_original)) if exp else ''), error=e.text('amount'), attrs={'inputmode': 'decimal', 'autocomplete': 'off', 'placeholder': '0,00'}) }}
+    {{ field('currency', _('Devise'), type='select', id=sid ~ '-currency', required=True, value=cur, options=currency_options, error=e.text('currency'), attrs={'data-currency-select': True, 'data-base-currency': base_currency}) }}
+  </div>
+  <div data-rate-field{% if cur == base_currency %} hidden{% endif %}>
+    {{ field('exchange_rate', _('Taux de change vers %(base)s', base=base_currency), id=sid ~ '-rate', required=True, value=fv.get('exchange_rate', ('%g'|format(exp.exchange_rate)) if exp and exp.currency != base_currency else ''), error=e.text('exchange_rate'), help=_('Combien vaut 1 unité de la devise choisie en %(base)s. Les totaux et soldes sont calculés en %(base)s.', base=base_currency), attrs={'inputmode': 'decimal', 'autocomplete': 'off', 'placeholder': _('Ex : 0,92')}) }}
+  </div>
+  <fieldset class="ui-field m-0 border-0 p-0"{% if e.has('category') %} data-invalid="true"{% endif %}>
+    <legend class="ui-label mb-1 p-0">{{ _("Catégorie") }}</legend>
+    <div class="ui-segmented flex-wrap" role="radiogroup" data-testid="{{ sid }}-categories">
+      {%- for key, text in choices('expense_category') %}
+      <label class="ui-segmented__option flex-none"><input type="radio" name="category" value="{{ key }}"{% if key == cat %} checked{% endif %}><span class="gap-1">{{ icon(category_icons[key], size=16) }}{{ text }}</span></label>
+      {%- endfor %}
+    </div>
+    {%- if e.has('category') %}<p class="ui-error">{{ icon('circle-alert', size=16) }}<span>{{ e.text('category') }}</span></p>{% endif %}
+  </fieldset>
+  {{ field('household_id', _('Payé par'), type='select', id=sid ~ '-payer', required=True, value=payer, options=household_options, error=e.text('household_id')) }}
+  {{ field('date', _('Date'), type='date', id=sid ~ '-date', required=True, value=fv.get('date', exp.date.isoformat() if exp and exp.date else today), error=e.text('date')) }}
+  <div class="ui-field"{% if e.has('is_shared') %} data-invalid="true"{% endif %}>
+    <label class="ui-check"><input type="checkbox" name="is_shared" id="{{ sid }}-shared"{% if shared %} checked{% endif %}{% if e.has('is_shared') %} aria-invalid="true" aria-describedby="{{ sid }}-shared-help"{% endif %}><span>{{ _("Partagée entre les foyers") }}</span></label>
+    <p class="ui-help" id="{{ sid }}-shared-help">{{ _("Décochez pour une dépense personnelle : seuls les membres de votre foyer la voient et elle n'entre dans aucun total partagé.") }}</p>
+    {%- if e.has('is_shared') %}<p class="ui-error">{{ icon('circle-alert', size=16) }}<span>{{ e.text('is_shared') }}</span></p>{% endif %}
+  </div>
+  <button type="submit" class="ui-btn ui-btn--primary ui-btn--block" data-testid="{{ sid }}-submit">{{ _("Enregistrer") if exp else _("Ajouter") }}</button>
+</form>
+{% endmacro %}
+
+{% macro household_form(sid, action, hh=None) %}
+{%- set fv = form_data if open_sheet == sid else {} -%}
+{%- set e = errors if open_sheet == sid else no_errors -%}
+<form method="post" action="{{ action }}" class="ui-form" data-testid="{{ sid }}-form" novalidate>
+  {{ hidden(tab) }}
+  {{ form_errors(e, 'name', 'num_adults', 'num_children') }}
+  {{ field('name', _('Nom du foyer'), id=sid ~ '-name', required=True, value=fv.get('name', hh.name if hh else ''), error=e.text('name'), attrs={'maxlength': 100, 'autocomplete': 'off', 'placeholder': _('Ex : Famille Dupont')}) }}
+  <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
+    {{ field('num_adults', _("Adultes"), type='number', id=sid ~ '-adults', required=True, value=fv.get('num_adults', hh.num_adults if hh else 2), error=e.text('num_adults'), attrs={'min': 1, 'max': 50, 'inputmode': 'numeric'}) }}
+    {{ field('num_children', _("Enfants"), type='number', id=sid ~ '-children', required=True, value=fv.get('num_children', hh.num_children if hh else 0), error=e.text('num_children'), attrs={'min': 0, 'max': 50, 'inputmode': 'numeric'}) }}
+  </div>
+  <button type="submit" class="ui-btn ui-btn--primary ui-btn--block" data-testid="{{ sid }}-submit">{{ _("Enregistrer") if hh else _("Ajouter le foyer") }}</button>
+</form>
+{% endmacro %}
+
+{% macro transfer_form(sid) %}
+{%- set fv = form_data if open_sheet == sid else {} -%}
+{%- set e = errors if open_sheet == sid else no_errors -%}
+<form method="post" action="{{ url_for('costs.add_transfer', code=event.code) }}" class="ui-form" data-testid="transfer-form" novalidate>
+  {{ hidden(tab) }}
+  {{ form_errors(e, 'from_household_id', 'other_household_id', 'amount', 'note', 'date') }}
+  {%- if ctx.is_creator %}
+  {{ field('from_household_id', _('De'), type='select', id=sid ~ '-from', required=True, value=fv.get('from_household_id', ''), options=[('', _('Choisir un foyer'))] + household_options, error=e.text('from_household_id')) }}
+  {{ field('to_household_id', _('À'), type='select', id=sid ~ '-to', required=True, value=fv.get('to_household_id', ''), options=[('', _('Choisir un foyer'))] + household_options, error=e.text('to_household_id')) }}
+  {%- else %}
+  <fieldset class="ui-field m-0 border-0 p-0">
+    <legend class="ui-label mb-1 p-0">{{ _("Sens du remboursement") }}</legend>
+    <div class="ui-segmented" role="radiogroup">
+      <label class="ui-segmented__option"><input type="radio" name="direction" value="out"{% if fv.get('direction', 'out') == 'out' %} checked{% endif %}><span>{{ _("Je rembourse") }}</span></label>
+      <label class="ui-segmented__option"><input type="radio" name="direction" value="in"{% if fv.get('direction') == 'in' %} checked{% endif %}><span>{{ _("On me rembourse") }}</span></label>
+    </div>
+  </fieldset>
+  {{ field('other_household_id', _('Autre foyer'), type='select', id=sid ~ '-other', required=True, value=fv.get('other_household_id', ''), options=[('', _('Choisir un foyer'))] + other_options, error=e.text('other_household_id')) }}
+  {%- endif %}
+  {{ field('amount', _('Montant (%(base)s)', base=base_currency), id=sid ~ '-amount', required=True, value=fv.get('amount', ''), error=e.text('amount'), attrs={'inputmode': 'decimal', 'autocomplete': 'off', 'placeholder': '0,00'}) }}
+  {{ field('date', _('Date'), type='date', id=sid ~ '-date', required=True, value=fv.get('date', today), error=e.text('date')) }}
+  {{ field('note', _('Note'), id=sid ~ '-note', value=fv.get('note', ''), error=e.text('note'), attrs={'maxlength': 300, 'autocomplete': 'off'}) }}
+  <button type="submit" class="ui-btn ui-btn--primary ui-btn--block" data-testid="transfer-submit">{{ _("Enregistrer le remboursement") }}</button>
+</form>
+{% endmacro %}
+
+{% macro request_form(sid) %}
+{%- set fv = form_data if open_sheet == sid else {} -%}
+{%- set e = errors if open_sheet == sid else no_errors -%}
+<form method="post" action="{{ url_for('costs.add_payment_request', code=event.code) }}" class="ui-form" data-testid="request-form" novalidate>
+  {{ hidden(tab) }}
+  {{ form_errors(e, 'to_household_id', 'amount', 'message') }}
+  {%- if ctx.is_creator %}
+  {{ field('from_household_id', _('De'), type='select', id=sid ~ '-from', required=True, value=fv.get('from_household_id', my_household.id if my_household else ''), options=household_options) }}
+  {%- else %}
+  <input type="hidden" name="from_household_id" value="{{ my_household.id }}">
+  <p class="ui-help m-0">{{ _("La demande part de votre foyer : %(name)s.", name=my_household.name) }}</p>
+  {%- endif %}
+  {{ field('to_household_id', _('À'), type='select', id=sid ~ '-to', required=True, value=fv.get('to_household_id', ''), options=[('', _('Choisir un foyer'))] + (household_options if ctx.is_creator else other_options), error=e.text('to_household_id')) }}
+  {{ field('amount', _('Montant (%(base)s)', base=base_currency), id=sid ~ '-amount', required=True, value=fv.get('amount', ''), error=e.text('amount'), attrs={'inputmode': 'decimal', 'autocomplete': 'off', 'placeholder': '0,00'}) }}
+  {{ field('message', _('Message'), type='textarea', id=sid ~ '-message', value=fv.get('message', ''), error=e.text('message'), attrs={'maxlength': 500}) }}
+  <button type="submit" class="ui-btn ui-btn--primary ui-btn--block" data-testid="request-submit">{{ _("Envoyer la demande") }}</button>
+</form>
+{% endmacro %}
+
+{% macro ratio_form(sid) %}
+{%- set fv = form_data if open_sheet == sid else {} -%}
+{%- set e = errors if open_sheet == sid else no_errors -%}
+<form method="post" action="{{ url_for('costs.update_ratio', code=event.code) }}" class="ui-form" data-testid="ratio-form" novalidate>
+  {{ hidden(tab) }}
+  <p class="ui-help m-0">{{ _("1 adulte = X parts, 1 enfant = Y parts. S'applique à tous les foyers.") }}</p>
+  <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
+    {{ field('adult_weight', _('Parts par adulte'), id=sid ~ '-adult', required=True, value=fv.get('adult_weight', default_adult_weight), error=e.text('adult_weight'), attrs={'inputmode': 'decimal'}) }}
+    {{ field('child_weight', _('Parts par enfant'), id=sid ~ '-child', required=True, value=fv.get('child_weight', default_child_weight), error=e.text('child_weight'), attrs={'inputmode': 'decimal'}) }}
+  </div>
+  <button type="submit" class="ui-btn ui-btn--primary ui-btn--block" data-testid="ratio-submit">{{ _("Appliquer à tous les foyers") }}</button>
+</form>
+{% endmacro %}

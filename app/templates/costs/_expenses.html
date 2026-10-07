@@ -1,0 +1,68 @@
+{# Segment « Dépenses » (B024) : lignes lisibles, détail dépliable, actions selon les droits. #}
+<section aria-labelledby="costs-exp-title" data-testid="costs-section-expenses">
+  <div class="mb-2 flex items-baseline justify-between gap-2">
+    <h2 id="costs-exp-title" class="m-0 text-subheading font-semibold text-ink">{{ _("Dépenses du séjour") }}</h2>
+    <p class="m-0 text-small text-ink-2">{{ _("Total partagé") }} <strong class="text-ink" data-testid="costs-total">{{ total_expenses|money }}</strong></p>
+  </div>
+  {%- if expenses %}
+  <ul class="ui-list" data-testid="expense-list">
+    {%- for exp in expenses %}
+    {%- set base = exp.amount_cents / 100.0 * exp.exchange_rate %}
+    <li data-testid="expense-row" data-expense-id="{{ exp.id }}" data-shared="{{ 'true' if exp.is_shared else 'false' }}" class="border-t border-line first:border-t-0">
+      <details data-testid="expense-details">
+        <summary class="flex min-h-[56px] cursor-pointer list-none items-center gap-3 px-3 py-2">
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary-strong" title="{{ exp.category|label('expense_category') }}">{{ icon(category_icons.get(exp.category, category_icons['general']), size=20) }}</span>
+          <span class="min-w-0 flex-1">
+            <span class="block break-words font-medium text-ink" data-testid="expense-title">{{ exp.description }}{% if not exp.is_shared %} <span class="ui-badge ui-badge--neutral" data-testid="expense-personal">{{ icon('lock', size=12) }}{{ _("Personnelle") }}</span>{% endif %}</span>
+            <span class="block text-small text-ink-2" data-testid="expense-meta">{{ exp.paid_by.name }}{% if exp.date %} · {{ exp.date|format_date('d MMM') }}{% endif %}</span>
+          </span>
+          <span class="shrink-0 text-right">
+            <span class="block font-semibold text-ink" data-testid="expense-amount">{{ base|money }}</span>
+            {%- if exp.currency != base_currency %}<span class="block text-caption text-ink-2" data-testid="expense-original">{{ exp.amount_original|money(exp.currency) }}</span>{% endif %}
+          </span>
+          <span class="shrink-0 text-ink-2" aria-hidden="true">{{ icon('chevron-down', size=18) }}</span>
+        </summary>
+        <div class="flex flex-col gap-3 px-3 pb-3 text-small" data-testid="expense-detail">
+          <dl class="m-0 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+            <dt class="text-ink-2">{{ _("Catégorie") }}</dt><dd class="m-0">{{ exp.category|label('expense_category') }}</dd>
+            {%- if exp.currency != base_currency %}
+            <dt class="text-ink-2">{{ _("Montant d'origine") }}</dt><dd class="m-0" data-testid="detail-original">{{ exp.amount_original|money(exp.currency) }}</dd>
+            <dt class="text-ink-2">{{ _("Taux") }}</dt><dd class="m-0" data-testid="detail-rate">1 {{ exp.currency }} = {{ exp.exchange_rate|number }} {{ base_currency }}</dd>
+            {%- endif %}
+            <dt class="text-ink-2">{{ _("Payé par") }}</dt><dd class="m-0 break-words">{{ exp.paid_by.name }}</dd>
+            {%- if exp.date %}<dt class="text-ink-2">{{ _("Date") }}</dt><dd class="m-0" data-testid="detail-date">{{ exp.date|format_date('medium') }}</dd>{% endif %}
+          </dl>
+          {%- if exp.is_shared and splits.get(exp.id) %}
+          <div data-testid="detail-split">
+            <p class="m-0 mb-1 text-ink-2">{{ _("Répartition") }}</p>
+            <ul class="m-0 list-none p-0">
+              {%- for row in splits[exp.id] %}<li class="flex justify-between gap-2"><span class="min-w-0 break-words">{{ row.household.name }}</span><span>{{ row.amount|money }}</span></li>{% endfor %}
+            </ul>
+          </div>
+          {%- else %}
+          <p class="m-0 text-ink-2">{{ _("Dépense personnelle : non partagée.") }}</p>
+          {%- endif %}
+          {%- if ctx.can_edit(exp) or ctx.can_delete(exp) %}
+          <div class="flex flex-wrap gap-2">
+            {%- if ctx.can_edit(exp) %}<a class="ui-btn ui-btn--secondary ui-btn--sm" href="{{ url_for('costs.index', code=event.code, tab='expenses', edit=exp.id) }}" data-testid="expense-edit">{{ icon('pencil', size=16) }}<span>{{ _("Modifier") }}</span></a>{% endif %}
+            {%- if ctx.can_delete(exp) %}
+            <form method="post" action="{{ url_for('costs.delete_expense', code=event.code, exp_id=exp.id) }}" data-confirm="{{ _('Supprimer cette dépense ?') }}" data-confirm-label="{{ _('Supprimer') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="tab" value="expenses">
+              <button type="submit" class="ui-btn ui-btn--ghost ui-btn--sm text-danger" data-testid="expense-delete">{{ icon('trash-2', size=16) }}<span>{{ _("Supprimer") }}</span></button>
+            </form>
+            {%- endif %}
+          </div>
+          {%- endif %}
+        </div>
+      </details>
+    </li>
+    {%- endfor %}
+  </ul>
+  {%- elif households %}
+  {% call empty_state('wallet', _("Aucune dépense enregistrée pour le moment."), _("Ajoutez la première dépense du séjour.")) %}{% endcall %}
+  {%- else %}
+  {% call empty_state('users', _("Aucun foyer pour le moment."), _("Un foyer est nécessaire pour enregistrer des dépenses.")) %}
+    {%- if ctx.is_creator %}<a class="ui-btn ui-btn--secondary" href="{{ url_for('costs.index', code=event.code, tab='balance') }}">{{ _("Gérer les foyers") }}</a>{% endif %}
+  {% endcall %}
+  {%- endif %}
+</section>

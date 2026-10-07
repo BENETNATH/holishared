@@ -1,28 +1,44 @@
 """Costs blueprint - cost sharing by household with weighted settlement."""
 
-from datetime import date, datetime
-from typing import cast
+import math
+from datetime import UTC, date, datetime, timedelta
+from typing import Any
 
 from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_babel import gettext as _
 from werkzeug.wrappers import Response
 
-from app.context import load_event_context, log_event
+from app.context import EventContext, load_event_context, log_event
 from app.extensions import db, limiter
 from app.forms import FormErrors
-from app.i18n import CURRENCIES, is_valid
+from app.i18n import BASE_CURRENCY, CURRENCIES, currency_label, is_valid
 from app.models import Event, Expense, Household, PaymentRequest, Transfer
 
 costs_bp = Blueprint("costs", __name__)
 
+# Icônes SVG du kit (B017) par catégorie de frais.
 EXPENSE_CATEGORY_ICONS = {
-    "general": "🧾",
-    "food": "🍔",
-    "transport": "🚗",
-    "lodging": "🏡",
-    "activities": "🎟️",
-    "other": "📦",
+    "general": "wallet",
+    "food": "utensils",
+    "transport": "map-pin",
+    "lodging": "house",
+    "activities": "sparkles",
+    "other": "inbox",
 }
+
+TABS = ("expenses", "balance", "requests")
+MAX_AMOUNT = 1_000_000.0
+MAX_RATE = 10000.0
+DATE_PAST_DAYS = 365 * 5
+DATE_FUTURE_DAYS = 366
+
+SHEET_EXPENSE = "costs-expense-sheet"
+SHEET_EXPENSE_EDIT = "costs-expense-edit-sheet"
+SHEET_HOUSEHOLD = "costs-household-sheet"
+SHEET_HOUSEHOLD_EDIT = "costs-household-edit-sheet"
+SHEET_RATIO = "costs-ratio-sheet"
+SHEET_TRANSFER = "costs-transfer-sheet"
+SHEET_REQUEST = "costs-request-sheet"
 
 
 def _household_in_event(household_id: str, event: Event) -> bool:
@@ -32,6 +48,7 @@ def _household_in_event(household_id: str, event: Event) -> bool:
     return Household.query.filter_by(id=household_id, event_id=event.id).first() is not None
 
 
+# fmt: off
 def _base_cents(amount_cents: int, exchange_rate: float | None) -> int:
     """Amount converted to base currency, in cents (int)."""
     return round(amount_cents * (exchange_rate or 1.0))
@@ -109,6 +126,7 @@ def _settlement(households: list[Household], expenses: list[Expense], transfers:
         if creditors[ci][1] == 0:
             ci += 1
     return settlements
+# fmt: on
 
 
 def _category_breakdown(expenses: list[Expense]) -> list[tuple[str, int]]:
@@ -121,30 +139,151 @@ def _category_breakdown(expenses: list[Expense]) -> list[tuple[str, int]]:
     return sorted(totals.items(), key=lambda x: x[1], reverse=True)
 
 
-# === Routes ===
+# === Aides de saisie et de visibilité (B024) ===
 
-@costs_bp.route("/e/<code>/costs")
-def index(code: str) -> str | Response | tuple[str, int]:
-    """Cost sharing dashboard."""
-    ctx = load_event_context(code)
-    event = ctx.event
 
-    households = event.households.all()
-    expenses = event.expenses.order_by(Expense.date.desc(), Expense.created_at.desc()).all()
-    shared_expenses = [e for e in expenses if e.is_shared]
-    transfers = event.transfers.order_by(Transfer.created_at.desc()).all()
-    payment_requests = (
-        event.payment_requests.order_by(PaymentRequest.is_resolved.asc(),
-                                        PaymentRequest.created_at.desc()).all()
+def _today() -> date:
+    return datetime.now(UTC).date()
+
+
+def _parse_decimal(raw: str) -> float | None:
+    """Nombre décimal fini ("12,50" accepté), sinon None."""
+    try:
+        value = float(raw.strip().replace(",", ".").replace(" ", ""))
+    except ValueError:
+        return None
+    return value if math.isfinite(value) else None
+
+
+def _parse_amount(raw: str, errors: FormErrors) -> int:
+    value = _parse_decimal(raw)
+    if value is None or value <= 0 or value > MAX_AMOUNT:
+        errors.add("amount", _("Montant invalide."))
+        return 0
+    return round(value * 100)
+
+
+def _parse_date(raw: str, errors: FormErrors) -> date:
+    """Date saisie (AAAA-MM-JJ) ; vide = aujourd'hui ; bornée à 5 ans avant / 1 an après."""
+    raw = raw.strip()
+    today = _today()
+    if not raw:
+        return today
+    try:
+        value = datetime.strptime(raw, "%Y-%m-%d").date()
+    except ValueError:
+        errors.add("date", _("Date invalide."))
+        return today
+    if (
+        not today - timedelta(days=DATE_PAST_DAYS)
+        <= value
+        <= today + timedelta(days=DATE_FUTURE_DAYS)
+    ):
+        errors.add("date", _("Date hors limites (5 ans avant à 1 an après aujourd'hui)."))
+        return today
+    return value
+
+
+def _parse_rate(raw: str, currency: str, errors: FormErrors) -> float:
+    """Taux vers la devise de base : 1.0 pour la devise de base, obligatoire sinon (0 < taux ≤ 10000)."""
+    if currency == BASE_CURRENCY:
+        return 1.0
+    if not raw.strip():
+        errors.add("exchange_rate", _("Taux de change requis pour cette devise."))
+        return 1.0
+    value = _parse_decimal(raw)
+    if value is None or value <= 0 or value > MAX_RATE:
+        errors.add("exchange_rate", _("Taux de change invalide (0 < taux ≤ 10000)."))
+        return 1.0
+    return value
+
+
+def _my_household(ctx: EventContext) -> Household | None:
+    if ctx.participant is None:
+        return None
+    mine: Household | None = Household.query.filter_by(
+        event_id=ctx.event.id, guest_id=ctx.participant.id
+    ).first()
+    return mine
+
+
+def _visible(ctx: EventContext, exp: Expense) -> bool:
+    """Une dépense personnelle n'est visible que des membres du foyer payeur (confidentialité)."""
+    if exp.is_shared:
+        return True
+    payer = exp.paid_by
+    return (
+        ctx.participant is not None
+        and payer is not None
+        and payer.guest_id is not None
+        and payer.guest_id == ctx.participant.id
     )
 
-    settlements = _settlement(households, shared_expenses, transfers)
-    h_map = {h.id: h for h in households}
-    settlement_display = [
-        {"from": h_map.get(f), "to": h_map.get(t), "amount": a / 100.0}
-        for f, t, a in settlements
-    ]
 
+def _get_expense(ctx: EventContext, exp_id: str) -> Expense:
+    """Dépense de l'événement visible du participant ; 404 sinon (n'en révèle pas l'existence)."""
+    exp: Expense | None = Expense.query.filter_by(id=exp_id, event_id=ctx.event.id).first()
+    if exp is None or not _visible(ctx, exp):
+        abort(404)
+    return exp
+
+
+def _tab_of(raw: str | None, default: str = "expenses") -> str:
+    return raw if raw in TABS else default
+
+
+def _back(code: str, default: str = "expenses") -> Response:
+    return redirect(
+        url_for("costs.index", code=code, tab=_tab_of(request.form.get("tab"), default))
+    )
+
+
+def _split_display(exp: Expense, households: list[Household]) -> list[dict[str, Any]]:
+    """Répartition affichée d'une dépense partagée, en devise de base (affichage seulement)."""
+    weights = exp.get_split_weights(households)
+    total_w = sum(weights.get(h.id, 0) for h in households)
+    if total_w <= 0:
+        return []
+    base = _base_cents(exp.amount_cents, exp.exchange_rate)
+    rows = [
+        {"household": h, "amount": round(base * weights.get(h.id, 0) / total_w) / 100.0}
+        for h in households
+        if weights.get(h.id, 0) > 0
+    ]
+    return rows
+
+
+def _household_involved(h: Household, ctx: EventContext) -> bool:
+    return ctx.participant is not None and h.guest_id == ctx.participant.id
+
+
+def _page(
+    ctx: EventContext,
+    *,
+    tab: str,
+    errors: FormErrors | None = None,
+    form_data: dict[str, str] | None = None,
+    open_sheet: str | None = None,
+    edit_expense: Expense | None = None,
+    edit_household: Household | None = None,
+) -> str:
+    event = ctx.event
+    households = event.households.order_by(Household.created_at, Household.id).all()
+    h_map = {h.id: h for h in households}
+    mine = next((h for h in households if _household_involved(h, ctx)), None)
+
+    all_expenses = event.expenses.order_by(Expense.date.desc(), Expense.created_at.desc()).all()
+    expenses = [e for e in all_expenses if _visible(ctx, e)]
+    shared_expenses = [e for e in all_expenses if e.is_shared]
+    transfers = event.transfers.order_by(Transfer.created_at.desc()).all()
+    payment_requests = event.payment_requests.order_by(
+        PaymentRequest.is_resolved.asc(), PaymentRequest.created_at.desc()
+    ).all()
+
+    settlements = [
+        {"from": h_map[f], "to": h_map[t], "amount": a / 100.0}
+        for f, t, a in _settlement(households, shared_expenses, transfers)
+    ]
     shares, paid = _per_expense_shares(households, shared_expenses)
     h_summary = [
         {
@@ -155,404 +294,515 @@ def index(code: str) -> str | Response | tuple[str, int]:
         }
         for h in households
     ]
-
-    total_expenses = sum(_base_cents(e.amount_cents, e.exchange_rate) for e in shared_expenses) / 100.0
+    total_expenses = (
+        sum(_base_cents(e.amount_cents, e.exchange_rate) for e in shared_expenses) / 100.0
+    )
     category_breakdown = [
         {"category": c, "amount": a / 100.0} for c, a in _category_breakdown(shared_expenses)
     ]
 
-    # Per-household personal (non-shared) expense totals, for personal budget tracking.
-    personal_by_household: dict[str, float] = {h.id: 0.0 for h in households}
-    for e in expenses:
-        if e.is_shared:
-            continue
-        payer_id = e.paid_by_household_id
-        if payer_id in personal_by_household:
-            personal_by_household[payer_id] += _base_cents(e.amount_cents, e.exchange_rate) / 100.0
-
-    # Personal balance for the acting user (guest or creator), derived from the
-    # existing household + settlement data (no change to the algorithm).
-    my_household = None
-    if ctx.participant is not None:
-        my_household = next((h for h in households if h.guest_id == ctx.participant.id), None)
-    my_balance: float | None = None
-    i_owe: list[dict[str, object]] = []
-    owed_to_me: list[dict[str, object]] = []
-    if my_household is not None:
-        my_balance = next(
-            (s["balance"] for s in h_summary if s["household"].id == my_household.id), None
+    # Dépenses personnelles : seul le total de MON foyer est calculé et affiché.
+    personal_total = 0.0
+    if mine is not None:
+        personal_total = (
+            sum(
+                _base_cents(e.amount_cents, e.exchange_rate)
+                for e in expenses
+                if not e.is_shared and e.paid_by_household_id == mine.id
+            )
+            / 100.0
         )
-        for s in settlement_display:
-            src = cast("Household | None", s["from"])
-            dst = cast("Household | None", s["to"])
-            if src is not None and src.id == my_household.id and dst is not None:
-                i_owe.append({"to": dst, "amount": s["amount"]})
-            if dst is not None and dst.id == my_household.id and src is not None:
-                owed_to_me.append({"from": src, "amount": s["amount"]})
 
-    # Default ratio from first household (or fallback)
-    default_adult_weight = households[0].adult_weight if households else 1.0
-    default_child_weight = households[0].child_weight if households else 0.5
+    my_balance: float | None = None
+    i_owe: list[dict[str, Any]] = []
+    owed_to_me: list[dict[str, Any]] = []
+    if mine is not None:
+        my_balance = next((s["balance"] for s in h_summary if s["household"].id == mine.id), None)
+        for s in settlements:
+            if s["from"].id == mine.id:
+                i_owe.append({"to": s["to"], "amount": s["amount"]})
+            if s["to"].id == mine.id:
+                owed_to_me.append({"from": s["from"], "amount": s["amount"]})
 
-    return render_template("costs/index.html",
-                           event=event,
-                           households=households, expenses=expenses,
-                           transfers=transfers, payment_requests=payment_requests,
-                           settlements=settlement_display, h_summary=h_summary,
-                           total_expenses=total_expenses,
-                            category_breakdown=category_breakdown,
-                            personal_by_household=personal_by_household,
-                            category_icons=EXPENSE_CATEGORY_ICONS,
-                           default_adult_weight=default_adult_weight,
-                           default_child_weight=default_child_weight,
-                           my_household=my_household,
-                           my_balance=my_balance,
-                           i_owe=i_owe,
-                           owed_to_me=owed_to_me)
+    splits = {e.id: _split_display(e, households) for e in expenses if e.is_shared}
+    first = households[0] if households else None
+
+    return render_template(
+        "costs/index.html",
+        event=event,
+        tab=tab,
+        households=households,
+        expenses=expenses,
+        splits=splits,
+        transfers=transfers,
+        payment_requests=payment_requests,
+        settlements=settlements,
+        h_summary=h_summary,
+        total_expenses=total_expenses,
+        category_breakdown=category_breakdown,
+        personal_total=personal_total,
+        category_icons=EXPENSE_CATEGORY_ICONS,
+        default_adult_weight=first.adult_weight if first else 1.0,
+        default_child_weight=first.child_weight if first else 0.5,
+        my_household=mine,
+        my_balance=my_balance,
+        i_owe=i_owe,
+        owed_to_me=owed_to_me,
+        base_currency=BASE_CURRENCY,
+        errors=errors or FormErrors(),
+        no_errors=FormErrors(),
+        form_data=form_data or {},
+        open_sheet=open_sheet,
+        edit_expense=edit_expense,
+        edit_household=edit_household,
+        today=_today().isoformat(),
+        household_options=[(h.id, h.name) for h in households],
+        other_options=[(h.id, h.name) for h in households if mine is None or h.id != mine.id],
+        currency_options=[(c, currency_label(c)) for c in CURRENCIES],
+    )
+
+
+def _form_data() -> dict[str, str]:
+    return {k: v for k, v in request.form.items() if k != "csrf_token"}
+
+
+# Segment où vit chaque feuille (les dépenses acceptent aussi le segment courant).
+_SHEET_TAB = {
+    SHEET_HOUSEHOLD: "balance",
+    SHEET_HOUSEHOLD_EDIT: "balance",
+    SHEET_RATIO: "balance",
+    SHEET_TRANSFER: "balance",
+    SHEET_REQUEST: "requests",
+}
+
+
+def _invalid(ctx: EventContext, sheet: str, errors: FormErrors, **extra: Any) -> str | Response:
+    if sheet == SHEET_EXPENSE and ctx.event.households.count() == 0:
+        # Sans foyer la feuille d'ajout n'existe pas : les erreurs passent par des messages.
+        errors.flash_all("danger")
+        return _back(ctx.event.code)
+    return _page(
+        ctx,
+        tab=_SHEET_TAB.get(sheet) or _tab_of(request.form.get("tab")),
+        errors=errors,
+        form_data=_form_data(),
+        open_sheet=sheet,
+        **extra,
+    )
+
+
+# === Routes ===
+
+
+@costs_bp.route("/e/<code>/costs")
+def index(code: str) -> str | Response | tuple[str, int]:
+    """Cost sharing dashboard : segments Dépenses · Équilibre · Demandes."""
+    ctx = load_event_context(code)
+    tab = _tab_of(request.args.get("tab"))
+    edit_expense = edit_household = None
+    open_sheet = None
+    if request.args.get("edit"):
+        exp = Expense.query.filter_by(id=request.args["edit"], event_id=ctx.event.id).first()
+        if exp is not None and _visible(ctx, exp) and ctx.can_edit(exp):
+            edit_expense, open_sheet, tab = exp, SHEET_EXPENSE_EDIT, "expenses"
+    elif request.args.get("edit_household"):
+        hh = Household.query.filter_by(
+            id=request.args["edit_household"], event_id=ctx.event.id
+        ).first()
+        if hh is not None and ctx.can_edit(hh):
+            edit_household, open_sheet, tab = hh, SHEET_HOUSEHOLD_EDIT, "balance"
+    return _page(
+        ctx,
+        tab=tab,
+        open_sheet=open_sheet,
+        edit_expense=edit_expense,
+        edit_household=edit_household,
+    )
+
+
+def _parse_household(form: Any) -> tuple[dict[str, Any], FormErrors]:
+    name = form.get("name", "").strip()
+    errors = FormErrors()
+    if len(name) < 2:
+        errors.add("name", _("Nom du foyer requis (min 2 caractères)."))
+    elif len(name) > 100:
+        errors.add("name", _("Nom trop long (max 100)."))
+    values: dict[str, Any] = {"name": name, "num_adults": 1, "num_children": 0}
+    try:
+        num_adults = int(form.get("num_adults", "1"))
+        num_children = int(form.get("num_children", "0"))
+    except (ValueError, TypeError):
+        errors.add_global(_("Valeurs numériques invalides."))
+        return values, errors
+    if num_adults < 1 or num_adults > 50:
+        errors.add("num_adults", _("Adultes : entre 1 et 50."))
+    if num_children < 0 or num_children > 50:
+        errors.add("num_children", _("Enfants : entre 0 et 50."))
+    values.update(num_adults=num_adults, num_children=num_children)
+    return values, errors
 
 
 @costs_bp.route("/e/<code>/costs/households/new", methods=["GET", "POST"])
 def add_household(code: str) -> str | Response | tuple[str, int]:
-    """Add a household."""
+    """Add a household (creator only)."""
     ctx = load_event_context(code)
-    event = ctx.event
+    if not ctx.is_creator:
+        abort(403)
+    if request.method == "GET":
+        return redirect(url_for("costs.index", code=code, tab="balance"))
 
-    if request.method == "POST":
-        name = request.form.get("name", "").strip()
-        num_adults_raw = request.form.get("num_adults", "1")
-        num_children_raw = request.form.get("num_children", "0")
+    values, errors = _parse_household(request.form)
+    if errors:
+        return _invalid(ctx, SHEET_HOUSEHOLD, errors)
+    first = Household.query.filter_by(event_id=ctx.event.id).first()
+    db.session.add(
+        Household(
+            **values,
+            adult_weight=first.adult_weight if first else 1.0,
+            child_weight=first.child_weight if first else 0.5,
+            event_id=ctx.event.id,
+        )
+    )
+    log_event(ctx, "household.created", target=values["name"])
+    db.session.commit()
+    flash(_("Foyer ajouté."), "success")
+    return _back(code, "balance")
 
-        errors = FormErrors()
-        if not name or len(name) < 2:
-            errors.add("name", _("Nom du foyer requis (min 2 caractères)."))
-        num_adults = 0
-        num_children = 0
-        try:
-            num_adults = int(num_adults_raw)
-            num_children = int(num_children_raw)
-        except (ValueError, TypeError):
-            errors.add_global(_("Valeurs numériques invalides."))
-        if not errors:
-            if num_adults < 1 or num_adults > 50:
-                errors.add("num_adults", _("Adultes : entre 1 et 50."))
-            if num_children < 0 or num_children > 50:
-                errors.add("num_children", _("Enfants : entre 0 et 50."))
 
-        if errors:
-            errors.flash_all("danger")
-        else:
-            h = Household(
-                name=name,
-                num_adults=num_adults,
-                num_children=num_children,
-                adult_weight=1.0,
-                child_weight=0.5,
-                event_id=event.id,
-            )
-            db.session.add(h)
-            log_event(ctx, "household.created", target=name)
-            db.session.commit()
-            flash(_("Foyer ajouté."), "success")
-            return redirect(url_for("costs.index", code=code))
+@costs_bp.route("/e/<code>/costs/households/<h_id>/edit", methods=["POST"])
+def edit_household(code: str, h_id: str) -> str | Response | tuple[str, int]:
+    """Modifier la composition d'un foyer (son propriétaire ou le créateur)."""
+    ctx = load_event_context(code)
+    hh = Household.query.filter_by(id=h_id, event_id=ctx.event.id).first()
+    if hh is None:
+        abort(404)
+    if not ctx.can_edit(hh):
+        abort(403)
+    values, errors = _parse_household(request.form)
+    if errors:
+        return _invalid(ctx, SHEET_HOUSEHOLD_EDIT, errors, edit_household=hh)
+    hh.name = values["name"]
+    hh.num_adults = values["num_adults"]
+    hh.num_children = values["num_children"]
+    log_event(ctx, "household.updated", target=hh.name)
+    db.session.commit()
+    flash(_("Foyer modifié."), "success")
+    return _back(code, "balance")
 
-    return render_template("costs/household_form.html", event=event)
+
+def _parse_expense(ctx: EventContext, form: Any) -> tuple[dict[str, Any], FormErrors]:
+    description = form.get("description", "").strip()
+    category = form.get("category", "general").strip() or "general"
+    currency = form.get("currency", BASE_CURRENCY).strip().upper() or BASE_CURRENCY
+    household_id = form.get("household_id", "")
+    is_shared = form.get("is_shared") == "on"
+    errors = FormErrors()
+    if not description:
+        errors.add("description", _("Description requise."))
+    elif len(description) > 300:
+        errors.add("description", _("Description trop longue (max 300)."))
+    amount_cents = _parse_amount(form.get("amount", ""), errors)
+    if currency not in CURRENCIES:
+        errors.add("currency", _("Devise invalide."))
+        currency = BASE_CURRENCY
+    exchange_rate = _parse_rate(form.get("exchange_rate", ""), currency, errors)
+    if not is_valid("expense_category", category):
+        errors.add("category", _("Catégorie invalide."))
+    payer: Household | None = None
+    if not household_id:
+        errors.add("household_id", _("Foyer payeur requis."))
+    elif not _household_in_event(household_id, ctx.event):
+        errors.add("household_id", _("Foyer payeur invalide."))
+    else:
+        payer = db.session.get(Household, household_id)
+    if payer is not None and not is_shared and not _household_involved(payer, ctx):
+        errors.add("is_shared", _("Une dépense personnelle doit être payée par votre foyer."))
+    exp_date = _parse_date(form.get("date", ""), errors)
+    values = {
+        "description": description,
+        "amount_cents": amount_cents,
+        "currency": currency,
+        "exchange_rate": exchange_rate,
+        "category": category,
+        "paid_by_household_id": household_id,
+        "date": exp_date,
+        "is_shared": is_shared,
+    }
+    return values, errors
+
+
+def _log_expense(ctx: EventContext, action: str, exp: Expense) -> None:
+    """Journal visible de tous : une dépense personnelle n'y laisse ni description ni montant."""
+    if exp.is_shared:
+        log_event(
+            ctx,
+            action,
+            target=exp.description,
+            details=f"{exp.amount_cents / 100:.2f} {exp.currency}",
+        )
+    else:
+        log_event(ctx, action)
 
 
 @costs_bp.route("/e/<code>/costs/expenses/new", methods=["POST"])
 @limiter.limit("20 per hour")
-def add_expense(code: str) -> Response | tuple[str, int]:
+def add_expense(code: str) -> str | Response | tuple[str, int]:
     """Add an expense."""
     ctx = load_event_context(code)
-    event = ctx.event
-
-    description = request.form.get("description", "").strip()
-    amount_str = request.form.get("amount", "").strip()
-    household_id = request.form.get("household_id", "")
-    exp_date = request.form.get("date", "")
-    category = request.form.get("category", "general").strip() or "general"
-    currency = request.form.get("currency", "EUR").strip().upper() or "EUR"
-    if currency not in CURRENCIES:
-        currency = "EUR"
-    rate_str = request.form.get("exchange_rate", "1.0").strip()
-    is_shared = request.form.get("is_shared") == "on"
-
-    errors = FormErrors()
-    if not description:
-        errors.add("description", _("Description requise."))
-    amount_cents = 0
-    try:
-        amount_cents = round(float(amount_str) * 100)
-        if amount_cents <= 0:
-            errors.add("amount", _("Montant invalide."))
-    except (ValueError, TypeError):
-        errors.add("amount", _("Montant invalide."))
-    if not is_valid("expense_category", category):
-        errors.add("category", _("Catégorie invalide."))
-    if not household_id:
-        errors.add("household_id", _("Foyer payeur requis."))
-    elif not _household_in_event(household_id, event):
-        errors.add("household_id", _("Foyer payeur invalide."))
-    try:
-        exchange_rate = float(rate_str) if rate_str else 1.0
-        if exchange_rate <= 0 or exchange_rate > 10000:
-            raise ValueError
-    except (ValueError, TypeError):
-        errors.add("exchange_rate", _("Taux de change invalide (0 < taux ≤ 10000)."))
-        exchange_rate = 1.0
-
+    values, errors = _parse_expense(ctx, request.form)
     if errors:
-        errors.flash_all("danger")
-        return redirect(url_for("costs.index", code=code))
-
-    d: date | None = None
-    if exp_date:
-        try:
-            d = datetime.strptime(exp_date, "%Y-%m-%d").date()
-        except ValueError:
-            pass
-
+        return _invalid(ctx, SHEET_EXPENSE, errors)
     exp = Expense(
-        description=description,
-        amount_cents=amount_cents,
-        currency=currency,
-        exchange_rate=exchange_rate,
-        category=category,
-        paid_by_household_id=household_id,
-        date=d,
-        is_shared=is_shared,
-        event_id=event.id,
+        **values,
+        event_id=ctx.event.id,
+        created_by=ctx.participant.id if ctx.participant else None,
     )
     db.session.add(exp)
-
-    log_event(ctx, "expense.created", target=description,
-               details=f"{amount_cents/100:.2f} {currency}")
+    _log_expense(ctx, "expense.created", exp)
     db.session.commit()
     flash(_("Frais ajouté."), "success")
-    return redirect(url_for("costs.index", code=code))
+    return _back(code)
+
+
+@costs_bp.route("/e/<code>/costs/expenses/<exp_id>/edit", methods=["POST"])
+@limiter.limit("60 per hour")
+def edit_expense(code: str, exp_id: str) -> str | Response | tuple[str, int]:
+    """Modifier une dépense (son auteur, le propriétaire du foyer payeur ou le créateur)."""
+    ctx = load_event_context(code)
+    exp = _get_expense(ctx, exp_id)
+    if not ctx.can_edit(exp):
+        abort(403)
+    values, errors = _parse_expense(ctx, request.form)
+    if errors:
+        return _invalid(ctx, SHEET_EXPENSE_EDIT, errors, edit_expense=exp)
+    for key, value in values.items():
+        setattr(exp, key, value)
+    _log_expense(ctx, "expense.updated", exp)
+    db.session.commit()
+    flash(_("Frais modifié."), "success")
+    return _back(code)
 
 
 @costs_bp.route("/e/<code>/costs/expenses/<exp_id>/delete", methods=["POST"])
 def delete_expense(code: str, exp_id: str) -> Response | tuple[str, int]:
-    """Delete an expense (creator only)."""
+    """Delete an expense (author, payer household owner or creator)."""
     ctx = load_event_context(code)
-    event = ctx.event
-
-    exp = Expense.query.filter_by(id=exp_id, event_id=event.id).first()
-    if not exp:
-        abort(404)
+    exp = _get_expense(ctx, exp_id)
     if not ctx.can_delete(exp):
         abort(403)
-
+    shared = exp.is_shared
     desc = exp.description
     db.session.delete(exp)
-    log_event(ctx, "expense.deleted", target=desc)
+    log_event(ctx, "expense.deleted", target=desc if shared else None)
     db.session.commit()
     flash(_("Frais supprimé."), "success")
-    return redirect(url_for("costs.index", code=code))
+    return _back(code)
 
 
 @costs_bp.route("/e/<code>/costs/households/<h_id>/delete", methods=["POST"])
 def delete_household(code: str, h_id: str) -> Response | tuple[str, int]:
-    """Delete a household (creator only)."""
+    """Delete a household (creator only), unless expenses or transfers refer to it."""
     ctx = load_event_context(code)
-    event = ctx.event
-
-    h = Household.query.filter_by(id=h_id, event_id=event.id).first()
+    h = Household.query.filter_by(id=h_id, event_id=ctx.event.id).first()
     if not h:
         abort(404)
     if not ctx.can_delete(h):
         abort(403)
-
+    used = (
+        Expense.query.filter_by(paid_by_household_id=h.id).first()
+        or Transfer.query.filter(
+            (Transfer.from_household_id == h.id) | (Transfer.to_household_id == h.id)
+        ).first()
+        or PaymentRequest.query.filter(
+            (PaymentRequest.from_household_id == h.id) | (PaymentRequest.to_household_id == h.id)
+        ).first()
+    )
+    if used is not None:
+        flash(
+            _("Ce foyer a des dépenses, transferts ou demandes : supprimez-les d'abord."), "danger"
+        )
+        return _back(code, "balance")
     name = h.name
     db.session.delete(h)
     log_event(ctx, "household.deleted", target=name)
     db.session.commit()
     flash(_("Foyer supprimé."), "success")
-    return redirect(url_for("costs.index", code=code))
+    return _back(code, "balance")
+
+
+def _parse_transfer_households(
+    ctx: EventContext, form: Any, event: Event, errors: FormErrors
+) -> tuple[str, str]:
+    """(from, to). Un participant non créateur ne peut enregistrer qu'un transfert impliquant son foyer."""
+    mine = _my_household(ctx)
+    if not ctx.is_creator and mine is None:
+        abort(403)
+    direction = form.get("direction", "")
+    if direction in ("out", "in") and mine is not None:
+        other = form.get("other_household_id", "")
+        from_id, to_id = (mine.id, other) if direction == "out" else (other, mine.id)
+        field = "other_household_id"
+    else:
+        from_id, to_id = form.get("from_household_id", ""), form.get("to_household_id", "")
+        field = "from_household_id"
+    if (
+        from_id
+        and to_id
+        and not ctx.is_creator
+        and (mine is None or mine.id not in (from_id, to_id))
+    ):
+        abort(403)
+    if not from_id or not to_id:
+        errors.add(field, _("Foyers d'origine et de destination requis."))
+    elif from_id == to_id:
+        errors.add(field, _("Le foyer d'origine et de destination doivent différer."))
+    elif not _household_in_event(from_id, event) or not _household_in_event(to_id, event):
+        errors.add(field, _("Foyer invalide pour cet événement."))
+    return from_id, to_id
 
 
 @costs_bp.route("/e/<code>/costs/transfers/new", methods=["POST"])
 @limiter.limit("20 per hour")
-def add_transfer(code: str) -> Response | tuple[str, int]:
+def add_transfer(code: str) -> str | Response | tuple[str, int]:
     """Record a transfer/repayment between two households."""
     ctx = load_event_context(code)
-    event = ctx.event
-
-    from_id = request.form.get("from_household_id", "")
-    to_id = request.form.get("to_household_id", "")
-    amount_str = request.form.get("amount", "").strip()
-    note = request.form.get("note", "").strip()
-    t_date = request.form.get("date", "")
-
     errors = FormErrors()
-    if not from_id or not to_id:
-        errors.add("from_household_id", _("Foyers d'origine et de destination requis."))
-    elif from_id == to_id:
-        errors.add("to_household_id", _("Le foyer d'origine et de destination doivent différer."))
-    elif not _household_in_event(from_id, event) or not _household_in_event(to_id, event):
-        errors.add("from_household_id", _("Foyer invalide pour cet événement."))
-    amount_cents = 0
-    try:
-        amount_cents = round(float(amount_str) * 100)
-        if amount_cents <= 0:
-            errors.add("amount", _("Montant invalide."))
-    except (ValueError, TypeError):
-        errors.add("amount", _("Montant invalide."))
-
+    from_id, to_id = _parse_transfer_households(ctx, request.form, ctx.event, errors)
+    amount_cents = _parse_amount(request.form.get("amount", ""), errors)
+    note = request.form.get("note", "").strip()
+    if len(note) > 300:
+        errors.add("note", _("Note trop longue (max 300)."))
+    t_date = _parse_date(request.form.get("date", ""), errors)
     if errors:
-        errors.flash_all("danger")
-        return redirect(url_for("costs.index", code=code))
-
-    d: date | None = None
-    if t_date:
-        try:
-            d = datetime.strptime(t_date, "%Y-%m-%d").date()
-        except ValueError:
-            pass
-
-    t = Transfer(
-        from_household_id=from_id,
-        to_household_id=to_id,
-        amount_cents=amount_cents,
-        note=note,
-        date=d,
-        event_id=event.id,
+        return _invalid(ctx, SHEET_TRANSFER, errors)
+    db.session.add(
+        Transfer(
+            from_household_id=from_id,
+            to_household_id=to_id,
+            amount_cents=amount_cents,
+            note=note,
+            date=t_date,
+            event_id=ctx.event.id,
+            created_by=ctx.participant.id if ctx.participant else None,
+        )
     )
-    db.session.add(t)
-    log_event(ctx, "transfer.created", details=f"{amount_cents / 100:.2f} EUR")
+    log_event(ctx, "transfer.created", details=f"{amount_cents / 100:.2f} {BASE_CURRENCY}")
     db.session.commit()
     flash(_("Transfert enregistré."), "success")
-    return redirect(url_for("costs.index", code=code))
+    return _back(code, "balance")
 
 
 @costs_bp.route("/e/<code>/costs/transfers/<t_id>/delete", methods=["POST"])
 def delete_transfer(code: str, t_id: str) -> Response | tuple[str, int]:
-    """Delete a transfer (creator only)."""
+    """Delete a transfer (author or creator)."""
     ctx = load_event_context(code)
-    event = ctx.event
-
-    t = Transfer.query.filter_by(id=t_id, event_id=event.id).first()
+    t = Transfer.query.filter_by(id=t_id, event_id=ctx.event.id).first()
     if not t:
         abort(404)
     if not ctx.can_delete(t):
         abort(403)
-
     db.session.delete(t)
     log_event(ctx, "transfer.deleted")
     db.session.commit()
     flash(_("Transfert supprimé."), "success")
-    return redirect(url_for("costs.index", code=code))
+    return _back(code, "balance")
 
 
 @costs_bp.route("/e/<code>/costs/payment-requests/new", methods=["POST"])
 @limiter.limit("20 per hour")
-def add_payment_request(code: str) -> Response | tuple[str, int]:
-    """Create a payment request (reminder) from one household to another."""
+def add_payment_request(code: str) -> str | Response | tuple[str, int]:
+    """Create a payment request from one's own household (any household for the creator)."""
     ctx = load_event_context(code)
-    event = ctx.event
-
-    from_id = request.form.get("from_household_id", "")
+    mine = _my_household(ctx)
+    if not ctx.is_creator and mine is None:
+        abort(403)
+    from_id = request.form.get("from_household_id", mine.id if mine else "")
+    if not ctx.is_creator and mine is not None and from_id != mine.id:
+        abort(403)
     to_id = request.form.get("to_household_id", "")
-    amount_str = request.form.get("amount", "").strip()
     message = request.form.get("message", "").strip()
 
     errors = FormErrors()
     if not from_id or not to_id:
-        errors.add("from_household_id", _("Foyers requis."))
+        errors.add("to_household_id", _("Foyers requis."))
     elif from_id == to_id:
         errors.add("to_household_id", _("Les foyers doivent différer."))
-    elif not _household_in_event(from_id, event) or not _household_in_event(to_id, event):
-        errors.add("from_household_id", _("Foyer invalide pour cet événement."))
-    amount_cents = 0
-    try:
-        amount_cents = round(float(amount_str) * 100)
-        if amount_cents <= 0:
-            errors.add("amount", _("Montant invalide."))
-    except (ValueError, TypeError):
-        errors.add("amount", _("Montant invalide."))
-
+    elif not _household_in_event(from_id, ctx.event) or not _household_in_event(to_id, ctx.event):
+        errors.add("to_household_id", _("Foyer invalide pour cet événement."))
+    amount_cents = _parse_amount(request.form.get("amount", ""), errors)
+    if len(message) > 500:
+        errors.add("message", _("Message trop long (max 500)."))
     if errors:
-        errors.flash_all("danger")
-        return redirect(url_for("costs.index", code=code))
+        return _invalid(ctx, SHEET_REQUEST, errors)
 
-    pr = PaymentRequest(
-        from_household_id=from_id,
-        to_household_id=to_id,
-        amount_cents=amount_cents,
-        message=message,
-        event_id=event.id,
+    db.session.add(
+        PaymentRequest(
+            from_household_id=from_id,
+            to_household_id=to_id,
+            amount_cents=amount_cents,
+            message=message,
+            event_id=ctx.event.id,
+            created_by=ctx.participant.id if ctx.participant else None,
+        )
     )
-    db.session.add(pr)
-    log_event(ctx, "payment_request.created", details=f"{amount_cents / 100:.2f} EUR")
+    log_event(ctx, "payment_request.created", details=f"{amount_cents / 100:.2f} {BASE_CURRENCY}")
     db.session.commit()
     flash(_("Demande de paiement créée."), "success")
-    return redirect(url_for("costs.index", code=code))
+    return _back(code, "requests")
 
 
 @costs_bp.route("/e/<code>/costs/payment-requests/<pr_id>/resolve", methods=["POST"])
 def resolve_payment_request(code: str, pr_id: str) -> Response | tuple[str, int]:
-    """Mark a payment request as resolved."""
+    """Mark a payment request as resolved (recipient household owner or creator)."""
     ctx = load_event_context(code)
-    event = ctx.event
-
-    pr = PaymentRequest.query.filter_by(id=pr_id, event_id=event.id).first()
+    pr = PaymentRequest.query.filter_by(id=pr_id, event_id=ctx.event.id).first()
     if not pr:
         abort(404)
-
+    if not ctx.can_edit(pr):
+        abort(403)
     pr.is_resolved = True
-    from datetime import UTC
-    pr.resolved_at = datetime.now(UTC)
+    pr.resolved_at = datetime.now(UTC).replace(tzinfo=None)
     log_event(ctx, "payment_request.resolved")
     db.session.commit()
     flash(_("Demande marquée comme réglée."), "success")
-    return redirect(url_for("costs.index", code=code))
+    return _back(code, "requests")
 
 
 @costs_bp.route("/e/<code>/costs/payment-requests/<pr_id>/delete", methods=["POST"])
 def delete_payment_request(code: str, pr_id: str) -> Response | tuple[str, int]:
-    """Delete a payment request (creator only)."""
+    """Delete a payment request (author or creator)."""
     ctx = load_event_context(code)
-    event = ctx.event
-
-    pr = PaymentRequest.query.filter_by(id=pr_id, event_id=event.id).first()
+    pr = PaymentRequest.query.filter_by(id=pr_id, event_id=ctx.event.id).first()
     if not pr:
         abort(404)
     if not ctx.can_delete(pr):
         abort(403)
-
     db.session.delete(pr)
     log_event(ctx, "payment_request.deleted")
     db.session.commit()
     flash(_("Demande supprimée."), "success")
-    return redirect(url_for("costs.index", code=code))
+    return _back(code, "requests")
 
 
 @costs_bp.route("/e/<code>/costs/ratio", methods=["POST"])
-def update_ratio(code: str) -> Response | tuple[str, int]:
-    """Update adult/child weights for all households in the event."""
+def update_ratio(code: str) -> str | Response | tuple[str, int]:
+    """Update adult/child weights for all households in the event (creator only)."""
     ctx = load_event_context(code)
-    event = ctx.event
-
-    adult_weight_raw = request.form.get("adult_weight", "1.0")
-    child_weight_raw = request.form.get("child_weight", "0.5")
-
-    try:
-        adult_weight = float(adult_weight_raw)
-        child_weight = float(child_weight_raw)
-    except (ValueError, TypeError):
-        flash(_("Valeurs invalides."), "danger")
-        return redirect(url_for("costs.index", code=code))
-
-    if adult_weight <= 0 or adult_weight > 10 or child_weight < 0 or child_weight > 10:
-        flash(_("Poids invalides (0 < adulte ≤ 10, 0 ≤ enfant ≤ 10)."), "danger")
-        return redirect(url_for("costs.index", code=code))
-
-    households = event.households.all()
-    for h in households:
+    if not ctx.is_creator:
+        abort(403)
+    errors = FormErrors()
+    adult_weight = _parse_decimal(request.form.get("adult_weight", "1.0"))
+    child_weight = _parse_decimal(request.form.get("child_weight", "0.5"))
+    if adult_weight is None or adult_weight <= 0 or adult_weight > 10:
+        errors.add("adult_weight", _("Parts par adulte : 0 < valeur ≤ 10."))
+    if child_weight is None or child_weight < 0 or child_weight > 10:
+        errors.add("child_weight", _("Parts par enfant : 0 ≤ valeur ≤ 10."))
+    if errors or adult_weight is None or child_weight is None:
+        return _invalid(ctx, SHEET_RATIO, errors)
+    for h in ctx.event.households.all():
         h.adult_weight = adult_weight
         h.child_weight = child_weight
-
     log_event(ctx, "ratio.updated", details=f"adult={adult_weight}, child={child_weight}")
     db.session.commit()
     flash(_("Ratio appliqué à tous les foyers."), "success")
-    return redirect(url_for("costs.index", code=code))
+    return _back(code, "balance")

@@ -281,6 +281,7 @@ def _expense_payload(household):
         "amount": "10",
         "household_id": household.id,
         "date": "2026-12-01",
+        "is_shared": "on",
     }
 
 

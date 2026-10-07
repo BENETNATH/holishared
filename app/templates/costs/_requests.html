@@ -1,0 +1,39 @@
+{# Segment « Demandes de paiement » (B024). #}
+<section aria-labelledby="costs-req-title" data-testid="costs-section-requests">
+  <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+    <h2 id="costs-req-title" class="m-0 text-subheading font-semibold text-ink">{{ _("Demandes de paiement") }}</h2>
+    {%- if households and (ctx.is_creator or my_household) %}
+    <button type="button" class="ui-btn ui-btn--secondary ui-btn--sm shrink-0" data-sheet-open="costs-request-sheet" aria-haspopup="dialog" aria-expanded="false" data-testid="request-open">{{ icon('send', size=16) }}<span>{{ _("Nouvelle demande") }}</span></button>
+    {%- endif %}
+  </div>
+  {%- if payment_requests %}
+  <ul class="ui-list" data-testid="request-list">
+    {%- for pr in payment_requests %}
+    <li data-testid="request-row" data-resolved="{{ 'true' if pr.is_resolved else 'false' }}" class="flex flex-col gap-2 border-t border-line px-3 py-3 first:border-t-0">
+      <div class="flex items-start justify-between gap-2">
+        <p class="m-0 min-w-0 break-words font-medium text-ink">{{ pr.from_household.name }} <span aria-hidden="true">→</span><span class="sr-only">{{ _("à") }}</span> {{ pr.to_household.name }}</p>
+        <p class="m-0 shrink-0 font-semibold text-ink">{{ pr.amount|money }}</p>
+      </div>
+      {%- if pr.message %}<p class="m-0 break-words text-small text-ink-2" data-testid="request-message">{{ pr.message }}</p>{% endif %}
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="ui-badge {{ 'ui-badge--success' if pr.is_resolved else 'ui-badge--warning' }}" data-testid="request-status">{{ _("Réglée") if pr.is_resolved else _("En attente") }}</span>
+        {%- if not pr.is_resolved and ctx.can_edit(pr) %}
+        <form method="post" action="{{ url_for('costs.resolve_payment_request', code=event.code, pr_id=pr.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="tab" value="requests">
+          <button type="submit" class="ui-btn ui-btn--secondary ui-btn--sm" data-testid="request-resolve">{{ icon('check', size=16) }}<span>{{ _("Marquer réglé") }}</span></button>
+        </form>
+        {%- endif %}
+        {%- if ctx.can_delete(pr) %}
+        <form method="post" action="{{ url_for('costs.delete_payment_request', code=event.code, pr_id=pr.id) }}" data-confirm="{{ _('Supprimer cette demande ?') }}" data-confirm-label="{{ _('Supprimer') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="tab" value="requests">
+          <button type="submit" class="ui-btn ui-btn--ghost ui-btn--sm text-danger" data-testid="request-delete">{{ icon('trash-2', size=16) }}<span>{{ _("Supprimer") }}</span></button>
+        </form>
+        {%- endif %}
+      </div>
+    </li>
+    {%- endfor %}
+  </ul>
+  {%- else %}
+  {% call empty_state('send', _("Aucune demande de paiement pour le moment.")) %}{% endcall %}
+  {%- endif %}
+</section>

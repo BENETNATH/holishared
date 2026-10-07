@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 00:54+0200\n"
+"POT-Creation-Date: 2026-10-07 01:47+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -251,12 +251,20 @@ msgid "Foyer ajouté"
 msgstr "Household added"
 
 #: app/i18n.py
+msgid "Foyer modifié"
+msgstr "Household updated"
+
+#: app/i18n.py
 msgid "Foyer supprimé"
 msgstr "Household deleted"
 
 #: app/i18n.py
 msgid "Dépense ajoutée"
 msgstr "Expense added"
+
+#: app/i18n.py
+msgid "Dépense modifiée"
+msgstr "Expense updated"
 
 #: app/i18n.py
 msgid "Dépense supprimée"
@@ -596,8 +604,32 @@ msgid "Message supprimé."
 msgstr "Message deleted."
 
 #: app/costs/__init__.py
+msgid "Montant invalide."
+msgstr "Invalid amount."
+
+#: app/costs/__init__.py
+msgid "Date invalide."
+msgstr "Invalid date."
+
+#: app/costs/__init__.py
+msgid "Date hors limites (5 ans avant à 1 an après aujourd'hui)."
+msgstr "Date out of range (up to 5 years back, 1 year ahead)."
+
+#: app/costs/__init__.py
+msgid "Taux de change requis pour cette devise."
+msgstr "An exchange rate is required for this currency."
+
+#: app/costs/__init__.py
+msgid "Taux de change invalide (0 < taux ≤ 10000)."
+msgstr "Invalid exchange rate (0 < rate ≤ 10000)."
+
+#: app/costs/__init__.py
 msgid "Nom du foyer requis (min 2 caractères)."
 msgstr "Household name required (min. 2 characters)."
+
+#: app/costs/__init__.py
+msgid "Nom trop long (max 100)."
+msgstr "Name too long (max 100)."
 
 #: app/costs/__init__.py
 msgid "Valeurs numériques invalides."
@@ -616,12 +648,20 @@ msgid "Foyer ajouté."
 msgstr "Household added."
 
 #: app/costs/__init__.py
+msgid "Foyer modifié."
+msgstr "Household updated."
+
+#: app/costs/__init__.py
 msgid "Description requise."
 msgstr "Description required."
 
 #: app/costs/__init__.py
-msgid "Montant invalide."
-msgstr "Invalid amount."
+msgid "Description trop longue (max 300)."
+msgstr "Description too long (max 300)."
+
+#: app/costs/__init__.py
+msgid "Devise invalide."
+msgstr "Invalid currency."
 
 #: app/costs/__init__.py app/logistics/__init__.py
 msgid "Catégorie invalide."
@@ -636,16 +676,24 @@ msgid "Foyer payeur invalide."
 msgstr "Invalid paying household."
 
 #: app/costs/__init__.py
-msgid "Taux de change invalide (0 < taux ≤ 10000)."
-msgstr "Invalid exchange rate (0 < rate ≤ 10000)."
+msgid "Une dépense personnelle doit être payée par votre foyer."
+msgstr "A personal expense must be paid by your household."
 
 #: app/costs/__init__.py
 msgid "Frais ajouté."
 msgstr "Expense added."
 
 #: app/costs/__init__.py
+msgid "Frais modifié."
+msgstr "Expense updated."
+
+#: app/costs/__init__.py
 msgid "Frais supprimé."
 msgstr "Expense deleted."
+
+#: app/costs/__init__.py
+msgid "Ce foyer a des dépenses, transferts ou demandes : supprimez-les d'abord."
+msgstr "This household has expenses, transfers or requests: delete them first."
 
 #: app/costs/__init__.py
 msgid "Foyer supprimé."
@@ -664,6 +712,10 @@ msgid "Foyer invalide pour cet événement."
 msgstr "Invalid household for this event."
 
 #: app/costs/__init__.py
+msgid "Note trop longue (max 300)."
+msgstr "Note too long (max 300)."
+
+#: app/costs/__init__.py
 msgid "Transfert enregistré."
 msgstr "Transfer recorded."
 
@@ -680,6 +732,10 @@ msgid "Les foyers doivent différer."
 msgstr "The households must differ."
 
 #: app/costs/__init__.py
+msgid "Message trop long (max 500)."
+msgstr "Message too long (max 500)."
+
+#: app/costs/__init__.py
 msgid "Demande de paiement créée."
 msgstr "Payment request created."
 
@@ -692,12 +748,12 @@ msgid "Demande supprimée."
 msgstr "Request deleted."
 
 #: app/costs/__init__.py
-msgid "Valeurs invalides."
-msgstr "Invalid values."
+msgid "Parts par adulte : 0 < valeur ≤ 10."
+msgstr "Shares per adult: 0 < value ≤ 10."
 
 #: app/costs/__init__.py
-msgid "Poids invalides (0 < adulte ≤ 10, 0 ≤ enfant ≤ 10)."
-msgstr "Invalid weights (0 < adult ≤ 10, 0 ≤ child ≤ 10)."
+msgid "Parts par enfant : 0 ≤ valeur ≤ 10."
+msgstr "Shares per child: 0 ≤ value ≤ 10."
 
 #: app/costs/__init__.py
 msgid "Ratio appliqué à tous les foyers."
@@ -1217,11 +1273,12 @@ msgstr "Start the conversation!"
 msgid "Supprimer le message de"
 msgstr "Delete message from"
 
-#: app/templates/chat/_messages.html app/templates/costs/index.html
-#: app/templates/lists/_items.html app/templates/lists/detail.html
-#: app/templates/logistics/index.html app/templates/main/ui_catalog.html
-#: app/templates/meals/index.html app/templates/media/detail.html
-#: app/templates/planning/index.html
+#: app/templates/chat/_messages.html app/templates/costs/_balance.html
+#: app/templates/costs/_expenses.html app/templates/costs/_requests.html
+#: app/templates/costs/index.html app/templates/lists/_items.html
+#: app/templates/lists/detail.html app/templates/logistics/index.html
+#: app/templates/main/ui_catalog.html app/templates/meals/index.html
+#: app/templates/media/detail.html app/templates/planning/index.html
 msgid "Supprimer"
 msgstr "Delete"
 
@@ -1229,266 +1286,448 @@ msgstr "Delete"
 msgid "Votre message"
 msgstr "Your message"
 
-#: app/templates/chat/index.html app/templates/costs/index.html
+#: app/templates/chat/index.html
 msgid "Envoyer"
 msgstr "Send"
 
-#: app/templates/costs/household_form.html
-msgid "Nouveau foyer"
-msgstr "New household"
+#: app/templates/costs/_balance.html
+msgid "Qui doit à qui"
+msgstr "Who owes whom"
 
-#: app/templates/costs/household_form.html
-msgid "Nouveau groupe"
-msgstr "New group"
+#: app/templates/costs/_balance.html
+msgid "doit"
+msgstr "owes"
 
-#: app/templates/costs/household_form.html
-msgid "Nom du groupe"
-msgstr "Group name"
+#: app/templates/costs/_balance.html app/templates/costs/_requests.html
+msgid "à"
+msgstr "to"
 
-#: app/templates/costs/household_form.html
-msgid "Ex : Famille Dupont, Alice + Bob"
-msgstr "E.g. Dupont family, Alice + Bob"
+#: app/templates/costs/_balance.html
+msgid "Marquer comme remboursé"
+msgstr "Mark as repaid"
 
-#: app/templates/costs/household_form.html
-msgid "Nombre d'adultes"
-msgstr "Number of adults"
+#: app/templates/costs/_balance.html
+msgid "Tout est réglé : personne ne doit rien à personne."
+msgstr "All settled: nobody owes anything."
 
-#: app/templates/costs/household_form.html
-msgid "Nombre d'enfants"
-msgstr "Number of children"
+#: app/templates/costs/_balance.html
+msgid "Rien à régler tant qu'aucune dépense partagée n'est enregistrée."
+msgstr "Nothing to settle until a shared expense is recorded."
 
-#: app/templates/costs/household_form.html
-msgid "Le ratio adulte/enfant se définit sur la page des frais."
-msgstr "The adult/child ratio is set on the costs page."
+#: app/templates/costs/_balance.html
+msgid "Remboursements effectués"
+msgstr "Completed settlements"
 
-#: app/templates/costs/household_form.html
-msgid "Ajouter le groupe"
-msgstr "Add group"
+#: app/templates/costs/_balance.html app/templates/costs/index.html
+msgid "Enregistrer un remboursement"
+msgstr "Record a repayment"
+
+#: app/templates/costs/_balance.html
+msgid "Supprimer ce transfert ?"
+msgstr "Delete this transfer?"
+
+#: app/templates/costs/_balance.html
+msgid "Aucun remboursement enregistré pour le moment."
+msgstr "No repayment recorded yet."
+
+#: app/templates/costs/_balance.html
+msgid "Soldes par foyer"
+msgstr "Balances by household"
+
+#: app/templates/costs/_balance.html
+msgid "Ratio"
+msgstr "Ratio"
+
+#: app/templates/costs/_balance.html
+msgid "Foyer"
+msgstr "Household"
+
+#: app/templates/costs/_balance.html
+msgid "Mon foyer"
+msgstr "My household"
+
+#: app/templates/costs/_balance.html
+msgid "reçoit"
+msgstr "is owed"
+
+#: app/templates/costs/_balance.html
+msgid "réglé"
+msgstr "settled"
+
+#: app/templates/costs/_balance.html
+#, python-format
+msgid "%(n)d adulte"
+msgid_plural "%(n)d adultes"
+msgstr[0] "%(n)d adult"
+msgstr[1] "%(n)d adults"
+
+#: app/templates/costs/_balance.html
+#, python-format
+msgid "%(n)d enfant"
+msgid_plural "%(n)d enfants"
+msgstr[0] "%(n)d child"
+msgstr[1] "%(n)d children"
+
+#: app/templates/costs/_balance.html
+#, python-format
+msgid "%(n)s part"
+msgid_plural "%(n)s parts"
+msgstr[0] "%(n)s share"
+msgstr[1] "%(n)s shares"
+
+#: app/templates/costs/_balance.html
+msgid "payé"
+msgstr "paid"
+
+#: app/templates/costs/_balance.html
+msgid "Dépenses personnelles (visibles de vous seul)"
+msgstr "Personal expenses (visible to you only)"
+
+#: app/templates/costs/_balance.html app/templates/costs/_expenses.html
+#: app/templates/logistics/form.html app/templates/logistics/index.html
+#: app/templates/main/ui_catalog.html app/templates/planning/form.html
+#: app/templates/planning/index.html
+msgid "Modifier"
+msgstr "Edit"
+
+#: app/templates/costs/_balance.html
+msgid "Aucun foyer encore."
+msgstr "No household yet."
+
+#: app/templates/costs/_balance.html
+msgid "Répartition par catégorie"
+msgstr "Distribution by category"
+
+#: app/templates/costs/_expenses.html
+msgid "Dépenses du séjour"
+msgstr "Trip expenses"
+
+#: app/templates/costs/_expenses.html
+msgid "Total partagé"
+msgstr "Shared total"
+
+#: app/templates/costs/_expenses.html
+msgid "Personnelle"
+msgstr "Personal"
+
+#: app/templates/costs/_expenses.html app/templates/costs/_forms.html
+#: app/templates/logistics/form.html
+msgid "Catégorie"
+msgstr "Category"
+
+#: app/templates/costs/_expenses.html
+msgid "Montant d'origine"
+msgstr "Original amount"
+
+#: app/templates/costs/_expenses.html
+msgid "Taux"
+msgstr "Rate"
+
+#: app/templates/costs/_expenses.html app/templates/costs/_forms.html
+msgid "Payé par"
+msgstr "Paid by"
+
+#: app/templates/costs/_expenses.html app/templates/costs/_forms.html
+#: app/templates/planning/form.html app/templates/planning/index.html
+msgid "Date"
+msgstr "Date"
+
+#: app/templates/costs/_expenses.html
+msgid "Répartition"
+msgstr "Split"
+
+#: app/templates/costs/_expenses.html
+msgid "Dépense personnelle : non partagée."
+msgstr "Personal expense: not shared."
+
+#: app/templates/costs/_expenses.html
+msgid "Supprimer cette dépense ?"
+msgstr "Delete this expense?"
+
+#: app/templates/costs/_expenses.html
+msgid "Aucune dépense enregistrée pour le moment."
+msgstr "No expenses recorded yet."
+
+#: app/templates/costs/_expenses.html
+msgid "Ajoutez la première dépense du séjour."
+msgstr "Add the first expense of the stay."
+
+#: app/templates/costs/_expenses.html
+msgid "Aucun foyer pour le moment."
+msgstr "No household yet."
+
+#: app/templates/costs/_expenses.html
+msgid "Un foyer est nécessaire pour enregistrer des dépenses."
+msgstr "A household is needed to record expenses."
+
+#: app/templates/costs/_expenses.html
+msgid "Gérer les foyers"
+msgstr "Manage households"
+
+#: app/templates/costs/_forms.html app/templates/events/create.html
+#: app/templates/events/dashboard.html app/templates/main/ui_catalog.html
+#: app/templates/planning/form.html
+msgid "Description"
+msgstr "Description"
+
+#: app/templates/costs/_forms.html
+msgid "Ex : Supermarché, essence…"
+msgstr "E.g. Supermarket, fuel…"
+
+#: app/templates/costs/_forms.html
+msgid "Montant"
+msgstr "Amount"
+
+#: app/templates/costs/_forms.html
+msgid "Devise"
+msgstr "Currency"
+
+#: app/templates/costs/_forms.html
+#, python-format
+msgid "Taux de change vers %(base)s"
+msgstr "Exchange rate to %(base)s"
+
+#: app/templates/costs/_forms.html
+#, python-format
+msgid ""
+"Combien vaut 1 unité de la devise choisie en %(base)s. Les totaux et "
+"soldes sont calculés en %(base)s."
+msgstr ""
+"How much 1 unit of the chosen currency is worth in %(base)s. Totals and "
+"balances are computed in %(base)s."
+
+#: app/templates/costs/_forms.html
+msgid "Ex : 0,92"
+msgstr "E.g. 0.92"
+
+#: app/templates/costs/_forms.html
+msgid "Partagée entre les foyers"
+msgstr "Shared between households"
+
+#: app/templates/costs/_forms.html
+msgid ""
+"Décochez pour une dépense personnelle : seuls les membres de votre foyer "
+"la voient et elle n'entre dans aucun total partagé."
+msgstr ""
+"Untick for a personal expense: only members of your household see it and "
+"it counts in no shared total."
+
+#: app/templates/costs/_forms.html app/templates/logistics/form.html
+#: app/templates/meals/index.html app/templates/planning/form.html
+msgid "Enregistrer"
+msgstr "Save"
+
+#: app/templates/costs/_forms.html app/templates/events/members.html
+#: app/templates/lists/detail.html app/templates/main/ui_catalog.html
+#: app/templates/meals/index.html app/templates/planning/index.html
+msgid "Ajouter"
+msgstr "Add"
+
+#: app/templates/costs/_forms.html
+msgid "Nom du foyer"
+msgstr "Household name"
+
+#: app/templates/costs/_forms.html
+msgid "Ex : Famille Dupont"
+msgstr "E.g. Smith family"
+
+#: app/templates/costs/_forms.html app/templates/events/join.html
+#: app/templates/events/verify.html
+msgid "Adultes"
+msgstr "Adults"
+
+#: app/templates/costs/_forms.html app/templates/events/join.html
+#: app/templates/events/verify.html
+msgid "Enfants"
+msgstr "Children"
+
+#: app/templates/costs/_forms.html
+msgid "Ajouter le foyer"
+msgstr "Add household"
+
+#: app/templates/costs/_forms.html
+msgid "De"
+msgstr "From"
+
+#: app/templates/costs/_forms.html
+msgid "Choisir un foyer"
+msgstr "Choose a household"
+
+#: app/templates/costs/_forms.html
+msgid "À"
+msgstr "To"
+
+#: app/templates/costs/_forms.html
+msgid "Sens du remboursement"
+msgstr "Direction of the repayment"
+
+#: app/templates/costs/_forms.html
+msgid "Je rembourse"
+msgstr "I am paying back"
+
+#: app/templates/costs/_forms.html
+msgid "On me rembourse"
+msgstr "I am being paid back"
+
+#: app/templates/costs/_forms.html
+msgid "Autre foyer"
+msgstr "Other household"
+
+#: app/templates/costs/_forms.html
+#, python-format
+msgid "Montant (%(base)s)"
+msgstr "Amount (%(base)s)"
+
+#: app/templates/costs/_forms.html
+msgid "Note"
+msgstr "Note"
+
+#: app/templates/costs/_forms.html
+msgid "Enregistrer le remboursement"
+msgstr "Record repayment"
+
+#: app/templates/costs/_forms.html
+#, python-format
+msgid "La demande part de votre foyer : %(name)s."
+msgstr "The request comes from your household: %(name)s."
+
+#: app/templates/costs/_forms.html
+msgid "Message"
+msgstr "Message"
+
+#: app/templates/costs/_forms.html
+msgid "Envoyer la demande"
+msgstr "Send request"
+
+#: app/templates/costs/_forms.html
+msgid "1 adulte = X parts, 1 enfant = Y parts. S'applique à tous les foyers."
+msgstr "1 adult = X shares, 1 child = Y shares. Applies to all households."
+
+#: app/templates/costs/_forms.html
+msgid "Parts par adulte"
+msgstr "Shares per adult"
+
+#: app/templates/costs/_forms.html
+msgid "Parts par enfant"
+msgstr "Shares per child"
+
+#: app/templates/costs/_forms.html
+msgid "Appliquer à tous les foyers"
+msgstr "Apply to all households"
+
+#: app/templates/costs/_requests.html
+msgid "Demandes de paiement"
+msgstr "Payment requests"
+
+#: app/templates/costs/_requests.html
+msgid "Nouvelle demande"
+msgstr "New request"
+
+#: app/templates/costs/_requests.html
+msgid "Réglée"
+msgstr "Settled"
+
+#: app/templates/costs/_requests.html app/templates/main/ui_catalog.html
+msgid "En attente"
+msgstr "Pending"
+
+#: app/templates/costs/_requests.html
+msgid "Marquer réglé"
+msgstr "Mark as paid"
+
+#: app/templates/costs/_requests.html
+msgid "Supprimer cette demande ?"
+msgstr "Delete this request?"
+
+#: app/templates/costs/_requests.html
+msgid "Aucune demande de paiement pour le moment."
+msgstr "No payment requests at the moment."
 
 #: app/templates/costs/index.html
-msgid "Partage de frais"
-msgstr "Cost sharing"
+msgid "Dépenses"
+msgstr "Expenses"
 
 #: app/templates/costs/index.html
-msgid "Suivi des dépenses partagées par foyer et des soldes entre membres."
-msgstr "Track shared expenses by household and balances between members."
+msgid "Équilibre"
+msgstr "Balance"
 
 #: app/templates/costs/index.html
-msgid "Votre solde"
-msgstr "Your balance"
+msgid "Demandes"
+msgstr "Requests"
 
 #: app/templates/costs/index.html
-msgid "On vous doit de l'argent"
-msgstr "You are owed money"
-
-#: app/templates/costs/index.html
-msgid "Vous devez de l'argent au groupe"
-msgstr "You owe the group money"
-
-#: app/templates/costs/index.html
-msgid "Vous êtes quitte ! 👌"
-msgstr "You're all square! 👌"
+msgid "Dépenses partagées par foyer et soldes entre foyers."
+msgstr "Expenses shared by household and balances between households."
 
 #: app/templates/costs/index.html
 msgid "Ajouter une dépense"
 msgstr "Add an expense"
 
 #: app/templates/costs/index.html
-msgid "Ajoutez d'abord un foyer pour pouvoir ajouter des dépenses."
-msgstr "Add a household first so you can add expenses."
-
-#: app/templates/costs/index.html app/templates/events/create.html
-#: app/templates/events/dashboard.html app/templates/main/ui_catalog.html
-#: app/templates/planning/form.html
-msgid "Description"
-msgstr "Description"
+msgid "Mon solde"
+msgstr "My balance"
 
 #: app/templates/costs/index.html
-msgid "Ex : Supermarché, essence…"
-msgstr "E.g. Supermarket, fuel…"
+msgid "On vous doit de l'argent"
+msgstr "You are owed money"
 
 #: app/templates/costs/index.html
-msgid "Montant"
-msgstr "Amount"
+msgid "Vous devez de l'argent"
+msgstr "You owe money"
 
 #: app/templates/costs/index.html
-msgid "Devise"
-msgstr "Currency"
-
-#: app/templates/costs/index.html app/templates/logistics/form.html
-msgid "Catégorie"
-msgstr "Category"
+msgid "Vous êtes quitte"
+msgstr "You are all square"
 
 #: app/templates/costs/index.html
-msgid "Payé par"
-msgstr "Paid by"
+#, python-format
+msgid "%(name)s vous doit %(amount)s"
+msgstr "%(name)s owes you %(amount)s"
 
 #: app/templates/costs/index.html
-msgid "Partagé"
-msgstr "Shared"
+#, python-format
+msgid "Vous devez %(amount)s à %(name)s"
+msgstr "You owe %(name)s %(amount)s"
 
 #: app/templates/costs/index.html
-msgid "Décochez pour une dépense personnelle (non partagée)."
-msgstr "Untick for a personal (non-shared) expense."
-
-#: app/templates/costs/index.html app/templates/events/members.html
-#: app/templates/lists/detail.html app/templates/main/ui_catalog.html
-#: app/templates/meals/index.html app/templates/planning/index.html
-msgid "Ajouter"
-msgstr "Add"
+msgid ""
+"Aucun foyer ne vous est rattaché. Demandez à l'organisateur de vous "
+"rattacher à un foyer pour voir votre solde."
+msgstr ""
+"No household is linked to you. Ask the organiser to link you to a "
+"household to see your balance."
 
 #: app/templates/costs/index.html
-msgid "Ratio de répartition"
-msgstr "Split ratio"
+msgid "Sections des frais"
+msgstr "Expense sections"
 
 #: app/templates/costs/index.html
-msgid "1 adulte = X parts, 1 enfant = Y parts. S'applique à tous les groupes."
-msgstr "1 adult = X shares, 1 child = Y shares. Applies to all groups."
-
-#: app/templates/costs/index.html
-msgid "Parts par adulte"
-msgstr "Shares per adult"
-
-#: app/templates/costs/index.html
-msgid "Parts par enfant"
-msgstr "Shares per child"
-
-#: app/templates/costs/index.html
-msgid "Appliquer à tous les groupes"
-msgstr "Apply to all groups"
-
-#: app/templates/costs/index.html
-msgid "Qui doit à qui"
-msgstr "Who owes whom"
-
-#: app/templates/costs/index.html
-msgid "Marquer comme remboursé"
-msgstr "Mark as repaid"
-
-#: app/templates/costs/index.html
-msgid "Rembourser"
-msgstr "Repay"
-
-#: app/templates/costs/index.html
-msgid "Foyers"
-msgstr "Households"
+msgid "Modifier la dépense"
+msgstr "Edit expense"
 
 #: app/templates/costs/index.html
 msgid "Ajouter un foyer"
 msgstr "Add a household"
 
 #: app/templates/costs/index.html
-msgid "Nom du foyer"
-msgstr "Household name"
+msgid "Ratio adulte / enfant"
+msgstr "Adult / child ratio"
+
+#: app/templates/costs/index.html
+msgid "Modifier le foyer"
+msgstr "Edit household"
 
 #: app/templates/costs/index.html
 msgid "Supprimer ce foyer ?"
 msgstr "Delete this household?"
 
 #: app/templates/costs/index.html
-msgid "part"
-msgstr "share"
+msgid "Supprimer ce foyer"
+msgstr "Delete this household"
 
 #: app/templates/costs/index.html
-msgid "payé"
-msgstr "paid"
-
-#: app/templates/costs/index.html
-msgid "Dépenses personnelles"
-msgstr "Personal expenses"
-
-#: app/templates/costs/index.html
-msgid "reçoit"
-msgstr "is owed"
-
-#: app/templates/costs/index.html
-msgid "doit"
-msgstr "owes"
-
-#: app/templates/costs/index.html
-msgid "réglé"
-msgstr "settled"
-
-#: app/templates/costs/index.html
-msgid "Aucun foyer encore. Ajoutez le vôtre pour commencer."
-msgstr "No household yet. Add yours to get started."
-
-#: app/templates/costs/index.html
-msgid "Dépenses du séjour"
-msgstr "Trip expenses"
-
-#: app/templates/costs/index.html
-msgid "Personnel"
-msgstr "Personal"
-
-#: app/templates/costs/index.html
-msgid "Supprimer cette dépense ?"
-msgstr "Delete this expense?"
-
-#: app/templates/costs/index.html
-msgid "Aucune dépense enregistrée pour le moment."
-msgstr "No expenses recorded yet."
-
-#: app/templates/costs/index.html
-msgid "Répartition par catégorie"
-msgstr "Distribution by category"
-
-#: app/templates/costs/index.html
-msgid "Remboursements effectués"
-msgstr "Completed settlements"
-
-#: app/templates/costs/index.html
-msgid "Transfert"
-msgstr "Transfer"
-
-#: app/templates/costs/index.html
-msgid "De"
-msgstr "From"
-
-#: app/templates/costs/index.html
-msgid "À"
-msgstr "To"
-
-#: app/templates/costs/index.html
-msgid "Note (optionnel)"
-msgstr "Note (optional)"
-
-#: app/templates/costs/index.html app/templates/logistics/form.html
-#: app/templates/meals/index.html app/templates/planning/form.html
-msgid "Enregistrer"
-msgstr "Save"
-
-#: app/templates/costs/index.html
-msgid "Supprimer ce transfert ?"
-msgstr "Delete this transfer?"
-
-#: app/templates/costs/index.html
-msgid "Demandes de paiement"
-msgstr "Payment requests"
-
-#: app/templates/costs/index.html
-msgid "Demande"
-msgstr "Request"
-
-#: app/templates/costs/index.html
-msgid "Réglé"
-msgstr "Settled"
-
-#: app/templates/costs/index.html app/templates/main/ui_catalog.html
-msgid "En attente"
-msgstr "Pending"
-
-#: app/templates/costs/index.html
-msgid "Marquer réglé"
-msgstr "Mark as paid"
-
-#: app/templates/costs/index.html
-msgid "Supprimer cette demande ?"
-msgstr "Delete this request?"
-
-#: app/templates/costs/index.html
-msgid "Aucune demande de paiement pour le moment."
-msgstr "No payment requests at the moment."
+msgid "Nouvelle demande de paiement"
+msgstr "New payment request"
 
 #: app/templates/errors/403.html
 msgid "Accès refusé"
@@ -1873,14 +2112,6 @@ msgstr "Your household"
 #: app/templates/events/join.html
 msgid "Pour la répartition des frais."
 msgstr "For splitting costs."
-
-#: app/templates/events/join.html app/templates/events/verify.html
-msgid "Adultes"
-msgstr "Adults"
-
-#: app/templates/events/join.html app/templates/events/verify.html
-msgid "Enfants"
-msgstr "Children"
 
 #: app/templates/events/join.html
 msgid "Votre email (optionnel)"
@@ -2400,12 +2631,6 @@ msgstr "Event lists"
 msgid "Progression"
 msgstr "Progress"
 
-#: app/templates/logistics/form.html app/templates/logistics/index.html
-#: app/templates/main/ui_catalog.html app/templates/planning/form.html
-#: app/templates/planning/index.html
-msgid "Modifier"
-msgstr "Edit"
-
 #: app/templates/logistics/form.html
 msgid "Modifier l'info"
 msgstr "Edit info"
@@ -2893,10 +3118,6 @@ msgstr "Edit activity"
 #: app/templates/planning/form.html
 msgid "Ex : Randonnée au lac"
 msgstr "E.g. Lake hike"
-
-#: app/templates/planning/form.html app/templates/planning/index.html
-msgid "Date"
-msgstr "Date"
 
 #: app/templates/planning/form.html
 msgid "Heure de début"

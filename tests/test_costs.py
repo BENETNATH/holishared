@@ -14,10 +14,10 @@ def _login_guest(client, event, guest):
         sess[f"guest_{event.code}"] = guest.id
 
 
-def _make_household(db, event, name="Famille A", adults=2, children=1, aw=1.0, cw=0.5):
+def _make_household(db, event, name="Famille A", adults=2, children=1, aw=1.0, cw=0.5, guest_id=None):
     h = Household(
         name=name, num_adults=adults, num_children=children,
-        adult_weight=aw, child_weight=cw, event_id=event.id,
+        adult_weight=aw, child_weight=cw, event_id=event.id, guest_id=guest_id,
     )
     db.session.add(h)
     db.session.commit()
@@ -40,7 +40,7 @@ class TestCostsIndex:
         _login_creator(client, creator)
         resp = client.get(f"/e/{event.code}/costs")
         assert resp.status_code == 200
-        assert b"Partage de frais" in resp.data
+        assert b'data-testid="costs-page"' in resp.data
 
     def test_index_renders_for_guest(self, client, event, guest):
         _login_guest(client, event, guest)
@@ -122,6 +122,7 @@ class TestExpenses:
             "amount": "500.00",
             "household_id": h.id,
             "date": "2026-12-01",
+            "is_shared": "on",
         })
         assert resp.status_code == 302
         exp = Expense.query.filter_by(description="Loyer").first()
@@ -155,6 +156,7 @@ class TestExpenses:
             "description": "Logged Expense",
             "amount": "100",
             "household_id": h.id,
+            "is_shared": "on",
         })
         log = ActivityLog.query.filter_by(event_id=event.id, action="expense.created").first()
         assert log is not None
@@ -184,7 +186,7 @@ class TestSettlement:
         _make_household(db, event, "B", adults=2, children=0)
         _make_expense(db, event, h1, "Total", 10000)  # 100€ paid by A
 
-        resp = client.get(f"/e/{event.code}/costs")
+        resp = client.get(f"/e/{event.code}/costs?tab=balance")
         assert resp.status_code == 200
         # B should receive 50€ from A
         assert b"B" in resp.data
@@ -201,7 +203,7 @@ class TestSettlement:
         # A paid 70, owes 30. B paid 0, should receive 30.
         # Settlement: A → B: 30€
 
-        resp = client.get(f"/e/{event.code}/costs")
+        resp = client.get(f"/e/{event.code}/costs?tab=balance")
         assert resp.status_code == 200
         assert b"30,00" in resp.data
 
@@ -225,7 +227,7 @@ class TestSettlement:
         # B paid 40, owes 50 → net -10 (should pay 10)
         # Settlement: B → A: 10€
 
-        resp = client.get(f"/e/{event.code}/costs")
+        resp = client.get(f"/e/{event.code}/costs?tab=balance")
         assert resp.status_code == 200
         assert b"10,00" in resp.data
 
@@ -328,10 +330,10 @@ class TestPaymentRequests:
 
 
 class TestPersonalExpenses:
-    def test_add_personal_expense_via_form(self, client, creator, event, db):
+    def test_add_personal_expense_via_form(self, client, creator, creator_guest, event, db):
         """Unchecking 'Partagé' creates a personal (non-shared) expense."""
         _login_creator(client, creator)
-        h = _make_household(db, event)
+        h = _make_household(db, event, guest_id=creator_guest.id)
         resp = client.post(f"/e/{event.code}/costs/expenses/new", data={
             "description": "Souvenir perso",
             "amount": "30.00",
@@ -342,10 +344,10 @@ class TestPersonalExpenses:
         assert exp is not None
         assert exp.is_shared is False
 
-    def test_add_shared_expense_default(self, client, creator, event, db):
+    def test_add_shared_expense_default(self, client, creator, creator_guest, event, db):
         """Leaving 'Partagé' checked (default) creates a shared expense."""
         _login_creator(client, creator)
-        h = _make_household(db, event)
+        h = _make_household(db, event, guest_id=creator_guest.id)
         resp = client.post(f"/e/{event.code}/costs/expenses/new", data={
             "description": "Loyer",
             "amount": "100.00",
@@ -357,10 +359,10 @@ class TestPersonalExpenses:
         assert exp is not None
         assert exp.is_shared is True
 
-    def test_personal_expense_excluded_from_settlement(self, client, creator, event, db):
+    def test_personal_expense_excluded_from_settlement(self, client, creator, creator_guest, event, db):
         """A personal expense does not create any debt between households."""
         _login_creator(client, creator)
-        h1 = _make_household(db, event, "A", adults=2, children=0)
+        h1 = _make_household(db, event, "A", adults=2, children=0, guest_id=creator_guest.id)
         _make_household(db, event, "B", adults=2, children=0)
         # Only a personal expense paid by A → no shared cost, no settlement.
         _make_expense(db, event, h1, "Perso", 10000, is_shared=False)
@@ -368,36 +370,36 @@ class TestPersonalExpenses:
         assert resp.status_code == 200
         assert b"Qui rembourse qui" not in resp.data
 
-    def test_personal_expense_shown_with_badge(self, client, creator, event, db):
+    def test_personal_expense_shown_with_badge(self, client, creator, creator_guest, event, db):
         """Personal expenses appear in the list with a 'Personnel' badge."""
         _login_creator(client, creator)
-        h = _make_household(db, event)
+        h = _make_household(db, event, guest_id=creator_guest.id)
         _make_expense(db, event, h, "Perso", 5000, is_shared=False)
         resp = client.get(f"/e/{event.code}/costs")
         assert resp.status_code == 200
-        assert b"Personnel" in resp.data
+        assert b'data-testid="expense-personal"' in resp.data
 
-    def test_personal_expense_total_in_group_card(self, client, creator, event, db):
+    def test_personal_expense_total_in_group_card(self, client, creator, creator_guest, event, db):
         """Per-household personal total is displayed in the group card."""
         _login_creator(client, creator)
-        h1 = _make_household(db, event, "A", adults=2, children=0)
+        h1 = _make_household(db, event, "A", adults=2, children=0, guest_id=creator_guest.id)
         _make_household(db, event, "B", adults=2, children=0)
         _make_expense(db, event, h1, "Perso", 4200, is_shared=False)
-        resp = client.get(f"/e/{event.code}/costs")
+        resp = client.get(f"/e/{event.code}/costs?tab=balance")
         assert resp.status_code == 200
         assert b"42,00" in resp.data
         assert "Dépenses personnelles".encode() in resp.data
 
-    def test_mixed_shared_and_personal(self, client, creator, event, db):
+    def test_mixed_shared_and_personal(self, client, creator, creator_guest, event, db):
         """Shared expense settles; personal expense is tracked separately."""
         _login_creator(client, creator)
-        h1 = _make_household(db, event, "A", adults=2, children=0)
+        h1 = _make_household(db, event, "A", adults=2, children=0, guest_id=creator_guest.id)
         _make_household(db, event, "B", adults=2, children=0)
         # Shared: 100€ paid by A → B owes 50€.
         _make_expense(db, event, h1, "Loyer", 10000, is_shared=True)
         # Personal: 20€ paid by A → not shared.
         _make_expense(db, event, h1, "Perso", 2000, is_shared=False)
-        resp = client.get(f"/e/{event.code}/costs")
+        resp = client.get(f"/e/{event.code}/costs?tab=balance")
         assert resp.status_code == 200
         # Settlement reflects only the shared 100€ (B receives 50€).
         assert b"50,00" in resp.data

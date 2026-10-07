@@ -1,0 +1,107 @@
+{# Segment « Équilibre » (B024) : qui doit à qui, remboursements, soldes par foyer, catégories. #}
+{%- set can_transfer = households and (ctx.is_creator or my_household) %}
+<div class="flex flex-col gap-6" data-testid="costs-section-balance">
+  <section aria-labelledby="costs-owes-title">
+    <h2 id="costs-owes-title" class="mb-2 mt-0 text-subheading font-semibold text-ink">{{ _("Qui doit à qui") }}</h2>
+    {%- if settlements %}
+    <ul class="ui-list" data-testid="who-owes">
+      {%- for s in settlements %}
+      <li data-testid="who-owes-row" class="flex flex-col gap-2 border-t border-line px-3 py-3 first:border-t-0">
+        <p class="m-0 break-words text-ink"><strong data-testid="owes-from">{{ s['from'].name }}</strong> {{ _("doit") }} <strong class="whitespace-nowrap" data-testid="owes-amount">{{ s['amount']|money }}</strong> {{ _("à") }} <strong data-testid="owes-to">{{ s['to'].name }}</strong></p>
+        {%- if ctx.is_creator or (my_household and my_household.id in (s['from'].id, s['to'].id)) %}
+        <form method="post" action="{{ url_for('costs.add_transfer', code=event.code) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="tab" value="balance">
+          <input type="hidden" name="from_household_id" value="{{ s['from'].id }}"><input type="hidden" name="to_household_id" value="{{ s['to'].id }}">
+          <input type="hidden" name="amount" value="{{ '%.2f'|format(s['amount']) }}">
+          <button type="submit" class="ui-btn ui-btn--secondary ui-btn--sm" data-testid="settle">{{ icon('check', size=16) }}<span>{{ _("Marquer comme remboursé") }}</span></button>
+        </form>
+        {%- endif %}
+      </li>
+      {%- endfor %}
+    </ul>
+    {%- else %}
+    <p class="m-0 text-small text-ink-2" data-testid="all-settled">{{ _("Tout est réglé : personne ne doit rien à personne.") if expenses else _("Rien à régler tant qu'aucune dépense partagée n'est enregistrée.") }}</p>
+    {%- endif %}
+  </section>
+
+  <section aria-labelledby="costs-transfers-title">
+    <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+      <h2 id="costs-transfers-title" class="m-0 text-subheading font-semibold text-ink">{{ _("Remboursements effectués") }}</h2>
+      {%- if can_transfer %}
+      <button type="button" class="ui-btn ui-btn--secondary ui-btn--sm shrink-0" data-sheet-open="costs-transfer-sheet" aria-haspopup="dialog" aria-expanded="false" data-testid="transfer-open">{{ icon('arrow-left-right', size=16) }}<span>{{ _("Enregistrer un remboursement") }}</span></button>
+      {%- endif %}
+    </div>
+    {%- if transfers %}
+    <ul class="ui-list" data-testid="transfer-list">
+      {%- for t in transfers %}
+      <li data-testid="transfer-row" class="flex items-center gap-2 border-t border-line px-3 py-2 first:border-t-0">
+        <span class="min-w-0 flex-1">
+          <span class="block break-words text-ink">{{ t.from_household.name }} <span aria-hidden="true">→</span><span class="sr-only">{{ _("à") }}</span> {{ t.to_household.name }}</span>
+          <span class="block text-small text-ink-2">{% if t.date %}{{ t.date|format_date('medium') }}{% endif %}{% if t.note %}{% if t.date %} · {% endif %}{{ t.note }}{% endif %}</span>
+        </span>
+        <span class="shrink-0 font-semibold text-ink">{{ t.amount|money }}</span>
+        {%- if ctx.can_delete(t) %}
+        <form method="post" action="{{ url_for('costs.delete_transfer', code=event.code, t_id=t.id) }}" data-confirm="{{ _('Supprimer ce transfert ?') }}" data-confirm-label="{{ _('Supprimer') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="tab" value="balance">
+          <button type="submit" class="ui-btn ui-btn--ghost ui-btn--icon text-danger" data-testid="transfer-delete" aria-label="{{ _('Supprimer') }}">{{ icon('trash-2', size=18) }}</button>
+        </form>
+        {%- endif %}
+      </li>
+      {%- endfor %}
+    </ul>
+    {%- else %}
+    <p class="m-0 text-small text-ink-2" data-testid="transfer-empty">{{ _("Aucun remboursement enregistré pour le moment.") }}</p>
+    {%- endif %}
+  </section>
+
+  <section aria-labelledby="costs-households-title">
+    <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+      <h2 id="costs-households-title" class="m-0 text-subheading font-semibold text-ink">{{ _("Soldes par foyer") }}</h2>
+      {%- if ctx.is_creator %}
+      <div class="flex shrink-0 gap-1">
+        <button type="button" class="ui-btn ui-btn--ghost ui-btn--sm" data-sheet-open="costs-ratio-sheet" aria-haspopup="dialog" aria-expanded="false" data-testid="ratio-open">{{ icon('settings', size=16) }}<span>{{ _("Ratio") }} {{ default_adult_weight|number }}/{{ default_child_weight|number }}</span></button>
+        <button type="button" class="ui-btn ui-btn--secondary ui-btn--sm" data-sheet-open="costs-household-sheet" aria-haspopup="dialog" aria-expanded="false" data-testid="household-add-open">{{ icon('plus', size=16) }}<span>{{ _("Foyer") }}</span></button>
+      </div>
+      {%- endif %}
+    </div>
+    {%- if h_summary %}
+    <ul class="ui-list" data-testid="household-list">
+      {%- for entry in h_summary %}
+      {%- set hh = entry['household'] %}{% set bal = entry['balance'] %}
+      <li data-testid="household-row" data-household-id="{{ hh.id }}" class="flex flex-col gap-1 border-t border-line px-3 py-3 first:border-t-0">
+        <div class="flex items-start justify-between gap-2">
+          <p class="m-0 min-w-0 break-words font-medium text-ink">{{ hh.name }}{% if my_household and my_household.id == hh.id %} <span class="ui-badge ui-badge--primary">{{ _("Mon foyer") }}</span>{% endif %}</p>
+          <p class="m-0 shrink-0 font-semibold {{ 'text-success' if bal > 0.01 else ('text-danger' if bal < -0.01 else 'text-ink-2') }}" data-testid="household-balance">
+            {%- if bal > 0.01 %}{{ _("reçoit") }} {{ bal|money }}{% elif bal < -0.01 %}{{ _("doit") }} {{ (-bal)|money }}{% else %}{{ _("réglé") }}{% endif -%}
+          </p>
+        </div>
+        <p class="m-0 text-small text-ink-2">{{ ngettext("%(n)d adulte", "%(n)d adultes", hh.num_adults, n=hh.num_adults) }}{% if hh.num_children %} · {{ ngettext("%(n)d enfant", "%(n)d enfants", hh.num_children, n=hh.num_children) }}{% endif %} · {{ ngettext("%(n)s part", "%(n)s parts", 1 if hh.total_weight <= 1 else 2, n=hh.total_weight|number) }} · {{ _("payé") }} {{ entry['paid']|money }}</p>
+        {%- if my_household and my_household.id == hh.id and personal_total > 0.01 %}
+        <p class="m-0 text-small text-ink-2" data-testid="personal-total">{{ _("Dépenses personnelles (visibles de vous seul)") }} : {{ personal_total|money }}</p>
+        {%- endif %}
+        {%- if ctx.can_edit(hh) %}
+        <p class="m-0"><a class="ui-btn ui-btn--ghost ui-btn--sm" href="{{ url_for('costs.index', code=event.code, tab='balance', edit_household=hh.id) }}" data-testid="household-edit">{{ icon('pencil', size=16) }}<span>{{ _("Modifier") }}</span></a></p>
+        {%- endif %}
+      </li>
+      {%- endfor %}
+    </ul>
+    {%- else %}
+    <p class="m-0 text-small text-ink-2">{{ _("Aucun foyer encore.") }}</p>
+    {%- endif %}
+  </section>
+
+  {%- if category_breakdown %}
+  <section aria-labelledby="costs-cat-title">
+    <h2 id="costs-cat-title" class="mb-2 mt-0 text-subheading font-semibold text-ink">{{ _("Répartition par catégorie") }}</h2>
+    <ul class="m-0 flex list-none flex-col gap-2 p-0" data-testid="category-breakdown">
+      {%- for item in category_breakdown %}
+      <li class="grid grid-cols-[minmax(0,1fr)_auto] gap-x-2 text-small">
+        <span class="min-w-0 break-words text-ink">{{ item['category']|label('expense_category') }}</span>
+        <span class="font-medium text-ink">{{ item['amount']|money }}</span>
+        <span class="col-span-2 block h-2 overflow-hidden rounded-full bg-surface-2"><span class="block h-full rounded-full bg-primary" style="width: {{ (item['amount'] / total_expenses * 100) if total_expenses > 0 else 0 }}%"></span></span>
+      </li>
+      {%- endfor %}
+    </ul>
+  </section>
+  {%- endif %}
+</div>

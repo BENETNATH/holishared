@@ -529,11 +529,22 @@ def export_event(code: str) -> Response:
         SharedList,
     )
 
-    event = load_event_context(code, require="creator").event
+    ctx = load_event_context(code, require="creator")
+    event = ctx.event
 
     guests = event.guests.all()
     households = Household.query.filter_by(event_id=event.id).all()
-    expenses = Expense.query.filter_by(event_id=event.id).all()
+    # Une dépense personnelle n'est visible que des membres du foyer payeur (B024), créateur compris.
+    expenses = [
+        e
+        for e in Expense.query.filter_by(event_id=event.id).all()
+        if e.is_shared
+        or (
+            ctx.participant is not None
+            and e.paid_by is not None
+            and e.paid_by.guest_id == ctx.participant.id
+        )
+    ]
     lists = SharedList.query.filter_by(event_id=event.id).all()
     polls = Poll.query.filter_by(event_id=event.id).all()
     activities = Activity.query.filter_by(event_id=event.id).all()

@@ -1,392 +1,94 @@
 {% extends "base.html" %}
+{% from "_components/ui.html" import sheet, empty_state %}
+{% from "costs/_forms.html" import expense_form, household_form, transfer_form, request_form, ratio_form with context %}
 {% block title %}{{ _("Frais") }} — {{ event.title }}{% endblock %}
 {% block content %}
-<div class="page-head">
-  <h1>{{ _("Partage de frais") }}</h1>
-  <p class="subtitle">{{ _("Suivi des dépenses partagées par foyer et des soldes entre membres.") }}</p>
+{%- set pending = payment_requests|rejectattr('is_resolved')|list|length -%}
+{%- set segments = [('expenses', _("Dépenses"), 0), ('balance', _("Équilibre"), 0), ('requests', _("Demandes"), pending)] -%}
+<div data-testid="costs-page" data-tab="{{ tab }}">
+  <div class="ui-page-header">
+    <div class="min-w-0">
+      <h1>{{ _("Frais") }}</h1>
+      <p>{{ _("Dépenses partagées par foyer et soldes entre foyers.") }}</p>
+    </div>
+    {%- if households %}
+    <button type="button" class="ui-btn ui-btn--primary shrink-0" data-sheet-open="costs-expense-sheet" aria-haspopup="dialog" aria-expanded="false" data-testid="costs-add-expense">{{ icon('plus', size=18) }}<span>{{ _("Ajouter une dépense") }}</span></button>
+    {%- endif %}
+  </div>
+
+  {# Mon solde #}
+  {%- if my_household %}
+  {%- set state = 'credit' if (my_balance or 0) > 0.01 else ('debt' if (my_balance or 0) < -0.01 else 'even') %}
+  <section class="ui-card mb-4" data-testid="my-balance" data-state="{{ state }}" aria-labelledby="my-balance-title">
+    <p class="m-0 flex flex-wrap items-baseline justify-between gap-x-2 text-small text-ink-2"><span id="my-balance-title" class="font-semibold text-ink">{{ _("Mon solde") }}</span><span data-testid="my-household-name" class="min-w-0 break-words">{{ my_household.name }}</span></p>
+    <p class="m-0 mt-1 text-title font-semibold {{ {'credit': 'text-success', 'debt': 'text-danger', 'even': 'text-ink'}[state] }}" data-testid="my-balance-amount">{{ my_balance|money(sign=True) if state == 'credit' else (my_balance|money if state == 'debt' else 0|money) }}</p>
+    <p class="m-0"><span class="ui-badge {{ {'credit': 'ui-badge--success', 'debt': 'ui-badge--danger', 'even': 'ui-badge--neutral'}[state] }}" data-testid="my-balance-state">
+      {%- if state == 'credit' %}{{ _("On vous doit de l'argent") }}{% elif state == 'debt' %}{{ _("Vous devez de l'argent") }}{% else %}{{ _("Vous êtes quitte") }}{% endif -%}
+    </span></p>
+    {%- if owed_to_me or i_owe %}
+    <ul class="m-0 mt-2 list-none p-0 text-small text-ink-2" data-testid="my-balance-detail">
+      {%- for o in owed_to_me %}<li class="break-words">{{ _("%(name)s vous doit %(amount)s", name=o['from'].name, amount=o['amount']|money) }}</li>{% endfor %}
+      {%- for d in i_owe %}<li class="break-words">{{ _("Vous devez %(amount)s à %(name)s", name=d['to'].name, amount=d['amount']|money) }}</li>{% endfor %}
+    </ul>
+    {%- endif %}
+  </section>
+  {%- else %}
+  <section class="ui-card mb-4" data-testid="my-balance-empty">
+    <p class="m-0 font-semibold text-ink">{{ _("Mon solde") }}</p>
+    <p class="m-0 mt-1 text-small text-ink-2">{{ _("Aucun foyer ne vous est rattaché. Demandez à l'organisateur de vous rattacher à un foyer pour voir votre solde.") }}</p>
+  </section>
+  {%- endif %}
+
+  <nav class="ui-segmented mb-4" aria-label="{{ _('Sections des frais') }}" data-testid="costs-segments">
+    {%- for key, text, count in segments %}
+    <a class="ui-segmented__option" href="{{ url_for('costs.index', code=event.code, tab=key) }}" data-testid="costs-seg-{{ key }}" data-count="{{ count }}"{% if tab == key %} aria-current="page"{% endif %}>
+      <span class="gap-1 data-[active=true]:bg-surface data-[active=true]:font-semibold data-[active=true]:text-ink data-[active=true]:shadow-card" data-active="{{ 'true' if tab == key else 'false' }}">{{ text }}{% if count %} ({{ count }}){% endif %}</span>
+    </a>
+    {%- endfor %}
+  </nav>
+
+  {%- if tab == 'balance' %}{% include "costs/_balance.html" %}
+  {%- elif tab == 'requests' %}{% include "costs/_requests.html" %}
+  {%- else %}{% include "costs/_expenses.html" %}{% endif %}
 </div>
 
-<!-- Hero: solde personnel immédiat -->
-{% if my_household %}
-<div class="user-balance-hero{% if my_balance and my_balance > 0.01 %} hero-positive{% elif my_balance and my_balance < -0.01 %} hero-negative{% else %} hero-neutral{% endif %}">
-  <div class="ubh-top">
-    <span class="ubh-title">{{ _("Votre solde") }}</span>
-    <span class="ubh-household">{{ my_household.name }}</span>
-  </div>
-  {% if my_balance and my_balance > 0.01 %}
-    <div class="ubh-amount">{{ my_balance|money(sign=True) }}</div>
-    <div class="ubh-state positive-badge">{{ _("On vous doit de l'argent") }}</div>
-    {% if owed_to_me %}
-    <div class="ubh-detail">
-      {% for o in owed_to_me %}
-      <span class="ubh-who"><span class="avatar-pill">{{ o["from"].name[:1]|upper }}</span>{{ o["from"].name }} : {{ o["amount"]|money }}</span>
-      {% endfor %}
-    </div>
-    {% endif %}
-  {% elif my_balance and my_balance < -0.01 %}
-    <div class="ubh-amount">{{ my_balance|money }}</div>
-    <div class="ubh-state negative-badge">{{ _("Vous devez de l'argent au groupe") }}</div>
-    {% if i_owe %}
-    <div class="ubh-detail">
-      {% for d in i_owe %}
-      <span class="ubh-who">→ <span class="avatar-pill">{{ d["to"].name[:1]|upper }}</span>{{ d["to"].name }} : {{ d["amount"]|money }}</span>
-      {% endfor %}
-    </div>
-    {% endif %}
-  {% else %}
-    <div class="ubh-amount">{{ 0|money }}</div>
-    <div class="ubh-state neutral-badge">{{ _("Vous êtes quitte ! 👌") }}</div>
-  {% endif %}
-</div>
-{% endif %}
-
-<!-- Quick add expense -->
-<div class="card expense-form">
-  <h2>{{ _("Ajouter une dépense") }}</h2>
-  {% if not households %}
-  <p class="empty-hint">{{ _("Ajoutez d'abord un foyer pour pouvoir ajouter des dépenses.") }}</p>
-  {% else %}
-  <form method="POST" action="{{ url_for('costs.add_expense', code=event.code) }}">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <div class="expense-form-grid">
-      <div class="ef-main">
-        <label for="ef-desc">{{ _("Description") }}</label>
-        <input type="text" id="ef-desc" name="description" required
-               placeholder="{{ _("Ex : Supermarché, essence…") }}">
-      </div>
-      <div>
-        <label for="ef-amount">{{ _("Montant") }}</label>
-        <input type="number" id="ef-amount" name="amount" step="0.01" min="0" required>
-      </div>
-      <div>
-        <label for="ef-currency">{{ _("Devise") }}</label>
-        <select id="ef-currency" name="currency">
-          {% for c in CURRENCIES %}<option value="{{ c }}">{{ currency_label(c) }}</option>{% endfor %}
-        </select>
-      </div>
-      <div class="ef-cat">
-        <span class="ef-label">{{ _("Catégorie") }}</span>
-        <div class="cat-chips" role="radiogroup" aria-label="{{ _('Catégorie') }}">
-          {% for cat, cat_label in choices('expense_category') %}
-          <label class="cat-chip{% if loop.first %} active{% endif %}">
-            <input type="radio" name="category" value="{{ cat }}" {% if loop.first %}checked{% endif %}>
-            <span class="cat-chip-icon" aria-hidden="true">{{ category_icons[cat] }}</span>
-            <span class="cat-chip-name">{{ cat_label }}</span>
-          </label>
-          {% endfor %}
-        </div>
-      </div>
-      <div>
-        <label for="ef-payer">{{ _("Payé par") }}</label>
-        <select id="ef-payer" name="household_id">
-          {% for h in households %}<option value="{{ h.id }}">{{ h.name }}</option>{% endfor %}
-        </select>
-      </div>
-      <div class="ef-shared">
-        <label class="shared-toggle" for="ef-shared">
-          <input type="checkbox" id="ef-shared" name="is_shared" checked>
-          <span>{{ _("Partagé") }}</span>
-        </label>
-        <p class="hint">{{ _("Décochez pour une dépense personnelle (non partagée).") }}</p>
-      </div>
-    </div>
-    <button type="submit" class="btn btn-primary">{{ _("Ajouter") }}</button>
-  </form>
-  {% endif %}
-</div>
-
-<!-- Ratio de répartition (adulte / enfant) -->
-{% if households and ctx.is_creator %}
-<section class="card ratio-card">
-  <details class="ratio-toggle">
-    <summary>{{ _("Ratio de répartition") }} <span class="ratio-cur">{{ default_adult_weight }}/{{ default_child_weight }}</span></summary>
-    <p class="hint">{{ _("1 adulte = X parts, 1 enfant = Y parts. S'applique à tous les groupes.") }}</p>
-    <form method="POST" action="{{ url_for('costs.update_ratio', code=event.code) }}" class="ratio-form">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <div class="ratio-form-grid">
-        <div class="field">
-          <label for="ratio-adult">{{ _("Parts par adulte") }}</label>
-          <input type="number" id="ratio-adult" name="adult_weight" step="0.1" min="0.1" max="10" value="{{ default_adult_weight }}">
-        </div>
-        <div class="field">
-          <label for="ratio-child">{{ _("Parts par enfant") }}</label>
-          <input type="number" id="ratio-child" name="child_weight" step="0.1" min="0" max="10" value="{{ default_child_weight }}">
-        </div>
-      </div>
-      <button type="submit" class="btn btn-secondary btn-small">{{ _("Appliquer à tous les groupes") }}</button>
-    </form>
-  </details>
-</section>
-{% endif %}
-
-<!-- Qui doit à qui (remboursements optimisés) -->
-{% if settlements %}
-<section class="card">
-  <div class="section-head">
-    <h2>{{ _("Qui doit à qui") }}</h2>
-    <span class="count-badge">{{ settlements|length }}</span>
-  </div>
-  <div class="who-owes">
-    {% for s in settlements %}
-    <form method="POST" action="{{ url_for('costs.add_transfer', code=event.code) }}" class="who-owes-card">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <input type="hidden" name="from_household_id" value="{{ s['from'].id }}">
-      <input type="hidden" name="to_household_id" value="{{ s['to'].id }}">
-      <input type="hidden" name="amount" value="{{ '%.2f'|format(s['amount']) }}">
-      <div class="woc-main">
-        <span class="avatar-pill woc-avatar">{{ s['from'].name[:1]|upper }}</span>
-        <span class="woc-name">{{ s['from'].name }}</span>
-        <span class="woc-arrow" aria-hidden="true">→</span>
-        <span class="woc-name">{{ s['to'].name }}</span>
-        <span class="avatar-pill woc-avatar woc-avatar-in">{{ s['to'].name[:1]|upper }}</span>
-      </div>
-      <div class="woc-amount">{{ s['amount']|money }}</div>
-      <button type="submit" class="btn btn-small woc-btn" aria-label="{{ _('Marquer comme remboursé') }}">
-        {{ _("Rembourser") }}
-      </button>
-    </form>
-    {% endfor %}
-  </div>
-</section>
-{% endif %}
-
-<!-- Foyers / groupes -->
-<section class="card">
-  <div class="section-head">
-    <h2>{{ _("Foyers") }}</h2>
-    {% if ctx.is_creator %}
-    <details class="head-actions ratio-toggle">
-      <summary>{{ _("Ajouter un foyer") }}</summary>
-      <form method="POST" action="{{ url_for('costs.add_household', code=event.code) }}" class="add-household-form">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <div class="ahf-row">
-          <input type="text" name="name" required placeholder="{{ _('Nom du foyer') }}">
-          <input type="number" name="num_adults" value="2" min="1" max="50">
-          <input type="number" name="num_children" value="0" min="0" max="50">
-        </div>
-        <button type="submit" class="btn btn-small">{{ _("Ajouter") }}</button>
-      </form>
-    </details>
-    {% endif %}
-  </div>
-  {% if households %}
-  <div class="group-cards">
-    {% for entry in h_summary %}
-    {% set hh = entry["household"] %}
-    {% set bal = entry["balance"] %}
-    <div class="group-card">
-      <div class="gc-head">
-        <span class="avatar-pill gc-avatar">{{ hh.name[:1]|upper }}</span>
-        <span class="gc-name">{{ hh.name }}</span>
-        {% if ctx.is_creator %}
-        <button class="gc-delete" data-confirm="{{ _('Supprimer ce foyer ?') }}"
-                formmethod="POST" type="submit"
-                form="{{ 'costs-household-%s' % hh.id }}" aria-label="{{ _('Supprimer') }}">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
-        </button>
-        {% endif %}
-      </div>
-      {% if ctx.is_creator %}
-      <form id="costs-household-{{ hh.id }}" method="POST" action="{{ url_for('costs.delete_household', code=event.code, h_id=hh.id) }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      </form>
-      {% endif %}
-      <div class="gc-meta">
-        <span>{{ hh.total_weight }} {{ _("part") }}</span>
-        <span>·</span>
-        <span>{{ entry["paid"]|money }} {{ _("payé") }}</span>
-      </div>
-      {% set personal_total = personal_by_household.get(hh.id, 0.0) %}
-      {% if personal_total > 0.01 %}
-      <div class="gc-personal">
-        <span class="gc-personal-label">{{ _("Dépenses personnelles") }}</span>
-        <span class="gc-personal-amount">{{ personal_total|money }}</span>
-      </div>
-      {% endif %}
-      <div class="gc-status{% if bal > 0.01 %} gc-positive{% elif bal < -0.01 %} gc-negative{% else %} gc-zero{% endif %}">
-        {% if bal > 0.01 %}
-          <span class="gc-state">{{ _("reçoit") }}</span>
-          <span class="gc-amount">{{ bal|money(sign=True) }}</span>
-        {% elif bal < -0.01 %}
-          <span class="gc-state">{{ _("doit") }}</span>
-          <span class="gc-amount">{{ bal|money }}</span>
-        {% else %}
-          <span class="gc-state gc-state-zero">✓ {{ _("réglé") }}</span>
-        {% endif %}
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-  {% else %}
-  <p class="empty-hint">{{ _("Aucun foyer encore. Ajoutez le vôtre pour commencer.") }}</p>
-  {% endif %}
-</section>
-
-<!-- Dépenses du séjour -->
-<section class="card">
-  <div class="section-head">
-    <h2>{{ _("Dépenses du séjour") }}</h2>
-    <span class="total-badge">{{ total_expenses|money }}</span>
-  </div>
-  {% if expenses %}
-  <div class="expense-list">
-    {% for exp in expenses %}
-    <div class="expense-row">
-      <span class="expense-cat" title="{{ exp.category|label('expense_category') }}">{{ category_icons.get(exp.category, category_icons['general']) }}</span>
-      <div class="expense-info">
-        <div class="expense-title">{{ exp.description }}{% if not exp.is_shared %} <span class="personal-badge">{{ _("Personnel") }}</span>{% endif %}</div>
-        <div class="expense-sub">{{ exp.paid_by.name }} · {{ exp.date | format_date('medium') }}</div>
-      </div>
-      <div class="expense-amount">{{ exp.amount|money }}</div>
-      {% if ctx.is_creator %}
-      <button class="expense-del" data-confirm="{{ _('Supprimer cette dépense ?') }}"
-              formmethod="POST" type="submit"
-              form="expdel-{{ exp.id }}" aria-label="{{ _('Supprimer') }}">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
-      </button>
-      <form id="expdel-{{ exp.id }}" method="POST" action="{{ url_for('costs.delete_expense', code=event.code, exp_id=exp.id) }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      </form>
-      {% endif %}
-    </div>
-    {% endfor %}
-  </div>
-  {% else %}
-  <p class="empty-hint">{{ _("Aucune dépense enregistrée pour le moment.") }}</p>
-  {% endif %}
-</section>
-
-<!-- Répartition par catégorie -->
-{% if category_breakdown %}
-<section class="card insight-card">
-  <h2>{{ _("Répartition par catégorie") }}</h2>
-  <div class="insight-breakdown">
-    {% for item in category_breakdown %}
-    <div class="insight-cat">
-      <span class="ic-name">{{ item['category']|label('expense_category') }}</span>
-      <div class="ic-bar"><div class="ic-fill" style="width: {{ (item["amount"] / total_expenses * 100) if total_expenses > 0 else 0 }}%"></div></div>
-      <span class="ic-val">{{ item["amount"]|money }}</span>
-    </div>
-    {% endfor %}
-  </div>
-</section>
-{% endif %}
-
-<!-- Transferts / remboursements effectués -->
-{% if transfers %}
-<section class="card">
-  <div class="section-head">
-    <h2>{{ _("Remboursements effectués") }}</h2>
-    <details class="head-actions">
-      <summary class="add-transfer-summary">{{ _("Transfert") }}</summary>
-      <form method="POST" action="{{ url_for('costs.add_transfer', code=event.code) }}" class="add-transfer-form">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <div class="atf-row">
-          <select name="from_household_id" required>
-            <option value="">{{ _("De") }}</option>
-            {% for h in households %}<option value="{{ h.id }}">{{ h.name }}</option>{% endfor %}
-          </select>
-          <select name="to_household_id" required>
-            <option value="">{{ _("À") }}</option>
-            {% for h in households %}<option value="{{ h.id }}">{{ h.name }}</option>{% endfor %}
-          </select>
-          <input type="number" name="amount" step="0.01" min="0.01" required placeholder="{{ _('Montant') }}">
-        </div>
-        <input type="text" name="note" placeholder="{{ _('Note (optionnel)') }}">
-        <button type="submit" class="btn btn-small btn-primary">{{ _("Enregistrer") }}</button>
-      </form>
-    </details>
-  </div>
-  <ul class="transfer-list">
-    {% for t in transfers %}
-    <li class="transfer-row">
-      <span class="tf-arrow">{{ t.from_household.name }} <span class="arrow">→</span> {{ t.to_household.name }}</span>
-      <span class="tf-amount">{{ t.amount|money }}</span>
-      {% if ctx.is_creator %}
-      <button class="tfr-del" data-confirm="{{ _('Supprimer ce transfert ?') }}"
-              formmethod="POST" type="submit" form="tfr-{{ t.id }}" aria-label="{{ _('Supprimer') }}">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
-      </button>
-      <form id="tfr-{{ t.id }}" method="POST" action="{{ url_for('costs.delete_transfer', code=event.code, t_id=t.id) }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      </form>
-      {% endif %}
-    </li>
-    {% endfor %}
-  </ul>
-</section>
-{% endif %}
-
-<!-- Demandes de paiement -->
-<section class="card">
-  <div class="section-head">
-    <h2>{{ _("Demandes de paiement") }}</h2>
-    <details class="head-actions">
-      <summary class="add-pr-summary">{{ _("Demande") }}</summary>
-      <form method="POST" action="{{ url_for('costs.add_payment_request', code=event.code) }}" class="add-pr-form">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <div class="aprf-row">
-          <select name="from_household_id" required>
-            <option value="">{{ _("De") }}</option>
-            {% for h in households %}<option value="{{ h.id }}">{{ h.name }}</option>{% endfor %}
-          </select>
-          <select name="to_household_id" required>
-            <option value="">{{ _("À") }}</option>
-            {% for h in households %}<option value="{{ h.id }}">{{ h.name }}</option>{% endfor %}
-          </select>
-          <input type="number" name="amount" step="0.01" min="0.01" required placeholder="{{ _('Montant') }}">
-        </div>
-        <input type="text" name="note" placeholder="{{ _('Note (optionnel)') }}">
-        <button type="submit" class="btn btn-small btn-primary">{{ _("Envoyer") }}</button>
-      </form>
-    </details>
-  </div>
-  {% if payment_requests %}
-  <ul class="pr-list">
-    {% for pr in payment_requests %}
-    <li class="pr-item{% if pr.is_resolved %} pr-resolved{% endif %}">
-      <div class="pr-head">
-        <span class="pr-arrow">{{ pr.from_household.name }} <span class="arrow">→</span> {{ pr.to_household.name }}</span>
-        <span class="pr-amount">{{ pr.amount|money }}</span>
-        <span class="pr-status">{{ _("Réglé") if pr.is_resolved else _("En attente") }}</span>
-      </div>
-      {% if pr.note %}<div class="pr-note">{{ pr.note }}</div>{% endif %}
-      {% if not pr.is_resolved %}
-      <button class="pr-btn btn btn-small btn-primary" formmethod="POST" type="submit"
-              form="prresolve-{{ pr.id }}">{{ _("Marquer réglé") }}</button>
-      {% endif %}
-      <form id="prresolve-{{ pr.id }}" method="POST" action="{{ url_for('costs.resolve_payment_request', code=event.code, pr_id=pr.id) }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      </form>
-      {% if ctx.is_creator %}
-      <button class="pr-del" data-confirm="{{ _('Supprimer cette demande ?') }}"
-              formmethod="POST" type="submit" form="prdel-{{ pr.id }}" aria-label="{{ _('Supprimer') }}">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
-      </button>
-      <form id="prdel-{{ pr.id }}" method="POST" action="{{ url_for('costs.delete_payment_request', code=event.code, pr_id=pr.id) }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      </form>
-      {% endif %}
-    </li>
-    {% endfor %}
-  </ul>
-  {% else %}
-  <p class="empty-hint">{{ _("Aucune demande de paiement pour le moment.") }}</p>
-  {% endif %}
-</section>
+{%- if households %}
+{% call sheet('costs-expense-sheet', _('Ajouter une dépense')) %}{{ expense_form('costs-expense-sheet', url_for('costs.add_expense', code=event.code)) }}{% endcall %}
+{%- if edit_expense %}
+{% call sheet('costs-expense-edit-sheet', _('Modifier la dépense')) %}{{ expense_form('costs-expense-edit-sheet', url_for('costs.edit_expense', code=event.code, exp_id=edit_expense.id), edit_expense) }}{% endcall %}
+{%- endif %}
+{%- endif %}
+{%- if tab == 'balance' %}
+{%- if ctx.is_creator %}
+{% call sheet('costs-household-sheet', _('Ajouter un foyer')) %}{{ household_form('costs-household-sheet', url_for('costs.add_household', code=event.code)) }}{% endcall %}
+{% call sheet('costs-ratio-sheet', _('Ratio adulte / enfant')) %}{{ ratio_form('costs-ratio-sheet') }}{% endcall %}
+{%- endif %}
+{%- if edit_household %}
+{% call sheet('costs-household-edit-sheet', _('Modifier le foyer')) %}
+{{ household_form('costs-household-edit-sheet', url_for('costs.edit_household', code=event.code, h_id=edit_household.id), edit_household) }}
+{%- if ctx.can_delete(edit_household) %}
+<form method="post" action="{{ url_for('costs.delete_household', code=event.code, h_id=edit_household.id) }}" class="mt-4"
+      data-confirm="{{ _('Supprimer ce foyer ?') }}" data-confirm-label="{{ _('Supprimer') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="tab" value="balance">
+  <button type="submit" class="ui-btn ui-btn--ghost ui-btn--block text-danger" data-testid="household-delete">{{ icon('trash-2', size=16) }}<span>{{ _("Supprimer ce foyer") }}</span></button>
+</form>
+{%- endif %}
+{% endcall %}
+{%- endif %}
+{%- if households and (ctx.is_creator or my_household) %}
+{% call sheet('costs-transfer-sheet', _('Enregistrer un remboursement')) %}{{ transfer_form('costs-transfer-sheet') }}{% endcall %}
+{%- endif %}
+{%- elif tab == 'requests' and households and (ctx.is_creator or my_household) %}
+{% call sheet('costs-request-sheet', _('Nouvelle demande de paiement')) %}{{ request_form('costs-request-sheet') }}{% endcall %}
+{%- endif %}
+{%- if open_sheet %}
+<script type="application/json" data-costs-open-sheet data-testid="costs-open-sheet">{{ open_sheet|tojson }}</script>
+{%- endif %}
 {% endblock %}
 
 {% block scripts %}
-<script>
-// Compact category chips: highlight the active chip as the user picks.
-document.addEventListener('change', function(e) {
-  if (e.target.name === 'category') {
-    var chips = document.querySelectorAll('.cat-chip');
-    chips.forEach(function(c) {
-      var input = c.querySelector('input');
-      c.classList.toggle('active', input.checked);
-    });
-  }
-});
+<script type="module">
+  import { initCosts } from 'ui/costs';
+  initCosts();
 </script>
 {% endblock %}
