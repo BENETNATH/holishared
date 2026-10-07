@@ -262,6 +262,25 @@ def create_app() -> Flask:
 
         return render_template("errors/403.html"), 403
 
+    @app.errorhandler(500)
+    def server_error(e: Exception) -> tuple[str, int]:
+        """Page propre, sans trace ; l'exception est déjà journalisée par Flask."""
+        from flask import render_template
+        from flask_babel import gettext
+
+        db.session.rollback()
+        try:
+            return render_template("errors/500.html"), 500
+        except Exception:  # base de données ou gabarit indisponibles : page minimale
+            app.logger.exception("error page rendering failed")
+            title = gettext("Un problème est survenu")
+            home = gettext("Retour à l'accueil")
+            return (
+                "<!doctype html><html><head><meta charset=utf-8><title>500</title></head>"
+                f"<body><h1>{title}</h1><p><a href='/'>{home}</a></p></body></html>",
+                500,
+            )
+
     @app.errorhandler(429)
     def too_many_requests(e: Exception) -> Any:
         """Limite de débit : requête HTMX -> toast lisible ; sinon réponse par défaut."""

@@ -9,6 +9,7 @@ from werkzeug.wrappers import Response
 
 from app.access import forget_device, start_creator_session
 from app.extensions import db, limiter, login_manager
+from app.forms import FormErrors
 from app.models import Creator
 
 auth_bp = Blueprint("auth", __name__)
@@ -45,6 +46,8 @@ def load_user(user_id: str) -> Creator | None:
 @auth_bp.route("/login", methods=["GET", "POST"])
 @limiter.limit("5 per 15 minutes")
 def login() -> str | Response:
+    errors = FormErrors()
+    email = ""
     if current_user.is_authenticated:
         return redirect(url_for("events.index"))
     if request.method == "POST":
@@ -62,8 +65,8 @@ def login() -> str | Response:
                 db.session.commit()
             start_creator_session(admin)
             return redirect(url_for("events.index"))
-        flash(_("Identifiants incorrects."), "danger")
-    return render_template("auth/login.html")
+        errors.add_global(_("Identifiants incorrects."))
+    return render_template("auth/login.html", errors=errors, email=email)
 
 
 @auth_bp.route("/logout", methods=["POST"])

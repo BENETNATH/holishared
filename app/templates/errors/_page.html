@@ -1,0 +1,22 @@
+{# Page d'erreur du kit (B019) : ``code``, ``title``, ``text`` ; actions de retour communes. #}
+{% extends "base.html" %}
+{% block title %}{{ code }} — {{ title }}{% endblock %}
+{% block content %}
+<div class="mx-auto flex max-w-xl flex-col items-center gap-3 py-8 text-center" data-testid="error-{{ code }}">
+  <span class="text-ink-muted">{{ icon('triangle-alert', size=40) }}</span>
+  <p class="m-0 text-small font-semibold tracking-widest text-ink-muted" aria-hidden="true">{{ code }}</p>
+  <h1 class="m-0 text-title font-bold text-ink">{{ title }}</h1>
+  <p class="m-0 text-body text-ink-2">{{ text }}</p>
+  <div class="mt-2 flex w-full flex-col gap-2 sm:w-auto sm:flex-row" data-testid="error-actions">
+    {% if current_event and event_role %}
+    <a href="{{ url_for('events.dashboard', code=current_event.code) }}" class="ui-btn ui-btn--primary ui-btn--lg" data-testid="error-back-event">{{ _("Retour à l'événement") }}</a>
+    <a href="{{ url_for('main.index') }}" class="ui-btn ui-btn--secondary ui-btn--lg" data-testid="error-home">{{ _("Retour à l'accueil") }}</a>
+    {% else %}
+    <a href="{{ url_for('main.index') }}" class="ui-btn ui-btn--primary ui-btn--lg" data-testid="error-home">{{ _("Retour à l'accueil") }}</a>
+    {% endif %}
+    {% if device_events_count() %}
+    <a href="{{ url_for('events.index') }}" class="ui-btn ui-btn--secondary ui-btn--lg" data-testid="error-my-events">{{ _("Vos événements") }}</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

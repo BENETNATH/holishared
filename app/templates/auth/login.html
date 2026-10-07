@@ -1,43 +1,21 @@
 {% extends "base.html" %}
+{% from "_components/ui.html" import field, form_errors %}
 {% block title %}{{ _("Connexion") }} — holishared{% endblock %}
 {% block content %}
-<div class="auth-wrap">
-    <div class="card auth-card">
-        <div class="auth-brand" aria-hidden="true">
-            <span class="brand-mark">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="12" cy="12" r="4" fill="currentColor"/>
-                    <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                        <line x1="12" y1="2.5" x2="12" y2="5"/>
-                        <line x1="12" y1="19" x2="12" y2="21.5"/>
-                        <line x1="2.5" y1="12" x2="5" y2="12"/>
-                        <line x1="19" y1="12" x2="21.5" y2="12"/>
-                        <line x1="5.3" y1="5.3" x2="7" y2="7"/>
-                        <line x1="17" y1="17" x2="18.7" y2="18.7"/>
-                        <line x1="5.3" y1="18.7" x2="7" y2="17"/>
-                        <line x1="17" y1="7" x2="18.7" y2="5.3"/>
-                    </g>
-                </svg>
-            </span>
-        </div>
-        <h1>{{ _("Connexion") }}</h1>
-        <p class="auth-sub">{{ _("Accédez à vos événements.") }}</p>
-        <form method="POST" action="{{ url_for('auth.login', next=request.args.get('next', '')) }}">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <div class="form-group">
-                <label for="email">{{ _("Email") }}</label>
-                <input type="email" id="email" name="email" required autofocus
-                       placeholder="admin@example.com" autocomplete="email">
-            </div>
-            <div class="form-group">
-                <label for="password">{{ _("Mot de passe") }}</label>
-                <input type="password" id="password" name="password" required
-                       placeholder="••••••••" autocomplete="current-password">
-            </div>
-            <button type="submit" class="btn btn-primary auth-submit">
-                {{ _("Se connecter") }}
-            </button>
-        </form>
+<div class="mx-auto flex max-w-md flex-col gap-4" data-testid="login-page">
+  <div class="ui-page-header">
+    <div>
+      <h1>{{ _("Connexion administrateur") }}</h1>
+      <p>{{ _("Réservé à l'administration du site. Pour accéder à votre événement, utilisez plutôt votre code.") }}</p>
     </div>
+  </div>
+  {{ form_errors(errors) }}
+  <form method="post" action="{{ url_for('auth.login', next=request.args.get('next', '')) }}" class="ui-card ui-form" data-testid="login-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {{ field('email', _("E-mail"), type='email', value=email or '', id='email', required=True, autocomplete='email', attrs={'autofocus': True}) }}
+    {{ field('password', _("Mot de passe"), type='password', id='password', required=True, autocomplete='current-password') }}
+    <button type="submit" class="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" data-testid="login-submit">{{ _("Se connecter") }}</button>
+  </form>
+  <p class="m-0 text-small text-ink-2"><a class="ui-link" href="{{ url_for('main.index') }}">{{ _("Retour à l'accueil") }}</a></p>
 </div>
 {% endblock %}

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 06:16+0200\n"
+"POT-Creation-Date: 2026-10-07 06:19+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,15 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
+
+#: app/__init__.py app/templates/errors/500.html
+msgid "Un problème est survenu"
+msgstr ""
+
+#: app/__init__.py app/templates/auth/login.html
+#: app/templates/errors/_page.html
+msgid "Retour à l'accueil"
+msgstr ""
 
 #: app/__init__.py
 msgid "Trop de requêtes. Patientez un instant."
@@ -505,7 +514,7 @@ msgstr ""
 msgid "Créer"
 msgstr ""
 
-#: app/templates/errors/404.html app/templates/events/index.html app/ui.py
+#: app/templates/events/index.html app/ui.py
 msgid "Mes événements"
 msgstr ""
 
@@ -1248,11 +1257,17 @@ msgid "Connexion"
 msgstr ""
 
 #: app/templates/auth/login.html
-msgid "Accédez à vos événements."
+msgid "Connexion administrateur"
 msgstr ""
 
-#: app/templates/auth/login.html app/templates/events/members.html
-msgid "Email"
+#: app/templates/auth/login.html
+msgid ""
+"Réservé à l'administration du site. Pour accéder à votre événement, "
+"utilisez plutôt votre code."
+msgstr ""
+
+#: app/templates/auth/login.html
+msgid "E-mail"
 msgstr ""
 
 #: app/templates/auth/login.html
@@ -1754,13 +1769,13 @@ msgid "Accès refusé"
 msgstr ""
 
 #: app/templates/errors/403.html
+msgid "Cette page est réservée au créateur de l'événement."
+msgstr ""
+
+#: app/templates/errors/403.html
 msgid ""
 "Vous n'avez pas la permission d'accéder à cette page. Connectez-vous ou "
 "utilisez votre code personnel pour rejoindre l'événement."
-msgstr ""
-
-#: app/templates/errors/403.html app/templates/errors/404.html
-msgid "Retour à l'accueil"
 msgstr ""
 
 #: app/templates/errors/404.html
@@ -1771,6 +1786,20 @@ msgstr ""
 msgid ""
 "Cette page n'existe pas ou a été déplacée. Vérifiez le lien, ou retournez"
 " à votre événement."
+msgstr ""
+
+#: app/templates/errors/500.html
+msgid ""
+"Une erreur est survenue de notre côté. Réessayez dans un instant ; si le "
+"problème continue, revenez à l'accueil."
+msgstr ""
+
+#: app/templates/errors/_page.html
+msgid "Retour à l'événement"
+msgstr ""
+
+#: app/templates/errors/_page.html app/templates/main/landing.html
+msgid "Vos événements"
 msgstr ""
 
 #: app/templates/events/_my_items.html app/templates/lists/_items.html
@@ -2277,6 +2306,10 @@ msgid "Ex : Alice Martin"
 msgstr ""
 
 #: app/templates/events/members.html
+msgid "Email"
+msgstr ""
+
+#: app/templates/events/members.html
 msgid "optionnel"
 msgstr ""
 
@@ -2729,10 +2762,6 @@ msgstr ""
 
 #: app/templates/logistics/index.html
 msgid "Adresse, accès, horaires, documents…"
-msgstr ""
-
-#: app/templates/main/landing.html
-msgid "Vos événements"
 msgstr ""
 
 #: app/templates/main/landing.html

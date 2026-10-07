@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 06:16+0200\n"
+"POT-Creation-Date: 2026-10-07 06:19+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -17,6 +17,15 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
+
+#: app/__init__.py app/templates/errors/500.html
+msgid "Un problème est survenu"
+msgstr "Something went wrong"
+
+#: app/__init__.py app/templates/auth/login.html
+#: app/templates/errors/_page.html
+msgid "Retour à l'accueil"
+msgstr "Back to home"
 
 #: app/__init__.py
 msgid "Trop de requêtes. Patientez un instant."
@@ -548,7 +557,7 @@ msgstr "Home"
 msgid "Créer"
 msgstr "Create"
 
-#: app/templates/errors/404.html app/templates/events/index.html app/ui.py
+#: app/templates/events/index.html app/ui.py
 msgid "Mes événements"
 msgstr "My events"
 
@@ -1299,12 +1308,18 @@ msgid "Connexion"
 msgstr "Login"
 
 #: app/templates/auth/login.html
-msgid "Accédez à vos événements."
-msgstr "Access your events."
+msgid "Connexion administrateur"
+msgstr "Administrator sign-in"
 
-#: app/templates/auth/login.html app/templates/events/members.html
-msgid "Email"
-msgstr "Email"
+#: app/templates/auth/login.html
+msgid ""
+"Réservé à l'administration du site. Pour accéder à votre événement, "
+"utilisez plutôt votre code."
+msgstr "For site administration only. To open your event, use your code instead."
+
+#: app/templates/auth/login.html
+msgid "E-mail"
+msgstr "E-mail"
 
 #: app/templates/auth/login.html
 msgid "Mot de passe"
@@ -1811,16 +1826,16 @@ msgid "Accès refusé"
 msgstr "Access denied"
 
 #: app/templates/errors/403.html
+msgid "Cette page est réservée au créateur de l'événement."
+msgstr "This page is reserved for the event creator."
+
+#: app/templates/errors/403.html
 msgid ""
 "Vous n'avez pas la permission d'accéder à cette page. Connectez-vous ou "
 "utilisez votre code personnel pour rejoindre l'événement."
 msgstr ""
 "You don't have permission to access this page. Log in or use your "
 "personal code to join the event."
-
-#: app/templates/errors/403.html app/templates/errors/404.html
-msgid "Retour à l'accueil"
-msgstr "Back to home"
 
 #: app/templates/errors/404.html
 msgid "Page introuvable"
@@ -1833,6 +1848,22 @@ msgid ""
 msgstr ""
 "This page doesn't exist or has been moved. Check the link, or go back to "
 "your event."
+
+#: app/templates/errors/500.html
+msgid ""
+"Une erreur est survenue de notre côté. Réessayez dans un instant ; si le "
+"problème continue, revenez à l'accueil."
+msgstr ""
+"An error occurred on our side. Try again in a moment; if the problem "
+"continues, go back to the home page."
+
+#: app/templates/errors/_page.html
+msgid "Retour à l'événement"
+msgstr "Back to the event"
+
+#: app/templates/errors/_page.html app/templates/main/landing.html
+msgid "Vos événements"
+msgstr "Your events"
 
 #: app/templates/events/_my_items.html app/templates/lists/_items.html
 msgid "Décocher"
@@ -2351,6 +2382,10 @@ msgid "Ex : Alice Martin"
 msgstr "E.g. Alice Martin"
 
 #: app/templates/events/members.html
+msgid "Email"
+msgstr "Email"
+
+#: app/templates/events/members.html
 msgid "optionnel"
 msgstr "optional"
 
@@ -2826,10 +2861,6 @@ msgstr "Practical info"
 #: app/templates/logistics/index.html
 msgid "Adresse, accès, horaires, documents…"
 msgstr "Address, access, schedule, documents…"
-
-#: app/templates/main/landing.html
-msgid "Vos événements"
-msgstr "Your events"
 
 #: app/templates/main/landing.html
 msgid "Voir tous mes événements"

@@ -1,12 +1,4 @@
-{% extends "base.html" %}
-{% block title %}403 — {{ _("Accès refusé") }}{% endblock %}
-{% block content %}
-<div class="error-page" data-testid="error-403">
-  <span class="error-code" aria-hidden="true">403</span>
-  <h1>{{ _("Accès refusé") }}</h1>
-  <p>{{ _("Vous n'avez pas la permission d'accéder à cette page. Connectez-vous ou utilisez votre code personnel pour rejoindre l'événement.") }}</p>
-  <div class="error-actions">
-    <a href="/" class="btn btn-primary">{{ _("Retour à l'accueil") }}</a>
-  </div>
-</div>
-{% endblock %}
+{% extends "errors/_page.html" %}
+{% set code = 403 %}
+{% set title = _("Accès refusé") %}
+{% set text = _("Cette page est réservée au créateur de l'événement.") if (current_event and event_role) else _("Vous n'avez pas la permission d'accéder à cette page. Connectez-vous ou utilisez votre code personnel pour rejoindre l'événement.") %}

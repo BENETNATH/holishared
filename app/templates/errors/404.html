@@ -1,15 +1,4 @@
-{% extends "base.html" %}
-{% block title %}404 — {{ _("Page introuvable") }}{% endblock %}
-{% block content %}
-<div class="error-page" data-testid="error-404">
-  <span class="error-code" aria-hidden="true">404</span>
-  <h1>{{ _("Page introuvable") }}</h1>
-  <p>{{ _("Cette page n'existe pas ou a été déplacée. Vérifiez le lien, ou retournez à votre événement.") }}</p>
-  <div class="error-actions">
-    <a href="/" class="btn btn-primary">{{ _("Retour à l'accueil") }}</a>
-    {% if current_user.is_authenticated %}
-    <a href="{{ url_for('events.index') }}" class="btn btn-secondary">{{ _("Mes événements") }}</a>
-    {% endif %}
-  </div>
-</div>
-{% endblock %}
+{% extends "errors/_page.html" %}
+{% set code = 404 %}
+{% set title = _("Page introuvable") %}
+{% set text = _("Cette page n'existe pas ou a été déplacée. Vérifiez le lien, ou retournez à votre événement.") %}

@@ -14,6 +14,7 @@ from flask_babel import gettext as _
 from markupsafe import Markup, escape
 
 from app.access import has_guest_session
+from app.context import device_events
 from app.icons import ICONS
 
 PRIMARY_ORDER: Final[tuple[str, ...]] = (
@@ -273,5 +274,6 @@ def init_ui(app: Flask) -> None:
         ui_importmap=ui_importmap,
         ui_strings=ui_strings,
         has_guest_session=has_guest_session,
+        device_events_count=lambda: len(device_events()),
         build_nav=build_nav,
     )
