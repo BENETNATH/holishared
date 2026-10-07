@@ -1,31 +1,77 @@
 {% extends "base.html" %}
+{% from "_components/ui.html" import sheet, field %}
 {% block title %}{{ item.caption or item.original_name }} — {{ event.title }}{% endblock %}
 {% block content %}
-<p class="back-link"><a href="{{ url_for('media.gallery', code=event.code) }}">&larr; {{ _("Galerie") }}</a></p>
+{%- set video = item.mime_type.startswith('video/') %}
+{%- set back = url_for('media.gallery', code=event.code, upto=position if position > 60 else None) ~ '#m-' ~ item.id %}
+{%- set alt = item.caption or (_('Vidéo ajoutée par %(name)s', name=item.uploaded_by_name) if video else _('Photo ajoutée par %(name)s', name=item.uploaded_by_name)) %}
+<div class="ui-viewer" data-testid="media-viewer" data-back="{{ back }}">
+  <div class="ui-viewer__bar">
+    <a class="ui-btn ui-btn--ghost" href="{{ back }}" data-testid="viewer-back">{{ icon('arrow-left', size=18) }}<span>{{ _("Galerie") }}</span></a>
+    <p class="m-0 text-small text-ink-2" data-testid="viewer-position">{{ _("%(position)s sur %(total)s", position=position, total=total) }}</p>
+  </div>
 
-<div class="page-head">
-    <div>
-        <h1>{{ item.caption or item.original_name }}</h1>
+  <div class="ui-viewer__stage" data-testid="viewer-stage">
+    {%- if video %}
+    <video src="{{ url_for('media.file', code=event.code, item_id=item.id) }}" controls preload="metadata" playsinline aria-label="{{ alt }}" data-testid="viewer-media"></video>
+    {%- else %}
+    <img src="{{ url_for('media.thumb', code=event.code, item_id=item.id, size=960) }}" data-original="{{ url_for('media.file', code=event.code, item_id=item.id) }}" alt="{{ alt }}" data-testid="viewer-media">
+    {%- endif %}
+    {%- if previous_item %}
+    <a rel="prev" class="ui-viewer__nav ui-viewer__nav--prev" href="{{ url_for('media.detail', code=event.code, item_id=previous_item.id) }}" aria-label="{{ _('Précédent') }}" data-testid="viewer-prev">{{ icon('chevron-left', size=24) }}</a>
+    {%- endif %}
+    {%- if next_item %}
+    <a rel="next" class="ui-viewer__nav ui-viewer__nav--next" href="{{ url_for('media.detail', code=event.code, item_id=next_item.id) }}" aria-label="{{ _('Suivant') }}" data-testid="viewer-next">{{ icon('chevron-right', size=24) }}</a>
+    <link rel="prefetch" href="{{ url_for('media.thumb', code=event.code, item_id=next_item.id, size=960) if not next_item.mime_type.startswith('video/') else url_for('media.detail', code=event.code, item_id=next_item.id) }}">
+    {%- endif %}
+  </div>
+
+  <section class="ui-viewer__info" aria-label="{{ _('Informations') }}">
+    <h1 class="m-0 text-heading break-words" data-testid="viewer-caption" translate="no">{{ item.caption or item.original_name }}</h1>
+    <ul class="m-0 mt-2 flex list-none flex-col gap-1 p-0 text-small text-ink-2">
+      {%- if item.display_date %}
+      <li data-testid="viewer-date">{{ _("Pris le %(date)s", date=(item.taken_at|format_date('long')) ~ ' · ' ~ (item.taken_at|time)) if item.taken_at else _("Ajouté le %(date)s", date=item.display_date|format_date('long')) }}</li>
+      {%- endif %}
+      <li data-testid="viewer-author">{{ _("Par %(name)s", name=item.uploaded_by_name) }}</li>
+      {%- if item.has_location %}
+      <li class="flex flex-wrap items-center gap-x-2" data-testid="viewer-place">{{ icon('map-pin', size=16) }}<span>{{ _("Lieu : %(lat)s, %(lng)s", lat=item.latitude|number(4), lng=item.longitude|number(4)) }}</span></li>
+      {%- endif %}
+    </ul>
+    <div class="mt-4 flex flex-wrap gap-2">
+      {%- if item.has_location %}
+      <a class="ui-btn ui-btn--secondary" target="_blank" rel="noopener noreferrer" data-testid="viewer-map" href="https://www.openstreetmap.org/?mlat={{ '%.5f'|format(item.latitude) }}&amp;mlon={{ '%.5f'|format(item.longitude) }}#map=15/{{ '%.5f'|format(item.latitude) }}/{{ '%.5f'|format(item.longitude) }}">{{ icon('external-link', size=18) }}<span>{{ _("Voir sur la carte") }}</span></a>
+      {%- endif %}
+      {%- if not video %}
+      <a class="ui-btn ui-btn--secondary" href="{{ url_for('media.file', code=event.code, item_id=item.id) }}" target="_blank" rel="noopener" data-original-link data-testid="viewer-original">{{ _("Voir en pleine résolution") }}</a>
+      {%- endif %}
+      <a class="ui-btn ui-btn--secondary" href="{{ url_for('media.download', code=event.code, item_id=item.id) }}" download="{{ download_name }}" data-testid="viewer-download">{{ icon('download', size=18) }}<span>{{ _("Télécharger") }}</span></a>
+      {%- if ctx.can_edit(item) %}
+      <button type="button" class="ui-btn ui-btn--secondary" data-sheet-open="media-caption-sheet" aria-haspopup="dialog" aria-expanded="false" data-testid="viewer-edit-caption">{{ icon('pencil', size=18) }}<span>{{ _("Modifier la légende") }}</span></button>
+      {%- endif %}
+      {%- if ctx.can_delete(item) %}
+      <form method="post" action="{{ url_for('media.delete', code=event.code, item_id=item.id) }}" data-confirm="{{ _('Supprimer ce média ? Cette action est définitive.') }}" data-confirm-label="{{ _('Supprimer') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="ui-btn ui-btn--danger" data-testid="viewer-delete">{{ icon('trash-2', size=18) }}<span>{{ _("Supprimer") }}</span></button>
+      </form>
+      {%- endif %}
     </div>
+  </section>
+
+  {%- if ctx.can_edit(item) %}
+  {%- call sheet('media-caption-sheet', _('Modifier la légende')) %}
+  <form method="post" action="{{ url_for('media.caption', code=event.code, item_id=item.id) }}" class="ui-form" data-testid="viewer-caption-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {{ field('caption', _("Légende"), id='media-caption-input', value=item.caption, autocomplete='off', attrs={'maxlength': caption_max, 'data-testid': 'viewer-caption-input'}) }}
+    <button type="submit" class="ui-btn ui-btn--primary ui-btn--block" data-testid="viewer-caption-save">{{ _("Enregistrer") }}</button>
+  </form>
+  {%- endcall %}
+  {%- endif %}
 </div>
+{% endblock %}
 
-<figure class="media-detail">
-  {% if item.mime_type.startswith("video/") %}
-  <video src="{{ url_for('media.file', code=event.code, item_id=item.id) }}" controls></video>
-  {% else %}
-  <img src="{{ url_for('media.file', code=event.code, item_id=item.id) }}" alt="{{ item.caption or item.original_name }}">
-  {% endif %}
-  <figcaption class="meta">
-    {% if item.display_date %}{{ _("Pris le") }} {{ item.display_date|datetime_short }}{% endif %}
-    · {{ item.uploaded_by_name }}
-    {% if item.has_location %} · 📍 {{ item.latitude|number(4) }}, {{ item.longitude|number(4) }}{% endif %}
-  </figcaption>
-</figure>
-
-{% if ctx.can_delete(item) %}
-<form method="post" action="{{ url_for('media.delete', code=event.code, item_id=item.id) }}">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  <button type="submit" class="btn btn-danger-solid">{{ _("Supprimer") }}</button>
-</form>
-{% endif %}
+{% block scripts %}
+<script type="module">
+  import { initViewer } from 'ui/media';
+  initViewer();
+</script>
 {% endblock %}

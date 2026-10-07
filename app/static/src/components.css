@@ -1271,3 +1271,186 @@
     resize: none;
   }
 }
+
+/* ---- Média (B026) : grille de miniatures carrées par jour, envoi, visionneuse ---- */
+@layer components {
+  .ui-media-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  @media (min-width: 40rem) {
+    .ui-media-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 64rem) {
+    .ui-media-grid {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 0.5rem;
+    }
+  }
+  .ui-media-day,
+  .ui-media-more {
+    grid-column: 1 / -1;
+  }
+  .ui-media-day h2 {
+    margin: 0.75rem 0 0.25rem;
+    font-size: var(--text-small);
+    font-weight: 600;
+    color: var(--color-ink-2);
+  }
+  .ui-media-more {
+    display: flex;
+    justify-content: center;
+    padding: 0.5rem 0;
+  }
+  .ui-media-tile {
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-2);
+  }
+  .ui-media-tile a {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .ui-media-tile img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .ui-media-video {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: var(--color-ink-2);
+  }
+  .ui-media-drop {
+    width: 100%;
+    background: transparent;
+    font: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    min-height: 44px;
+    padding: 1.25rem 1rem;
+    border: 2px dashed var(--color-line-strong);
+    border-radius: var(--radius-md);
+    text-align: center;
+    color: var(--color-ink);
+    cursor: pointer;
+  }
+  .ui-media-drop:hover,
+  .ui-media-drop:focus-within {
+    background: var(--color-primary-soft);
+  }
+  .ui-media-queue {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ui-media-job {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.25rem 0.5rem;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+  }
+  .ui-media-job__row {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    font-size: var(--text-small);
+  }
+  .ui-media-job__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+  .ui-media-job__status {
+    color: var(--color-ink-2);
+  }
+  .ui-media-job[data-state="error"] .ui-media-job__status {
+    color: var(--color-danger);
+  }
+  .ui-media-job[data-state="done"] .ui-media-job__status {
+    color: var(--color-success);
+  }
+  .ui-media-job progress {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .ui-media-job__actions {
+    display: flex;
+    align-items: center;
+    grid-row: 1;
+    grid-column: 2;
+  }
+  .ui-viewer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .ui-viewer__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .ui-viewer__stage {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: min(62dvh, 46rem);
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    background: #14110f;
+    touch-action: pan-y;
+  }
+  .ui-viewer__stage img,
+  .ui-viewer__stage video {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  .ui-viewer__nav {
+    position: absolute;
+    top: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    margin-top: -24px;
+    border-radius: 9999px;
+    background: rgb(20 17 15 / 0.6);
+    color: #ffffff;
+  }
+  .ui-viewer__nav:hover,
+  .ui-viewer__nav:focus-visible {
+    background: rgb(20 17 15 / 0.85);
+  }
+  .ui-viewer__nav--prev {
+    left: 0.5rem;
+  }
+  .ui-viewer__nav--next {
+    right: 0.5rem;
+  }
+}

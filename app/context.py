@@ -72,7 +72,7 @@ _RIGHTS: dict[type, tuple[str, str, str | tuple[str, str] | None]] = {
     LogisticsItem: (_ANY, _CREATOR, None),
     Poll: (_AUTHOR, _AUTHOR, "created_by"),  # B025 : créateur ou auteur du sondage
     ChatMessage: (_NEVER, _AUTHOR, "guest_id"),
-    MediaItem: (_NEVER, _AUTHOR, "uploaded_by"),
+    MediaItem: (_AUTHOR, _AUTHOR, "uploaded_by"),  # B026 : légende modifiable par l'auteur ou le créateur
     # B024 : foyer modifié par son propriétaire ; dépense par son auteur ou le propriétaire du foyer payeur ;
     # transfert supprimé par son auteur ; demande réglée par le destinataire, supprimée par son auteur.
     Household: (_AUTHOR, _CREATOR, "guest_id"),

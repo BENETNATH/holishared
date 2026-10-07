@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 07:21+0200\n"
+"POT-Creation-Date: 2026-10-07 08:30+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -831,6 +831,39 @@ msgstr ""
 msgid "Déplacement annulé"
 msgstr ""
 
+#: app/templates/costs/_requests.html app/templates/main/ui_catalog.html
+#: app/ui.py
+msgid "En attente"
+msgstr ""
+
+#: app/ui.py
+msgid "Envoi en cours…"
+msgstr ""
+
+#: app/ui.py
+msgid "Envoyé"
+msgstr ""
+
+#: app/templates/main/offline.html app/ui.py
+msgid "Réessayer"
+msgstr ""
+
+#: app/templates/events/members.html app/ui.py
+msgid "Retirer"
+msgstr ""
+
+#: app/ui.py
+msgid "Médias ajoutés"
+msgstr ""
+
+#: app/ui.py
+msgid "Connexion perdue. Réessayez."
+msgstr ""
+
+#: app/ui.py
+msgid "Trop d'envois. Patientez quelques minutes, puis réessayez."
+msgstr ""
+
 #: app/ui.py
 msgid "Accueil"
 msgstr ""
@@ -1381,24 +1414,55 @@ msgid "Aucun fichier."
 msgstr ""
 
 #: app/media/__init__.py
-msgid "Format non supporté."
+msgid ""
+"Ce format n'est pas pris en charge. Choisissez JPEG, PNG, WebP, MP4 ou "
+"WebM — sur iPhone, activez “Le plus compatible” dans Réglages > Appareil "
+"photo > Formats."
+msgstr ""
+
+#: app/media/__init__.py
+msgid ""
+"Ce format n'est pas pris en charge. Choisissez JPEG, PNG, WebP, MP4 ou "
+"WebM."
 msgstr ""
 
 #: app/media/__init__.py
 msgid "Fichier invalide (contenu ne correspond pas au format déclaré)."
 msgstr ""
 
-#: app/media/__init__.py
+#: app/media/__init__.py app/templates/media/gallery.html
 #, python-format
 msgid "Fichier trop volumineux (max %(max)s)."
 msgstr ""
 
+#: app/media/__init__.py app/templates/media/_gallery.html
+msgid "Votre espace de stockage est plein. Supprimez des médias pour en ajouter."
+msgstr ""
+
 #: app/media/__init__.py
-msgid "Quota de stockage atteint. Passez à l'offre supérieure."
+msgid "L'espace de stockage de l'événement est plein. Prévenez l'organisateur."
+msgstr ""
+
+#: app/media/__init__.py
+msgid "L'envoi a échoué. Réessayez."
 msgstr ""
 
 #: app/media/__init__.py
 msgid "Média ajouté."
+msgstr ""
+
+#: app/media/__init__.py
+#, python-format
+msgid "%(count)s médias ajoutés."
+msgstr ""
+
+#: app/media/__init__.py
+#, python-format
+msgid "La légende est trop longue (%(max)s caractères maximum)."
+msgstr ""
+
+#: app/media/__init__.py
+msgid "Légende enregistrée."
 msgstr ""
 
 #: app/media/__init__.py
@@ -1622,7 +1686,7 @@ msgstr ""
 msgid "Votre message"
 msgstr ""
 
-#: app/templates/chat/index.html
+#: app/templates/chat/index.html app/templates/media/gallery.html
 msgid "Envoyer"
 msgstr ""
 
@@ -1847,8 +1911,8 @@ msgstr ""
 
 #: app/templates/costs/_forms.html app/templates/events/me.html
 #: app/templates/logistics/_sheet_form.html app/templates/logistics/form.html
-#: app/templates/meals/index.html app/templates/planning/form.html
-#: app/templates/planning/index.html
+#: app/templates/meals/index.html app/templates/media/detail.html
+#: app/templates/planning/form.html app/templates/planning/index.html
 msgid "Enregistrer"
 msgstr ""
 
@@ -1960,10 +2024,6 @@ msgstr ""
 
 #: app/templates/costs/_requests.html
 msgid "Réglée"
-msgstr ""
-
-#: app/templates/costs/_requests.html app/templates/main/ui_catalog.html
-msgid "En attente"
 msgstr ""
 
 #: app/templates/costs/_requests.html
@@ -2375,7 +2435,6 @@ msgid ""
 msgstr ""
 
 #: app/templates/events/invite.html app/templates/freemium/_upgrade_modal.html
-#: app/templates/media/gallery.html
 msgid "Passer à Vacances+"
 msgstr ""
 
@@ -2726,10 +2785,6 @@ msgstr ""
 #: app/templates/events/members.html
 #, python-format
 msgid "Retirer %(name)s de l'événement ?"
-msgstr ""
-
-#: app/templates/events/members.html
-msgid "Retirer"
 msgstr ""
 
 #: app/templates/events/members.html
@@ -3196,10 +3251,6 @@ msgstr ""
 msgid "Vérifiez votre connexion puis réessayez."
 msgstr ""
 
-#: app/templates/main/offline.html
-msgid "Réessayer"
-msgstr ""
-
 #: app/templates/main/ui_catalog.html
 msgid "Catalogue de composants"
 msgstr ""
@@ -3537,12 +3588,117 @@ msgstr ""
 msgid "Supprimer ce repas"
 msgstr ""
 
-#: app/templates/media/detail.html app/templates/media/gallery.html
+#: app/templates/media/_gallery.html
+msgid "Stockage photos"
+msgstr ""
+
+#: app/templates/media/_gallery.html
+#, python-format
+msgid "%(used)s sur %(max)s"
+msgstr ""
+
+#: app/templates/media/_gallery.html
+msgid "Stockage utilisé"
+msgstr ""
+
+#: app/templates/media/_gallery.html
+msgid "Espace presque plein : supprimez des médias pour libérer de la place."
+msgstr ""
+
+#: app/templates/media/_gallery.html
+#, python-format
+msgid "Total : %(count)s"
+msgstr ""
+
+#: app/templates/media/_gallery.html app/templates/media/detail.html
 msgid "Galerie"
 msgstr ""
 
+#: app/templates/media/_gallery.html
+msgid "Aucun média"
+msgstr ""
+
+#: app/templates/media/_gallery.html
+msgid "Partagez les photos et vidéos du séjour."
+msgstr ""
+
+#: app/templates/media/_gallery.html app/templates/media/gallery.html
+msgid "Ajouter des photos/vidéos"
+msgstr ""
+
+#: app/templates/media/_tiles.html app/templates/media/detail.html
+#, python-format
+msgid "Vidéo ajoutée par %(name)s"
+msgstr ""
+
+#: app/templates/media/_tiles.html app/templates/media/detail.html
+#, python-format
+msgid "Photo ajoutée par %(name)s"
+msgstr ""
+
+#: app/templates/media/_tiles.html
+msgid "Afficher plus"
+msgstr ""
+
 #: app/templates/media/detail.html
-msgid "Pris le"
+#, python-format
+msgid "%(position)s sur %(total)s"
+msgstr ""
+
+#: app/templates/media/detail.html
+msgid "Précédent"
+msgstr ""
+
+#: app/templates/media/detail.html
+msgid "Suivant"
+msgstr ""
+
+#: app/templates/media/detail.html
+msgid "Informations"
+msgstr ""
+
+#: app/templates/media/detail.html
+#, python-format
+msgid "Pris le %(date)s"
+msgstr ""
+
+#: app/templates/media/detail.html
+#, python-format
+msgid "Ajouté le %(date)s"
+msgstr ""
+
+#: app/templates/media/detail.html
+#, python-format
+msgid "Par %(name)s"
+msgstr ""
+
+#: app/templates/media/detail.html
+#, python-format
+msgid "Lieu : %(lat)s, %(lng)s"
+msgstr ""
+
+#: app/templates/media/detail.html
+msgid "Voir sur la carte"
+msgstr ""
+
+#: app/templates/media/detail.html
+msgid "Voir en pleine résolution"
+msgstr ""
+
+#: app/templates/media/detail.html
+msgid "Télécharger"
+msgstr ""
+
+#: app/templates/media/detail.html
+msgid "Modifier la légende"
+msgstr ""
+
+#: app/templates/media/detail.html
+msgid "Supprimer ce média ? Cette action est définitive."
+msgstr ""
+
+#: app/templates/media/detail.html
+msgid "Légende"
 msgstr ""
 
 #: app/templates/media/gallery.html
@@ -3550,46 +3706,15 @@ msgid "Photos et vidéos du séjour"
 msgstr ""
 
 #: app/templates/media/gallery.html
-msgid "Stockage photos"
+msgid "Choisir des photos ou vidéos"
 msgstr ""
 
 #: app/templates/media/gallery.html
-#, python-format
-msgid "%(used)s sur %(max)s"
+msgid "ou déposez-les ici (JPEG, PNG, WebP, MP4, WebM)"
 msgstr ""
 
 #: app/templates/media/gallery.html
-msgid "Stockage utilisé"
-msgstr ""
-
-#: app/templates/media/gallery.html
-msgid ""
-"Vous avez atteint votre quota gratuit. Passez à Vacances+ pour garder "
-"toute la galerie."
-msgstr ""
-
-#: app/templates/media/gallery.html
-msgid "Espace presque plein — passez à Vacances+ pour 50 Go."
-msgstr ""
-
-#: app/templates/media/gallery.html
-msgid "Photo ou vidéo"
-msgstr ""
-
-#: app/templates/media/gallery.html
-msgid "Légende"
-msgstr ""
-
-#: app/templates/media/gallery.html
-msgid "Téléverser"
-msgstr ""
-
-#: app/templates/media/gallery.html
-msgid "Aucun media"
-msgstr ""
-
-#: app/templates/media/gallery.html
-msgid "Partagez les photos et vidéos du séjour."
+msgid "Légende pour tous les fichiers"
 msgstr ""
 
 #: app/templates/planning/_card.html

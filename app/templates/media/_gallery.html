@@ -1,0 +1,24 @@
+{% from "_components/ui.html" import empty_state %}
+{%- if gauge %}
+<section class="ui-card mb-4" data-testid="media-gauge" data-state="{{ 'full' if gauge.exceeded else 'ok' }}" aria-labelledby="media-gauge-title">
+  <p class="m-0 flex flex-wrap items-baseline justify-between gap-x-2 text-small"><span id="media-gauge-title" class="font-semibold text-ink">{{ _("Stockage photos") }}</span><span class="text-ink-2">{{ _('%(used)s sur %(max)s', used=gauge.used|filesize, max=gauge.max|filesize) }}</span></p>
+  <progress class="ui-progress mt-2" max="100" value="{{ gauge.pct }}" aria-label="{{ _('Stockage utilisé') }}"></progress>
+  {%- if gauge.exceeded %}
+  <p class="m-0 mt-2 text-small text-danger" role="note" data-testid="media-gauge-note">{{ _("Votre espace de stockage est plein. Supprimez des médias pour en ajouter.") }}</p>
+  {%- elif gauge.pct >= 75 %}
+  <p class="m-0 mt-2 text-small text-ink-2" role="note" data-testid="media-gauge-note">{{ _("Espace presque plein : supprimez des médias pour libérer de la place.") }}</p>
+  {%- endif %}
+</section>
+{%- endif %}
+{%- if rows %}
+<p class="m-0 mb-2 text-small text-ink-2" data-testid="media-count">{{ _("Total : %(count)s", count=total) }}</p>
+<ul class="ui-media-grid" data-testid="media-grid" aria-label="{{ _('Galerie') }}">
+  {%- include "media/_tiles.html" %}
+</ul>
+{%- else %}
+<div data-testid="media-empty">
+  {%- call empty_state('image', _("Aucun média"), _("Partagez les photos et vidéos du séjour.")) %}
+  <button type="button" class="ui-btn ui-btn--secondary" data-sheet-open="media-upload-sheet" aria-haspopup="dialog" aria-expanded="false">{{ icon('plus', size=18) }}<span>{{ _("Ajouter des photos/vidéos") }}</span></button>
+  {%- endcall %}
+</div>
+{%- endif %}

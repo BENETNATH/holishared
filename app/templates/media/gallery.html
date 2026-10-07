@@ -1,101 +1,41 @@
 {% extends "base.html" %}
+{% from "_components/ui.html" import sheet, field %}
 {% block title %}{{ _("Media") }} — {{ event.title }}{% endblock %}
 {% block content %}
-<div class="page-head">
-    <div>
-        <h1>{{ _("Media") }}</h1>
-        <p class="page-sub">{{ event.title }} · {{ _("Photos et vidéos du séjour") }}</p>
+<div id="media" data-testid="media-page" data-gallery-url="{{ url_for('media.gallery', code=event.code) }}"
+     data-max-bytes="{{ max_bytes }}" data-msg-too-big="{{ _('Fichier trop volumineux (max %(max)s).', max=max_label) }}">
+  <div class="ui-page-header">
+    <div class="min-w-0">
+      <h1>{{ _("Media") }}</h1>
+      <p>{{ event.title }} · {{ _("Photos et vidéos du séjour") }}</p>
     </div>
-</div>
+    <button type="button" class="ui-btn ui-btn--primary shrink-0" data-sheet-open="media-upload-sheet" aria-haspopup="dialog" aria-expanded="false" data-testid="media-add">{{ icon('plus', size=18) }}<span>{{ _("Ajouter des photos/vidéos") }}</span></button>
+  </div>
 
-{# Storage gauge + soft upgrade (creator) #}
-{% if ctx.is_creator and gauge %}
-<div class="storage-gauge{% if gauge.exceeded %} storage-gauge-full{% endif %}">
-  <div class="sg-head">
-    <span class="sg-title">{{ _("Stockage photos") }}</span>
-    <span class="sg-values">{{ _('%(used)s sur %(max)s', used=gauge.used|filesize, max=gauge.max|filesize) }}</span>
+  <div id="media-gallery" data-testid="media-gallery">
+    {%- include "media/_gallery.html" %}
   </div>
-  <div class="sg-bar" role="progressbar" aria-valuenow="{{ gauge.pct }}" aria-valuemin="0" aria-valuemax="100" aria-label="{{ _('Stockage utilisé') }}">
-    <div class="sg-fill" style="width: {{ gauge.pct }}%"></div>
-  </div>
-  {% if gauge.exceeded %}
-  <div class="sg-upgrade" role="note">
-    <p>{{ _("Vous avez atteint votre quota gratuit. Passez à Vacances+ pour garder toute la galerie.") }}</p>
-    <button type="button" class="btn btn-primary sg-cta" data-upgrade-target="#upgrade-modal">{{ _("Passer à Vacances+") }}</button>
-  </div>
-  {% elif gauge.pct >= 75 %}
-  <div class="sg-hint">{{ _("Espace presque plein — passez à Vacances+ pour 50 Go.") }}</div>
-  {% endif %}
-</div>
-{% endif %}
 
-<form method="post" action="{{ url_for('media.upload', code=event.code) }}" enctype="multipart/form-data" class="expense-form">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  <div class="form-grid">
-    <div class="field field-wide">
-      <label for="file">{{ _("Photo ou vidéo") }} *</label>
-      <input type="file" id="file" name="file" accept="image/jpeg,image/png,image/webp,image/heic,video/mp4,video/webm" required>
-    </div>
-    <div class="field field-wide">
-      <label for="caption">{{ _("Légende") }}</label>
-      <input type="text" id="caption" name="caption" maxlength="500">
-    </div>
-  </div>
-  <button type="submit" class="btn btn-primary">{{ _("Téléverser") }}</button>
-</form>
-
-{% if items %}
-<div class="media-grid" role="list" aria-label="{{ _('Galerie') }}">
-  {% for item in items %}
-  <div class="media-item" role="listitem">
-    <a href="{{ url_for('media.detail', code=event.code, item_id=item.id) }}">
-      {% if item.mime_type.startswith("video/") %}
-      <video src="{{ url_for('media.file', code=event.code, item_id=item.id) }}" preload="metadata" muted></video>
-      {% else %}
-      <img src="{{ url_for('media.file', code=event.code, item_id=item.id) }}" alt="{{ item.caption or item.original_name }}" loading="lazy">
-      {% endif %}
-    </a>
-    {% if item.caption %}<div class="caption">{{ item.caption }}</div>{% endif %}
-  </div>
-  {% endfor %}
+  {%- call sheet('media-upload-sheet', _('Ajouter des photos/vidéos')) %}
+  <form method="post" action="{{ url_for('media.upload', code=event.code) }}" enctype="multipart/form-data" class="ui-form" data-testid="media-upload-form" id="media-upload-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="button" class="ui-media-drop" data-media-pick data-testid="media-drop">
+      {{ icon('upload', size=28) }}
+      <span class="font-semibold">{{ _("Choisir des photos ou vidéos") }}</span>
+      <span class="text-small text-ink-2">{{ _("ou déposez-les ici (JPEG, PNG, WebP, MP4, WebM)") }}</span>
+    </button>
+    <input type="file" id="media-file" name="file" accept="{{ accept }}" multiple hidden data-testid="media-file">
+    {{ field('caption', _("Légende pour tous les fichiers"), id='media-caption', autocomplete='off', attrs={'maxlength': 500, 'data-testid': 'media-caption'}) }}
+    <ul id="media-queue" class="ui-media-queue" data-testid="media-queue" aria-live="polite"></ul>
+    <button type="submit" class="ui-btn ui-btn--primary ui-btn--block" data-testid="media-send">{{ icon('upload', size=18) }}<span>{{ _("Envoyer") }}</span></button>
+  </form>
+  {%- endcall %}
 </div>
-{% else %}
-<div class="empty-state">
-  <span class="empty-icon" aria-hidden="true">📷</span>
-  <h3>{{ _("Aucun media") }}</h3>
-  <p>{{ _("Partagez les photos et vidéos du séjour.") }}</p>
-</div>
-{% endif %}
-
-{% if ctx.is_creator %}
-{% include "freemium/_upgrade_modal.html" %}
-{% endif %}
 {% endblock %}
 
 {% block scripts %}
-{% if ctx.is_creator %}
-<script>
-// Open the shared upgrade modal from any [data-upgrade-target] button.
-(function() {
-    var modal = document.getElementById('upgrade-modal');
-    if (!modal) return;
-    function close() { modal.hidden = true; }
-    document.querySelectorAll('[data-upgrade-target]').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            modal.hidden = false;
-            var c = modal.querySelector('[data-upgrade-close]');
-            if (c) c.focus();
-        });
-    });
-    var c = modal.querySelector('[data-upgrade-close]');
-    if (c) c.addEventListener('click', close);
-    document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && !modal.hidden) close(); });
-    var cta = modal.querySelector('[data-upgrade-cta]');
-    if (cta) cta.addEventListener('click', function() {
-        cta.disabled = true;
-        cta.textContent = '✓ ' + cta.textContent; // Stripe / LemonSqueezy hook
-    });
-})();
+<script type="module">
+  import { initGallery } from 'ui/media';
+  initGallery();
 </script>
-{% endif %}
 {% endblock %}

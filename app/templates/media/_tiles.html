@@ -1,0 +1,21 @@
+{%- for item, new_day in rows %}
+{%- if new_day and item.display_date %}
+<li class="ui-media-day" data-testid="media-day" data-day="{{ item.display_date.date().isoformat() }}"><h2>{{ item.display_date.date()|format_date('full') }}</h2></li>
+{%- endif %}
+{%- set video = item.mime_type.startswith('video/') %}
+{%- set label = item.caption or (_('Vidéo ajoutée par %(name)s', name=item.uploaded_by_name) if video else _('Photo ajoutée par %(name)s', name=item.uploaded_by_name)) %}
+<li class="ui-media-tile" id="m-{{ item.id }}" data-testid="media-tile" data-media-id="{{ item.id }}" data-kind="{{ 'video' if video else 'image' }}"{% if item.caption %} translate="no"{% endif %}>
+  <a href="{{ url_for('media.detail', code=event.code, item_id=item.id) }}"{% if item.caption %} title="{{ item.caption }}"{% endif %}{% if video %} aria-label="{{ label }}"{% endif %}>
+    {%- if video %}
+    <span class="ui-media-video" data-testid="media-video-tile">{{ icon('play', size=32) }}</span>
+    {%- else %}
+    <img src="{{ url_for('media.thumb', code=event.code, item_id=item.id, size=320) }}" width="320" height="320" alt="{{ label }}" loading="lazy" decoding="async">
+    {%- endif %}
+  </a>
+</li>
+{%- endfor %}
+{%- if more_url %}
+<li class="ui-media-more">
+  <button type="button" class="ui-btn ui-btn--secondary" hx-get="{{ more_url }}" hx-target="closest li" hx-swap="outerHTML" data-testid="media-more">{{ _("Afficher plus") }}</button>
+</li>
+{%- endif %}

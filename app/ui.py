@@ -84,6 +84,14 @@ JS_STRINGS: Final[dict[str, str]] = {
     "lists_noted": N_("C'est noté"),
     "action_failed": N_("Action impossible. Réessayez."),
     "meal_drag_cancelled": N_("Déplacement annulé"),
+    "media_pending": N_("En attente"),
+    "media_sending": N_("Envoi en cours…"),
+    "media_done": N_("Envoyé"),
+    "media_retry": N_("Réessayer"),
+    "media_remove": N_("Retirer"),
+    "media_added": N_("Médias ajoutés"),
+    "media_network": N_("Connexion perdue. Réessayez."),
+    "media_rate_limited": N_("Trop d'envois. Patientez quelques minutes, puis réessayez."),
 }
 
 

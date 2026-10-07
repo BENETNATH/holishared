@@ -48,7 +48,7 @@ EDIT = [
     (LogisticsItem, True, True, True, False),
     (Poll, True, True, False, False),
     (ChatMessage, False, False, False, False),
-    (MediaItem, False, False, False, False),
+    (MediaItem, True, True, False, False),
     (Household, True, True, False, False),
     (Expense, True, True, False, False),
     (Transfer, False, False, False, False),
