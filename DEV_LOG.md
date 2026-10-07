@@ -328,6 +328,14 @@ Audit B017/B029 : constats 1 à 6 corrigés (variables `INSTANCE_PATH` et `SKIP_
 | P2 | CI/CD | ⬜ |
 | P2 | Migration SQLite → PostgreSQL (si scale) | ⬜ |
 
+### 2026-10-07 — B020 (partie B) Participants, limite d'invités, Journal et identité
+
+- Journal : `app/i18n.py::describe_action` compose « acteur + phrase [: cible] » (le séparateur « : » est un msgid traduit, EN sans espace avant) ; détails techniques masqués (`ACTION_HIDDEN_DETAILS`), cocher/décocher via `ACTION_VARIANTS`. Les filtres sont en paramètres d'URL (GET) ; la personne est filtrée par `actor_name` (le journal ne stocke pas d'identifiant : un renommage ne réécrit pas l'historique).
+- Retrait d'un participant : désactivation (`is_active=False`, la session `guest_<code>` ne résout plus). Le foyer reste (dépenses, parts, répartitions libres et transferts le citent) sauf si l'événement n'a aucune dépense et que le foyer n'a ni transfert ni demande. Les RSVP/votes/articles pris restent attribués au participant retiré (non traité ici).
+- Limite : `Event.guest_count` = participants actifs, créateur inclus ; `freemium.guest_gauge` et `can_add_guest` partagent cette base et l'offre (`unlimited_guests`). Pas de paiement : texte « Les plans payants arrivent bientôt », aucun CTA.
+- Tests : le contexte applicatif est partagé dans un test, donc Flask-Login met l'utilisateur en cache dans `g._login_user` ; pour changer d'identité en cours de test, `g.pop("_login_user", None)` puis un nouveau client.
+- `ruff format` a reformaté `app/events/__init__.py` (non formaté auparavant) lors du premier commit du lot.
+
 ---
 
 ## 9. Décisions

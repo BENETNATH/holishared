@@ -451,7 +451,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B020 — Accueil de l'événement, Participants & Journal
 
-**Statut** : partiel (2026-10-06) — 20.1, 20.2, 20.7 ✅ ; 20.3–20.6 à faire · **Réf.** F02, F03, F04, F18, F21, V3, V8
+**Statut** : ✅ (2026-10-07) — 20.1–20.7 · **Réf.** F02, F03, F04, F18, F21, F22, V3, V8
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
