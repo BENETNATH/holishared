@@ -39,7 +39,30 @@ def _pybabel(*args: str) -> None:
         raise SystemExit(code)
 
 
+TEMPLATES = ROOT / "app" / "templates"
+
+
+def check_templates() -> list[str]:
+    """Erreurs de syntaxe Jinja (``chemin:ligne: message``) : Babel ignore ces gabarits sans rien dire."""
+    from jinja2 import Environment, TemplateSyntaxError
+
+    env = Environment(extensions=["jinja2.ext.i18n"])
+    found = []
+    for path in sorted(TEMPLATES.rglob("*.html")):
+        try:
+            env.parse(path.read_text(encoding="utf-8"))
+        except TemplateSyntaxError as exc:
+            found.append(f"{path.relative_to(TEMPLATES.parent.parent)}:{exc.lineno}: {exc.message}")
+    return found
+
+
 def _extract(out: Path) -> None:
+    broken = check_templates()
+    if broken:
+        sys.stderr.write(
+            "Erreur de syntaxe Jinja (extraction annulée) :\n" + "\n".join(broken) + "\n"
+        )
+        raise SystemExit(1)
     _pybabel(
         "extract", "-F", str(ROOT / "babel.cfg"), *KEYWORDS, "--add-location=file",
         "--project=holishared", "--version=1", "--copyright-holder=holishared",

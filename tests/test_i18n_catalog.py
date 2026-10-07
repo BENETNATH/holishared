@@ -32,3 +32,38 @@ def test_check_detects_empty_english_entry(tmp_path, monkeypatch):
     problems = tool.check()
     assert "en: vide 'Bonjour'" in problems
     assert not any(p.startswith("fr: vide") for p in problems)
+
+
+def _broken_templates(tmp_path, monkeypatch):
+    tool = _tool()
+    folder = tmp_path / "app" / "templates"
+    folder.mkdir(parents=True)
+    (folder / "bad.html").write_text("<p>{% if %}</p>\n", encoding="utf-8")
+    monkeypatch.setattr(tool, "TEMPLATES", folder)
+    return tool
+
+
+def test_check_templates_reports_file_and_line_of_syntax_error(tmp_path, monkeypatch):
+    tool = _broken_templates(tmp_path, monkeypatch)
+    assert tool.check_templates()[0].startswith("app/templates/bad.html:1:")
+
+
+def test_extract_fails_on_template_syntax_error(tmp_path, monkeypatch):
+    import pytest
+
+    tool = _broken_templates(tmp_path, monkeypatch)
+    with pytest.raises(SystemExit) as exc:
+        tool.extract()
+    assert exc.value.code == 1
+
+
+def test_check_fails_on_template_syntax_error(tmp_path, monkeypatch):
+    import pytest
+
+    tool = _broken_templates(tmp_path, monkeypatch)
+    with pytest.raises(SystemExit):
+        tool.check()
+
+
+def test_real_templates_have_no_syntax_error():
+    assert _tool().check_templates() == []
