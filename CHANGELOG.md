@@ -10,6 +10,15 @@ sous chaque lot.
 
 ## [Unreleased]
 
+### B024 — Frais
+
+- `feat(models)` : `created_by` sur `expenses`, `transfers`, `payment_requests` ; migration idempotente `migrate_costs` (calcul à blanc, sauvegarde `pre-costs-` seulement si des dates sont réécrites) : les `Expense.date` / `Transfer.date` NULL prennent la date de `created_at` (fin de « aujourd'hui » à chaque lecture).
+- `feat(costs)` : droits UI = serveur par `can_edit` / `can_delete` — dépense : auteur, propriétaire du foyer payeur ou créateur ; foyer : composition par son propriétaire (ajout/suppression : créateur) ; ratio : créateur seul (serveur aussi) ; transfert : tout participant pour son foyer, créateur partout, suppression par l'auteur ou le créateur ; demande : créée depuis son foyer, réglée par le destinataire ou le créateur, supprimée par l'auteur ou le créateur.
+- `fix(costs)` : la note d'une demande de paiement est enregistrée (`message`) et affichée ; taux de change saisi et validé (0 < taux <= 10000, obligatoire hors EUR, montant d'origine + équivalent affichés, totaux et soldes en EUR) ; date de dépense (défaut aujourd'hui, bornée 5 ans avant / 1 an après) ; montants acceptant la virgule, valeurs non finies refusées ; un foyer référencé n'est plus supprimable (message au lieu d'une erreur 500).
+- `feat(costs)` : confidentialité — une dépense personnelle n'est visible (liste, totaux, détail du foyer, export) que des membres du foyer payeur, 404 pour les autres (créateur compris) ; son journal n'expose ni description ni montant.
+- `feat(ui)` : page Frais en segments Dépenses · Équilibre · Demandes (`?tab=`, conservé après chaque action), en-tête « Mon solde », ajout/modification de dépense dans une feuille ancrée en bas (rouverte avec les erreurs par champ), détail dépliable, « Qui doit à qui » avec noms complets, formulaire de remboursement toujours accessible, foyers et ratio en feuilles ; `_settlement` / `_per_expense_shares` inchangés.
+- `test` : `test_costs_b024.py`, `test_costs_migration.py` ; adaptés (jamais supprimés) — `test_costs` (structure en segments, dépenses partagées explicitement, dépenses personnelles dans un foyer du participant), `test_rights` (table des droits) ; scènes `costs*`.
+
 ### B023 — Listes
 
 - `feat(models)` : tables d'association `ListMealCoverage` / `ListActivityCoverage` (clé primaire composite, `ON DELETE CASCADE` des deux côtés, `covered_by` -> `guests` `SET NULL`) en remplacement des tableaux JSON `SharedList.covered_meals` / `covered_activities` (colonnes conservées, ni lues ni écrites, suppression en B028) ; `ListItem.created_by` (nullable) ; `PRAGMA foreign_keys=ON` sur chaque connexion SQLite (les cascades jouent vraiment) ; migration idempotente `app/migrations.py` (`plan_lists_migration` / `migrate_lists` / `run_lists_migration` : ajout de colonne, transfert des tableaux JSON, identifiants orphelins ignorés, tableaux vidés après transfert, sauvegarde `pre-lists-*` seulement si des écritures sont prévues, au démarrage avant la purge et par `manage.py migrate`) ; la reconstruction de `meals` (B022) suspend les clés étrangères comme le prescrit SQLite.

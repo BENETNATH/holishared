@@ -255,6 +255,16 @@ Audit B017/B029 : constats 1 à 6 corrigés (variables `INSTANCE_PATH` et `SKIP_
 - Panneau : fragment rendu à chaque page (pas de requête supplémentaire), filtres (`mode`, `hide`) transmis par paramètres et conservés par les cases ; état ouvert/fermé mémorisé seulement sur bureau (localStorage, repli sans stockage) ; jours dépliés conservés après échange (`data-keep-open`).
 - Limite connue : avec « masquer les pris en compte » actif, la ligne cochée disparaît immédiatement.
 
+### 2026-10-07 — B024 Frais
+
+- Décisions de droits (table en message de commit) : auteur = `created_by` ou propriétaire du foyer payeur (`Household.guest_id`) ; `context._RIGHTS` accepte des chemins pointés et des alternatives (`"created_by|paid_by.guest_id"`). Les lignes historiques sans `created_by` restent gérables par le propriétaire du foyer payeur et le créateur.
+- Confidentialité : dépense personnelle visible des seuls membres du foyer payeur ; 404 (pas 403) pour les autres, créateur compris ; elle doit être payée par le foyer de l'acteur ; export créateur filtré ; journal sans description.
+- Pas de HTMX : POST-redirect + toast, segment dans `?tab=` ; en cas d'erreur la page est rendue avec la feuille rouverte (`data-costs-open-sheet`, `ui/costs`) et les valeurs saisies ; modification = `?edit=<id>` / `?edit_household=<id>` (feuille préremplie, sans JavaScript).
+- Taux de change : aucune valeur par défaut (un taux faux silencieux serait pire qu'une saisie obligatoire) ; EUR ignore tout taux soumis.
+- Demande de paiement : « destinataire » = foyer `to_household` ; sa note s'appelle `message` partout.
+- Seed de démo : noms de foyers neutres (la garde « pas de français en EN » lit les données saisies telles quelles).
+- Limites connues : un foyer sans propriétaire (créé par le créateur) n'est modifiable que par lui ; aucune répartition personnalisée (`custom_split`) n'est saisissable dans l'interface.
+
 ### À faire (backlog)
 
 | Priorité | Tâche | Statut |

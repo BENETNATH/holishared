@@ -502,7 +502,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B024 — Frais
 
-**Statut** : ⬜ · **Réf.** F06, F07, F08, V4
+**Statut** : ✅ (2026-10-07) · **Réf.** F06, F07, F08, V4
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
