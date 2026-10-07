@@ -1,6 +1,7 @@
 const CACHE = {{ cache_name|tojson }};
 const PRECACHE = {{ precache|tojson }};
 const OFFLINE_URL = {{ offline_url|tojson }};
+const PUSH_ICON = {{ push_icon|tojson }};
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(PRECACHE)));
@@ -32,4 +33,54 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
-// Point d'extension B027 : les gestionnaires push, notificationclick et notificationclose s'ajoutent après ce commentaire.
+// Notifications Web Push (B027) : le payload est déjà localisé et minimal (titre, corps, tag, url).
+function safeUrl(value) {
+  const target = new URL(typeof value === 'string' ? value : '/', self.location.origin);
+  return target.origin === self.location.origin ? target.href : self.location.origin + '/';
+}
+
+self.addEventListener('push', (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch (error) {
+    data = {};
+  }
+  const options = {
+    body: data.body || '',
+    icon: PUSH_ICON,
+    badge: PUSH_ICON,
+    data: { url: safeUrl(data.url) },
+  };
+  if (data.tag) {
+    options.tag = data.tag;
+    options.renotify = data.renotify === true;
+  }
+  event.waitUntil(self.registration.showNotification(data.title || 'holishared', options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const target = event.notification.data && event.notification.data.url ? event.notification.data.url : safeUrl('/');
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(async (windows) => {
+      for (const client of windows) {
+        if (new URL(client.url).origin !== self.location.origin) continue;
+        await client.focus();
+        if ('navigate' in client) {
+          try {
+            await client.navigate(target);
+          } catch (error) {
+            // Client non contrôlé : la page reste affichée, l'onglet est déjà au premier plan.
+          }
+        }
+        return undefined;
+      }
+      return self.clients.openWindow(target);
+    })
+  );
+});
+
+self.addEventListener('notificationclose', (event) => {
+  event.notification.close(); // aucune télémétrie : rien n'est envoyé au serveur
+});

@@ -39,6 +39,7 @@ def service_worker() -> Response:
         cache_name="holishared-" + asset_version(),
         precache=precache_urls(),
         offline_url=url_for("main.offline"),
+        push_icon=url_for("static", filename="icons/icon-192.png"),
     )
     response = Response(body, mimetype="application/javascript")
     response.headers["Cache-Control"] = "no-cache"
