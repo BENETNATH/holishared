@@ -64,6 +64,7 @@ def default_steps() -> list[Step]:
         run_lists_migration,
         run_meals_migration,
         run_polls_migration,
+        run_push_migration,
     )
 
     return [
@@ -71,6 +72,7 @@ def default_steps() -> list[Step]:
         ("lists", run_lists_migration),
         ("costs", run_costs_migration),
         ("polls", run_polls_migration),
+        ("push", run_push_migration),
         ("purge", purge_expired_events),
         ("identity", run_identity_migration),
         ("fk-check", log_foreign_key_orphans),  # lecture seule

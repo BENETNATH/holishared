@@ -587,3 +587,42 @@ class PaymentRequest(db.Model):  # type: ignore[misc,name-defined]
     def amount(self) -> float:
         """Amount in the base currency (float for display)."""
         return self.amount_cents / 100.0
+
+
+class PushSubscription(db.Model):  # type: ignore[misc,name-defined]
+    """Abonnement Web Push d'un appareil pour un participant d'un événement (B027).
+
+    Un navigateur renvoie le même ``endpoint`` pour tous les événements de l'origine : l'unicité
+    est donc (événement, endpoint). Les préférences sont par appareil.
+    """
+
+    __tablename__ = "push_subscriptions"
+    __table_args__ = (db.UniqueConstraint("event_id", "endpoint", name="uq_push_event_endpoint"),)
+
+    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    guest_id: Mapped[str] = db.Column(
+        db.String(32), db.ForeignKey("guests.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    event_id: Mapped[str] = db.Column(
+        db.String(32), db.ForeignKey("events.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    endpoint: Mapped[str] = db.Column(db.String(2048), nullable=False)
+    p256dh: Mapped[str] = db.Column(db.String(128), nullable=False)
+    auth: Mapped[str] = db.Column(db.String(64), nullable=False)
+    user_agent: Mapped[str] = db.Column(db.String(200), nullable=False, default="")
+    lang: Mapped[str] = db.Column(db.String(5), nullable=False, default="fr", server_default="fr")
+    created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
+    last_success_at: Mapped[datetime | None] = db.Column(db.DateTime, nullable=True)
+    notify_chat: Mapped[bool] = db.Column(db.Boolean, nullable=False, default=True)
+    notify_polls: Mapped[bool] = db.Column(db.Boolean, nullable=False, default=True)
+    notify_requests: Mapped[bool] = db.Column(db.Boolean, nullable=False, default=True)
+    show_preview: Mapped[bool] = db.Column(db.Boolean, nullable=False, default=True)
+
+    guest = db.relationship(
+        "Guest",
+        backref=db.backref("push_subscriptions", lazy="dynamic", cascade="all, delete-orphan"),
+    )
+    event = db.relationship(
+        "Event",
+        backref=db.backref("push_subscriptions", lazy="dynamic", cascade="all, delete-orphan"),
+    )

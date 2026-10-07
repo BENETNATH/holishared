@@ -56,6 +56,7 @@ from app.models import (
     Household,
     Meal,
     PaymentRequest,
+    PushSubscription,
     Transfer,
     generate_guest_code,
 )
@@ -756,6 +757,7 @@ def _remove_participant(ctx: EventContext) -> Response:
         else:
             kept = household.name
     target.is_active = False
+    PushSubscription.query.filter_by(guest_id=target.id).delete()  # B027 : plus de notifications
     log_event(ctx, "participant.removed", target=name)
     db.session.commit()
     if kept:

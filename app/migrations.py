@@ -675,3 +675,22 @@ def main(argv: list[str]) -> int:
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
+
+
+def migrate_push(engine: Any) -> bool:
+    """Table ``push_subscriptions`` (B027) : création seule, idempotente, sans sauvegarde."""
+    from sqlalchemy import inspect
+
+    from app.models import PushSubscription
+
+    table = PushSubscription.__table__
+    with engine.begin() as conn:
+        existed = inspect(conn).has_table(table.name)
+        table.create(conn, checkfirst=True)
+    return not existed
+
+
+def run_push_migration(app: Flask) -> dict[str, int]:
+    """Étape de démarrage B027 (la table est aussi créée par ``create_all``)."""
+    created = migrate_push(db.engine)
+    return {"push_table_created": int(created)}
