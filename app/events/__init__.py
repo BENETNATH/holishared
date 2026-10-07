@@ -40,7 +40,7 @@ from app.access import (
     suggest_guest_code,
 )
 from app.auth import is_disposable_email
-from app.context import device_events, load_event_context
+from app.context import device_events, load_event_context, log_event
 from app.extensions import db, limiter
 from app.forms import FormErrors
 from app.freemium import can_add_guest, has_feature, max_duration_days, require_tier
@@ -544,17 +544,36 @@ def _join_url(event: Event) -> str:
     return base + url_for("events.guest_access", code=event.code)
 
 
-@events_bp.route("/<code>/me")
-def me(code: str) -> str:
-    """Mon code : code personnel de la personne connectée, masqué par défaut."""
+@events_bp.route("/<code>/me", methods=["GET", "POST"])
+def me(code: str) -> str | Response:
+    """Mon profil : nom d'affichage modifiable et code personnel masqué par défaut (B020)."""
     ctx = load_event_context(code)
-    participant = ctx.participant  # garanti par require="participant"
-    personal = (
-        ctx.event.creator.personal_code
-        if ctx.is_creator
-        else (participant.code if participant else None)
+    participant = ctx.participant
+    if participant is None:  # inatteignable : load_event_context exige un participant
+        abort(403)
+    errors = FormErrors()
+    display_name = participant.display_name
+    if request.method == "POST":
+        display_name = " ".join(request.form.get("display_name", "").split())
+        if not 2 <= len(display_name) <= 50:
+            errors.add("display_name", _("Le nom doit faire entre 2 et 50 caractères."))
+        else:
+            if display_name != participant.display_name:
+                log_event(ctx, "participant.renamed", target=display_name)  # acteur : ancien nom
+                participant.display_name = display_name
+                if ctx.is_creator:
+                    current_user.display_name = display_name
+                db.session.commit()
+            flash(_("Nom d'affichage enregistré."), "success")
+            return redirect(url_for("events.me", code=code))
+    personal = ctx.event.creator.personal_code if ctx.is_creator else participant.code
+    return render_template(
+        "events/me.html",
+        event=ctx.event,
+        personal_code=personal,
+        errors=errors,
+        display_name=display_name,
     )
-    return render_template("events/me.html", event=ctx.event, personal_code=personal)
 
 
 @events_bp.route("/<code>/manage")

@@ -1,13 +1,23 @@
 {% extends "base.html" %}
-{% block title %}{{ _("Mon code") }} — {{ event.title }}{% endblock %}
+{% from "_components/ui.html" import field %}
+{% block title %}{{ _("Mon profil") }} — {{ event.title }}{% endblock %}
 {% block content %}
 <div class="mx-auto flex max-w-xl flex-col gap-4">
   <div class="ui-page-header">
     <div>
-      <h1>{{ _("Mon code") }}</h1>
+      <h1>{{ _("Mon profil") }}</h1>
       <p>{{ event.title }}</p>
     </div>
   </div>
+  <section class="ui-card" aria-labelledby="h-name" data-testid="rename-card">
+    <h2 id="h-name" class="mt-0 text-subheading font-semibold text-ink">{{ _("Mon nom d'affichage") }}</h2>
+    <form method="post" action="{{ url_for('events.me', code=event.code) }}" class="ui-form" data-testid="rename-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      {{ field('display_name', _("Nom affiché aux autres participants"), value=display_name, required=True, error=errors.text('display_name'), autocomplete='nickname', attrs={'minlength': 2, 'maxlength': 50}) }}
+      <p class="ui-help m-0" data-testid="rename-help">{{ _("Le nouveau nom apparaît partout où vous êtes listé. Les messages du chat et les entrées du journal déjà écrits gardent le nom d'origine.") }}</p>
+      <div><button type="submit" class="ui-btn ui-btn--primary" data-testid="rename-submit">{{ _("Enregistrer") }}</button></div>
+    </form>
+  </section>
   <section class="ui-card" aria-labelledby="h-code">
     <h2 id="h-code" class="mt-0 text-subheading font-semibold text-ink">{{ _("Votre code personnel") }}</h2>
     {% if personal_code %}

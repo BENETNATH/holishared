@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 07:02+0200\n"
+"POT-Creation-Date: 2026-10-07 07:17+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -899,8 +899,8 @@ msgid "Journal"
 msgstr "Log"
 
 #: app/templates/events/me.html app/ui.py
-msgid "Mon code"
-msgstr "My code"
+msgid "Mon profil"
+msgstr "My profile"
 
 #: app/templates/events/manage.html app/ui.py
 msgid "Gérer l'événement"
@@ -1206,6 +1206,14 @@ msgstr "This code is already in use. Please choose another one."
 #: app/events/__init__.py
 msgid "Événement confirmé !"
 msgstr "Event confirmed!"
+
+#: app/events/__init__.py
+msgid "Le nom doit faire entre 2 et 50 caractères."
+msgstr "The name must be between 2 and 50 characters."
+
+#: app/events/__init__.py
+msgid "Nom d'affichage enregistré."
+msgstr "Display name saved."
 
 #: app/events/__init__.py app/meals/__init__.py
 msgid "Nom requis (min 2 caractères)."
@@ -1890,9 +1898,10 @@ msgstr ""
 "Untick for a personal expense: only members of your household see it and "
 "it counts in no shared total."
 
-#: app/templates/costs/_forms.html app/templates/logistics/_sheet_form.html
-#: app/templates/logistics/form.html app/templates/meals/index.html
-#: app/templates/planning/form.html app/templates/planning/index.html
+#: app/templates/costs/_forms.html app/templates/events/me.html
+#: app/templates/logistics/_sheet_form.html app/templates/logistics/form.html
+#: app/templates/meals/index.html app/templates/planning/form.html
+#: app/templates/planning/index.html
 msgid "Enregistrer"
 msgstr "Save"
 
@@ -2657,6 +2666,22 @@ msgstr "Delete permanently"
 #: app/templates/events/manage.html
 msgid "Supprimer l'événement"
 msgstr "Delete event"
+
+#: app/templates/events/me.html
+msgid "Mon nom d'affichage"
+msgstr "My display name"
+
+#: app/templates/events/me.html
+msgid "Nom affiché aux autres participants"
+msgstr "Name shown to other participants"
+
+#: app/templates/events/me.html
+msgid ""
+"Le nouveau nom apparaît partout où vous êtes listé. Les messages du chat "
+"et les entrées du journal déjà écrits gardent le nom d'origine."
+msgstr ""
+"The new name appears wherever you are listed. Chat messages and log "
+"entries already written keep the original name."
 
 #: app/templates/events/me.html
 msgid ""

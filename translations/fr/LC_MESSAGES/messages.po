@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 07:02+0200\n"
+"POT-Creation-Date: 2026-10-07 07:17+0200\n"
 "PO-Revision-Date: 2026-10-04 11:18+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -857,7 +857,7 @@ msgid "Journal"
 msgstr ""
 
 #: app/templates/events/me.html app/ui.py
-msgid "Mon code"
+msgid "Mon profil"
 msgstr ""
 
 #: app/templates/events/manage.html app/ui.py
@@ -1161,6 +1161,14 @@ msgstr ""
 
 #: app/events/__init__.py
 msgid "Événement confirmé !"
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Le nom doit faire entre 2 et 50 caractères."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Nom d'affichage enregistré."
 msgstr ""
 
 #: app/events/__init__.py app/meals/__init__.py
@@ -1836,9 +1844,10 @@ msgid ""
 "la voient et elle n'entre dans aucun total partagé."
 msgstr ""
 
-#: app/templates/costs/_forms.html app/templates/logistics/_sheet_form.html
-#: app/templates/logistics/form.html app/templates/meals/index.html
-#: app/templates/planning/form.html app/templates/planning/index.html
+#: app/templates/costs/_forms.html app/templates/events/me.html
+#: app/templates/logistics/_sheet_form.html app/templates/logistics/form.html
+#: app/templates/meals/index.html app/templates/planning/form.html
+#: app/templates/planning/index.html
 msgid "Enregistrer"
 msgstr ""
 
@@ -2581,6 +2590,20 @@ msgstr ""
 
 #: app/templates/events/manage.html
 msgid "Supprimer l'événement"
+msgstr ""
+
+#: app/templates/events/me.html
+msgid "Mon nom d'affichage"
+msgstr ""
+
+#: app/templates/events/me.html
+msgid "Nom affiché aux autres participants"
+msgstr ""
+
+#: app/templates/events/me.html
+msgid ""
+"Le nouveau nom apparaît partout où vous êtes listé. Les messages du chat "
+"et les entrées du journal déjà écrits gardent le nom d'origine."
 msgstr ""
 
 #: app/templates/events/me.html

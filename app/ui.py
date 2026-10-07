@@ -253,7 +253,7 @@ def build_nav(
     )
     event_items.append(item("share", _("Partager le lien"), "share-2", None, copy=join_url))
     event_items.append(item("log", _("Journal"), "scroll-text", "events.log", code=event_code))
-    event_items.append(item("me", _("Mon code"), "key-round", "events.me", code=event_code))
+    event_items.append(item("me", _("Mon profil"), "user", "events.me", code=event_code))
     if role == "creator":
         event_items.append(
             item("manage", _("Gérer l'événement"), "settings", "events.manage", code=event_code)
