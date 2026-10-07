@@ -1,0 +1,56 @@
+{# Champs de création d'un sondage, partagés par la feuille rapide et le formulaire page entière (B025). #}
+{% from "_components/ui.html" import field %}
+
+{% macro poll_basics(p, fv, e, available) %}
+{%- set kind = fv.get('kind', 'free') -%}
+  {{ field('question', _('Question'), id=p ~ '-question', required=True, value=fv.get('question', ''), error=e.text('question'), attrs={'minlength': 2, 'maxlength': 300, 'autocomplete': 'off', 'placeholder': _('Ex : Quel menu pour samedi ?')}) }}
+
+  <fieldset class="ui-field m-0 border-0 p-0"{% if e.has('kind') %} data-invalid="true"{% endif %}>
+    <legend class="ui-label mb-1 p-0">{{ _("Type de sondage") }}</legend>
+    <div class="ui-segmented" role="radiogroup">
+      <label class="ui-segmented__option"><input type="radio" name="kind" value="free" data-testid="poll-kind-free"{% if kind != 'activities' %} checked{% endif %}><span>{{ _("Question libre") }}</span></label>
+      <label class="ui-segmented__option"><input type="radio" name="kind" value="activities" data-testid="poll-kind-activities"{% if kind == 'activities' %} checked{% endif %}{% if not available %} disabled{% endif %}{% if not available %} aria-describedby="{{ p }}-kind-help"{% endif %}><span>{{ _("Départager des activités") }}</span></label>
+    </div>
+    {%- if not available %}
+    <p class="ui-help" id="{{ p }}-kind-help" data-testid="poll-kind-unavailable">{% if 'planning' in enabled_modules %}{{ _("Ajoutez au moins 2 activités au Planning pour pouvoir les départager.") }}{% else %}{{ _("Le Planning n'est pas activé pour cet événement.") }}{% endif %}</p>
+    {%- endif %}
+    {%- if e.has('kind') %}<p class="ui-error" data-testid="err-kind">{{ icon('circle-alert', size=16) }}<span>{{ e.text('kind') }}</span></p>{% endif %}
+  </fieldset>
+{% endmacro %}
+
+{% macro poll_options(p, fv, e, choices, available) %}
+{%- set picked = fv.get('activity_ids', []) -%}
+  {%- if available %}
+  <fieldset class="ui-field m-0 border-0 p-0" data-poll-panel="activities"{% if e.has('activity_ids') %} data-invalid="true"{% endif %}>
+    <legend class="ui-label mb-1 p-0">{{ _("Activités à départager") }}</legend>
+    {%- set days = choices|map(attribute='date')|unique|list %}
+    {%- if days|length > 1 %}
+    <label class="sr-only" for="{{ p }}-day-filter">{{ _("Filtrer par jour") }}</label>
+    <select class="ui-input ui-select mb-2" id="{{ p }}-day-filter" data-poll-day-filter data-testid="poll-day-filter">
+      <option value="">{{ _("Tous les jours") }}</option>
+      {%- for day in days %}<option value="{{ day.isoformat() }}">{{ day|format_date('EEE d MMM') }}</option>{% endfor %}
+    </select>
+    {%- endif %}
+    <ul class="m-0 flex max-h-64 list-none flex-col overflow-y-auto p-0" data-testid="poll-activity-list">
+      {%- for act in choices %}
+      <li data-poll-activity-day="{{ act.date.isoformat() }}">
+        <label class="ui-check">
+          <input type="checkbox" name="activity_ids" value="{{ act.id }}" data-testid="poll-activity-option"{% if act.id in picked %} checked{% endif %}>
+          <span class="min-w-0 break-words">{{ act.title }} <span class="text-small text-ink-2">· {{ act.date|format_date('EEE d MMM') }}{% if act.start_time %} · {{ act.start_time|time }}{% endif %}</span></span>
+        </label>
+      </li>
+      {%- endfor %}
+    </ul>
+    <p class="ui-help">{{ _("Cochez au moins 2 activités.") }}</p>
+    {%- if e.has('activity_ids') %}<p class="ui-error" id="f-activity_ids-error" data-testid="err-activity_ids">{{ icon('circle-alert', size=16) }}<span>{{ e.text('activity_ids') }}</span></p>{% endif %}
+  </fieldset>
+  {%- endif %}
+
+  <div class="ui-field"{% if e.has('options') %} data-invalid="true"{% endif %}>
+    <label class="ui-label" for="{{ p }}-options" data-poll-options-label data-free="{{ _('Options') }}" data-activities="{{ _('Autres options') }}">{{ _("Options") }}</label>
+    <textarea class="ui-input ui-textarea" rows="4" id="{{ p }}-options" name="options" aria-describedby="{{ p }}-options-help{% if e.has('options') %} {{ p }}-options-error{% endif %}"{% if e.has('options') %} aria-invalid="true"{% endif %}
+              placeholder="{{ _('Poisson\nPoulet\nVégétarien') }}">{{ fv.get('options', '') }}</textarea>
+    <p class="ui-help" id="{{ p }}-options-help" data-poll-options-help data-free="{{ _('Une option par ligne (2 à 10).') }}" data-activities="{{ _('Facultatif : une option par ligne, en plus des activités cochées.') }}">{{ _("Une option par ligne (2 à 10).") }}</p>
+    {%- if e.has('options') %}<p class="ui-error" id="{{ p }}-options-error" data-testid="err-options">{{ icon('circle-alert', size=16) }}<span>{{ e.text('options') }}</span></p>{% endif %}
+  </div>
+{% endmacro %}

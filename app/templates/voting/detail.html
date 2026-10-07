@@ -1,56 +1,50 @@
 {% extends "base.html" %}
+{% set poll = view.poll %}
 {% block title %}{{ poll.question }} — {{ event.title }}{% endblock %}
 {% block content %}
-<p class="back-link"><a href="{{ url_for('voting.index', code=event.code) }}">← {{ _("Retour aux sondages") }}</a></p>
+<p class="m-0 mb-2"><a class="ui-link inline-flex min-h-[44px] items-center gap-1" href="{{ url_for('voting.index', code=event.code) }}" data-testid="poll-back">{{ icon('arrow-left', size=16) }}<span>{{ _("Retour aux sondages") }}</span></a></p>
 
-<div class="page-head">
-    <div>
-        <h1>{{ poll.question }}</h1>
-        {% if poll.is_closed %}
-          <span class="badge-closed">{{ _("Sondage fermé") }}</span>
-        {% endif %}
-    </div>
+<div class="ui-page-header">
+  <div class="min-w-0">
+    <h1 class="break-words">{{ poll.question }}</h1>
+    <p>{{ event.title }}</p>
+  </div>
 </div>
 
-{# Voting section — above results, most prominent #}
-{% if ctx.participant and not poll.is_closed %}
-<div class="card vote-card">
-  <h2 class="vote-card-title">{{ _("Votre vote") }}</h2>
-  <form method="post" action="{{ url_for('voting.vote', code=event.code, poll_id=poll.id) }}" class="vote-form">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <div class="vote-options" role="radiogroup" aria-label="{{ _('Votre vote') }}">
-      {% for r in results %}
-      <label class="vote-option{% if guest_vote is not none and guest_vote.option_id == r.option.id %} selected{% endif %}">
-        <input type="radio" name="option_id" value="{{ r.option.id }}"
-               {% if guest_vote is not none and guest_vote.option_id == r.option.id %}checked{% endif %}>
-        <span class="vote-option-label">{{ r.option.label }}</span>
-      </label>
-      {% endfor %}
-    </div>
-    <button type="submit" class="btn btn-primary btn-vote">{{ _("Voter") }}</button>
-    {% if guest_vote is not none %}
-    <p class="vote-confirmed">{{ _("Vous avez voté :") }} <strong>{{ guest_vote.option.label }}</strong></p>
+<div class="max-w-xl">
+  {% set detail = true %}
+  {% include "voting/_poll.html" %}
+</div>
+
+{% set can_close = ctx.can_edit(poll) %}
+{% set can_delete = ctx.can_delete(poll) %}
+{% if can_close or can_delete or ctx.is_creator %}
+<section class="mt-4 flex max-w-xl flex-col gap-3" aria-labelledby="poll-manage" data-testid="poll-manage">
+  <h2 id="poll-manage" class="m-0 text-subheading font-semibold text-ink">{{ _("Gérer le sondage") }}</h2>
+  {% if poll.is_closed and poll.kind == 'activities' and ctx.is_creator and 'planning' in enabled_modules %}
+  <p class="m-0 text-small text-ink-2" data-testid="poll-retain-hint">{{ _("Retenez l'activité gagnante depuis le Planning.") }}
+    <a class="ui-link" href="{{ url_for('planning.index', code=event.code) }}">{{ _("Ouvrir le Planning") }}</a></p>
+  {% endif %}
+  <div class="flex flex-wrap gap-2">
+    {% if not poll.is_closed and can_close %}
+    <form method="post" action="{{ url_for('voting.close', code=event.code, poll_id=poll.id) }}" data-confirm="{{ _('Clore ce sondage ? Plus personne ne pourra voter.') }}" data-confirm-label="{{ _('Clore le sondage') }}" data-confirm-tone="primary" data-testid="poll-close-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="ui-btn ui-btn--secondary" data-testid="poll-close">{{ icon('lock', size=16) }}<span>{{ _("Clore le sondage") }}</span></button>
+    </form>
     {% endif %}
-  </form>
-</div>
+    {% if poll.is_closed and ctx.is_creator %}
+    <form method="post" action="{{ url_for('voting.reopen', code=event.code, poll_id=poll.id) }}" data-testid="poll-reopen-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="ui-btn ui-btn--secondary" data-testid="poll-reopen">{{ icon('undo-2', size=16) }}<span>{{ _("Rouvrir") }}</span></button>
+    </form>
+    {% endif %}
+    {% if can_delete %}
+    <form method="post" action="{{ url_for('voting.delete', code=event.code, poll_id=poll.id) }}" data-confirm="{{ _('Supprimer ce sondage et ses votes ?') }}" data-confirm-label="{{ _('Supprimer') }}" data-testid="poll-delete-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="ui-btn ui-btn--ghost text-danger" data-testid="poll-delete">{{ icon('trash-2', size=16) }}<span>{{ _("Supprimer") }}</span></button>
+    </form>
+    {% endif %}
+  </div>
+</section>
 {% endif %}
-
-{# Results #}
-<div class="card poll-card">
-  <h2 class="poll-card-title">{{ _("Résultats") }}</h2>
-  <ul class="poll-results" aria-label="{{ _('Résultats du sondage') }}">
-    {% for r in results %}
-      <li class="poll-option">
-        <span class="poll-option-label">{{ r.option.label }}</span>
-        <div class="poll-bar" role="progressbar"
-             aria-valuenow="{{ r.percent }}" aria-valuemin="0" aria-valuemax="100"
-             aria-label="{{ r.option.label }} : {{ r.percent }}%">
-          <div class="poll-bar-fill" style="width: {{ r.percent }}%"></div>
-        </div>
-        <span class="poll-count">{{ r.count }} {{ _("vote(s)") }} ({{ r.percent }}%)</span>
-      </li>
-    {% endfor %}
-  </ul>
-  <p class="poll-total">{{ total }} {{ _("vote(s) au total") }}</p>
-</div>
 {% endblock %}

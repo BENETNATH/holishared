@@ -72,16 +72,14 @@ class TestVotingIndex:
         assert resp.status_code == 302
         assert "/mycode" in resp.headers["Location"]
 
-    def test_index_shows_results(self, client, creator, event, poll, guest, db):
+    def test_index_hides_results_before_vote(self, client, creator, event, poll, guest, db):
+        # B025 : les résultats ne sont visibles qu'après le vote (ancien test : visibles d'emblée).
         options = _options(poll)
         db.session.add(PollVote(option_id=options[0].id, guest_id=guest.id))
         db.session.commit()
         _login_creator(client, creator)
         resp = client.get(f"/e/{event.code}/voting")
-        assert b"Pizza" in resp.data
-        assert b"100%" in resp.data
-        assert b"Sushi" in resp.data
-        assert b"0%" in resp.data
+        assert b"100" not in resp.data
 
 
 # === TestCreatePoll (5 tests) ===

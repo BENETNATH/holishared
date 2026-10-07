@@ -1,37 +1,39 @@
 {% extends "base.html" %}
-{% from "_components/ui.html" import aria_invalid, field_errors, form_errors %}
+{% from "_components/ui.html" import form_errors %}
+{% from "voting/_forms.html" import poll_basics, poll_options %}
 {% block title %}{{ _("Nouveau sondage") }} — {{ event.title }}{% endblock %}
 {% block content %}
-<div class="page-head">
-    <div>
-        <h1>{{ _("Nouveau sondage") }}</h1>
-        <p class="page-sub">{{ event.title }}</p>
-    </div>
+<div class="ui-page-header">
+  <div>
+    <h1>{{ _("Nouveau sondage") }}</h1>
+    <p>{{ event.title }}</p>
+  </div>
 </div>
 
-{{ form_errors(errors, 'question', 'options') }}
-
-<form method="post" action="{{ url_for('voting.create', code=event.code) }}">
+<form method="post" action="{{ url_for('voting.create', code=event.code) }}" class="ui-form max-w-xl" data-testid="poll-form" data-poll-fields data-default-question="{{ default_activity_question }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {{ form_errors(errors, 'question', 'kind', 'activity_ids', 'options') }}
 
-  <div class="form-group">
-    <label for="question">{{ _("Question") }} *</label>
-    <input type="text" id="question" name="question" required minlength="2" maxlength="300"
-           value="{{ form_data.get('question', '') }}" placeholder="{{ _('Ex : Quel menu pour samedi ?') }}"{{ aria_invalid(errors, 'question') }}>
-    {{ field_errors(errors, 'question') }}
-  </div>
+  <section class="ui-form rounded-md border border-line bg-surface p-4" aria-labelledby="poll-section-question">
+    <h2 id="poll-section-question" class="m-0 text-subheading font-semibold text-ink">{{ _("Votre question") }}</h2>
+    {{ poll_basics('f', form_data, errors, activities_available) }}
+  </section>
 
-  <div class="form-group">
-    <label for="options">{{ _("Options") }} *
-      <span class="hint">{{ _("Une option par ligne (2 à 10).") }}</span>
-    </label>
-    <textarea id="options" name="options" rows="5" required{{ aria_invalid(errors, 'options') }}
-              placeholder="{{ _('Poisson\nPoulet\nVégétarien') }}">{{ form_data.get('options', '') }}</textarea>
-    {{ field_errors(errors, 'options') }}
-  </div>
+  <section class="ui-form rounded-md border border-line bg-surface p-4" aria-labelledby="poll-section-options">
+    <h2 id="poll-section-options" class="m-0 text-subheading font-semibold text-ink">{{ _("Les choix") }}</h2>
+    {{ poll_options('f', form_data, errors, activity_choices, activities_available) }}
+  </section>
 
-  <div class="form-actions">
-    <button type="submit" class="btn btn-primary">{{ _("Créer le sondage") }}</button>
+  <div class="flex flex-wrap items-center gap-3">
+    <button type="submit" class="ui-btn ui-btn--primary" data-testid="poll-submit">{{ _("Créer le sondage") }}</button>
+    <a class="ui-link" href="{{ url_for('voting.index', code=event.code) }}">{{ _("Annuler") }}</a>
   </div>
 </form>
+{% endblock %}
+
+{% block scripts %}
+<script type="module">
+  import { initVoting } from 'ui/voting';
+  initVoting();
+</script>
 {% endblock %}

@@ -96,6 +96,10 @@ ACTION_LABELS: Final[dict[str, Any]] = {
     "poll.created": _l("Sondage créé"),
     "poll.voted": _l("Vote enregistré"),
     "poll.closed": _l("Sondage clos"),
+    "poll.reopened": _l("Sondage rouvert"),
+    "poll.deleted": _l("Sondage supprimé"),
+    "activity.retained": _l("Activité retenue"),
+    "activity.restored": _l("Activité restaurée"),
     "chat.message": _l("Message envoyé"),
     "chat.message_deleted": _l("Message supprimé"),
     "media.uploaded": _l("Média ajouté"),
@@ -174,6 +178,13 @@ def format_number(value: float | None, decimals: int | None = None) -> str:
     return bnum.format_decimal(value, format=pattern, locale=current_locale())
 
 
+def format_percent(fraction: float | None) -> str:
+    """``0.4`` -> ``40 %`` (fr) / ``40%`` (en)."""
+    if fraction is None:
+        return ""
+    return bnum.format_percent(fraction, locale=current_locale())
+
+
 def format_time_short(value: time | datetime | None) -> str:
     if value is None:
         return ""
@@ -230,6 +241,7 @@ def register(app: Flask) -> None:
         "money": format_money,
         "number": format_number,
         "time": format_time_short,
+        "percent": format_percent,
         "filesize": format_filesize,
         "date_short": format_date_short,
         "datetime_short": format_datetime_short,

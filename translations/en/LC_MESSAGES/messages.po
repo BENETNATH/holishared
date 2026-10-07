@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 02:28+0200\n"
+"POT-Creation-Date: 2026-10-07 03:25+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -50,7 +50,7 @@ msgstr "Transport"
 msgid "Hébergement"
 msgstr "Lodging"
 
-#: app/i18n.py app/templates/lists/_panel.html
+#: app/i18n.py app/templates/lists/_panel.html app/templates/voting/_poll.html
 msgid "Activités"
 msgstr "Activities"
 
@@ -229,6 +229,22 @@ msgstr "Vote recorded"
 #: app/i18n.py
 msgid "Sondage clos"
 msgstr "Poll closed"
+
+#: app/i18n.py
+msgid "Sondage rouvert"
+msgstr "Poll reopened"
+
+#: app/i18n.py
+msgid "Sondage supprimé"
+msgstr "Poll deleted"
+
+#: app/i18n.py
+msgid "Activité retenue"
+msgstr "Activity retained"
+
+#: app/i18n.py
+msgid "Activité restaurée"
+msgstr "Activity restored"
 
 #: app/i18n.py
 msgid "Message envoyé"
@@ -470,7 +486,7 @@ msgid "Fermer"
 msgstr "Close"
 
 #: app/lists/__init__.py app/templates/base.html
-#: app/templates/planning/form.html app/ui.py
+#: app/templates/planning/form.html app/templates/voting/form.html app/ui.py
 msgid "Annuler"
 msgstr "Cancel"
 
@@ -1281,6 +1297,7 @@ msgstr "Delete message from"
 #: app/templates/lists/detail.html app/templates/logistics/index.html
 #: app/templates/main/ui_catalog.html app/templates/meals/index.html
 #: app/templates/media/detail.html app/templates/planning/_card.html
+#: app/templates/voting/detail.html
 msgid "Supprimer"
 msgstr "Delete"
 
@@ -1850,7 +1867,8 @@ msgstr "Location"
 msgid "Ex : Gîte de la Vallée, Annecy"
 msgstr "E.g. Gîte de la Vallée, Annecy"
 
-#: app/templates/events/create.html app/templates/voting/form.html
+#: app/templates/events/create.html app/templates/voting/_forms.html
+#: app/templates/voting/_poll.html
 msgid "Options"
 msgstr "Options"
 
@@ -3222,59 +3240,55 @@ msgstr "No activity this day."
 msgid "Plus d'options"
 msgstr "More options"
 
-#: app/templates/voting/detail.html
-msgid "Retour aux sondages"
-msgstr "Back to polls"
-
-#: app/templates/voting/detail.html app/templates/voting/index.html
-msgid "Sondage fermé"
-msgstr "Closed poll"
-
-#: app/templates/voting/detail.html app/templates/voting/index.html
-msgid "Votre vote"
-msgstr "Your vote"
-
-#: app/templates/voting/detail.html app/templates/voting/index.html
-msgid "Voter"
-msgstr "Vote"
-
-#: app/templates/voting/detail.html
-msgid "Vous avez voté :"
-msgstr "You voted:"
-
-#: app/templates/voting/detail.html
-msgid "Résultats"
-msgstr "Results"
-
-#: app/templates/voting/detail.html app/templates/voting/index.html
-msgid "Résultats du sondage"
-msgstr "Poll results"
-
-#: app/templates/voting/detail.html app/templates/voting/index.html
-msgid "vote(s)"
-msgstr "vote(s)"
-
-#: app/templates/voting/detail.html app/templates/voting/index.html
-msgid "vote(s) au total"
-msgstr "vote(s) total"
-
-#: app/templates/voting/form.html app/templates/voting/index.html
-msgid "Nouveau sondage"
-msgstr "New poll"
-
-#: app/templates/voting/form.html
+#: app/templates/voting/_forms.html
 msgid "Question"
 msgstr "Question"
 
-#: app/templates/voting/form.html
+#: app/templates/voting/_forms.html
 msgid "Ex : Quel menu pour samedi ?"
 msgstr "E.g. What menu for Saturday?"
 
-#: app/templates/voting/form.html
-msgid "Une option par ligne (2 à 10)."
-msgstr "One option per line (2 to 10)."
+#: app/templates/voting/_forms.html
+msgid "Type de sondage"
+msgstr "Poll type"
 
-#: app/templates/voting/form.html
+#: app/templates/voting/_forms.html
+msgid "Question libre"
+msgstr "Free question"
+
+#: app/templates/voting/_forms.html
+msgid "Départager des activités"
+msgstr "Choose between activities"
+
+#: app/templates/voting/_forms.html
+msgid "Ajoutez au moins 2 activités au Planning pour pouvoir les départager."
+msgstr "Add at least 2 activities to the Schedule to choose between them."
+
+#: app/templates/voting/_forms.html
+msgid "Le Planning n'est pas activé pour cet événement."
+msgstr "The Schedule is not enabled for this event."
+
+#: app/templates/voting/_forms.html
+msgid "Activités à départager"
+msgstr "Activities to choose between"
+
+#: app/templates/voting/_forms.html
+msgid "Filtrer par jour"
+msgstr "Filter by day"
+
+#: app/templates/voting/_forms.html
+msgid "Tous les jours"
+msgstr "All days"
+
+#: app/templates/voting/_forms.html
+msgid "Cochez au moins 2 activités."
+msgstr "Tick at least 2 activities."
+
+#: app/templates/voting/_forms.html
+msgid "Autres options"
+msgstr "Other options"
+
+#: app/templates/voting/_forms.html
 msgid ""
 "Poisson\n"
 "Poulet\n"
@@ -3284,7 +3298,102 @@ msgstr ""
 "Chicken\n"
 "Vegetarian"
 
+#: app/templates/voting/_forms.html
+msgid "Une option par ligne (2 à 10)."
+msgstr "One option per line (2 to 10)."
+
+#: app/templates/voting/_forms.html
+msgid "Facultatif : une option par ligne, en plus des activités cochées."
+msgstr "Optional: one option per line, in addition to the ticked activities."
+
+#: app/templates/voting/_poll.html app/templates/voting/index.html
+msgid "Clos"
+msgstr "Closed"
+
+#: app/templates/voting/_poll.html
+msgid "À voter"
+msgstr "To vote"
+
+#: app/templates/voting/_poll.html
+#, python-format
+msgid "%(n)d votant"
+msgid_plural "%(n)d votants"
+msgstr[0] "%(n)d voter"
+msgstr[1] "%(n)d voters"
+
+#: app/templates/voting/_poll.html
+msgid "Votez pour voir les résultats."
+msgstr "Vote to see the results."
+
+#: app/templates/voting/_poll.html
+msgid "Votre vote :"
+msgstr "Your vote:"
+
+#: app/templates/voting/_poll.html
+msgid "Gagnante"
+msgstr "Winner"
+
+#: app/templates/voting/_poll.html
+#, python-format
+msgid "%(n)d vote"
+msgid_plural "%(n)d votes"
+msgstr[0] "%(n)d vote"
+msgstr[1] "%(n)d votes"
+
+#: app/templates/voting/_poll.html
+#, python-format
+msgid "Égalité entre %(n)d options."
+msgstr "Tie between %(n)d options."
+
+#: app/templates/voting/_poll.html
+msgid "Vous pouvez changer votre vote tant que le sondage est ouvert."
+msgstr "You can change your vote while the poll is open."
+
+#: app/templates/voting/detail.html
+msgid "Retour aux sondages"
+msgstr "Back to polls"
+
+#: app/templates/voting/detail.html
+msgid "Gérer le sondage"
+msgstr "Manage the poll"
+
+#: app/templates/voting/detail.html
+msgid "Retenez l'activité gagnante depuis le Planning."
+msgstr "Retain the winning activity from the Schedule."
+
+#: app/templates/voting/detail.html
+msgid "Ouvrir le Planning"
+msgstr "Open the Schedule"
+
+#: app/templates/voting/detail.html
+msgid "Clore ce sondage ? Plus personne ne pourra voter."
+msgstr "Close this poll? Nobody will be able to vote any more."
+
+#: app/templates/voting/detail.html
+msgid "Clore le sondage"
+msgstr "Close the poll"
+
+#: app/templates/voting/detail.html
+msgid "Rouvrir"
+msgstr "Reopen"
+
+#: app/templates/voting/detail.html
+msgid "Supprimer ce sondage et ses votes ?"
+msgstr "Delete this poll and its votes?"
+
+#: app/templates/voting/form.html app/templates/voting/index.html
+msgid "Nouveau sondage"
+msgstr "New poll"
+
 #: app/templates/voting/form.html
+msgid "Votre question"
+msgstr "Your question"
+
+#: app/templates/voting/form.html
+msgid "Les choix"
+msgstr "The choices"
+
+#: app/templates/voting/form.html app/templates/voting/index.html
 msgid "Créer le sondage"
 msgstr "Create poll"
 
@@ -3302,6 +3411,14 @@ msgid ""
 "horaires…)."
 msgstr "Create a poll to let the group choose (menu, activity, schedule…)."
 
+#: app/templates/voting/index.html
+msgid "Ouverts"
+msgstr "Open"
+
+#: app/voting/__init__.py
+msgid "Quelle activité choisir ?"
+msgstr "Which activity should we pick?"
+
 #: app/voting/__init__.py
 msgid "Question requise (min 2 caractères)."
 msgstr "Question required (min 2 characters)."
@@ -3309,6 +3426,10 @@ msgstr "Question required (min 2 characters)."
 #: app/voting/__init__.py
 msgid "Question trop longue (max 300 caractères)."
 msgstr "Question too long (max 300 characters)."
+
+#: app/voting/__init__.py
+msgid "Type de sondage invalide."
+msgstr "Invalid poll type."
 
 #: app/voting/__init__.py
 msgid "Au moins 2 options requises (une par ligne)."
@@ -3319,6 +3440,22 @@ msgid "Maximum 10 options (une par ligne)."
 msgstr "Maximum 10 options (one per line)."
 
 #: app/voting/__init__.py
+msgid "Le Planning n'est pas activé : choisissez une question libre."
+msgstr "The Schedule is not enabled: choose a free question."
+
+#: app/voting/__init__.py
+msgid "Activité introuvable dans cet événement."
+msgstr "Activity not found in this event."
+
+#: app/voting/__init__.py
+msgid "Sélectionnez au moins 2 activités."
+msgstr "Select at least 2 activities."
+
+#: app/voting/__init__.py
+msgid "Maximum 10 options (activités comprises)."
+msgstr "Maximum 10 options (activities included)."
+
+#: app/voting/__init__.py
 msgid "Option trop longue (max 200 caractères)."
 msgstr "Option too long (max 200 characters)."
 
@@ -3327,12 +3464,24 @@ msgid "Sondage créé."
 msgstr "Poll created."
 
 #: app/voting/__init__.py
-msgid "Sondage fermé."
-msgstr "Poll closed."
+msgid "Ce sondage est clos."
+msgstr "This poll is closed."
 
 #: app/voting/__init__.py
 msgid "Vote enregistré."
 msgstr "Vote recorded."
+
+#: app/voting/__init__.py
+msgid "Sondage clos."
+msgstr "Poll closed."
+
+#: app/voting/__init__.py
+msgid "Sondage rouvert."
+msgstr "Poll reopened."
+
+#: app/voting/__init__.py
+msgid "Sondage supprimé."
+msgstr "Poll deleted."
 
 #: app/templates/_components/ui.html
 msgid "facultatif"
