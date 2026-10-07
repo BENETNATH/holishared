@@ -156,6 +156,8 @@ SPEC_ICON_NAMES = [
     "circle-question-mark",
     "inbox",
     "sparkles",
+    "play",
+    "rotate-cw",
 ]
 
 

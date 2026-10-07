@@ -75,6 +75,8 @@ ICON_NAMES: Final[tuple[str, ...]] = (
     "circle-question-mark",
     "inbox",
     "sparkles",
+    "play",
+    "rotate-cw",
 )
 
 ICONS: Final[dict[str, str]] = {
@@ -420,5 +422,10 @@ ICONS: Final[dict[str, str]] = {
         '<path d="M20 2v4" />'
         '<path d="M22 4h-4" />'
         '<circle cx="4" cy="20" r="2" />'
+    ),
+    "play": '<polygon points="6 3 20 12 6 21 6 3" />',
+    "rotate-cw": (
+        '<path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />'
+        '<path d="M21 3v5h-5" />'
     ),
 }
