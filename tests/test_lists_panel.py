@@ -58,7 +58,7 @@ def _rows(html):
 
 
 def _titles(html):
-    return re.findall(r'<span class="break-words">([^<]+)</span>', html)
+    return re.findall(r'data-testid="panel-row-title">([^<]+)</span>', html)
 
 
 # --- Bouton et panneau : jamais imposés ---------------------------------------------------
@@ -563,3 +563,53 @@ def test_toggle_meal_double_click_integrity_error_returns_panel_not_500(
     resp = _toggle(guest_client, event, shopping, "meal", meal)
     monkeypatch.undo()
     assert resp.status_code == 200
+
+
+# --- Poignée, trois états et compaction (B032) -----------------------------------------
+
+
+def test_panel_handle_is_a_touch_none_drag_zone(db, guest_client, event, shopping):
+    _meal(db, event, "Pâtes")
+    opening = tag(_page(guest_client, event, shopping), "list-panel-handle")
+    assert "data-list-panel-handle" in opening
+    assert "touch-none" in opening
+    assert "h-12" in opening
+
+
+def test_panel_collapse_button_controls_the_body(db, guest_client, event, shopping):
+    _meal(db, event, "Pâtes")
+    html = _page(guest_client, event, shopping)
+    opening = tag(html, "list-panel-collapse")
+    assert 'aria-controls="list-panel-body"' in opening
+    assert 'aria-expanded="true"' in opening
+    assert 'data-label-collapse="Réduire"' in opening
+    assert 'data-label-expand="Agrandir"' in opening
+    assert 'id="list-panel-body"' in html
+
+
+def test_panel_header_shows_the_counter(db, guest_client, event, shopping):
+    meal = _meal(db, event, "Pâtes")
+    _meal(db, event, "Soupe", position=1)
+    db.session.add(ListMealCoverage(list_id=shopping.id, meal_id=meal.id))
+    db.session.commit()
+    html = _page(guest_client, event, shopping)
+    assert "1/2" in block(html, "list-panel-header-count", "span")
+
+
+def test_toggle_htmx_fragment_updates_header_counter_out_of_band(db, guest_client, event, shopping):
+    meal = _meal(db, event, "Pâtes")
+    html = _toggle(guest_client, event, shopping, "meal", meal).data.decode()
+    assert 'hx-swap-oob="true"' in tag(html, "list-panel-header-count")
+
+
+def test_panel_page_has_no_help_paragraph(db, guest_client, event, shopping):
+    _meal(db, event, "Pâtes")
+    assert "Cochez les repas" not in _page(guest_client, event, shopping)
+
+
+def test_panel_row_is_a_single_truncated_line_with_tooltip(db, guest_client, event, shopping):
+    _meal(db, event, "Pâtes à la carbonara")
+    html = _panel(guest_client, event, shopping)
+    assert 'title="Pâtes à la carbonara"' in html
+    assert "truncate" in tag(html, "panel-row-title")
+    assert "Midi" in block(html, "panel-row-when", "span")

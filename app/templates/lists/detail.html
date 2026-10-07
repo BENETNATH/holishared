@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% from "_components/ui.html" import aria_invalid, field, field_errors, form_errors %}
-{% from "lists/_macros.html" import count_badge %}
+{% from "lists/_macros.html" import count_badge, panel_count %}
 {% block title %}{{ shared_list.title }} — {{ event.title }}{% endblock %}
 {% block content %}
 <div data-testid="list-page" data-list-layout data-panel="closed" class="group">
@@ -35,7 +35,7 @@
   {{ form_errors(errors, 'name', 'quantity', 'section') }}
 
   <div class="lg:flex lg:items-start lg:gap-6">
-    <div class="min-w-0 flex-1 group-data-[panel=open]:max-lg:pb-[58dvh]" data-testid="list-main">
+    <div class="min-w-0 flex-1 group-data-[panel=open]:max-lg:pb-[48dvh] group-data-[panel=collapsed]:max-lg:pb-16" data-testid="list-main">
       <form method="post" action="{{ url_for('lists.add_item', code=event.code, list_id=shared_list.id) }}" class="mb-4 flex flex-col gap-1"
             hx-post="{{ url_for('lists.add_item', code=event.code, list_id=shared_list.id) }}" hx-target="#list-items" hx-swap="outerHTML"
             data-list-add data-testid="list-add-form">
@@ -61,14 +61,18 @@
 
     {%- if has_content %}
     <aside id="list-panel" data-testid="list-panel" aria-labelledby="list-panel-title" tabindex="-1"
-           class="hidden flex-col border border-line bg-surface shadow-raised group-data-[panel=open]:flex max-lg:fixed max-lg:inset-x-0 max-lg:bottom-[calc(var(--ui-bar-h)+var(--ui-safe-bottom))] max-lg:z-30 max-lg:h-[55dvh] max-lg:rounded-t-lg lg:sticky lg:top-24 lg:max-h-[calc(100dvh-8rem)] lg:w-[22rem] lg:shrink-0 lg:rounded-md">
-      <div class="flex items-center gap-2 border-b border-line px-3" data-list-panel-handle>
-        <span class="absolute left-1/2 top-1 h-1 w-10 -translate-x-1/2 rounded-full bg-line-strong lg:hidden" aria-hidden="true"></span>
-        <h2 id="list-panel-title" class="m-0 min-w-0 flex-1 py-2 text-subheading font-semibold text-ink" tabindex="-1">{{ _("Repas & activités") }}</h2>
+           class="hidden flex-col border border-line bg-surface shadow-raised group-data-[panel=open]:flex group-data-[panel=collapsed]:flex max-lg:fixed max-lg:inset-x-0 max-lg:bottom-[calc(var(--ui-bar-h)+var(--ui-safe-bottom))] max-lg:z-30 max-lg:max-h-[45dvh] max-lg:rounded-t-lg lg:sticky lg:top-24 lg:max-h-[calc(100dvh-8rem)] lg:w-[22rem] lg:shrink-0 lg:rounded-md">
+      <div class="relative flex h-12 shrink-0 touch-none select-none items-center gap-2 pl-3 pr-1 group-data-[panel=open]:border-b group-data-[panel=open]:border-line lg:border-b lg:border-line" data-list-panel-handle data-testid="list-panel-handle">
+        <span class="pointer-events-none absolute left-1/2 top-1 h-1 w-10 -translate-x-1/2 rounded-full bg-line-strong lg:hidden" aria-hidden="true"></span>
+        <h2 id="list-panel-title" class="m-0 min-w-0 flex-1 truncate text-body font-semibold text-ink" tabindex="-1">{{ _("Repas & activités") }}</h2>
+        {{ panel_count(covered_count, total_count) }}
+        <button type="button" class="ui-btn ui-btn--ghost ui-btn--icon shrink-0 lg:hidden" data-list-panel-collapse data-testid="list-panel-collapse" aria-controls="list-panel-body" aria-expanded="true"
+                aria-label="{{ _('Réduire') }}" data-label-collapse="{{ _('Réduire') }}" data-label-expand="{{ _('Agrandir') }}">
+          <span class="group-data-[panel=collapsed]:hidden">{{ icon('chevron-down') }}</span><span class="hidden group-data-[panel=collapsed]:inline">{{ icon('chevron-up') }}</span>
+        </button>
         <button type="button" class="ui-btn ui-btn--ghost ui-btn--icon shrink-0" data-list-panel-close data-testid="list-panel-close" aria-label="{{ _('Fermer') }}">{{ icon('x') }}</button>
       </div>
-      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3" data-list-panel-body>
-        <p class="m-0 mb-3 text-small text-ink-2">{{ _("Cochez les repas et activités dont les besoins sont couverts par les articles de cette liste.") }}</p>
+      <div id="list-panel-body" class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-2 group-data-[panel=collapsed]:hidden lg:p-3" data-list-panel-body>
         {% include "lists/_panel.html" %}
       </div>
     </aside>

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 13:43+0200\n"
+"POT-Creation-Date: 2026-10-07 13:56+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -879,8 +879,7 @@ msgstr "Reload"
 msgid ""
 "Mise à jour de l'application… la page va se recharger, réactivez ensuite "
 "les notifications."
-msgstr ""
-"Updating the app… the page will reload. Then turn notifications on again."
+msgstr "Updating the app… the page will reload. Then turn notifications on again."
 
 #: app/templates/events/me.html app/templates/events/members.html
 #: app/templates/main/ui_catalog.html app/ui.py
@@ -3399,12 +3398,12 @@ msgid "Ex : Boulangerie"
 msgstr "e.g. Bakery"
 
 #: app/templates/lists/detail.html
-msgid ""
-"Cochez les repas et activités dont les besoins sont couverts par les "
-"articles de cette liste."
-msgstr ""
-"Tick the meals and activities whose needs are covered by the items in "
-"this list."
+msgid "Réduire"
+msgstr "Collapse"
+
+#: app/templates/lists/detail.html
+msgid "Agrandir"
+msgstr "Expand"
 
 #: app/templates/lists/index.html
 msgid "Courses, to-do, matériel…"

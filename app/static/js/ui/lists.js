@@ -1,69 +1,112 @@
-// Page d'une liste (B023) : panneau « Repas & activités » (colonne repliable sur bureau, tiroir non modal
-// sur mobile), ajout rapide sans rechargement, conservation des zones dépliées après un échange HTMX.
+// Page d'une liste (B023, B032) : panneau « Repas & activités » (colonne repliable sur bureau, tiroir non modal
+// à trois états sur mobile), ajout rapide sans rechargement, conservation des zones dépliées après un échange HTMX.
 const STORAGE_KEY = 'holishared:list-panel';
-const SWIPE_CLOSE_PX = 60;
+const MOBILE_KEY = 'holishared:list-panel-mobile';
+const TAP_PX = 8; // en dessous : simple appui
+const SWIPE_PX = 40; // glissé lent : seuil de décision
+const FLICK = 0.6; // px/ms : un geste rapide compte même court
+const CLOSE_PX = 160; // glissé depuis « ouvert » : au-delà, fermeture directe
+const FLICK_CLOSE = 1.5;
 
-function readStored() {
+function read(storage, key) {
   try {
-    return window.localStorage.getItem(STORAGE_KEY);
+    return window[storage].getItem(key);
   } catch (error) {
     return null;
   }
 }
 
-function writeStored(value) {
+function write(storage, key, value) {
   try {
-    window.localStorage.setItem(STORAGE_KEY, value);
+    window[storage].setItem(key, value);
   } catch (error) {
     // Stockage indisponible : l'état n'est simplement pas mémorisé.
   }
 }
 
+// États : « closed » (bouton de l'en-tête seul), « collapsed » (barre compacte, mobile) et « open ».
 function initPanel(root) {
   const panel = document.getElementById('list-panel');
   if (!panel) return;
   const toggles = [...document.querySelectorAll('[data-list-panel-toggle]')];
+  const chevron = panel.querySelector('[data-list-panel-collapse]');
   const desktop = window.matchMedia('(min-width: 64rem)');
-  const isOpen = () => root.dataset.panel === 'open';
+  const state = () => root.dataset.panel;
 
-  function setOpen(open, { focus = true, remember = true } = {}) {
-    root.dataset.panel = open ? 'open' : 'closed';
-    toggles.forEach((button) => button.setAttribute('aria-expanded', open ? 'true' : 'false'));
-    if (remember && desktop.matches) writeStored(open ? 'open' : 'closed');
+  function setState(next, { focus = true, remember = true } = {}) {
+    const prev = state();
+    root.dataset.panel = next;
+    toggles.forEach((button) => button.setAttribute('aria-expanded', next === 'closed' ? 'false' : 'true'));
+    const open = next === 'open';
+    chevron.setAttribute('aria-expanded', open ? 'true' : 'false');
+    chevron.setAttribute('aria-label', open ? chevron.dataset.labelCollapse : chevron.dataset.labelExpand);
+    if (remember) {
+      if (desktop.matches) write('localStorage', STORAGE_KEY, next === 'closed' ? 'closed' : 'open');
+      else if (next !== 'closed') write('sessionStorage', MOBILE_KEY, next);
+    }
     if (!focus) return;
-    if (open) panel.querySelector('#list-panel-title').focus();
-    else if (toggles[0]) toggles[0].focus();
+    if (next === 'closed') {
+      if (toggles[0]) toggles[0].focus();
+    } else if (prev === 'closed') {
+      panel.querySelector('#list-panel-title').focus();
+    }
   }
 
-  toggles.forEach((button) => button.addEventListener('click', () => setOpen(!isOpen())));
+  toggles.forEach((button) =>
+    button.addEventListener('click', () => {
+      if (state() !== 'closed') return setState('closed');
+      const kept = read('sessionStorage', MOBILE_KEY);
+      setState(!desktop.matches && kept === 'collapsed' ? 'collapsed' : 'open');
+    }),
+  );
+  chevron.addEventListener('click', () => setState(state() === 'open' ? 'collapsed' : 'open'));
   panel.querySelectorAll('[data-list-panel-close]').forEach((button) => {
-    button.addEventListener('click', () => setOpen(false));
+    button.addEventListener('click', () => setState('closed'));
   });
 
   // Échap : ferme le panneau (mobile : depuis n'importe où, sauf boîte de dialogue ; bureau : depuis le panneau).
   document.addEventListener('keydown', (event) => {
-    if (event.key !== 'Escape' || !isOpen() || document.querySelector('dialog[open]')) return;
+    if (event.key !== 'Escape' || state() === 'closed' || document.querySelector('dialog[open]')) return;
     if (desktop.matches && !panel.contains(document.activeElement)) return;
-    setOpen(false);
+    setState('closed');
   });
 
-  // Glissé vers le bas sur l'en-tête du tiroir (mobile) : fermeture.
+  // Poignée (mobile) : appui = réduit/ouvert ; glissé vers le bas = réduit puis fermé ; vers le haut = ouvert.
+  // Le geste est suivi jusqu'au relâchement (capture du pointeur ; `touch-action: none` côté CSS).
   const handle = panel.querySelector('[data-list-panel-handle]');
-  let startY = null;
+  let drag = null;
   handle.addEventListener('pointerdown', (event) => {
     if (desktop.matches || event.target.closest('button')) return;
-    startY = event.clientY;
-  });
-  handle.addEventListener('pointermove', (event) => {
-    if (startY !== null && event.clientY - startY > SWIPE_CLOSE_PX) {
-      startY = null;
-      setOpen(false);
+    drag = { id: event.pointerId, y: event.clientY, t: event.timeStamp };
+    try {
+      handle.setPointerCapture(event.pointerId);
+    } catch (error) {
+      // Capture impossible : le relâchement sur la poignée suffit.
     }
   });
-  ['pointerup', 'pointercancel'].forEach((name) => handle.addEventListener(name, () => (startY = null)));
+  handle.addEventListener('pointerup', (event) => {
+    if (!drag || event.pointerId !== drag.id) return;
+    const dy = event.clientY - drag.y;
+    const speed = dy / Math.max(event.timeStamp - drag.t, 1);
+    drag = null;
+    const current = state();
+    if (Math.abs(dy) < TAP_PX) return setState(current === 'open' ? 'collapsed' : 'open');
+    if (Math.abs(dy) < SWIPE_PX && Math.abs(speed) < FLICK) return;
+    if (dy < 0) return setState('open');
+    const fast = dy >= CLOSE_PX || speed >= FLICK_CLOSE;
+    setState(current === 'open' && !fast ? 'collapsed' : 'closed');
+  });
+  handle.addEventListener('pointercancel', () => (drag = null));
+
+  // Passage au bureau : l'état « réduit » n'existe pas (colonne).
+  desktop.addEventListener('change', () => {
+    if (desktop.matches && state() === 'collapsed') setState('open', { focus: false });
+  });
 
   // Bureau : l'état mémorisé est restauré sans voler le focus ; mobile : le tiroir démarre fermé.
-  if (desktop.matches && readStored() === 'open') setOpen(true, { focus: false, remember: false });
+  if (desktop.matches && read('localStorage', STORAGE_KEY) === 'open') {
+    setState('open', { focus: false, remember: false });
+  }
 }
 
 // Après un échange HTMX, les <details> repliables gardent l'état qu'ils avaient (clé data-keep-open).
