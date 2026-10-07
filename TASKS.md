@@ -475,6 +475,10 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 | 21.4 | Créateur participant | Le créateur peut répondre (F10) |
 | 21.5 | Programme unifié | `bring_items` affiché sur la carte d'activité (F10) ; programme du jour/semaine avec les repas en lecture seule ; aucun statut de couverture sur les activités (sens unique, contrat §11.5) |
 
+## B031 — Finitions (retours du test utilisateur)
+
+**Statut** : ✅ (2026-10-07) — « Mon foyer » sur `/e/<code>/me` (+ liens depuis Frais et Participants), espacement de `/lists`, test de chat instable · **Réf.** AUDIT_UI §12
+
 ## B022 — Repas
 
 **B022c** ✅ (2026-10-07) — zones de dépôt « Ajouter ici » / « Échanger », vue d'ensemble mobile (sans sélecteur de jours), correctif du verrou de formulaire (`forms.js`).

@@ -10,6 +10,13 @@ sous chaque lot.
 
 ## [Unreleased]
 
+### B031 — Finitions (retours du test utilisateur)
+
+- `feat(events)` : section « Mon foyer » sur `/e/<code>/me` (nom, adultes ≥ 1, enfants ≥ 0, erreurs par champ, toast ; création si le participant n'a pas de foyer) ; liens « Modifier mon foyer » depuis la carte « Mon solde » (Frais) et la ligne « Vous » de Participants. Logique partagée avec `costs` (`parse_household`, `save_my_household`) ; journal `household.created` / `household.updated`.
+- `fix(css)` : `/lists` : le formulaire de création rapide héritait de la règle legacy `form { flex-direction: column }` (le `flex-basis` du champ devenait une hauteur) ; `flex-row max-w-none`.
+- `fix(chat)` : `test_history_shows_50_max` (et un test voisin) cherchaient « msg-09 » dans le HTML brut alors que chaque `<li id="msg-<hex>">` peut le contenir ; ils lisent désormais le texte des messages. Le code (ordre `(created_at, id)`) était déjà déterministe.
+- `test(ui)` : scènes `my-household`, `my-household-error` ; assertion d'espacement sur `lists`.
+
 ### B022c — Repas : zones de dépôt et vue d'ensemble mobile
 
 - `feat(meals)` : pendant le glisser, chaque carte (autre que celle saisie) est une zone « Échanger » (libellé, icône, titre), l'espace libre de la case une zone « Ajouter ici » (« Déposer ici » si vide) ; l'insertion entre deux cartes reste possible ; `swap` renumérote les deux cases sans trous (identifiants inchangés) ; un déplacement vers une autre case annonce « Repas ajouté à : … ».

@@ -29,7 +29,7 @@
         {{ field('num_adults', _("Adultes"), type='number', id='hh-adults', required=True, value=hh_form.get('num_adults', household.num_adults if household else 1), error=hh_errors.text('num_adults'), attrs={'min': 1, 'max': 50, 'inputmode': 'numeric'}) }}
         {{ field('num_children', _("Enfants"), type='number', id='hh-children', required=True, value=hh_form.get('num_children', household.num_children if household else 0), error=hh_errors.text('num_children'), attrs={'min': 0, 'max': 50, 'inputmode': 'numeric'}) }}
       </div>
-      <div><button type="submit" class="ui-btn ui-btn--primary" data-testid="household-submit">{{ _("Enregistrer le foyer") if household else _("Créer mon foyer") }}</button></div>
+      <div><button type="submit" class="ui-btn ui-btn--secondary" data-testid="household-submit">{{ _("Enregistrer le foyer") if household else _("Créer mon foyer") }}</button></div>
     </form>
   </section>
   <section class="ui-card" aria-labelledby="h-code">

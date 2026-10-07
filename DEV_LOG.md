@@ -369,6 +369,12 @@ Audit B017/B029 : constats 1 à 6 corrigés (variables `INSTANCE_PATH` et `SKIP_
 - Accueil : `columns` CSS (`.ui-masonry`), `#my-items` en `display: contents`. La grille reflue si la hauteur d'une carte change (colonnes équilibrées par le navigateur).
 - Flaky connu sans lien : `test_chat::test_history_shows_50_max` (« msg-09 » peut apparaître par hasard dans la page).
 
+### 2026-10-07 — B031 Finitions
+
+- « Mon foyer » : `events.me_household` (POST) réutilise `costs.parse_household` / `save_my_household` ; le propriétaire modifie son foyer, un participant sans foyer (créateur inclus) le crée avec ses propres parts (poids du premier foyer). Les parts de Frais suivent `Household.total_weight`.
+- `/lists` : la règle legacy `form { flex-direction: column; max-width }` s'appliquait au formulaire flex-wrap ; surcharge locale (28 formulaires dépendent encore de la règle legacy).
+- Flaky chat : cause = `id="msg-<hex>"` dans le HTML ; correctif côté tests uniquement.
+
 ## 10. Variables d'environnement (.env)
 
 ```env
