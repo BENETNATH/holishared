@@ -127,8 +127,12 @@ class Guest(db.Model):  # type: ignore[misc,name-defined]
     # Unique constraint: one code per event
     __table_args__ = (db.UniqueConstraint("event_id", "code", name="uq_guest_event_code"),)
 
-    activity_rsvps = db.relationship("ActivityRSVP", backref="guest", lazy="dynamic")
-    poll_votes = db.relationship("PollVote", backref="guest", lazy="dynamic")
+    activity_rsvps = db.relationship(
+        "ActivityRSVP", backref="guest", lazy="dynamic", cascade="all, delete-orphan"
+    )
+    poll_votes = db.relationship(
+        "PollVote", backref="guest", lazy="dynamic", cascade="all, delete-orphan"
+    )
 
 
 class Activity(db.Model):  # type: ignore[misc,name-defined]

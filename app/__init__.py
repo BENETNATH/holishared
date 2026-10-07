@@ -3,7 +3,6 @@
 import os
 import shutil
 import time
-from datetime import date, datetime
 from pathlib import Path
 from typing import cast
 
@@ -128,61 +127,10 @@ def create_app() -> Flask:
                 cursor.close()
         db.create_all()
 
-    # Auto-purge: delete events ended >30d ago OR unverified >3d ago.
-    from datetime import timedelta
-
-    from app.models import Event as _Event
-
-    def _purge_expired_events() -> None:
-        from app.migrations import prune_backups
-
-        prune_backups(app.instance_path)
-        now = datetime.utcnow()
-        # 1. Ended events: 30 days after end_date
-        cutoff_ended = date.today() - timedelta(days=30)
-        expired_ended = _Event.query.filter(
-            _Event.end_date.isnot(None),
-            _Event.end_date < cutoff_ended,
-            _Event.is_active == True,  # noqa: E712
-        ).all()
-        # 2. Unverified events: 3 days after creation
-        cutoff_unverified = now - timedelta(days=3)
-        expired_unverified = _Event.query.filter(
-            _Event.verified_at.is_(None),
-            _Event.created_at < cutoff_unverified,
-            _Event.is_active == True,  # noqa: E712
-        ).all()
-        to_delete = {ev.id for ev in expired_ended} | {ev.id for ev in expired_unverified}
-        for ev in expired_ended + expired_unverified:
-            if ev.id in to_delete:
-                db.session.delete(ev)
-                to_delete.discard(ev.id)
-        if expired_ended or expired_unverified:
-            db.session.commit()
-
     with app.app_context():
-        try:
-            if os.environ.get("SKIP_STARTUP_MIGRATION") != "1":
-                from app.migrations import run_meals_migration
+        from app.startup import run_startup_steps
 
-                run_meals_migration(app)  # avant la purge : elle charge les repas en cascade
-                from app.migrations import run_lists_migration
-
-                run_lists_migration(app)  # avant la purge : elle charge les articles (created_by)
-                from app.migrations import run_costs_migration
-
-                run_costs_migration(app)  # avant la purge : elle charge les dépenses (created_by)
-                from app.migrations import run_polls_migration
-
-                run_polls_migration(app)  # avant la purge : elle charge activités et sondages
-            _purge_expired_events()
-            if os.environ.get("SKIP_STARTUP_MIGRATION") != "1":
-                from app.migrations import run_identity_migration
-
-                run_identity_migration(app)
-        except Exception:
-            import logging
-            logging.getLogger(__name__).exception("Auto-purge/migration failed (continuing)")
+        run_startup_steps(app)  # migrations, purge, identité : chaque étape est indépendante
 
     # Language selector. A ?lang= switch is persisted in the session so the
     # preference survives navigation; otherwise fall back to the browser
