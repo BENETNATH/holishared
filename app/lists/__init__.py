@@ -270,7 +270,7 @@ def _panel_context(
         Meal.query.filter_by(event_id=event.id).order_by(*Meal.ordering()).all() if meals_on else []
     )
     acts = (
-        Activity.query.filter_by(event_id=event.id)
+        Activity.query.filter(Activity.event_id == event.id, Activity.status != "dropped")
         .order_by(Activity.date.asc(), Activity.start_time.asc().nulls_last(), Activity.created_at)
         .all()
         if acts_on

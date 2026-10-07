@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 03:35+0200\n"
+"POT-Creation-Date: 2026-10-07 03:44+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -245,6 +245,10 @@ msgstr "Activity retained"
 #: app/i18n.py
 msgid "Activité restaurée"
 msgstr "Activity restored"
+
+#: app/i18n.py
+msgid "Activité non retenue"
+msgstr "Activity not retained"
 
 #: app/i18n.py
 msgid "Message envoyé"
@@ -1172,6 +1176,18 @@ msgstr "Activity deleted."
 msgid "Statut invalide."
 msgstr "Invalid status."
 
+#: app/planning/__init__.py
+msgid "Cette activité ne peut pas être retenue."
+msgstr "This activity cannot be retained."
+
+#: app/planning/__init__.py
+msgid "Activité retenue."
+msgstr "Activity retained."
+
+#: app/planning/__init__.py
+msgid "Activité restaurée."
+msgstr "Activity restored."
+
 #: app/templates/base.html
 msgid "Confidentialité"
 msgstr "Privacy"
@@ -1957,6 +1973,10 @@ msgstr "View schedule"
 #: app/templates/events/dashboard.html
 msgid "Sondages ouverts"
 msgstr "Open polls"
+
+#: app/templates/events/dashboard.html app/templates/voting/_poll.html
+msgid "À voter"
+msgstr "To vote"
 
 #: app/templates/events/dashboard.html
 msgid "Aucun sondage ouvert."
@@ -3133,9 +3153,25 @@ msgid "Partagez les photos et vidéos du séjour."
 msgstr "Share the trip photos and videos."
 
 #: app/templates/planning/_card.html
+msgid "Retenue"
+msgstr "Retained"
+
+#: app/templates/planning/_card.html
+msgid "Non retenue"
+msgstr "Not retained"
+
+#: app/templates/planning/_card.html
+msgid "En vote"
+msgstr "Being voted"
+
+#: app/templates/planning/_card.html
 #, python-format
 msgid "Actions pour %(title)s"
 msgstr "Actions for %(title)s"
+
+#: app/templates/planning/_card.html
+msgid "Restaurer"
+msgstr "Restore"
 
 #: app/templates/planning/_card.html
 msgid "Supprimer cette activité ?"
@@ -3174,6 +3210,18 @@ msgstr "1 more participant needed"
 #, python-format
 msgid "Il manque %(n)d participants"
 msgstr "%(n)d more participants needed"
+
+#: app/templates/planning/_card.html
+msgid ""
+"Retenir cette activité ? Les autres options du sondage seront marquées « "
+"Non retenues »."
+msgstr ""
+"Retain this activity? The other options of the poll will be marked \"Not "
+"retained\"."
+
+#: app/templates/planning/_card.html
+msgid "Retenir"
+msgstr "Retain"
 
 #: app/templates/planning/_card.html
 msgid "Ma réponse"
@@ -3239,6 +3287,13 @@ msgstr "View meals"
 #: app/templates/planning/index.html
 msgid "Aucune activité ce jour."
 msgstr "No activity this day."
+
+#: app/templates/planning/index.html
+#, python-format
+msgid "%(n)d activité non retenue"
+msgid_plural "%(n)d activités non retenues"
+msgstr[0] "%(n)d activity not retained"
+msgstr[1] "%(n)d activities not retained"
 
 #: app/templates/planning/index.html
 msgid "Plus d'options"
@@ -3313,10 +3368,6 @@ msgstr "Optional: one option per line, in addition to the ticked activities."
 #: app/templates/voting/_poll.html app/templates/voting/index.html
 msgid "Clos"
 msgstr "Closed"
-
-#: app/templates/voting/_poll.html
-msgid "À voter"
-msgstr "To vote"
 
 #: app/templates/voting/_poll.html
 #, python-format

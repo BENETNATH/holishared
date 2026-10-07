@@ -90,8 +90,11 @@
       </div>
       {% if polls %}
       <ul class="m-0 list-none p-0">
-        {% for poll in polls[:3] %}
-        <li class="border-t border-line first:border-t-0"><a class="ui-link flex min-h-[44px] items-center" href="{{ url_for('voting.detail', code=event.code, poll_id=poll.id) }}">{{ poll.question }}</a></li>
+        {% for view in polls[:3] %}
+        <li class="flex items-center justify-between gap-2 border-t border-line first:border-t-0" data-testid="home-poll" data-voted="{{ 'true' if view.has_voted else 'false' }}">
+          <a class="ui-link flex min-h-[44px] min-w-0 items-center break-words" href="{{ url_for('voting.detail', code=event.code, poll_id=view.poll.id) }}">{{ view.poll.question }}</a>
+          {% if not view.has_voted %}<span class="ui-badge ui-badge--warning shrink-0" data-testid="home-poll-to-vote">{{ _("À voter") }}</span>{% endif %}
+        </li>
         {% endfor %}
       </ul>
       {% else %}

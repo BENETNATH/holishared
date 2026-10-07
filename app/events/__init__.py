@@ -41,7 +41,7 @@ from app.extensions import db, limiter
 from app.forms import FormErrors
 from app.freemium import can_add_guest, has_feature, max_duration_days, require_tier
 from app.i18n import current_locale, household_default_name
-from app.models import Creator, Event, Guest, Household, Meal, generate_guest_code
+from app.models import Activity, Creator, Event, Guest, Household, Meal, generate_guest_code
 from app.utils import ensure_creator_guest
 
 
@@ -365,7 +365,8 @@ def verify(token: str) -> str | Response:
 def dashboard(code: str) -> str | Response:
     """Accueil de l'événement (créateur ou invité avec code valide)."""
     from app.lists import home_items
-    from app.models import ChatMessage, ListMealCoverage, LogisticsItem, SharedList
+    from app.models import ChatMessage, ListMealCoverage, LogisticsItem, Poll, SharedList
+    from app.polls import poll_views
 
     ctx = load_event_context(code)
     event = ctx.event
@@ -383,7 +384,7 @@ def dashboard(code: str) -> str | Response:
     # Chronologie du jour : activités + repas (déjeuner 12:00, dîner 20:00 ; sans heure -> fin).
     slot_hour = {"lunch": (12, 0), "dinner": (20, 0)}
     timeline: list[dict[str, object]] = []
-    for act in event.activities.filter_by(date=today):
+    for act in event.activities.filter_by(date=today).filter(Activity.status != "dropped"):
         timeline.append({
             "kind": "activity",
             "time": act.start_time or time(23, 59),
@@ -419,7 +420,13 @@ def dashboard(code: str) -> str | Response:
         event=event,
         status=event_status(event, today),
         timeline=timeline,
-        polls=event.polls.filter_by(is_closed=False).all(),
+        polls=sorted(  # à voter en premier (tri stable : les plus récents d'abord)
+            poll_views(
+                event.polls.filter_by(is_closed=False).order_by(Poll.created_at.desc(), Poll.id).all(),
+                ctx.participant,
+            ),
+            key=lambda view: view.has_voted,
+        ),
         recent_messages=recent_messages,
         infos=infos.limit(INFOS_ON_HOME).all(),
         infos_total=infos.count(),

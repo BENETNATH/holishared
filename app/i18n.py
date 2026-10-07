@@ -100,6 +100,7 @@ ACTION_LABELS: Final[dict[str, Any]] = {
     "poll.deleted": _l("Sondage supprimé"),
     "activity.retained": _l("Activité retenue"),
     "activity.restored": _l("Activité restaurée"),
+    "activity.dropped": _l("Activité non retenue"),
     "chat.message": _l("Message envoyé"),
     "chat.message_deleted": _l("Message supprimé"),
     "media.uploaded": _l("Média ajouté"),

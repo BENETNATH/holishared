@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 03:35+0200\n"
+"POT-Creation-Date: 2026-10-07 03:44+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -243,6 +243,10 @@ msgstr ""
 
 #: app/i18n.py
 msgid "Activité restaurée"
+msgstr ""
+
+#: app/i18n.py
+msgid "Activité non retenue"
 msgstr ""
 
 #: app/i18n.py
@@ -1125,6 +1129,18 @@ msgstr ""
 msgid "Statut invalide."
 msgstr ""
 
+#: app/planning/__init__.py
+msgid "Cette activité ne peut pas être retenue."
+msgstr ""
+
+#: app/planning/__init__.py
+msgid "Activité retenue."
+msgstr ""
+
+#: app/planning/__init__.py
+msgid "Activité restaurée."
+msgstr ""
+
 #: app/templates/base.html
 msgid "Confidentialité"
 msgstr ""
@@ -1893,6 +1909,10 @@ msgstr ""
 
 #: app/templates/events/dashboard.html
 msgid "Sondages ouverts"
+msgstr ""
+
+#: app/templates/events/dashboard.html app/templates/voting/_poll.html
+msgid "À voter"
 msgstr ""
 
 #: app/templates/events/dashboard.html
@@ -3036,8 +3056,24 @@ msgid "Partagez les photos et vidéos du séjour."
 msgstr ""
 
 #: app/templates/planning/_card.html
+msgid "Retenue"
+msgstr ""
+
+#: app/templates/planning/_card.html
+msgid "Non retenue"
+msgstr ""
+
+#: app/templates/planning/_card.html
+msgid "En vote"
+msgstr ""
+
+#: app/templates/planning/_card.html
 #, python-format
 msgid "Actions pour %(title)s"
+msgstr ""
+
+#: app/templates/planning/_card.html
+msgid "Restaurer"
 msgstr ""
 
 #: app/templates/planning/_card.html
@@ -3076,6 +3112,16 @@ msgstr ""
 #: app/templates/planning/_card.html
 #, python-format
 msgid "Il manque %(n)d participants"
+msgstr ""
+
+#: app/templates/planning/_card.html
+msgid ""
+"Retenir cette activité ? Les autres options du sondage seront marquées « "
+"Non retenues »."
+msgstr ""
+
+#: app/templates/planning/_card.html
+msgid "Retenir"
 msgstr ""
 
 #: app/templates/planning/_card.html
@@ -3142,6 +3188,13 @@ msgstr ""
 #: app/templates/planning/index.html
 msgid "Aucune activité ce jour."
 msgstr ""
+
+#: app/templates/planning/index.html
+#, python-format
+msgid "%(n)d activité non retenue"
+msgid_plural "%(n)d activités non retenues"
+msgstr[0] ""
+msgstr[1] ""
 
 #: app/templates/planning/index.html
 msgid "Plus d'options"
@@ -3212,10 +3265,6 @@ msgstr ""
 
 #: app/templates/voting/_poll.html app/templates/voting/index.html
 msgid "Clos"
-msgstr ""
-
-#: app/templates/voting/_poll.html
-msgid "À voter"
 msgstr ""
 
 #: app/templates/voting/_poll.html

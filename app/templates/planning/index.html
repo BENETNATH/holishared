@@ -65,6 +65,18 @@
     {%- else %}
     <p class="m-0 text-small text-ink-muted" data-testid="day-empty">{{ _("Aucune activité ce jour.") }}</p>
     {%- endif %}
+
+    {%- set day_dropped = dropped.get(day, []) %}
+    {%- if day_dropped %}
+    <details class="rounded-md" data-testid="day-dropped">
+      <summary class="flex min-h-[44px] cursor-pointer items-center text-small font-semibold text-ink-2">{{ ngettext("%(n)d activité non retenue", "%(n)d activités non retenues", day_dropped|length, n=day_dropped|length) }}</summary>
+      <ul class="m-0 mt-2 flex list-none flex-col gap-3 p-0">
+        {%- for act in day_dropped %}
+        {%- with summary=summaries[act.id] %}{% include "planning/_card.html" %}{% endwith %}
+        {%- endfor %}
+      </ul>
+    </details>
+    {%- endif %}
   </section>
   {%- endfor %}
   </div>

@@ -6,14 +6,26 @@
 {%- set missing = min_headcount - yes -%}
 {%- set base = {'code': event.code, 'activity_id': act.id} -%}
 {%- set limit = 160 -%}
-<li id="activity-{{ act.id }}" data-testid="activity-card" data-activity-id="{{ act.id }}"
-    class="m-0 flex list-none flex-col gap-3 rounded-md border border-line bg-surface p-3 shadow-card">
+{%- set links = poll_links.get(act.id) if poll_links else None -%}
+{%- set dropped = act.status == 'dropped' -%}
+{%- set retained = act.status == 'retained' -%}
+<li id="activity-{{ act.id }}" data-testid="activity-card" data-activity-id="{{ act.id }}" data-status="{{ act.status }}"
+    class="m-0 flex list-none flex-col gap-3 rounded-md border border-line {{ 'bg-surface-2' if dropped else 'bg-surface shadow-card' }} p-3">
   <div class="flex items-start gap-3">
     <p class="m-0 w-16 shrink-0 text-small font-semibold text-primary-strong" data-testid="activity-time">
       {%- if act.start_time %}{{ act.start_time|time }}{% if act.end_time %}<span aria-hidden="true">–</span><span class="sr-only"> {{ _("à") }} </span>{{ act.end_time|time }}{% endif %}{% else %}{{ _("Journée") }}{% endif -%}
     </p>
     <div class="min-w-0 flex-1">
-      <h3 class="m-0 break-words text-subheading font-semibold text-ink">{{ act.title }}</h3>
+      <h3 class="m-0 break-words text-subheading font-semibold {{ 'text-ink-2' if dropped else 'text-ink' }}">{{ act.title }}</h3>
+      {%- if retained or dropped or (links and links.open_poll_id and not dropped) %}
+      <div class="mt-1 flex flex-wrap items-center gap-x-2">
+        {%- if retained %}<span class="ui-badge ui-badge--success" data-testid="activity-badge-retained">{{ icon('circle-check', size=14) }}&nbsp;{{ _("Retenue") }}</span>{% endif %}
+        {%- if dropped %}<span class="ui-badge ui-badge--neutral" data-testid="activity-badge-dropped">{{ _("Non retenue") }}</span>{% endif %}
+        {%- if links and links.open_poll_id and not dropped %}
+        <a class="inline-flex min-h-[44px] items-center" href="{{ url_for('voting.detail', code=event.code, poll_id=links.open_poll_id) }}" data-testid="activity-badge-voting"><span class="ui-badge ui-badge--info">{{ icon('vote', size=14) }}&nbsp;{{ _("En vote") }}</span></a>
+        {%- endif %}
+      </div>
+      {%- endif %}
       {%- if act.location %}
       <p class="m-0 mt-1 flex items-start gap-1 text-small text-ink-2" data-testid="activity-location">{{ icon('map-pin', size=16) }}<span class="min-w-0 break-words">{{ act.location }}</span></p>
       {%- endif %}
@@ -25,6 +37,12 @@
         <a class="ui-btn ui-btn--ghost ui-btn--sm justify-start" data-testid="activity-edit" data-planning-edit
            data-fields='{{ {"title": act.title, "date": act.date.isoformat(), "start_time": act.start_time.strftime("%H:%M") if act.start_time else "", "end_time": act.end_time.strftime("%H:%M") if act.end_time else "", "location": act.location or "", "description": act.description or "", "min_headcount": min_headcount, "bring_items": act.bring_items or ""}|tojson }}'
            href="{{ url_for('planning.edit', **base) }}">{{ icon('pencil', size=16) }}<span>{{ _("Modifier") }}</span></a>
+        {%- if dropped %}
+        <form method="post" action="{{ url_for('planning.restore', **base) }}" data-testid="activity-restore-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="ui-btn ui-btn--ghost ui-btn--sm w-full justify-start" data-testid="activity-restore">{{ icon('undo-2', size=16) }}<span>{{ _("Restaurer") }}</span></button>
+        </form>
+        {%- endif %}
         {%- if ctx.can_delete(act) %}
         <form method="post" action="{{ url_for('planning.delete', **base) }}" data-confirm="{{ _('Supprimer cette activité ?') }}" data-confirm-label="{{ _('Supprimer') }}" data-testid="activity-delete-form">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -36,6 +54,7 @@
     {%- endif %}
   </div>
 
+  {%- if not dropped %}
   {%- if act.description %}
   {%- if act.description|length > limit %}
   <details class="group text-small text-ink-2" data-testid="activity-description">
@@ -68,6 +87,14 @@
     {%- endif %}
   </div>
 
+  {%- if ctx.is_creator and links and links.retain_poll_id and act.status == 'planned' %}
+  <form method="post" action="{{ url_for('planning.retain', **base) }}" data-testid="activity-retain-form"
+        data-confirm="{{ _('Retenir cette activité ? Les autres options du sondage seront marquées « Non retenues ».') }}" data-confirm-label="{{ _('Retenir') }}" data-confirm-tone="primary">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="ui-btn ui-btn--primary ui-btn--sm" data-testid="activity-retain">{{ icon('circle-check', size=16) }}<span>{{ _("Retenir") }}</span></button>
+  </form>
+  {%- endif %}
+
   <form method="post" action="{{ url_for('planning.rsvp', **base) }}" hx-post="{{ url_for('planning.rsvp', **base) }}"
         hx-target="#activity-{{ act.id }}" hx-swap="outerHTML" data-testid="rsvp-form" class="sm:max-w-sm">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -90,6 +117,8 @@
       {%- endfor %}
     </dl>
   </details>
+  {%- endif %}
+
   {%- endif %}
 
   {%- if authors.get(act.created_by) %}

@@ -7,6 +7,7 @@ from datetime import date, datetime, time, timedelta
 from flask import (
     Blueprint,
     abort,
+    current_app,
     flash,
     make_response,
     redirect,
@@ -22,7 +23,8 @@ from app.context import EventContext, load_event_context, log_event
 from app.extensions import db, limiter
 from app.forms import FormErrors
 from app.i18n import RSVP_STATUSES
-from app.models import Activity, ActivityRSVP, Event, Guest, Meal
+from app.models import Activity, ActivityRSVP, Event, Guest, Meal, Poll
+from app.polls import ActivityPolls, activity_polls, poll_views
 
 planning_bp = Blueprint("planning", __name__)
 
@@ -192,6 +194,13 @@ def _default_day(event: Event, requested: str | None = None) -> date:
     return event.start_date
 
 
+def _poll_links(ctx: EventContext) -> dict[str, ActivityPolls]:
+    """Badge « En vote » / bouton « Retenir » : vide si le module Sondages est inactif."""
+    if "voting" not in current_app.blueprints:
+        return {}
+    return activity_polls(ctx.event.id)
+
+
 def _card_context(ctx: EventContext, activity: Activity) -> dict[str, object]:
     return {
         "ctx": ctx,
@@ -199,6 +208,7 @@ def _card_context(ctx: EventContext, activity: Activity) -> dict[str, object]:
         "act": activity,
         "summary": _rsvp_summaries(ctx, activity.id)[activity.id],
         "authors": _author_names(ctx.event),
+        "poll_links": _poll_links(ctx),
     }
 
 
@@ -209,10 +219,11 @@ def index(code: str) -> Response | tuple[str, int] | str:
     event = ctx.event
 
     activities: dict[date, list[Activity]] = defaultdict(list)
+    dropped: dict[date, list[Activity]] = defaultdict(list)
     for activity in Activity.query.filter_by(event_id=event.id).order_by(
         Activity.date, Activity.start_time.asc().nulls_first(), Activity.created_at, Activity.id
     ):
-        activities[activity.date].append(activity)
+        (dropped if activity.status == "dropped" else activities)[activity.date].append(activity)
     meals: dict[date, list[Meal]] = defaultdict(list)
     for meal in Meal.query.filter_by(event_id=event.id).order_by(*Meal.ordering()):
         meals[meal.date].append(meal)
@@ -222,6 +233,8 @@ def index(code: str) -> Response | tuple[str, int] | str:
         event=event,
         days=[event.start_date + timedelta(days=i) for i in range(event.duration_days)],
         activities=activities,
+        dropped=dropped,
+        poll_links=_poll_links(ctx),
         meals=meals,
         summaries=_rsvp_summaries(ctx),
         authors=_author_names(event),
@@ -408,3 +421,56 @@ def rsvp(code: str, activity_id: str) -> Response | tuple[str, int] | str:
     if htmx:
         return render_template("planning/_card.html", **_card_context(ctx, activity))
     return redirect(url_for("planning.index", code=code))
+
+
+def _activity_or_404(ctx: EventContext, activity_id: str) -> Activity:
+    activity: Activity | None = Activity.query.filter_by(
+        id=activity_id, event_id=ctx.event.id
+    ).first()
+    if activity is None:
+        abort(404)
+    return activity
+
+
+@planning_bp.route("/e/<code>/planning/<activity_id>/retain", methods=["POST"])
+def retain(code: str, activity_id: str) -> Response | tuple[str, int] | str:
+    """Retient l'activité gagnante d'un sondage clos (créateur) : les autres options liées sont écartées."""
+    ctx = load_event_context(code)
+    activity = _activity_or_404(ctx, activity_id)
+    if not ctx.is_creator:
+        abort(403)
+    back = redirect(url_for("planning.index", code=code, day=activity.date.isoformat()))
+
+    links = _poll_links(ctx).get(activity.id)
+    poll = db.session.get(Poll, links.retain_poll_id) if links and links.retain_poll_id else None
+    if poll is None or activity.status != "planned":
+        flash(_("Cette activité ne peut pas être retenue."), "warning")
+        return back
+
+    winners = {opt.activity_id for opt in poll_views([poll], None)[0].winners}
+    activity.status = "retained"
+    log_event(ctx, "activity.retained", target=activity.title, details=poll.question)
+    for option in poll.options.all():
+        other = option.activity
+        if other is not None and other.id not in winners and other.status == "planned":
+            other.status = "dropped"
+            log_event(ctx, "activity.dropped", target=other.title, details=poll.question)
+    db.session.commit()
+    flash(_("Activité retenue."))
+    return back
+
+
+@planning_bp.route("/e/<code>/planning/<activity_id>/restore", methods=["POST"])
+def restore(code: str, activity_id: str) -> Response | tuple[str, int] | str:
+    """Remet au programme une activité « non retenue » (créateur ou auteur de l'activité)."""
+    ctx = load_event_context(code)
+    activity = _activity_or_404(ctx, activity_id)
+    if not ctx.can_edit(activity):
+        abort(403)
+
+    if activity.status == "dropped":
+        activity.status = "planned"
+        log_event(ctx, "activity.restored", target=activity.title)
+        db.session.commit()
+    flash(_("Activité restaurée."))
+    return redirect(url_for("planning.index", code=code, day=activity.date.isoformat()))
