@@ -258,17 +258,25 @@ def backup_sqlite_database(
 
 
 def prune_backups(instance_path: str, *, keep: int = 3, max_age_days: int = 30) -> int:
-    """Supprime les sauvegardes trop vieilles, puis toutes sauf les `keep` plus récentes."""
+    """Rotation par préfixe d'étape (`pre-meals-`, `pre-identity-`…).
+
+    Une sauvegarde n'est supprimée que si elle a plus de `max_age_days` jours ET n'est pas parmi
+    les `keep` plus récentes de son préfixe : jamais une copie récente, jamais la dernière d'une étape.
+    """
     folder = Path(instance_path) / "backups"
     if not folder.is_dir():
         return 0
-    files = sorted(folder.glob("pre-*.db"), key=lambda p: p.stat().st_mtime, reverse=True)
     cutoff = (datetime.now(UTC) - timedelta(days=max_age_days)).timestamp()
+    groups: dict[str, list[Path]] = {}
+    for path in folder.glob("pre-*.db"):
+        groups.setdefault(path.name.rsplit("-", 1)[0], []).append(path)
     removed = 0
-    for index, path in enumerate(files):
-        if index >= keep or path.stat().st_mtime < cutoff:
-            path.unlink()
-            removed += 1
+    for files in groups.values():
+        files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+        for path in files[keep:]:
+            if path.stat().st_mtime < cutoff:
+                path.unlink()
+                removed += 1
     return removed
 
 

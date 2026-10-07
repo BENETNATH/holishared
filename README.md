@@ -66,6 +66,25 @@ python manage.py logs         # tail des logs
 python manage.py reset-admin  # générer un nouveau mot de passe superadmin
 ```
 
+## Sauvegardes avant migration et restauration
+
+Avant une migration qui écrit des lignes existantes, l'application copie la base dans
+`instance/backups/pre-<étape>-<horodatage>.db` (étapes : `pre-meals`, `pre-lists`, `pre-costs`,
+`pre-polls`, `pre-identity` ; fichiers en droits 0600). Rotation par étape : les 3 plus récentes de
+chaque préfixe sont conservées, et aucune sauvegarde de moins de 30 jours n'est jamais supprimée.
+
+Restaurer l'état d'avant la mise à jour :
+
+```bash
+# 1. arrêter le service (docker compose stop app, ou python manage.py stop)
+# 2. choisir la sauvegarde la plus ancienne de la mise à jour (ex. pre-meals-…)
+ls -1 instance/backups/
+# 3. remplacer la base et supprimer les fichiers WAL résiduels
+cp instance/backups/pre-meals-<horodatage>.db instance/holishared.db
+rm -f instance/holishared.db-wal instance/holishared.db-shm
+# 4. redémarrer avec l'ancienne version du code
+```
+
 ## Modèle d'authentification
 
 - **Superadmin** — seul login (email + mot de passe), voit tous les événements.

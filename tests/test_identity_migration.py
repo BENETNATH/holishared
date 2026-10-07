@@ -2,6 +2,7 @@
 
 import os
 import sqlite3
+import time
 from datetime import date, datetime
 
 import pytest
@@ -276,7 +277,6 @@ def test_run_identity_migration_unfixable_anomaly_creates_no_backup(file_app, tm
 def _touch_backups(tmp_path, count, age_days=0):
     folder = tmp_path / "inst" / "backups"
     folder.mkdir(parents=True, exist_ok=True)
-    import time
 
     paths = []
     for index in range(count):
@@ -288,16 +288,39 @@ def _touch_backups(tmp_path, count, age_days=0):
     return paths
 
 
-def test_prune_backups_keeps_three_latest(tmp_path):
+def test_prune_backups_keeps_recent_backups_beyond_three(tmp_path):
+    # B025 (audit B018-B024 #2) : une sauvegarde de moins de 30 jours n'est jamais supprimée
+    # (l'ancien test attendait la rotation à 3 fichiers quel que soit l'âge).
     paths = _touch_backups(tmp_path, 5)
+    prune_backups(str(tmp_path / "inst"))
+    assert [p.exists() for p in paths] == [True, True, True, True, True]
+
+
+def test_prune_backups_removes_old_files_beyond_three_latest(tmp_path):
+    paths = _touch_backups(tmp_path, 5, age_days=31)
     prune_backups(str(tmp_path / "inst"))
     assert [p.exists() for p in paths] == [False, False, True, True, True]
 
 
-def test_prune_backups_removes_files_older_than_30_days(tmp_path):
+def test_prune_backups_keeps_last_copy_even_when_older_than_30_days(tmp_path):
+    # Ancien test : une unique sauvegarde de 31 jours était supprimée ; c'était parfois la seule copie.
     (path,) = _touch_backups(tmp_path, 1, age_days=31)
     prune_backups(str(tmp_path / "inst"))
-    assert not path.exists()
+    assert path.exists()
+
+
+def test_prune_backups_rotates_each_prefix_separately(tmp_path):
+    folder = tmp_path / "inst" / "backups"
+    folder.mkdir(parents=True)
+    old = time.time() - 40 * 86400
+    kept = []
+    for prefix in ("pre-meals-", "pre-lists-", "pre-costs-", "pre-identity-"):
+        path = folder / f"{prefix}20260101T000000Z.db"
+        path.write_bytes(b"x")
+        os.utime(path, (old, old))
+        kept.append(path)
+    prune_backups(str(tmp_path / "inst"))
+    assert [p.exists() for p in kept] == [True, True, True, True]
 
 
 def test_plan_identity_migration_writes_nothing(db, event, legacy):
@@ -320,15 +343,17 @@ def test_migrate_truncates_long_creator_name_to_50_chars(db, event, creator):
     assert len(_creator_guests(event.id)[0].display_name) == 50
 
 
-def test_backup_creation_prunes_backups_older_than_30_days(file_app, tmp_path):
+def test_backup_creation_prunes_oldest_backup_beyond_three_older_than_30_days(file_app, tmp_path):
+    # B025 (audit B018-B024 #2) : seule une sauvegarde de plus de 30 jours hors des 3 plus récentes
+    # du préfixe est supprimée (l'ancien test attendait la suppression d'une unique copie de 31 jours).
     from app.extensions import db
 
     app = file_app()
     with app.app_context():
         _seed_event(db, with_creator_guest=False)
-        (old,) = _touch_backups(tmp_path, 1, age_days=31)
+        old = _touch_backups(tmp_path, 3, age_days=31)
         run_identity_migration(app)
-    assert (old.exists(), len(_backups(tmp_path))) == (False, 1)
+    assert ([p.exists() for p in old], len(_backups(tmp_path))) == ([False, True, True], 3)
 
 
 def test_plan_counts_equal_migrate_counts_on_legacy_base(db, event, creator, guest, legacy):
