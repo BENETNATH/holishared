@@ -22,6 +22,9 @@ def app(monkeypatch):
     """
     monkeypatch.setattr("app.load_dotenv", lambda *args, **kwargs: True)
     monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
+    # Le .env de développement ne doit pas influencer les réglages testés (B019).
+    for name in ("PERMANENT_SESSION_LIFETIME", "DEV_SHOW_SECRETS"):
+        monkeypatch.delenv(name, raising=False)
     # Enable every module so blueprint-gated routes exist in tests.
     monkeypatch.setenv(
         "ENABLED_MODULES", "planning,meals,lists,logistics,voting,media,chat,costs"
@@ -164,6 +167,8 @@ def app_factory(monkeypatch):
     def build(env: dict[str, str]):
         monkeypatch.setattr("app.load_dotenv", lambda *args, **kwargs: True)
         monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
+        for name in ("PERMANENT_SESSION_LIFETIME", "DEV_SHOW_SECRETS"):
+            monkeypatch.delenv(name, raising=False)
         for key, value in env.items():
             monkeypatch.setenv(key, value)
         application = create_app()

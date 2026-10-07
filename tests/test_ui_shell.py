@@ -351,7 +351,7 @@ REUSED_SHELL_MSGIDS = [
     "Mes événements",
     "Créer",
     "Créer un événement",
-    "Déconnexion",
+    "Se déconnecter",
     "Fermer",
     "Navigation principale",
     "Confidentialité",

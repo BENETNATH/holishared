@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 05:26+0200\n"
+"POT-Creation-Date: 2026-10-07 06:01+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -611,12 +611,20 @@ msgid "Gérer l'événement"
 msgstr "Manage event"
 
 #: app/templates/base.html app/ui.py
-msgid "Déconnexion"
-msgstr "Log out"
+msgid "Se déconnecter"
+msgstr "Sign out"
+
+#: app/templates/base.html app/ui.py
+msgid "Oublier cet appareil"
+msgstr "Forget this device"
 
 #: app/auth/__init__.py
 msgid "Identifiants incorrects."
 msgstr "Incorrect credentials."
+
+#: app/auth/__init__.py
+msgid "Cet appareil est oublié : vous êtes déconnecté."
+msgstr "This device is forgotten: you are signed out."
 
 #: app/chat/__init__.py
 msgid "Message vide."

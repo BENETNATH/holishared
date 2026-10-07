@@ -3,6 +3,7 @@
 import os
 import shutil
 import time
+from datetime import timedelta
 from pathlib import Path
 from typing import Any, cast
 
@@ -28,9 +29,16 @@ def create_app() -> Flask:
     app.config["SESSION_COOKIE_SECURE"] = os.environ.get("SESSION_COOKIE_SECURE", "true") == "true"
     app.config["SESSION_COOKIE_HTTPONLY"] = True
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
-    app.config["PERMANENT_SESSION_LIFETIME"] = int(
-        os.environ.get("PERMANENT_SESSION_LIFETIME", "86400")
-    )
+    # Sessions durables (F15) : invité (cookie ``session``) et créateur (cookie « se souvenir »)
+    # survivent à la fermeture du navigateur ; durée glissante, 30 jours par défaut.
+    lifetime = int(os.environ.get("PERMANENT_SESSION_LIFETIME", str(30 * 86400)))
+    app.config["PERMANENT_SESSION_LIFETIME"] = lifetime
+    app.config["REMEMBER_COOKIE_DURATION"] = timedelta(seconds=lifetime)
+    app.config["REMEMBER_COOKIE_SECURE"] = app.config["SESSION_COOKIE_SECURE"]
+    app.config["REMEMBER_COOKIE_HTTPONLY"] = True
+    app.config["REMEMBER_COOKIE_SAMESITE"] = "Lax"
+    # Affichage du lien de vérification / du code sans SMTP : développement et staging seulement.
+    app.config["DEV_SHOW_SECRETS"] = os.environ.get("DEV_SHOW_SECRETS", "false") == "true"
     # Resolve relative SQLite paths against the project root so the DB
     # file always lands in <project>/instance/ regardless of cwd.
     db_uri = os.environ.get("DATABASE_URL", "sqlite:///instance/holishared.db")

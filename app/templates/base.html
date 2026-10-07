@@ -1,9 +1,12 @@
 {%- from "_components/ui.html" import sheet -%}
-{%- set nav = build_nav(request.endpoint, enabled_modules, current_event.code if current_event else None, event_role, current_user.is_authenticated) -%}
+{%- set known_device = current_user.is_authenticated or has_guest_session() -%}
+{%- set nav = build_nav(request.endpoint, enabled_modules, current_event.code if current_event else None, event_role, known_device) -%}
 {%- set in_event = nav.context == 'event' -%}
 {%- macro menu_item(item, prefix) -%}
 <li>
-  {%- if item.href %}
+  {%- if item.post %}
+  <form method="post" action="{{ item.href }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" class="ui-menu__item" data-testid="{{ prefix }}-{{ item.key }}">{{ icon(item.icon) }}<span>{{ item.label }}</span></button></form>
+  {%- elif item.href %}
   <a class="ui-menu__item" href="{{ item.href }}" data-testid="{{ prefix }}-{{ item.key }}"{% if item.active %} aria-current="page"{% endif %}>{{ icon(item.icon) }}<span>{{ item.label }}</span></a>
   {%- else %}
   <button type="button" class="ui-menu__item" data-testid="{{ prefix }}-{{ item.key }}"{% if item.copy %} data-copy="{{ item.copy }}"{% endif %}>{{ icon(item.icon) }}<span>{{ item.label }}</span></button>
@@ -81,8 +84,10 @@
           data-theme-toggle aria-pressed="false" aria-label="{{ _('Thème sombre') }}">
     {{- icon('moon', class_='ui-theme-icon-moon') }}{{ icon('sun', class_='ui-theme-icon-sun') -}}
   </button>
-  {%- if not in_event and current_user.is_authenticated %}
-  <a class="ui-btn ui-btn--ghost ui-btn--icon" data-testid="logout-link" href="{{ url_for('auth.logout') }}" aria-label="{{ _('Déconnexion') }}">{{ icon('log-out') }}</a>
+  {%- if not in_event and known_device %}
+  <form method="post" action="{{ url_for('auth.logout') }}" class="contents"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="ui-btn ui-btn--ghost ui-btn--icon" data-testid="logout-link" aria-label="{{ _('Se déconnecter') if current_user.is_authenticated else _('Oublier cet appareil') }}">{{ icon('log-out') }}</button>
+  </form>
   {%- endif %}
 </header>
 

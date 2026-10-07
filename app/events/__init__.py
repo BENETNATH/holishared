@@ -19,7 +19,7 @@ from flask import (
 )
 from flask_babel import format_date, ngettext
 from flask_babel import gettext as _
-from flask_login import current_user, login_required, login_user, logout_user
+from flask_login import current_user, login_required, logout_user
 from sqlalchemy.exc import IntegrityError
 from werkzeug.wrappers import Response
 
@@ -32,6 +32,8 @@ from app.access import (
     normalize_code,
     resolve_event_code,
     resolve_home_code,
+    start_creator_session,
+    start_guest_session,
     suggest_creator_code,
     suggest_guest_code,
 )
@@ -131,7 +133,7 @@ def access_by_code() -> str | Response:
             flash(_("Code non reconnu."), "danger")
             return redirect(url_for("main.index"))
         if match.creator is not None:
-            login_user(match.creator)
+            start_creator_session(match.creator)
             log_code_login("creator", None)
             return redirect(url_for("events.index"))
         return redirect(url_for("events.my_code", code=cast("Event", match.event).code))
@@ -251,7 +253,7 @@ def verify(token: str) -> str | Response:
         # Already verified — log the creator in and go to dashboard.
         creator = Creator.query.get(event.creator_id)
         if creator:
-            login_user(creator)
+            start_creator_session(creator)
         return redirect(url_for("events.dashboard", code=event.code))
 
     creator = Creator.query.get(event.creator_id)
@@ -347,7 +349,7 @@ def verify(token: str) -> str | Response:
                     _send_invite_email(ie, event)
 
         if creator:
-            login_user(creator)
+            start_creator_session(creator)
         flash(_("Événement confirmé !"), "success")
         return redirect(url_for("events.dashboard", code=event.code))
 
@@ -892,7 +894,7 @@ def guest_access(code: str) -> str | Response | tuple[str, int]:
 
         # Store in session. The code is NOT flashed: it is the guest's own
         # choice and stays visible on the dashboard ("Votre code personnel").
-        session[f"guest_{code}"] = guest.id
+        start_guest_session(code, guest)
         return redirect(url_for("events.dashboard", code=code))
 
     return render_template(
@@ -915,11 +917,11 @@ def my_code(code: str) -> str | Response:
             mark_attempt_failed("event", code)
             flash(_("Code invalide."), "danger")
         elif match.guest is not None:
-            session[f"guest_{code}"] = match.guest.id
+            start_guest_session(code, match.guest)
             log_code_login("guest", code)
             return redirect(url_for("events.dashboard", code=code))
         else:
-            login_user(cast("Creator", match.creator))
+            start_creator_session(cast("Creator", match.creator))
             log_code_login("creator", code)
             return redirect(url_for("events.dashboard", code=code))
 

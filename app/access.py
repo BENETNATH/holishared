@@ -6,8 +6,9 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Literal
 
-from flask import Response, g, request
+from flask import Response, g, request, session
 from flask_limiter.util import get_remote_address
+from flask_login import login_user, logout_user
 from limits import parse
 
 from app.extensions import limiter
@@ -145,3 +146,27 @@ def join_creation_allowed() -> bool:
 
 def log_code_login(kind: Literal["creator", "guest"], event_code: str | None) -> None:
     security_log.info("code_login kind=%s event=%s", kind, event_code or "-")
+
+
+def start_guest_session(event_code: str, guest: Guest) -> None:
+    """Accès invité durable : l'appareil reste reconnu après la fermeture du navigateur (F15)."""
+    session[f"guest_{event_code}"] = guest.id
+    session.permanent = True
+
+
+def start_creator_session(creator: Creator) -> None:
+    """Connexion créateur durable : cookie de session permanent + cookie « se souvenir »."""
+    login_user(creator, remember=True)
+    session.permanent = True
+
+
+def forget_device() -> None:
+    """Efface la connexion créateur et tous les accès invité de l'appareil (la langue reste)."""
+    for key in [k for k in session if k.startswith("guest_")]:
+        session.pop(key)
+    logout_user()
+
+
+def has_guest_session() -> bool:
+    """Vrai si l'appareil porte au moins un accès invité (sans requête)."""
+    return any(k.startswith("guest_") for k in session)

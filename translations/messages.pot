@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 05:26+0200\n"
+"POT-Creation-Date: 2026-10-07 06:01+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -568,11 +568,19 @@ msgid "Gérer l'événement"
 msgstr ""
 
 #: app/templates/base.html app/ui.py
-msgid "Déconnexion"
+msgid "Se déconnecter"
+msgstr ""
+
+#: app/templates/base.html app/ui.py
+msgid "Oublier cet appareil"
 msgstr ""
 
 #: app/auth/__init__.py
 msgid "Identifiants incorrects."
+msgstr ""
+
+#: app/auth/__init__.py
+msgid "Cet appareil est oublié : vous êtes déconnecté."
 msgstr ""
 
 #: app/chat/__init__.py

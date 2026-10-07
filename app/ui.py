@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Final
@@ -13,6 +13,7 @@ from flask import Flask, current_app, url_for
 from flask_babel import gettext as _
 from markupsafe import Markup, escape
 
+from app.access import has_guest_session
 from app.icons import ICONS
 
 PRIMARY_ORDER: Final[tuple[str, ...]] = (
@@ -164,6 +165,7 @@ class NavItem:
     href: str | None  # None pour les boutons (confidentialité, copie)
     active: bool
     copy: str | None = None  # bouton « copier » : texte placé dans le presse-papiers
+    post: bool = False  # action POST (déconnexion) : rendue en formulaire avec jeton CSRF
 
 
 @dataclass(frozen=True)
@@ -172,7 +174,7 @@ class Nav:
     primary: list[NavItem]  # destinations de la barre du bas (sans « Plus »)
     more_modules: list[NavItem]  # modules relégués dans « Plus »
     event_items: list[NavItem]  # créateur : participants, invite, log ; invité : log
-    account_items: list[NavItem]  # events, logout (créateur, contexte event) ; [] sinon
+    account_items: list[NavItem]  # mes événements, déconnexion (contexte event)
     more_active: bool  # une entrée de la feuille « Plus » est active
 
 
@@ -253,12 +255,12 @@ def build_nav(
         event_items.append(
             item("manage", _("Gérer l'événement"), "settings", "events.manage", code=event_code)
         )
-    account_items = []
+    account_items = [item("events", _("Mes événements"), "calendar-range", "events.index")]
     if role == "creator":
-        account_items = [
-            item("events", _("Mes événements"), "calendar-range", "events.index"),
-            item("logout", _("Déconnexion"), "log-out", "auth.logout"),
-        ]
+        logout = item("logout", _("Se déconnecter"), "log-out", "auth.logout")
+    else:
+        logout = item("forget", _("Oublier cet appareil"), "log-out", "auth.logout")
+    account_items.append(replace(logout, post=True))
     more_active = any(i.active for i in more_modules + event_items + account_items)
     return Nav("event", primary, more_modules, event_items, account_items, more_active)
 
@@ -270,5 +272,6 @@ def init_ui(app: Flask) -> None:
         icon=icon,
         ui_importmap=ui_importmap,
         ui_strings=ui_strings,
+        has_guest_session=has_guest_session,
         build_nav=build_nav,
     )
