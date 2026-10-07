@@ -618,3 +618,65 @@ def test_move_takes_write_lock_before_reading_the_target_cell(client, creator, e
     lock = next(i for i, s in enumerate(statements) if s.startswith("BEGIN IMMEDIATE"))
     last_meal_read = max(i for i, s in enumerate(statements) if "FROM meals" in s)
     assert lock < last_meal_read
+
+
+class TestDropZones:
+    """B022c : zones de dépôt « Ajouter ici » / « Échanger » (rendu) et échange entre cases à plusieurs repas."""
+
+    def test_swap_between_multi_meal_cells_renumbers_and_keeps_ids(
+        self, creator_client, event, db, cell3
+    ):
+        other = [_add(db, event, t, D4, "dinner", i) for i, t in enumerate(("X1", "Y2"))]
+        ids = {m.id for m in (*cell3, *other)}
+        resp = _post(creator_client, event, "swap", meal_id=cell3[0].id, other_id=other[1].id)
+        assert resp.status_code == 200
+        assert b'id="meal-grid"' in resp.data  # fragment de grille HTMX
+        assert _cell_titles(event, D3, "lunch") == ["Y2", "B2", "C3"]
+        assert _cell_titles(event, D4, "dinner") == ["X1", "A1"]
+        for cell in (
+            Meal.query.filter_by(event_id=event.id, date=D3, slot="lunch"),
+            Meal.query.filter_by(event_id=event.id, date=D4, slot="dinner"),
+        ):
+            assert [m.position for m in cell.order_by(Meal.position)] == list(range(cell.count()))
+        assert {m.id for m in Meal.query.filter_by(event_id=event.id)} == ids
+
+    def test_swap_heals_position_gaps_in_both_cells(self, creator_client, event, db):
+        a = _add(db, event, "A", D3, "lunch", 4)
+        b = _add(db, event, "B", D3, "lunch", 9)
+        c = _add(db, event, "C", D4, "lunch", 7)
+        _post(creator_client, event, "swap", meal_id=a.id, other_id=c.id)
+        assert [
+            (m.title, m.position) for m in Meal.query.filter_by(date=D3).order_by(Meal.position)
+        ] == [
+            ("C", 0),
+            ("B", 1),
+        ]
+        assert [(m.title, m.position) for m in Meal.query.filter_by(date=D4)] == [("A", 0)]
+        assert b.id  # B n'a pas changé d'identifiant
+
+    def test_swap_inside_same_cell_permutes_order(self, creator_client, event, cell3):
+        _post(creator_client, event, "swap", meal_id=cell3[0].id, other_id=cell3[2].id)
+        assert _cell_titles(event, D3, "lunch") == ["C3", "B2", "A1"]
+
+    def test_swap_guest_cannot_swap_with_foreign_meal(self, guest_client, event, guest, db, cell3):
+        mine = _add(db, event, "Mine", D4, "lunch", 0, created_by=guest.id)
+        resp = _post(guest_client, event, "swap", meal_id=mine.id, other_id=cell3[0].id)
+        assert resp.status_code == 403
+        assert _cell_titles(event, D3, "lunch") == ["A1", "B2", "C3"]
+
+    def test_move_to_other_cell_announces_added_message(self, creator_client, event, cell3):
+        resp = _post(
+            creator_client, event, "move", meal_id=cell3[0].id, date="2026-12-04", slot="dinner"
+        )
+        assert "Repas ajouté" in resp.headers["HX-Trigger"].encode().decode("unicode_escape")
+
+    def test_grid_renders_drop_zones(self, creator_client, event, db, cell3):
+        html = creator_client.get(f"/e/{event.code}/meals").data.decode()
+        assert html.count('data-testid="meal-drop-swap"') == 3  # une par carte modifiable
+        assert 'data-testid="meal-drop-add"' in html  # case occupée
+        assert 'data-testid="meal-drop-empty"' in html  # cases vides
+        assert html.count('data-testid="meal-drop-add"') == 1
+
+    def test_non_editable_card_has_no_swap_zone(self, guest_client, event, db, cell3):
+        html = guest_client.get(f"/e/{event.code}/meals").data.decode()
+        assert 'data-testid="meal-drop-swap"' not in html

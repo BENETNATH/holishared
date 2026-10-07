@@ -27,7 +27,7 @@ from werkzeug.wrappers import Response
 
 from app.context import EventContext, load_event_context, log_event
 from app.extensions import db, limiter
-from app.i18n import MEAL_SLOTS
+from app.i18n import LABELS, MEAL_SLOTS, format_date_safe
 from app.models import MAX_MEALS_PER_CELL, Meal
 
 meals_bp = Blueprint("meals", __name__)
@@ -226,7 +226,10 @@ def move(code: str) -> Response:
         _renumber(_cell(ctx.event.id, *source))
     log_event(ctx, "meal.moved", target=meal.title)
     db.session.commit()
-    return _respond(ctx, _("Repas déplacé."))
+    if source == (day, slot):
+        return _respond(ctx, _("Repas déplacé."))
+    cell_label = f"{format_date_safe(day, 'EEEE d MMMM')}, {str(LABELS['meal_slot'][slot]).lower()}"
+    return _respond(ctx, _("Repas ajouté à : %(cell)s.", cell=cell_label))
 
 
 @meals_bp.route("/e/<code>/meals/swap", methods=["POST"])
@@ -238,9 +241,14 @@ def swap(code: str) -> Response:
     if first.id == second.id:
         return _respond(ctx, _("Choisissez un autre repas."), ok=False)
 
+    _lock_for_write()
+    cells = {(m.date, m.slot) for m in (first, second)}
     first.date, second.date = second.date, first.date
     first.slot, second.slot = second.slot, first.slot
     first.position, second.position = second.position, first.position
+    db.session.flush()
+    for day, slot in cells:  # positions sans trous dans chaque case touchée
+        _renumber(_cell(ctx.event.id, day, slot))
     log_event(ctx, "meal.swapped", target=first.title, details=second.title)
     db.session.commit()
     return _respond(ctx, _("Repas échangés."))

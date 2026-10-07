@@ -5,7 +5,9 @@ const HX_ATTRIBUTES = ['hx-get', 'hx-post', 'hx-put', 'hx-patch', 'hx-delete'];
 export function initForms() {
   if (initialized) return;
   initialized = true;
-  document.addEventListener('submit', (event) => {
+  // Sur `window` (et non `document`) : l'écouteur passe APRÈS ceux des modules qui prennent l'envoi en charge
+  // (fetch + preventDefault, ex. repas/listes) ; sinon le formulaire restait verrouillé après le premier envoi.
+  window.addEventListener('submit', (event) => {
     if (event.defaultPrevented) return;
     const form = event.target;
     if (form.matches('[data-no-lock]') || form.getAttribute('method') === 'dialog') return;
