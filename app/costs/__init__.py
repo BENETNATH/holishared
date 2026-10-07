@@ -13,6 +13,7 @@ from app.extensions import db, limiter
 from app.forms import FormErrors
 from app.i18n import BASE_CURRENCY, CURRENCIES, currency_label, is_valid
 from app.models import Event, Expense, Household, PaymentRequest, Transfer
+from app.push import notify
 
 costs_bp = Blueprint("costs", __name__)
 
@@ -775,18 +776,24 @@ def add_payment_request(code: str) -> str | Response | tuple[str, int]:
     if errors:
         return _invalid(ctx, SHEET_REQUEST, errors)
 
-    db.session.add(
-        PaymentRequest(
-            from_household_id=from_id,
-            to_household_id=to_id,
-            amount_cents=amount_cents,
-            message=message,
-            event_id=ctx.event.id,
-            created_by=ctx.participant.id if ctx.participant else None,
-        )
+    payment_request = PaymentRequest(
+        from_household_id=from_id,
+        to_household_id=to_id,
+        amount_cents=amount_cents,
+        message=message,
+        event_id=ctx.event.id,
+        created_by=ctx.participant.id if ctx.participant else None,
     )
+    db.session.add(payment_request)
     log_event(ctx, "payment_request.created", details=f"{amount_cents / 100:.2f} {BASE_CURRENCY}")
     db.session.commit()
+    recipient = payment_request.to_household.guest_id
+    if recipient:  # foyer sans participant : personne à notifier (jamais de diffusion)
+        notify(
+            ctx.event, "requests", ctx.participant, "",
+            url_for("costs.index", code=code, tab="requests"),
+            f"request-{payment_request.id}", only_guest_id=recipient,
+        )
     flash(_("Demande de paiement créée."), "success")
     return _back(code, "requests")
 

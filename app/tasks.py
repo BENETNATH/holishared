@@ -8,6 +8,7 @@ catalog is loaded with ``babel.support.Translations`` (B018).
 
 import logging
 import smtplib
+from datetime import datetime
 from email.message import EmailMessage
 from pathlib import Path
 
@@ -117,3 +118,83 @@ def send_recovery_email(smtp_host: str, smtp_port: int, smtp_user: str,
     ) % {"code": personal_code, "name": display_name}
     _smtp_send(smtp_host, smtp_port, smtp_user, smtp_password, smtp_from,
                to_addr, _("Votre code holishared"), body)
+
+
+PUSH_GONE = (404, 410)  # le service de push signale un abonnement expiré
+
+
+def _push_db(database_url: str, sql: str, params: dict[str, object]) -> None:
+    """Écriture ponctuelle sur la base de l'application (le worker n'a pas de contexte Flask)."""
+    from sqlalchemy import create_engine, text
+
+    engine = create_engine(database_url, connect_args={"timeout": 5})
+    try:
+        with engine.begin() as conn:
+            conn.execute(text(sql), params)
+    except Exception:  # l'envoi a eu lieu : un échec de suivi ne le remet pas en cause
+        logger.warning("push bookkeeping failed", exc_info=True)
+    finally:
+        engine.dispose()
+
+
+def send_push(
+    sub: dict[str, str],
+    payload: str,
+    vapid_private: str = "",
+    vapid_subject: str = "",
+    database_url: str = "",
+) -> str:
+    """Envoie une notification Web Push (tâche RQ, sans contexte Flask).
+
+    ``sub`` = id, endpoint, p256dh, auth. La config vient des arguments, sinon de l'environnement
+    du worker (``VAPID_PRIVATE_KEY``, ``VAPID_CLAIMS_SUBJECT``, ``DATABASE_URL``) : la clé privée
+    n'a ainsi pas à transiter par Redis. Retourne ``sent``, ``gone`` (abonnement supprimé),
+    ``skipped`` (pas de clés) ou ``error`` ; ne lève jamais.
+    """
+    import os
+
+    vapid_private = vapid_private or os.environ.get("VAPID_PRIVATE_KEY", "")
+    vapid_subject = vapid_subject or os.environ.get("VAPID_CLAIMS_SUBJECT", "")
+    database_url = database_url or os.environ.get("DATABASE_URL", "")
+    if not vapid_private:
+        logger.warning("push skipped: no VAPID private key sub=%s", sub.get("id"))
+        return "skipped"
+    try:
+        from py_vapid import Vapid  # type: ignore[import-untyped]
+        from pywebpush import WebPushException, webpush  # type: ignore[import-untyped]
+
+        try:
+            webpush(
+                subscription_info={
+                    "endpoint": sub["endpoint"],
+                    "keys": {"p256dh": sub["p256dh"], "auth": sub["auth"]},
+                },
+                data=payload,
+                vapid_private_key=Vapid.from_string(vapid_private),
+                vapid_claims={"sub": vapid_subject or "mailto:admin@holishared.local"},
+                ttl=3600,
+                timeout=10,
+            )
+        except WebPushException as exc:
+            status = getattr(exc.response, "status_code", None)
+            if status in PUSH_GONE:
+                if database_url:
+                    _push_db(
+                        database_url,
+                        "DELETE FROM push_subscriptions WHERE id = :id",
+                        {"id": sub["id"]},
+                    )
+                logger.info("push subscription gone sub=%s status=%s", sub.get("id"), status)
+                return "gone"
+            logger.warning("push failed sub=%s status=%s", sub.get("id"), status)
+            return "error"
+        if database_url:
+            _push_db(
+                database_url,
+                "UPDATE push_subscriptions SET last_success_at = :now WHERE id = :id",
+                {"id": sub["id"], "now": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S.%f")},
+            )
+        return "sent"
+    except Exception:
+        logger.warning("push error sub=%s", sub.get("id"), exc_info=True)
+        return "error"

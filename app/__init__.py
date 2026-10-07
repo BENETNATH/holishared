@@ -82,6 +82,13 @@ def create_app() -> Flask:
     # Redis (rate limiter + RQ)
     app.config["REDIS_URL"] = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
 
+    # Web Push (B027) : sans clés, les notifications sont indisponibles (jamais une erreur)
+    app.config["VAPID_PUBLIC_KEY"] = os.environ.get("VAPID_PUBLIC_KEY", "")
+    app.config["VAPID_PRIVATE_KEY"] = os.environ.get("VAPID_PRIVATE_KEY", "")
+    app.config["VAPID_CLAIMS_SUBJECT"] = os.environ.get(
+        "VAPID_CLAIMS_SUBJECT", "mailto:admin@holishared.local"
+    )
+
     # Email
     app.config["SMTP_HOST"] = os.environ.get("SMTP_HOST", "")
     app.config["SMTP_PORT"] = int(os.environ.get("SMTP_PORT", "587"))
@@ -193,8 +200,10 @@ def create_app() -> Flask:
     from app.auth import auth_bp
     from app.events import events_bp
     from app.main import main_bp
+    from app.push import push_bp
 
     app.register_blueprint(main_bp)
+    app.register_blueprint(push_bp)
     app.register_blueprint(auth_bp, url_prefix="/admin")
     app.register_blueprint(events_bp, url_prefix="/e")
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 10:26+0200\n"
+"POT-Creation-Date: 2026-10-07 11:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -674,6 +674,31 @@ msgstr ""
 
 #: app/i18n.py
 msgid "To"
+msgstr ""
+
+#: app/push.py
+#, python-format
+msgid "%(name)s : %(text)s"
+msgstr ""
+
+#: app/push.py
+#, python-format
+msgid "Nouveau message de %(name)s"
+msgstr ""
+
+#: app/push.py
+#, python-format
+msgid "%(name)s a créé un sondage : %(text)s"
+msgstr ""
+
+#: app/push.py
+#, python-format
+msgid "Nouveau sondage de %(name)s"
+msgstr ""
+
+#: app/push.py
+#, python-format
+msgid "Nouvelle demande de paiement de %(name)s"
 msgstr ""
 
 #: app/tasks.py

@@ -23,6 +23,7 @@ from app.forms import FormErrors
 from app.i18n import format_date_safe
 from app.models import Activity, Poll, PollOption, PollVote
 from app.polls import KIND_ACTIVITIES, KIND_FREE, KINDS, poll_views
+from app.push import notify
 
 voting_bp = Blueprint("voting", __name__)
 
@@ -209,6 +210,10 @@ def create(code: str) -> Response | tuple[str, int] | str:
     db.session.add(poll)
     log_event(ctx, "poll.created", target=fields.question)
     db.session.commit()
+    notify(
+        ctx.event, "polls", ctx.participant, fields.question,
+        url_for("voting.index", code=code), f"poll-{poll.id}",
+    )
 
     flash(_("Sondage créé."))
     return redirect(url_for("voting.detail", code=code, poll_id=poll.id))

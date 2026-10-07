@@ -27,6 +27,7 @@ from werkzeug.wrappers import Response
 from app.context import EventContext, load_event_context, log_event
 from app.extensions import db, limiter
 from app.models import ChatMessage
+from app.push import notify
 
 chat_bp = Blueprint("chat", __name__)
 
@@ -195,6 +196,10 @@ def send(code: str) -> Response | str:
     db.session.add(message)
     log_event(ctx, "chat.message", target=content[:50])
     db.session.commit()
+    notify(
+        ctx.event, "chat", participant, content,
+        url_for("chat.index", code=code), f"chat-{ctx.event.code}",
+    )
 
     if _is_htmx():
         # Tout ce qui est arrivé depuis le curseur du client, son message compris : aucun trou possible.
