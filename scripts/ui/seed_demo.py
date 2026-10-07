@@ -272,6 +272,29 @@ def _populate_rich(db: Any, models: Any, rich: Any, creator_guest: Any) -> dict[
             )
         )
 
+    # Journal (B020) : de quoi voir les groupes par jour, les icônes par module et les filtres.
+    yesterday = datetime.utcnow().replace(hour=18, minute=30, second=0, microsecond=0) - timedelta(days=1)
+    for hours, name, kind, action, target, details in (
+        (0, "Camille", "creator", "activity.created", "Randonnée au lac", None),
+        (1, "Antoine", "guest", "list_item.created", "Pain", "Courses"),
+        (2, "Chloé", "guest", "rsvp.updated", "Randonnée au lac", "maybe"),
+        (20, "Antoine", "guest", "meal.created", "Raclette du samedi", None),
+        (21, "Camille", "creator", "poll.created", "Quel jour pour la grande randonnée ?", None),
+        (22, "Chloé", "guest", "expense.created", None, None),
+        (23, "Antoine", "guest", "participant.renamed", "Antoine", None),
+    ):
+        db.session.add(
+            m.ActivityLog(
+                event_id=rich.id,
+                actor_name=name,
+                actor_type=kind,
+                action=action,
+                target=target,
+                details=details,
+                created_at=yesterday + timedelta(hours=hours),
+            )
+        )
+
     creator_household = m.Household.query.filter_by(
         guest_id=creator_guest.id, event_id=rich.id
     ).one()

@@ -144,6 +144,35 @@
       ]
     },
     {
+      "id": "rename-error",
+      "lot": "B020",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/me",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "(() => { const f = document.querySelector('[data-testid=rename-form]'); document.getElementById('f-display_name').value = 'A'; return fetch(f.action, { method: 'POST', credentials: 'same-origin', body: new URLSearchParams(new FormData(f)) }).then((r) => r.text()).then((h) => { const next = new DOMParser().parseFromString(h, 'text/html'); document.querySelector('main').replaceWith(next.querySelector('main')); return true; }); })()",
+          "message": "envoi du formulaire"
+        },
+        {
+          "type": "waitFor",
+          "expr": "!!document.querySelector('[data-testid=err-display_name]') && [...document.styleSheets].some((s) => (s.href || '').includes('app.css')) && document.readyState === 'complete'",
+          "message": "erreur par champ sur le nom"
+        }
+      ]
+    },
+    {
       "id": "event-manage",
       "lot": "B020",
       "role": "creator",
@@ -1014,7 +1043,7 @@
     },
     {
       "id": "members",
-      "lot": "B017",
+      "lot": "B020",
       "role": "creator",
       "path": "/e/{event.rich}/members",
       "scope": "shell",
@@ -1022,25 +1051,60 @@
         "nav": "event"
       },
       "langs": [
-        "fr"
+        "fr",
+        "en"
+      ],
+      "viewports": [
+        390,
+        1280
       ]
     },
     {
-      "id": "invite",
-      "lot": "B017",
+      "id": "participants-guest",
+      "lot": "B020",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/members",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "viewports": [
+        390,
+        1280
+      ]
+    },
+    {
+      "id": "participants-full",
+      "lot": "B020",
       "role": "creator",
-      "path": "/e/{event.rich}/invite",
+      "path": "/e/{event.full}/members",
       "scope": "shell",
       "expect": {
         "nav": "event"
       },
       "langs": [
         "fr"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "note": "Événement complet : la page reste accessible avec la carte de limite honnête (F02).",
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "!!document.querySelector('[data-testid=limit-card]') && !document.querySelector('[data-upgrade-target]')",
+          "message": "carte de limite sans faux bouton de montée en gamme"
+        }
       ]
     },
     {
       "id": "log",
-      "lot": "B017",
+      "lot": "B020",
       "role": "guest_household",
       "path": "/e/{event.rich}/log",
       "scope": "shell",
@@ -1048,7 +1112,58 @@
         "nav": "event"
       },
       "langs": [
+        "fr",
+        "en"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "document.querySelectorAll('[data-testid=log-day]').length >= 2 && !/\\b[a-z_]+\\.[a-z_]+\\b/.test([...document.querySelectorAll('[data-testid=log-sentence]')].map((e) => e.textContent).join(' '))",
+          "message": "jours regroupés, aucune clé technique affichée"
+        }
+      ]
+    },
+    {
+      "id": "log-filtered",
+      "lot": "B020",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/log?type=lists",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
         "fr"
+      ],
+      "viewports": [
+        390
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "[...document.querySelectorAll('[data-testid=log-entry]')].length === 1",
+          "message": "le filtre par module ne garde qu'une entrée"
+        }
+      ]
+    },
+    {
+      "id": "log-empty",
+      "lot": "B020",
+      "role": "creator",
+      "path": "/e/{event.empty}/log",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        390
       ]
     },
     {
