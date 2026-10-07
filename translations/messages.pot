@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 06:13+0200\n"
+"POT-Creation-Date: 2026-10-07 06:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -934,7 +934,9 @@ msgid "Trop d'inscriptions depuis votre connexion. Réessayez plus tard."
 msgstr ""
 
 #: app/events/__init__.py
-msgid "Code invalide."
+msgid ""
+"Ce code n'est pas valable pour cet événement. Vérifiez-le, ou rejoignez "
+"l'événement."
 msgstr ""
 
 #: app/events/__init__.py
@@ -1866,7 +1868,8 @@ msgid ""
 " que si vous le demandez ensuite."
 msgstr ""
 
-#: app/templates/events/create.html app/templates/events/recover.html
+#: app/templates/events/create.html app/templates/events/join.html
+#: app/templates/events/recover.html
 msgid "Votre e-mail"
 msgstr ""
 
@@ -2093,6 +2096,10 @@ msgstr ""
 msgid "Rejoindre"
 msgstr ""
 
+#: app/templates/events/join.html app/templates/events/mycode.html
+msgid "Rejoindre l'événement"
+msgstr ""
+
 #: app/templates/events/join.html app/templates/events/verify.html
 msgid "Votre pseudo"
 msgstr ""
@@ -2101,35 +2108,37 @@ msgstr ""
 msgid "Ex : Alice, Bob…"
 msgstr ""
 
+#: app/templates/events/join.html
+msgid "Le nom que les autres participants verront."
+msgstr ""
+
 #: app/templates/events/join.html app/templates/events/me.html
 #: app/templates/events/verify.html
 msgid "Votre code personnel"
 msgstr ""
 
 #: app/templates/events/join.html
-msgid "Ex : alice42"
-msgstr ""
-
-#: app/templates/events/join.html
 msgid ""
-"Choisissez un code que vous retiendrez : il vous servira à vous "
-"reconnecter sur un autre appareil. 4 à 8 lettres minuscules ou chiffres."
+"Il vous permet de revenir sur l'événement depuis un autre appareil ou "
+"après avoir quitté celui-ci. Nous vous en proposons un : gardez-le "
+"(notez-le) ou choisissez le vôtre, de 4 à 8 lettres minuscules ou "
+"chiffres."
 msgstr ""
 
 #: app/templates/events/join.html
-msgid "Votre foyer"
+msgid "Foyer et e-mail (facultatif)"
 msgstr ""
 
 #: app/templates/events/join.html
-msgid "Pour la répartition des frais."
+msgid "Votre foyer sert à répartir les frais. Vous pourrez le modifier plus tard."
 msgstr ""
 
 #: app/templates/events/join.html
-msgid "Votre email (optionnel)"
+msgid "Vous avez déjà un code ?"
 msgstr ""
 
 #: app/templates/events/join.html
-msgid "Rejoindre l'événement"
+msgid "Retrouver mon accès"
 msgstr ""
 
 #: app/templates/events/log.html
@@ -2305,7 +2314,7 @@ msgid "Votre code"
 msgstr ""
 
 #: app/templates/events/mycode.html
-msgid "Saisissez votre code personnel pour accéder à l'événement."
+msgid "Le code choisi à votre arrivée sur l'événement (4 à 8 caractères)."
 msgstr ""
 
 #: app/templates/events/mycode.html
@@ -2316,8 +2325,8 @@ msgstr ""
 msgid "Vous n'avez pas encore de code ?"
 msgstr ""
 
-#: app/templates/events/mycode.html
-msgid "Créez votre code personnel"
+#: app/templates/events/mycode.html app/templates/main/landing.html
+msgid "J'ai oublié mon code"
 msgstr ""
 
 #: app/templates/events/recover.html
@@ -2750,10 +2759,6 @@ msgstr ""
 
 #: app/templates/main/landing.html
 msgid "Continuer"
-msgstr ""
-
-#: app/templates/main/landing.html
-msgid "J'ai oublié mon code"
 msgstr ""
 
 #: app/templates/main/offline.html

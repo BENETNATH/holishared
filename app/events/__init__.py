@@ -992,11 +992,21 @@ def my_code(code: str) -> str | Response:
     if ctx.participant is not None:
         return redirect(url_for("events.dashboard", code=code))
 
+    errors = FormErrors()
+    typed = ""
     if request.method == "POST":
-        match = resolve_event_code(ctx.event, request.form.get("guest_code", ""))
+        typed = request.form.get("guest_code", "").strip()
+        match = resolve_event_code(ctx.event, typed)
         if match is None:
             mark_attempt_failed("event", code)
-            flash(_("Code invalide."), "danger")
+            errors.add(
+                "guest_code",
+                _(
+                    "Ce code n'est pas valable pour cet événement. Vérifiez-le, "
+                    "ou rejoignez l'événement."
+                ),
+            )
+            typed = typed[:64]
         elif match.guest is not None:
             start_guest_session(code, match.guest)
             log_code_login("guest", code)
@@ -1006,7 +1016,7 @@ def my_code(code: str) -> str | Response:
             log_code_login("creator", code)
             return redirect(url_for("events.dashboard", code=code))
 
-    return render_template("events/mycode.html", event=ctx.event)
+    return render_template("events/mycode.html", event=ctx.event, errors=errors, typed=typed)
 
 
 # === Helpers ===

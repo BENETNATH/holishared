@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 06:13+0200\n"
+"POT-Creation-Date: 2026-10-07 06:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -979,8 +979,10 @@ msgid "Trop d'inscriptions depuis votre connexion. Réessayez plus tard."
 msgstr "Too many sign-ups from your connection. Please try again later."
 
 #: app/events/__init__.py
-msgid "Code invalide."
-msgstr "Invalid code."
+msgid ""
+"Ce code n'est pas valable pour cet événement. Vérifiez-le, ou rejoignez "
+"l'événement."
+msgstr "This code is not valid for this event. Check it, or join the event."
 
 #: app/events/__init__.py
 msgid "Format d'e-mail invalide."
@@ -1930,7 +1932,8 @@ msgstr ""
 "It is valid for 3 days. Your e-mail is only kept if you ask for it "
 "afterwards."
 
-#: app/templates/events/create.html app/templates/events/recover.html
+#: app/templates/events/create.html app/templates/events/join.html
+#: app/templates/events/recover.html
 msgid "Votre e-mail"
 msgstr "Your e-mail"
 
@@ -2162,6 +2165,10 @@ msgstr "no email"
 msgid "Rejoindre"
 msgstr "Join"
 
+#: app/templates/events/join.html app/templates/events/mycode.html
+msgid "Rejoindre l'événement"
+msgstr "Join the event"
+
 #: app/templates/events/join.html app/templates/events/verify.html
 msgid "Votre pseudo"
 msgstr "Your nickname"
@@ -2170,38 +2177,41 @@ msgstr "Your nickname"
 msgid "Ex : Alice, Bob…"
 msgstr "E.g. Alice, Bob…"
 
+#: app/templates/events/join.html
+msgid "Le nom que les autres participants verront."
+msgstr "The name other participants will see."
+
 #: app/templates/events/join.html app/templates/events/me.html
 #: app/templates/events/verify.html
 msgid "Votre code personnel"
 msgstr "Your personal code"
 
 #: app/templates/events/join.html
-msgid "Ex : alice42"
-msgstr "E.g. alice42"
-
-#: app/templates/events/join.html
 msgid ""
-"Choisissez un code que vous retiendrez : il vous servira à vous "
-"reconnecter sur un autre appareil. 4 à 8 lettres minuscules ou chiffres."
+"Il vous permet de revenir sur l'événement depuis un autre appareil ou "
+"après avoir quitté celui-ci. Nous vous en proposons un : gardez-le "
+"(notez-le) ou choisissez le vôtre, de 4 à 8 lettres minuscules ou "
+"chiffres."
 msgstr ""
-"Choose a code you'll remember: it will let you reconnect on another "
-"device. 4 to 8 lowercase letters or digits."
+"It lets you come back to the event from another device or after leaving "
+"this one. We suggest one: keep it (write it down) or choose your own, 4 "
+"to 8 lowercase letters or digits."
 
 #: app/templates/events/join.html
-msgid "Votre foyer"
-msgstr "Your household"
+msgid "Foyer et e-mail (facultatif)"
+msgstr "Household and e-mail (optional)"
 
 #: app/templates/events/join.html
-msgid "Pour la répartition des frais."
-msgstr "For splitting costs."
+msgid "Votre foyer sert à répartir les frais. Vous pourrez le modifier plus tard."
+msgstr "Your household is used to split expenses. You can change it later."
 
 #: app/templates/events/join.html
-msgid "Votre email (optionnel)"
-msgstr "Your email (optional)"
+msgid "Vous avez déjà un code ?"
+msgstr "Already have a code?"
 
 #: app/templates/events/join.html
-msgid "Rejoindre l'événement"
-msgstr "Join the event"
+msgid "Retrouver mon accès"
+msgstr "Recover my access"
 
 #: app/templates/events/log.html
 msgid "Historique des actions de l'événement"
@@ -2378,8 +2388,8 @@ msgid "Votre code"
 msgstr "Your code"
 
 #: app/templates/events/mycode.html
-msgid "Saisissez votre code personnel pour accéder à l'événement."
-msgstr "Enter your personal code to access the event."
+msgid "Le code choisi à votre arrivée sur l'événement (4 à 8 caractères)."
+msgstr "The code you chose when you arrived at the event (4 to 8 characters)."
 
 #: app/templates/events/mycode.html
 msgid "Accéder à l'événement"
@@ -2389,9 +2399,9 @@ msgstr "Access the event"
 msgid "Vous n'avez pas encore de code ?"
 msgstr "Don't have a code yet?"
 
-#: app/templates/events/mycode.html
-msgid "Créez votre code personnel"
-msgstr "Create your personal code"
+#: app/templates/events/mycode.html app/templates/main/landing.html
+msgid "J'ai oublié mon code"
+msgstr "I forgot my code"
 
 #: app/templates/events/recover.html
 msgid "Retrouver mon code"
@@ -2848,10 +2858,6 @@ msgstr "An event code or your personal code (4 to 8 characters)."
 #: app/templates/main/landing.html
 msgid "Continuer"
 msgstr "Continue"
-
-#: app/templates/main/landing.html
-msgid "J'ai oublié mon code"
-msgstr "I forgot my code"
 
 #: app/templates/main/offline.html
 msgid "Hors ligne"

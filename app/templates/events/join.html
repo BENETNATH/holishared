@@ -1,62 +1,42 @@
 {% extends "base.html" %}
-{% from "_components/ui.html" import aria_invalid, field_errors, form_errors %}
+{% from "_components/ui.html" import field, form_errors %}
 {% block title %}{{ _("Rejoindre") }} — {{ event.title }}{% endblock %}
 {% block content %}
-<div class="page-head">
+{% set more_open = errors.has('email') %}
+<div class="mx-auto flex max-w-xl flex-col gap-4" data-testid="join-page">
+  <div class="ui-page-header">
     <div>
-        <h1>{{ _("Rejoindre") }} : {{ event.title }}</h1>
-        <p class="page-sub">
-            {{ event.start_date | format_date('medium') }} → {{ event.end_date | format_date('medium') }}
-            {% if event.location %} · 📍 {{ event.location }}{% endif %}
-        </p>
+      <h1>{{ _("Rejoindre l'événement") }}</h1>
+      <p class="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <strong class="font-semibold text-ink" translate="no">{{ event.title }}</strong>
+        <span class="inline-flex items-center gap-1">{{ icon('calendar-days', size=16) }}{{ event.start_date | format_date('medium') }} → {{ event.end_date | format_date('medium') }}</span>
+        {% if event.location %}<span class="inline-flex items-center gap-1" translate="no">{{ icon('map-pin', size=16) }}{{ event.location }}</span>{% endif %}
+      </p>
     </div>
+  </div>
+
+  {{ form_errors(errors, 'display_name', 'code', 'email') }}
+  <form method="post" action="{{ url_for('events.guest_access', code=event.code) }}" class="ui-card ui-form" data-testid="join-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    {{ field('display_name', _("Votre pseudo"), value=display_name or '', id='display_name', required=True, placeholder=_('Ex : Alice, Bob…'), help=_("Le nom que les autres participants verront."), error=errors.text('display_name'), autocomplete='nickname', attrs={'minlength': 2, 'maxlength': 50}) }}
+
+    {{ field('code', _("Votre code personnel"), value=code or '', id='code', required=True, help=_("Il vous permet de revenir sur l'événement depuis un autre appareil ou après avoir quitté celui-ci. Nous vous en proposons un : gardez-le (notez-le) ou choisissez le vôtre, de 4 à 8 lettres minuscules ou chiffres."), error=errors.text('code'), autocomplete='off', attrs={'minlength': 4, 'maxlength': 8, 'autocapitalize': 'none', 'spellcheck': 'false', 'data-testid': 'personal-code-input'}) }}
+
+    <details class="rounded-md border border-line px-3" data-testid="join-options"{% if more_open %} open{% endif %}>
+      <summary class="flex min-h-11 cursor-pointer items-center text-small font-semibold text-ink">{{ _("Foyer et e-mail (facultatif)") }}</summary>
+      <div class="flex flex-col gap-3 pb-3">
+        <p class="ui-help m-0">{{ _("Votre foyer sert à répartir les frais. Vous pourrez le modifier plus tard.") }}</p>
+        <div class="grid grid-cols-2 gap-4">
+          {{ field('num_adults', _("Adultes"), type='number', value=num_adults or 1, id='num_adults', required=True, attrs={'min': 1, 'max': 20, 'inputmode': 'numeric'}) }}
+          {{ field('num_children', _("Enfants"), type='number', value=num_children or 0, id='num_children', required=True, attrs={'min': 0, 'max': 20, 'inputmode': 'numeric'}) }}
+        </div>
+        {{ field('email', _("Votre e-mail"), type='email', value=email or '', id='email', autocomplete='email', error=errors.text('email')) }}
+      </div>
+    </details>
+
+    <button type="submit" class="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" data-testid="join-submit">{{ _("Rejoindre l'événement") }}</button>
+    <p class="m-0 text-center text-small text-ink-2">{{ _("Vous avez déjà un code ?") }} <a class="ui-link" href="{{ url_for('events.my_code', code=event.code) }}" data-testid="have-code-link">{{ _("Retrouver mon accès") }}</a></p>
+  </form>
 </div>
-
-{{ form_errors(errors, 'display_name', 'code', 'email') }}
-<form method="post" action="{{ url_for('events.guest_access', code=event.code) }}">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-  <div class="form-group">
-    <label for="display_name">{{ _("Votre pseudo") }} *</label>
-    <input type="text" id="display_name" name="display_name" required minlength="2" maxlength="50"
-           value="{{ display_name or '' }}" placeholder="{{ _('Ex : Alice, Bob…') }}"{{ aria_invalid(errors, 'display_name') }}>
-    {{ field_errors(errors, 'display_name') }}
-  </div>
-
-  <div class="form-group">
-    <label for="code">{{ _("Votre code personnel") }} *</label>
-    <div class="code-input-row">
-      <input type="text" id="code" name="code" required minlength="4" maxlength="8"
-             pattern="[a-z0-9]{4,8}" autocomplete="off" spellcheck="false"
-             value="{{ code or '' }}" placeholder="{{ _('Ex : alice42') }}"{{ aria_invalid(errors, 'code') }}>
-    </div>
-    {{ field_errors(errors, 'code') }}
-    <p class="hint">{{ _("Choisissez un code que vous retiendrez : il vous servira à vous reconnecter sur un autre appareil. 4 à 8 lettres minuscules ou chiffres.") }}</p>
-  </div>
-
-  <fieldset class="form-group">
-    <legend>{{ _("Votre foyer") }}</legend>
-    <p class="hint">{{ _("Pour la répartition des frais.") }}</p>
-    <div class="form-grid form-grid-compact">
-      <div class="field">
-        <label for="num_adults">{{ _("Adultes") }}</label>
-        <input type="number" id="num_adults" name="num_adults" min="1" max="20" value="{{ num_adults or 1 }}">
-      </div>
-      <div class="field">
-        <label for="num_children">{{ _("Enfants") }}</label>
-        <input type="number" id="num_children" name="num_children" min="0" max="20" value="{{ num_children or 0 }}">
-      </div>
-    </div>
-  </fieldset>
-
-  <div class="form-group">
-    <label for="email">{{ _("Votre email (optionnel)") }}</label>
-    <input type="email" id="email" name="email" value="{{ email or '' }}" autocomplete="email"{{ aria_invalid(errors, 'email') }}>
-    {{ field_errors(errors, 'email') }}
-  </div>
-
-  <div class="form-actions">
-    <button type="submit" class="btn btn-primary">{{ _("Rejoindre l'événement") }}</button>
-  </div>
-</form>
 {% endblock %}

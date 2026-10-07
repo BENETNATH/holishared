@@ -1,48 +1,27 @@
 {% extends "base.html" %}
+{% from "_components/ui.html" import field %}
 {% block title %}{{ _("Votre code") }} — {{ event.title }}{% endblock %}
 {% block content %}
-<div class="code-entry">
-  <div class="card code-entry-card">
-    <div class="auth-brand" aria-hidden="true">
-        <span class="brand-mark">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="4" fill="currentColor"/>
-                <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                    <line x1="12" y1="2.5" x2="12" y2="5"/>
-                    <line x1="12" y1="19" x2="12" y2="21.5"/>
-                    <line x1="2.5" y1="12" x2="5" y2="12"/>
-                    <line x1="19" y1="12" x2="21.5" y2="12"/>
-                    <line x1="5.3" y1="5.3" x2="7" y2="7"/>
-                    <line x1="17" y1="17" x2="18.7" y2="18.7"/>
-                    <line x1="5.3" y1="18.7" x2="7" y2="17"/>
-                    <line x1="17" y1="7" x2="18.7" y2="5.3"/>
-                </g>
-            </svg>
-        </span>
+<div class="mx-auto flex max-w-xl flex-col gap-4" data-testid="mycode-page">
+  <div class="ui-page-header">
+    <div>
+      <h1>{{ _("Votre code") }}</h1>
+      <p translate="no">{{ event.title }}</p>
     </div>
-    <h1>{{ _("Votre code") }}</h1>
-    <p class="auth-sub">{{ event.title }}</p>
-    <p class="prose">{{ _("Saisissez votre code personnel pour accéder à l'événement.") }}</p>
-
-    <form method="post" action="{{ url_for('events.my_code', code=event.code) }}">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-      <div class="form-group">
-        <label for="guest_code">{{ _("Code personnel") }} *</label>
-        <input type="text" id="guest_code" name="guest_code" required minlength="4" maxlength="8"
-               pattern="[a-z0-9]{4,8}" autocomplete="off" spellcheck="false"
-               class="code-input" autofocus>
-      </div>
-
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary code-submit">{{ _("Accéder à l'événement") }}</button>
-      </div>
-    </form>
-
-    <p class="hint code-entry-hint">
-      {{ _("Vous n'avez pas encore de code ?") }}
-      <a href="{{ url_for('events.guest_access', code=event.code) }}">{{ _("Créez votre code personnel") }}</a>
-    </p>
   </div>
+
+  <form method="post" action="{{ url_for('events.my_code', code=event.code) }}" class="ui-card ui-form" data-testid="mycode-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {{ field('guest_code', _("Code personnel"), value=typed or '', id='guest_code', required=True, help=_("Le code choisi à votre arrivée sur l'événement (4 à 8 caractères)."), error=errors.text('guest_code') if errors else None, autocomplete='off', attrs={'maxlength': 8, 'autocapitalize': 'none', 'spellcheck': 'false', 'autofocus': True, 'data-testid': 'code-input'}) }}
+    <button type="submit" class="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" data-testid="mycode-submit">{{ _("Accéder à l'événement") }}</button>
+  </form>
+
+  <p class="m-0 text-small text-ink-2" data-testid="mycode-help">
+    {{ _("Vous n'avez pas encore de code ?") }}
+    <a class="ui-link" href="{{ url_for('events.guest_access', code=event.code) }}" data-testid="join-link">{{ _("Rejoindre l'événement") }}</a>
+  </p>
+  <p class="m-0 text-small text-ink-2">
+    <a class="ui-link" href="{{ url_for('events.recover_code') }}">{{ _("J'ai oublié mon code") }}</a>
+  </p>
 </div>
 {% endblock %}

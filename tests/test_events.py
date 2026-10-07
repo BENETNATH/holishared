@@ -213,7 +213,7 @@ class TestMyCode:
         resp = client.post(f"/e/{event.code}/mycode", data={
             "guest_code": "zzzz9999",
         }, follow_redirects=True)
-        assert b"Code invalide" in resp.data
+        assert b"pas valable pour cet" in resp.data
 
     def test_dashboard_redirects_to_my_code(self, client, event):
         """Unauthenticated visitors are sent to the code-entry page."""
