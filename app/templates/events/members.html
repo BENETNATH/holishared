@@ -109,6 +109,7 @@
             {% if home %}
             <p class="m-0 text-small text-ink-2" data-testid="participant-household"><span translate="no">{{ home.name }}</span> · {{ ngettext("%(n)d adulte", "%(n)d adultes", home.num_adults, n=home.num_adults) }}{% if home.num_children %}, {{ ngettext("%(n)d enfant", "%(n)d enfants", home.num_children, n=home.num_children) }}{% endif %}</p>
             {% endif %}
+            {% if is_me %}<p class="m-0 mt-1"><a class="text-small" href="{{ url_for('events.me', code=event.code) }}#h-household" data-testid="my-household-link">{{ _("Modifier mon foyer") if home else _("Créer mon foyer") }}</a></p>{% endif %}
             {% if g.email and (creator or is_me) %}<p class="m-0 break-all text-small text-ink-2" data-testid="participant-email">{{ g.email }}</p>{% endif %}
           </div>
         </div>

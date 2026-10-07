@@ -421,7 +421,7 @@ def index(code: str) -> str | Response | tuple[str, int]:
     )
 
 
-def _parse_household(form: Any) -> tuple[dict[str, Any], FormErrors]:
+def parse_household(form: Any) -> tuple[dict[str, Any], FormErrors]:
     name = form.get("name", "").strip()
     errors = FormErrors()
     if len(name) < 2:
@@ -443,6 +443,41 @@ def _parse_household(form: Any) -> tuple[dict[str, Any], FormErrors]:
     return values, errors
 
 
+def my_household(ctx: EventContext) -> Household | None:
+    """Foyer du participant courant (None s'il n'en a pas)."""
+    return _my_household(ctx)
+
+
+def save_my_household(ctx: EventContext, values: dict[str, Any]) -> Household:
+    """Met à jour le foyer du participant, ou le crée s'il n'en a pas (propriétaire = participant).
+
+    Appelé après ``parse_household`` sans erreur ; droits B024 : le propriétaire modifie son foyer.
+    """
+    if ctx.participant is None:
+        abort(403)
+    hh = _my_household(ctx)
+    if hh is None:
+        first = Household.query.filter_by(event_id=ctx.event.id).first()
+        hh = Household(
+            **values,
+            adult_weight=first.adult_weight if first else 1.0,
+            child_weight=first.child_weight if first else 0.5,
+            event_id=ctx.event.id,
+            guest_id=ctx.participant.id,
+        )
+        db.session.add(hh)
+        log_event(ctx, "household.created", target=values["name"])
+    else:
+        if not ctx.can_edit(hh):
+            abort(403)
+        hh.name = values["name"]
+        hh.num_adults = values["num_adults"]
+        hh.num_children = values["num_children"]
+        log_event(ctx, "household.updated", target=hh.name)
+    db.session.commit()
+    return hh
+
+
 @costs_bp.route("/e/<code>/costs/households/new", methods=["GET", "POST"])
 def add_household(code: str) -> str | Response | tuple[str, int]:
     """Add a household (creator only)."""
@@ -452,7 +487,7 @@ def add_household(code: str) -> str | Response | tuple[str, int]:
     if request.method == "GET":
         return redirect(url_for("costs.index", code=code, tab="balance"))
 
-    values, errors = _parse_household(request.form)
+    values, errors = parse_household(request.form)
     if errors:
         return _invalid(ctx, SHEET_HOUSEHOLD, errors)
     first = Household.query.filter_by(event_id=ctx.event.id).first()
@@ -479,7 +514,7 @@ def edit_household(code: str, h_id: str) -> str | Response | tuple[str, int]:
         abort(404)
     if not ctx.can_edit(hh):
         abort(403)
-    values, errors = _parse_household(request.form)
+    values, errors = parse_household(request.form)
     if errors:
         return _invalid(ctx, SHEET_HOUSEHOLD_EDIT, errors, edit_household=hh)
     hh.name = values["name"]

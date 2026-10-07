@@ -41,6 +41,7 @@ from app.access import (
 )
 from app.auth import is_disposable_email
 from app.context import EventContext, device_events, load_event_context, log_event
+from app.costs import my_household, parse_household, save_my_household
 from app.extensions import db, limiter
 from app.forms import FormErrors
 from app.freemium import can_add_guest, guest_gauge, has_feature, max_duration_days, require_tier
@@ -556,7 +557,7 @@ def _join_url(event: Event) -> str:
 
 
 @events_bp.route("/<code>/me", methods=["GET", "POST"])
-def me(code: str) -> str | Response:
+def me(code: str) -> str | Response | tuple[str, int]:
     """Mon profil : nom d'affichage modifiable et code personnel masqué par défaut (B020)."""
     ctx = load_event_context(code)
     participant = ctx.participant
@@ -577,14 +578,55 @@ def me(code: str) -> str | Response:
                 db.session.commit()
             flash(_("Nom d'affichage enregistré."), "success")
             return redirect(url_for("events.me", code=code))
+    return _me_page(ctx, display_name, errors)
+
+
+def _me_page(
+    ctx: EventContext,
+    display_name: str,
+    errors: FormErrors,
+    hh_errors: FormErrors | None = None,
+    hh_form: dict[str, Any] | None = None,
+    status: int = 200,
+) -> tuple[str, int]:
+    participant = ctx.participant
+    if participant is None:  # inatteignable : load_event_context exige un participant
+        abort(403)
     personal = ctx.event.creator.personal_code if ctx.is_creator else participant.code
-    return render_template(
-        "events/me.html",
-        event=ctx.event,
-        personal_code=personal,
-        errors=errors,
-        display_name=display_name,
+    return (
+        render_template(
+            "events/me.html",
+            event=ctx.event,
+            personal_code=personal,
+            errors=errors,
+            display_name=display_name,
+            household=my_household(ctx),
+            hh_errors=hh_errors or FormErrors(),
+            hh_form=hh_form or {},
+            default_household_name=household_default_name(participant.display_name),
+        ),
+        status,
     )
+
+
+@events_bp.route("/<code>/me/household", methods=["POST"])
+def me_household(code: str) -> str | Response | tuple[str, int]:
+    """Mon foyer : nom, adultes, enfants (création si le participant n'a pas de foyer)."""
+    ctx = load_event_context(code)
+    if ctx.participant is None:  # inatteignable : load_event_context exige un participant
+        abort(403)
+    values, errors = parse_household(request.form)
+    if errors:
+        return _me_page(
+            ctx,
+            ctx.participant.display_name,
+            FormErrors(),
+            errors,
+            {k: request.form.get(k, "") for k in ("name", "num_adults", "num_children")},
+        )
+    save_my_household(ctx, values)
+    flash(_("Foyer enregistré."), "success")
+    return redirect(url_for("events.me", code=code) + "#h-household")
 
 
 @events_bp.route("/<code>/manage")

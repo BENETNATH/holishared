@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 09:48+0200\n"
+"POT-Creation-Date: 2026-10-07 10:26+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1200,6 +1200,10 @@ msgid "Nom d'affichage enregistré."
 msgstr ""
 
 #: app/events/__init__.py
+msgid "Foyer enregistré."
+msgstr ""
+
+#: app/events/__init__.py
 msgid "Limite d'invités atteinte."
 msgstr ""
 
@@ -1748,7 +1752,7 @@ msgstr ""
 msgid "Foyer"
 msgstr ""
 
-#: app/templates/costs/_balance.html
+#: app/templates/costs/_balance.html app/templates/events/me.html
 msgid "Mon foyer"
 msgstr ""
 
@@ -1927,7 +1931,7 @@ msgstr ""
 msgid "Ajouter"
 msgstr ""
 
-#: app/templates/costs/_forms.html
+#: app/templates/costs/_forms.html app/templates/events/me.html
 msgid "Nom du foyer"
 msgstr ""
 
@@ -1936,12 +1940,12 @@ msgid "Ex : Famille Dupont"
 msgstr ""
 
 #: app/templates/costs/_forms.html app/templates/events/join.html
-#: app/templates/events/verify.html
+#: app/templates/events/me.html app/templates/events/verify.html
 msgid "Adultes"
 msgstr ""
 
 #: app/templates/costs/_forms.html app/templates/events/join.html
-#: app/templates/events/verify.html
+#: app/templates/events/me.html app/templates/events/verify.html
 msgid "Enfants"
 msgstr ""
 
@@ -2089,10 +2093,19 @@ msgstr ""
 msgid "Vous devez %(amount)s à %(name)s"
 msgstr ""
 
+#: app/templates/costs/index.html app/templates/events/members.html
+msgid "Modifier mon foyer"
+msgstr ""
+
 #: app/templates/costs/index.html
 msgid ""
 "Aucun foyer ne vous est rattaché. Demandez à l'organisateur de vous "
 "rattacher à un foyer pour voir votre solde."
+msgstr ""
+
+#: app/templates/costs/index.html app/templates/events/me.html
+#: app/templates/events/members.html
+msgid "Créer mon foyer"
 msgstr ""
 
 #: app/templates/costs/index.html
@@ -2673,6 +2686,22 @@ msgstr ""
 msgid ""
 "Le nouveau nom apparaît partout où vous êtes listé. Les messages du chat "
 "et les entrées du journal déjà écrits gardent le nom d'origine."
+msgstr ""
+
+#: app/templates/events/me.html
+msgid ""
+"La composition de votre foyer détermine votre part dans les frais "
+"partagés."
+msgstr ""
+
+#: app/templates/events/me.html
+msgid ""
+"Vous n'avez pas encore de foyer. Créez-le pour participer au partage des "
+"frais."
+msgstr ""
+
+#: app/templates/events/me.html
+msgid "Enregistrer le foyer"
 msgstr ""
 
 #: app/templates/events/me.html

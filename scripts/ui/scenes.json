@@ -144,6 +144,64 @@
       ]
     },
     {
+      "id": "my-household",
+      "lot": "B031",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/me",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "note": "section « Mon foyer » : nom, adultes, enfants préremplis, bouton d'envoi",
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "(() => { const f = document.querySelector('[data-testid=household-form]'); return !!f && ['name','num_adults','num_children'].every((n) => f.querySelector('[name=' + n + ']').value !== '') && document.documentElement.scrollWidth <= document.documentElement.clientWidth; })()",
+          "message": "formulaire du foyer prérempli, sans débordement"
+        }
+      ]
+    },
+    {
+      "id": "my-household-error",
+      "lot": "B031",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/me",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "themes": [
+        "light"
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "(() => { const f = document.querySelector('[data-testid=household-form]'); f.querySelector('[name=num_adults]').value = '0'; return fetch(f.action, { method: 'POST', credentials: 'same-origin', body: new URLSearchParams(new FormData(f)) }).then((r) => r.text()).then((h) => { const next = new DOMParser().parseFromString(h, 'text/html'); document.querySelector('main').replaceWith(next.querySelector('main')); return true; }); })()",
+          "message": "envoi du formulaire"
+        },
+        {
+          "type": "assert",
+          "expr": "!!document.querySelector('[data-testid=err-num_adults]') && document.querySelector('#hh-adults').getAttribute('aria-invalid') === 'true'",
+          "message": "erreur affichée sur le champ Adultes"
+        }
+      ]
+    },
+    {
       "id": "rename-error",
       "lot": "B020",
       "role": "guest_household",

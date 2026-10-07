@@ -31,11 +31,13 @@
       {%- for d in i_owe %}<li class="break-words">{{ _("Vous devez %(amount)s à %(name)s", name=d['to'].name, amount=d['amount']|money) }}</li>{% endfor %}
     </ul>
     {%- endif %}
+    <p class="m-0 mt-2"><a class="ui-btn ui-btn--ghost ui-btn--sm" href="{{ url_for('events.me', code=event.code) }}#h-household" data-testid="my-household-edit">{{ icon('pencil', size=16) }}<span>{{ _("Modifier mon foyer") }}</span></a></p>
   </section>
   {%- else %}
   <section class="ui-card mb-4" data-testid="my-balance-empty">
     <p class="m-0 font-semibold text-ink">{{ _("Mon solde") }}</p>
     <p class="m-0 mt-1 text-small text-ink-2">{{ _("Aucun foyer ne vous est rattaché. Demandez à l'organisateur de vous rattacher à un foyer pour voir votre solde.") }}</p>
+    <p class="m-0 mt-2"><a class="ui-btn ui-btn--secondary ui-btn--sm" href="{{ url_for('events.me', code=event.code) }}#h-household" data-testid="my-household-create">{{ _("Créer mon foyer") }}</a></p>
   </section>
   {%- endif %}
 

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_components/ui.html" import field %}
+{% from "_components/ui.html" import field, form_errors %}
 {% block title %}{{ _("Mon profil") }} — {{ event.title }}{% endblock %}
 {% block content %}
 <div class="mx-auto flex max-w-xl flex-col gap-4">
@@ -16,6 +16,20 @@
       {{ field('display_name', _("Nom affiché aux autres participants"), value=display_name, required=True, error=errors.text('display_name'), autocomplete='nickname', attrs={'minlength': 2, 'maxlength': 50}) }}
       <p class="ui-help m-0" data-testid="rename-help">{{ _("Le nouveau nom apparaît partout où vous êtes listé. Les messages du chat et les entrées du journal déjà écrits gardent le nom d'origine.") }}</p>
       <div><button type="submit" class="ui-btn ui-btn--primary" data-testid="rename-submit">{{ _("Enregistrer") }}</button></div>
+    </form>
+  </section>
+  <section class="ui-card" aria-labelledby="h-household" id="h-household" data-testid="household-card">
+    <h2 id="h-household" class="mt-0 text-subheading font-semibold text-ink">{{ _("Mon foyer") }}</h2>
+    <p class="text-small text-ink-2" data-testid="household-help">{% if household %}{{ _("La composition de votre foyer détermine votre part dans les frais partagés.") }}{% else %}{{ _("Vous n'avez pas encore de foyer. Créez-le pour participer au partage des frais.") }}{% endif %}</p>
+    <form method="post" action="{{ url_for('events.me_household', code=event.code) }}" class="ui-form" data-testid="household-form" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      {{ form_errors(hh_errors, 'name', 'num_adults', 'num_children') }}
+      {{ field('name', _("Nom du foyer"), id='hh-name', required=True, value=hh_form.get('name', household.name if household else default_household_name), error=hh_errors.text('name'), attrs={'maxlength': 100, 'autocomplete': 'off'}) }}
+      <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
+        {{ field('num_adults', _("Adultes"), type='number', id='hh-adults', required=True, value=hh_form.get('num_adults', household.num_adults if household else 1), error=hh_errors.text('num_adults'), attrs={'min': 1, 'max': 50, 'inputmode': 'numeric'}) }}
+        {{ field('num_children', _("Enfants"), type='number', id='hh-children', required=True, value=hh_form.get('num_children', household.num_children if household else 0), error=hh_errors.text('num_children'), attrs={'min': 0, 'max': 50, 'inputmode': 'numeric'}) }}
+      </div>
+      <div><button type="submit" class="ui-btn ui-btn--primary" data-testid="household-submit">{{ _("Enregistrer le foyer") if household else _("Créer mon foyer") }}</button></div>
     </form>
   </section>
   <section class="ui-card" aria-labelledby="h-code">

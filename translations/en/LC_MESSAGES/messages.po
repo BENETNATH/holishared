@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 09:48+0200\n"
+"POT-Creation-Date: 2026-10-07 10:26+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -1245,6 +1245,10 @@ msgid "Nom d'affichage enregistré."
 msgstr "Display name saved."
 
 #: app/events/__init__.py
+msgid "Foyer enregistré."
+msgstr "Household saved."
+
+#: app/events/__init__.py
 msgid "Limite d'invités atteinte."
 msgstr "Guest limit reached."
 
@@ -1801,7 +1805,7 @@ msgstr "Ratio"
 msgid "Foyer"
 msgstr "Household"
 
-#: app/templates/costs/_balance.html
+#: app/templates/costs/_balance.html app/templates/events/me.html
 msgid "Mon foyer"
 msgstr "My household"
 
@@ -1984,7 +1988,7 @@ msgstr "Save"
 msgid "Ajouter"
 msgstr "Add"
 
-#: app/templates/costs/_forms.html
+#: app/templates/costs/_forms.html app/templates/events/me.html
 msgid "Nom du foyer"
 msgstr "Household name"
 
@@ -1993,12 +1997,12 @@ msgid "Ex : Famille Dupont"
 msgstr "E.g. Smith family"
 
 #: app/templates/costs/_forms.html app/templates/events/join.html
-#: app/templates/events/verify.html
+#: app/templates/events/me.html app/templates/events/verify.html
 msgid "Adultes"
 msgstr "Adults"
 
 #: app/templates/costs/_forms.html app/templates/events/join.html
-#: app/templates/events/verify.html
+#: app/templates/events/me.html app/templates/events/verify.html
 msgid "Enfants"
 msgstr "Children"
 
@@ -2146,6 +2150,10 @@ msgstr "%(name)s owes you %(amount)s"
 msgid "Vous devez %(amount)s à %(name)s"
 msgstr "You owe %(name)s %(amount)s"
 
+#: app/templates/costs/index.html app/templates/events/members.html
+msgid "Modifier mon foyer"
+msgstr "Edit my household"
+
 #: app/templates/costs/index.html
 msgid ""
 "Aucun foyer ne vous est rattaché. Demandez à l'organisateur de vous "
@@ -2153,6 +2161,11 @@ msgid ""
 msgstr ""
 "No household is linked to you. Ask the organiser to link you to a "
 "household to see your balance."
+
+#: app/templates/costs/index.html app/templates/events/me.html
+#: app/templates/events/members.html
+msgid "Créer mon foyer"
+msgstr "Create my household"
 
 #: app/templates/costs/index.html
 msgid "Sections des frais"
@@ -2754,6 +2767,22 @@ msgid ""
 msgstr ""
 "The new name appears wherever you are listed. Chat messages and log "
 "entries already written keep the original name."
+
+#: app/templates/events/me.html
+msgid ""
+"La composition de votre foyer détermine votre part dans les frais "
+"partagés."
+msgstr "Your household size determines your share of the shared costs."
+
+#: app/templates/events/me.html
+msgid ""
+"Vous n'avez pas encore de foyer. Créez-le pour participer au partage des "
+"frais."
+msgstr "You do not have a household yet. Create it to take part in cost sharing."
+
+#: app/templates/events/me.html
+msgid "Enregistrer le foyer"
+msgstr "Save household"
 
 #: app/templates/events/me.html
 msgid ""
