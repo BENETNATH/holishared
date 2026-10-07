@@ -318,6 +318,14 @@ Audit B017/B029 : constats 1 à 6 corrigés (variables `INSTANCE_PATH` et `SKIP_
 - Les tests n'écrivent plus dans `instance/media` (fixture `app` -> `tmp_path`).
 - Gate tests : suite complète de plusieurs minutes (pas de xdist).
 
+### 2026-10-07 — B027 Notifications Web Push
+
+- Modèle `PushSubscription` (unicité (événement, endpoint) : le navigateur renvoie le même endpoint pour tous les événements), API d'abonnement sous `/e/<code>/push/`, `app/push.py` (ciblage, payload minimal, mise en file) et tâche RQ `send_push` autonome.
+- La clé privée VAPID n'est pas mise en file : le worker la lit dans son environnement (`VAPID_PRIVATE_KEY`), comme `DATABASE_URL` pour supprimer les abonnements 404/410 ; `docker-compose.yml` mis à jour (volume + `SKIP_STARTUP_MIGRATION`).
+- Clés de `manage.py` (PKCS8 base64url) chargées telles quelles par `py_vapid` : compatibilité testée.
+- Le `.env` de développement fournit des clés VAPID aux tests : les tests push neutralisent la config.
+- Limites : parcours iOS (PWA installée) et réception réelle non testables en CI ; invitation de l'accueil non couverte par une scène de garde (le rendu serveur est testé).
+
 ### À faire (backlog)
 
 | Priorité | Tâche | Statut |

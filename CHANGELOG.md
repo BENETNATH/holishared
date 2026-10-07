@@ -10,6 +10,15 @@ sous chaque lot.
 
 ## [Unreleased]
 
+### B027 — Notifications Web Push
+
+- `feat(models)` : `PushSubscription` (guest/event en `ON DELETE CASCADE`, endpoint https, clés, langue, préférences par appareil) ; unicité (événement, endpoint) ; migration idempotente `migrate_push` ; abonnements supprimés au retrait du participant.
+- `feat(push)` : routes `/e/<code>/push/{subscribe,unsubscribe,prefs,status}` (CSRF, contexte d'événement, limitées en débit, pas d'IDOR, max 5 appareils) ; tâche RQ `send_push` (pywebpush, suppression 404/410, clé privée lue dans l'environnement du worker) ; déclencheurs chat / sondage / demande de remboursement (jamais l'auteur, aperçu optionnel, 90 caractères, langue de l'abonné, `tag` de regroupement, lien profond) ; dégradation silencieuse sans VAPID ni Redis.
+- `feat(pwa)` : gestionnaires `push`, `notificationclick`, `notificationclose` du service worker.
+- `feat(ui)` : section « Notifications » de Mon profil (états : indisponible, non supporté, iOS non installé, refusé), invitation fermable de l'accueil, `ui/push.js`, feuille de confidentialité mise à jour.
+- `chore(infra)` / `docs` : service `worker` (`SKIP_STARTUP_MIGRATION`, `DATABASE_URL`, `VAPID_*`, volume), `app` reçoit `VAPID_*` ; ADR-005 ; README ; `.env.example`.
+- `test(push)` : `test_push_b027.py`, `test_push_sw_b027.py`, `test_push_ui_b027.py` ; scène de garde `my-notifications`.
+
 ### B031 — Finitions (retours du test utilisateur)
 
 - `feat(events)` : section « Mon foyer » sur `/e/<code>/me` (nom, adultes ≥ 1, enfants ≥ 0, erreurs par champ, toast ; création si le participant n'a pas de foyer) ; liens « Modifier mon foyer » depuis la carte « Mon solde » (Frais) et la ligne « Vous » de Participants. Logique partagée avec `costs` (`parse_household`, `save_my_household`) ; journal `household.created` / `household.updated`.

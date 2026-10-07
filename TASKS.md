@@ -545,7 +545,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B027 — Notifications Web Push (PWA)
 
-**Statut** : ⬜ · **Remplace** B014 (jamais implémenté : seules les clés VAPID existent dans `manage.py`/`.env.example`)
+**Statut** : ✅ (2026-10-07) · **Remplace** B014 (jamais implémenté : seules les clés VAPID existent dans `manage.py`/`.env.example`)
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
