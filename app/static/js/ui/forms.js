@@ -23,6 +23,15 @@ export function initForms() {
       submitter.setAttribute('data-loading', 'true');
     }
   });
+  // Cohérence des dates : la fin ne peut pas précéder le début (et suit le début si elle est vide).
+  document.addEventListener('change', (event) => {
+    const start = event.target;
+    if (!start.matches('[data-date-start]')) return;
+    const end = start.form && start.form.querySelector('[data-date-end]');
+    if (!end || !start.value) return;
+    end.min = start.value;
+    if (!end.value || end.value < start.value) end.value = start.value;
+  });
   window.addEventListener('pageshow', (event) => {
     if (!event.persisted) return;
     document.querySelectorAll('form[data-submitting]').forEach((form) => {

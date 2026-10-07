@@ -206,6 +206,7 @@ def create() -> str | Response:
             return render_template(
                 "events/create.html",
                 errors=errors,
+                max_days=max_duration_days(),
                 form={"title": title, "description": description,
                       "start_date": start_date, "end_date": end_date,
                       "location": location, "email": email},
@@ -225,8 +226,18 @@ def create() -> str | Response:
         # Check event limit
         existing_count = Event.query.filter_by(creator_id=creator.id, is_active=True).count()
         if existing_count >= int(current_app.config["MAX_EVENTS_PER_CREATOR"]):
-            flash(_("Limite d'événements atteinte (%(count)d).", count=existing_count), "warning")
-            return redirect(url_for("events.create"))
+            db.session.rollback()
+            errors.add_global(
+                _("Limite d'événements atteinte (%(count)d).", count=existing_count)
+            )
+            return render_template(
+                "events/create.html",
+                errors=errors,
+                max_days=max_duration_days(),
+                form={"title": title, "description": description,
+                      "start_date": start_date, "end_date": end_date,
+                      "location": location, "email": email},
+            )
 
         # Create event with verification token (unverified until link clicked).
         import secrets as _secrets
@@ -258,9 +269,17 @@ def create() -> str | Response:
             )
         else:
             logger.warning("verification_mail_not_sent smtp=unconfigured event=%s", event.code)
+        session[f"pending_{event.code}"] = True  # ce navigateur peut demander un renvoi
         return redirect(url_for("events.verify_sent", code=event.code))
 
-    return render_template("events/create.html", errors=FormErrors())
+    return render_template("events/create.html", errors=FormErrors(), max_days=max_duration_days())
+
+
+def _masked_email(email: str | None) -> str:
+    """``a***@domaine`` : assez pour reconnaître l'adresse, pas pour la deviner."""
+    if not email or "@" not in email:
+        return ""
+    return f"{email[0]}***@{email.rsplit('@', 1)[-1]}"
 
 
 @events_bp.route("/new/sent/<code>")
@@ -269,7 +288,37 @@ def verify_sent(code: str) -> str | Response:
     event = Event.query.filter_by(code=code, is_active=True).first()
     if not event:
         abort(404)
-    return render_template("events/verify_sent.html", event=event)
+    return render_template(
+        "events/verify_sent.html",
+        event=event,
+        masked_email=_masked_email(event.creator_email),
+        mail_enabled=bool(current_app.config["SMTP_HOST"]),
+        can_resend=event.verified_at is None and bool(session.get(f"pending_{code}")),
+    )
+
+
+@events_bp.route("/new/sent/<code>/resend", methods=["POST"])
+@limiter.limit("3 per hour")
+def resend_verification(code: str) -> Response:
+    """Renvoi du lien : réservé au navigateur qui a créé l'événement, 3 par heure."""
+    event = Event.query.filter_by(code=code, is_active=True).first()
+    if event is None or event.verified_at is not None or not session.get(f"pending_{code}"):
+        abort(404)
+    token = event.verification_token
+    creator = Creator.query.get(event.creator_id)
+    if token and creator is not None:
+        if current_app.config["SMTP_HOST"]:
+            _send_verification_email(creator, event, token)
+            flash(_("L'e-mail de confirmation vient d'être renvoyé."), "success")
+        elif current_app.config["DEV_SHOW_SECRETS"]:
+            flash(
+                _(
+                    "Mode développement (SMTP non configuré) : cliquez sur le lien de vérification : %(url)s",
+                    url=url_for("events.verify", token=token, _external=True),
+                ),
+                "warning",
+            )
+    return redirect(url_for("events.verify_sent", code=code))
 
 
 @events_bp.route("/verify/<token>", methods=["GET", "POST"])
@@ -334,6 +383,7 @@ def verify(token: str) -> str | Response:
             suggestion = personal_code or ("" if has_existing_code else suggest_creator_code())
             return render_template(
                 "events/verify.html", event=event, token=token, errors=messages,
+                mail_enabled=bool(current_app.config["SMTP_HOST"]),
                 has_existing_code=has_existing_code,
                 form_data={"display_name": display_name,
                            "personal_code": suggestion,
@@ -387,6 +437,7 @@ def verify(token: str) -> str | Response:
         "events/verify.html",
         event=event,
         token=token,
+        mail_enabled=bool(current_app.config["SMTP_HOST"]),
         errors=FormErrors(),
         has_existing_code=has_existing_code,
         form_data={} if has_existing_code else {"personal_code": suggest_creator_code()},

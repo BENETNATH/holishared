@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 06:09+0200\n"
+"POT-Creation-Date: 2026-10-07 06:13+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -854,7 +854,7 @@ msgstr "End date required."
 msgid "Date de fin avant date de début."
 msgstr "End date is before start date."
 
-#: app/events/__init__.py
+#: app/events/__init__.py app/templates/events/create.html
 #, python-format
 msgid "Durée max : %(n)d jour."
 msgid_plural "Durée max : %(n)d jours."
@@ -886,6 +886,10 @@ msgid ""
 msgstr ""
 "Development mode (SMTP not configured): click the verification link: "
 "%(url)s"
+
+#: app/events/__init__.py
+msgid "L'e-mail de confirmation vient d'être renvoyé."
+msgstr "The confirmation e-mail has just been sent again."
 
 #: app/events/__init__.py
 msgid "Lien invalide ou expiré."
@@ -1875,20 +1879,8 @@ msgid "Nouvel événement"
 msgstr "New event"
 
 #: app/templates/events/create.html
-msgid "Créez un événement et invitez vos proches à planifier ensemble."
-msgstr "Create an event and invite your loved ones to plan together."
-
-#: app/templates/events/create.html
-msgid "Basiques"
-msgstr "Basics"
-
-#: app/templates/events/create.html app/templates/events/verify.html
-msgid "Votre email"
-msgstr "Your email"
-
-#: app/templates/events/create.html app/templates/events/recover.html
-msgid "Ex : alice@mail.com"
-msgstr "E.g. alice@mail.com"
+msgid "Quatre informations suffisent : vous pourrez tout compléter ensuite."
+msgstr "Four details are enough: you can complete everything afterwards."
 
 #: app/templates/events/create.html app/templates/logistics/_fields.html
 #: app/templates/main/ui_catalog.html app/templates/planning/_forms.html
@@ -1916,27 +1908,35 @@ msgstr "Location"
 msgid "Ex : Gîte de la Vallée, Annecy"
 msgstr "E.g. Gîte de la Vallée, Annecy"
 
-#: app/templates/events/create.html app/templates/voting/_forms.html
-#: app/templates/voting/_poll.html
-msgid "Options"
-msgstr "Options"
-
 #: app/templates/events/create.html
-msgid "description"
-msgstr "description"
+msgid "Ajouter une description"
+msgstr "Add a description"
 
 #: app/templates/events/create.html
 msgid "Quelques mots pour situer le contexte…"
 msgstr "A few words to set the context…"
 
 #: app/templates/events/create.html
+msgid "Confirmation par e-mail"
+msgstr "E-mail confirmation"
+
+#: app/templates/events/create.html
 msgid ""
-"Un email de vérification vous sera envoyé pour activer l'événement (lien "
-"valide 3 jours). Il ne sera conservé que si vous le demandez à la "
-"validation."
+"Pour activer l'événement, nous envoyons un lien de confirmation à "
+"l'adresse ci-dessous. Il est valable 3 jours. Votre e-mail n'est conservé"
+" que si vous le demandez ensuite."
 msgstr ""
-"A verification email will be sent to activate the event (link valid for 3"
-" days). It will only be kept if you request it at validation."
+"To activate the event, we send a confirmation link to the address below. "
+"It is valid for 3 days. Your e-mail is only kept if you ask for it "
+"afterwards."
+
+#: app/templates/events/create.html app/templates/events/recover.html
+msgid "Votre e-mail"
+msgstr "Your e-mail"
+
+#: app/templates/events/create.html app/templates/events/recover.html
+msgid "Ex : alice@mail.com"
+msgstr "E.g. alice@mail.com"
 
 #: app/templates/events/create.html
 msgid "Créer l'événement"
@@ -2175,7 +2175,7 @@ msgstr "E.g. Alice, Bob…"
 msgid "Votre code personnel"
 msgstr "Your personal code"
 
-#: app/templates/events/join.html app/templates/events/verify.html
+#: app/templates/events/join.html
 msgid "Ex : alice42"
 msgstr "E.g. alice42"
 
@@ -2187,7 +2187,7 @@ msgstr ""
 "Choose a code you'll remember: it will let you reconnect on another "
 "device. 4 to 8 lowercase letters or digits."
 
-#: app/templates/events/join.html app/templates/events/verify.html
+#: app/templates/events/join.html
 msgid "Votre foyer"
 msgstr "Your household"
 
@@ -2406,10 +2406,6 @@ msgstr ""
 "will send it to you."
 
 #: app/templates/events/recover.html
-msgid "Votre e-mail"
-msgstr "Your e-mail"
-
-#: app/templates/events/recover.html
 msgid "Envoyer mon code"
 msgstr "Send my code"
 
@@ -2428,36 +2424,69 @@ msgstr ""
 "new event."
 
 #: app/templates/events/verify.html
-msgid "Validation"
-msgstr "Validation"
+msgid "Confirmer l'événement"
+msgstr "Confirm the event"
 
 #: app/templates/events/verify.html
-msgid "Validez votre événement"
-msgstr "Validate your event"
+msgid "Confirmez votre événement"
+msgstr "Confirm your event"
 
 #: app/templates/events/verify.html
-msgid ""
-"Votre code créateur actuel est conservé. Laissez ce champ vide pour le "
-"garder, ou saisissez un nouveau code de 8 caractères pour le remplacer."
-msgstr ""
-"Your current creator code is kept. Leave this field empty to keep it, or "
-"enter a new 8-character code to replace it."
+msgid "Le nom que les participants verront."
+msgstr "The name participants will see."
 
 #: app/templates/events/verify.html
 msgid ""
-"Ce code vous sert à accéder à l'événement sur n'importe quel appareil. 4 "
-"à 8 lettres minuscules ou chiffres."
+"Votre code actuel est conservé. Laissez ce champ vide pour le garder, ou "
+"saisissez un nouveau code de 8 caractères pour le remplacer."
 msgstr ""
-"This code lets you access the event from any device. 4 to 8 lowercase "
-"letters or digits."
+"Your current code is kept. Leave this field empty to keep it, or enter a "
+"new 8-character code to replace it."
 
 #: app/templates/events/verify.html
-msgid "Inviter des proches (optionnel)"
-msgstr "Invite friends (optional)"
+msgid ""
+"Nous vous proposons un code : gardez-le ou changez-le (8 lettres "
+"minuscules ou chiffres). Notez-le, c'est votre clé pour revenir sur "
+"l'événement depuis n'importe quel appareil."
+msgstr ""
+"We suggest a code: keep it or change it (8 lowercase letters or digits). "
+"Write it down: it is your key to come back to the event from any device."
 
 #: app/templates/events/verify.html
-msgid "Emails (séparés par des virgules)"
-msgstr "Emails (comma-separated)"
+msgid "Conservation de votre e-mail"
+msgstr "Keeping your e-mail"
+
+#: app/templates/events/verify.html
+msgid "Conserver mon e-mail pour retrouver mon code"
+msgstr "Keep my e-mail to recover my code"
+
+#: app/templates/events/verify.html
+msgid ""
+"Case cochée : votre e-mail est gardé uniquement pour vous renvoyer votre "
+"code si vous le perdez. Case décochée (par défaut) : il est effacé dès la"
+" confirmation et votre code ne pourra pas être renvoyé."
+msgstr ""
+"Ticked: your e-mail is kept only to send you your code if you lose it. "
+"Unticked (default): it is erased as soon as you confirm and your code "
+"cannot be sent again."
+
+#: app/templates/events/verify.html
+msgid "Composition de mon foyer (facultatif)"
+msgstr "My household (optional)"
+
+#: app/templates/events/verify.html
+msgid ""
+"Sert au partage des frais et aux groupes. Vous pourrez la modifier plus "
+"tard."
+msgstr "Used to split expenses and for groups. You can change it later."
+
+#: app/templates/events/verify.html
+msgid "Inviter des proches par e-mail (facultatif)"
+msgstr "Invite people by e-mail (optional)"
+
+#: app/templates/events/verify.html
+msgid "E-mails, séparés par des virgules"
+msgstr "E-mails, separated by commas"
 
 #: app/templates/events/verify.html
 msgid "Ex : alice@mail.com, bob@mail.fr"
@@ -2465,61 +2494,75 @@ msgstr "E.g. alice@mail.com, bob@mail.fr"
 
 #: app/templates/events/verify.html
 msgid ""
-"Ces emails ne servent qu'à envoyer l'invitation : ils ne sont PAS "
-"conservés."
-msgstr "These emails are only used to send the invitation: they are NOT kept."
+"Ces adresses ne servent qu'à envoyer l'invitation : elles ne sont pas "
+"conservées."
+msgstr "These addresses are only used to send the invitation: they are not kept."
 
 #: app/templates/events/verify.html
-msgid ""
-"Indiquez la composition de votre foyer pour le partage des frais et les "
-"groupes. Vous pourrez la modifier plus tard."
-msgstr ""
-"Tell us your household composition for cost sharing and groups. You can "
-"change it later."
-
-#: app/templates/events/verify.html
-msgid "Conserver mon email pour récupérer mon code si perdu"
-msgstr "Keep my email to recover my code if lost"
-
-#: app/templates/events/verify.html
-msgid ""
-"Si la case n'est pas cochée, votre email est effacé après validation. "
-"Vous ne pourrez pas récupérer votre code."
-msgstr ""
-"If unticked, your email is erased after validation. You will not be able "
-"to recover your code."
-
-#: app/templates/events/verify.html
-msgid "Confirmer et accéder"
-msgstr "Confirm and access"
+msgid "Confirmer mon événement"
+msgstr "Confirm my event"
 
 #: app/templates/events/verify_sent.html
-msgid "Vérification envoyée"
-msgstr "Verification sent"
+msgid "Vérifiez votre e-mail"
+msgstr "Check your e-mail"
 
 #: app/templates/events/verify_sent.html
-msgid "Un email de vérification a été envoyé à"
-msgstr "A verification email has been sent to"
+msgid "E-mail non envoyé"
+msgstr "E-mail not sent"
 
 #: app/templates/events/verify_sent.html
-msgid "Un email de vérification a été envoyé."
-msgstr "A verification email has been sent."
+msgid "Confirmation de l'événement"
+msgstr "Event confirmation"
 
 #: app/templates/events/verify_sent.html
 msgid ""
-"Cliquez sur le lien pour définir votre code personnel et votre pseudo. Le"
-" lien est valide 3 jours."
+"L'envoi d'e-mails n'est pas configuré sur ce serveur : aucun e-mail de "
+"confirmation n'a été envoyé. Contactez l'administrateur du service."
 msgstr ""
-"Click the link to set your personal code and nickname. The link is valid "
-"for 3 days."
+"E-mail sending is not configured on this server: no confirmation e-mail "
+"was sent. Contact the service administrator."
+
+#: app/templates/events/verify_sent.html
+msgid "Nous venons d'envoyer un lien de confirmation à"
+msgstr "We have just sent a confirmation link to"
+
+#: app/templates/events/verify_sent.html
+msgid "Nous venons de vous envoyer un lien de confirmation."
+msgstr "We have just sent you a confirmation link."
 
 #: app/templates/events/verify_sent.html
 msgid ""
-"Sans vérification, l'événement sera supprimé automatiquement au bout de 3"
-" jours."
+"Ouvrez-le pour choisir votre pseudo et votre code personnel : l'événement"
+" sera alors actif. Le lien est valable 3 jours."
 msgstr ""
-"Without verification, the event will be automatically deleted after 3 "
-"days."
+"Open it to choose your nickname and personal code: the event will then be"
+" active. The link is valid for 3 days."
+
+#: app/templates/events/verify_sent.html
+msgid ""
+"Sans confirmation, l'événement est supprimé automatiquement au bout de 3 "
+"jours."
+msgstr "Without confirmation, the event is automatically deleted after 3 days."
+
+#: app/templates/events/verify_sent.html
+msgid "Rien reçu ?"
+msgstr "Nothing received?"
+
+#: app/templates/events/verify_sent.html
+msgid "Patientez quelques minutes, puis vérifiez vos courriers indésirables."
+msgstr "Wait a few minutes, then check your spam folder."
+
+#: app/templates/events/verify_sent.html
+msgid "Vérifiez que l'adresse est correcte : sinon, créez de nouveau l'événement."
+msgstr "Check that the address is correct: otherwise, create the event again."
+
+#: app/templates/events/verify_sent.html
+msgid "Renvoyer l'e-mail"
+msgstr "Send the e-mail again"
+
+#: app/templates/events/verify_sent.html
+msgid "Créer de nouveau l'événement"
+msgstr "Create the event again"
 
 #: app/templates/freemium/_upgrade_modal.html
 #: app/templates/freemium/paywall.html
@@ -3409,6 +3452,10 @@ msgstr "All days"
 #: app/templates/voting/_forms.html
 msgid "Cochez au moins 2 activités."
 msgstr "Tick at least 2 activities."
+
+#: app/templates/voting/_forms.html app/templates/voting/_poll.html
+msgid "Options"
+msgstr "Options"
 
 #: app/templates/voting/_forms.html
 msgid "Autres options"

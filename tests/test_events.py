@@ -66,7 +66,7 @@ class TestAnonymousCreationFlow:
         # 3. The verify link lives at /e/verify/<token> (not /verify/<token>).
         resp = client.get(f"/e/verify/{token}")
         assert resp.status_code == 200
-        assert b"Validez votre" in resp.data
+        assert b"Confirmez votre" in resp.data
 
         # 4. Verify WITHOUT storing the creator email (opt-out, the default).
         resp = client.post(f"/e/verify/{token}", data={

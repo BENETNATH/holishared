@@ -1,21 +1,43 @@
 {% extends "base.html" %}
-{% block title %}{{ _("Vérification envoyée") }} — {{ event.title }}{% endblock %}
+{% block title %}{{ _("Vérifiez votre e-mail") }} — {{ event.title }}{% endblock %}
 {% block content %}
-<div class="page-head">
+<div class="mx-auto flex max-w-xl flex-col gap-4" data-testid="verify-sent">
+  <div class="ui-page-header">
     <div>
-        <h1>{{ _("Vérification envoyée") }}</h1>
-        <p class="page-sub">{{ event.title }}</p>
+      <h1>{% if mail_enabled %}{{ _("Vérifiez votre e-mail") }}{% else %}{{ _("E-mail non envoyé") }}{% endif %}</h1>
+      <p translate="no">{{ event.title }}</p>
     </div>
-</div>
+  </div>
 
-<div class="card">
-  {% set ce = event.creator_email or '' %}
-  {% if ce %}
-  <p>{{ _("Un email de vérification a été envoyé à") }} <strong>{{ ce[0] }}***@{{ ce.split('@')[-1] }}</strong>.</p>
-  {% else %}
-  <p>{{ _("Un email de vérification a été envoyé.") }}</p>
-  {% endif %}
-  <p>{{ _("Cliquez sur le lien pour définir votre code personnel et votre pseudo. Le lien est valide 3 jours.") }}</p>
-  <p class="hint">{{ _("Sans vérification, l'événement sera supprimé automatiquement au bout de 3 jours.") }}</p>
+  <section class="ui-card flex flex-col gap-3" aria-labelledby="h-sent">
+    <h2 id="h-sent" class="sr-only">{{ _("Confirmation de l'événement") }}</h2>
+    {% if not mail_enabled %}
+    <p class="m-0 flex items-start gap-2 text-ink" data-testid="mail-disabled">{{ icon('triangle-alert') }}<span>{{ _("L'envoi d'e-mails n'est pas configuré sur ce serveur : aucun e-mail de confirmation n'a été envoyé. Contactez l'administrateur du service.") }}</span></p>
+    {% else %}
+    <p class="m-0 text-ink" data-testid="verify-sent-message">
+      {% if masked_email %}{{ _("Nous venons d'envoyer un lien de confirmation à") }} <strong translate="no" data-testid="masked-email">{{ masked_email }}</strong>.
+      {% else %}{{ _("Nous venons de vous envoyer un lien de confirmation.") }}{% endif %}
+    </p>
+    <p class="m-0 text-small text-ink-2">{{ _("Ouvrez-le pour choisir votre pseudo et votre code personnel : l'événement sera alors actif. Le lien est valable 3 jours.") }}</p>
+    <p class="m-0 text-small text-ink-2">{{ _("Sans confirmation, l'événement est supprimé automatiquement au bout de 3 jours.") }}</p>
+    {% endif %}
+  </section>
+
+  <section class="ui-card flex flex-col gap-2" aria-labelledby="h-nothing" data-testid="verify-sent-help">
+    <h2 id="h-nothing" class="m-0 text-subheading font-semibold text-ink">{{ _("Rien reçu ?") }}</h2>
+    <ul class="m-0 list-disc pl-5 text-small text-ink-2">
+      <li>{{ _("Patientez quelques minutes, puis vérifiez vos courriers indésirables.") }}</li>
+      <li>{{ _("Vérifiez que l'adresse est correcte : sinon, créez de nouveau l'événement.") }}</li>
+    </ul>
+    <div class="flex flex-wrap gap-2 pt-1">
+      {% if can_resend and mail_enabled %}
+      <form method="post" action="{{ url_for('events.resend_verification', code=event.code) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="ui-btn ui-btn--secondary" data-testid="resend-verification">{{ icon('mail') }}<span>{{ _("Renvoyer l'e-mail") }}</span></button>
+      </form>
+      {% endif %}
+      <a href="{{ url_for('events.create') }}" class="ui-btn ui-btn--ghost" data-testid="create-again">{{ _("Créer de nouveau l'événement") }}</a>
+    </div>
+  </section>
 </div>
 {% endblock %}

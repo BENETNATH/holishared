@@ -1,80 +1,58 @@
 {% extends "base.html" %}
-{% from "_components/ui.html" import aria_invalid, field_errors, form_errors %}
-{% block title %}{{ _("Validation") }} — {{ event.title }}{% endblock %}
+{% from "_components/ui.html" import field, form_errors %}
+{% block title %}{{ _("Confirmer l'événement") }} — {{ event.title }}{% endblock %}
 {% block content %}
-<div class="page-head">
+{% set fd = form_data or {} %}
+<div class="mx-auto flex max-w-xl flex-col gap-4" data-testid="verify-page">
+  <div class="ui-page-header">
     <div>
-        <h1>{{ _("Validez votre événement") }}</h1>
-        <p class="page-sub">{{ event.title }} · {{ event.start_date|date_short }} → {{ event.end_date|date_short }}</p>
+      <h1>{{ _("Confirmez votre événement") }}</h1>
+      <p translate="no">{{ event.title }} · {{ event.start_date|date_short }} → {{ event.end_date|date_short }}</p>
     </div>
-</div>
-
-{{ form_errors(errors, 'display_name', 'personal_code') }}
-
-<form method="post" action="{{ url_for('events.verify', token=token) }}">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-  <div class="form-group">
-    <label for="display_name">{{ _("Votre pseudo") }} *</label>
-    <input type="text" id="display_name" name="display_name" required minlength="2" maxlength="50"
-           value="{{ form_data.get('display_name', '') }}" placeholder="{{ _('Ex : Alice, Bob…') }}"{{ aria_invalid(errors, 'display_name') }}>
-    {{ field_errors(errors, 'display_name') }}
   </div>
 
-  <div class="form-group">
-    <label for="personal_code">{{ _("Votre code personnel") }}{% if not has_existing_code %} *{% endif %}</label>
-    <div class="code-input-row">
-      <input type="text" id="personal_code" name="personal_code"{% if not has_existing_code %} required minlength="4"{% endif %} maxlength="8"
-             pattern="[a-z0-9]{4,8}" autocomplete="off" spellcheck="false"
-             value="{{ form_data.get('personal_code', '') }}" placeholder="{{ _('Ex : alice42') }}"{{ aria_invalid(errors, 'personal_code') }}>
-    </div>
-    {{ field_errors(errors, 'personal_code') }}
+  {{ form_errors(errors, 'display_name', 'personal_code') }}
+  <form method="post" action="{{ url_for('events.verify', token=token) }}" class="ui-card ui-form" data-testid="verify-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    {{ field('display_name', _("Votre pseudo"), value=fd.get('display_name', ''), id='display_name', required=True, placeholder=_('Ex : Alice, Bob…'), help=_("Le nom que les participants verront."), error=errors.text('display_name'), attrs={'minlength': 2, 'maxlength': 50}) }}
+
     {% if has_existing_code %}
-    <p class="hint">{{ _("Votre code créateur actuel est conservé. Laissez ce champ vide pour le garder, ou saisissez un nouveau code de 8 caractères pour le remplacer.") }}</p>
+    {{ field('personal_code', _("Votre code personnel"), value=fd.get('personal_code', ''), id='personal_code', help=_("Votre code actuel est conservé. Laissez ce champ vide pour le garder, ou saisissez un nouveau code de 8 caractères pour le remplacer."), error=errors.text('personal_code'), autocomplete='off', attrs={'maxlength': 8, 'autocapitalize': 'none', 'spellcheck': 'false'}) }}
     {% else %}
-    <p class="hint">{{ _("Ce code vous sert à accéder à l'événement sur n'importe quel appareil. 4 à 8 lettres minuscules ou chiffres.") }}</p>
+    {{ field('personal_code', _("Votre code personnel"), value=fd.get('personal_code', ''), id='personal_code', required=True, help=_("Nous vous proposons un code : gardez-le ou changez-le (8 lettres minuscules ou chiffres). Notez-le, c'est votre clé pour revenir sur l'événement depuis n'importe quel appareil."), error=errors.text('personal_code'), autocomplete='off', attrs={'minlength': 8, 'maxlength': 8, 'pattern': '[a-z0-9]{8}', 'autocapitalize': 'none', 'spellcheck': 'false', 'data-testid': 'personal-code-input'}) }}
     {% endif %}
-  </div>
 
-  <fieldset class="form-group">
-    <legend>{{ _("Inviter des proches (optionnel)") }}</legend>
-    <div class="form-group">
-      <label for="invite_emails">{{ _("Emails (séparés par des virgules)") }}</label>
-      <input type="text" id="invite_emails" name="invite_emails"
-             value="{{ form_data.get('invite_emails', '') }}"
-             placeholder="{{ _('Ex : alice@mail.com, bob@mail.fr') }}">
-    </div>
-    <p class="hint">{{ _("Ces emails ne servent qu'à envoyer l'invitation : ils ne sont PAS conservés.") }}</p>
-  </fieldset>
+    <section class="flex flex-col gap-2" aria-labelledby="h-keep-email" data-testid="keep-email">
+      <h2 id="h-keep-email" class="sr-only">{{ _("Conservation de votre e-mail") }}</h2>
+      <label class="ui-check">
+        <input type="checkbox" name="store_creator_email" value="1">
+        <span>{{ _("Conserver mon e-mail pour retrouver mon code") }}</span>
+      </label>
+      <p class="ui-help m-0">{{ _("Case cochée : votre e-mail est gardé uniquement pour vous renvoyer votre code si vous le perdez. Case décochée (par défaut) : il est effacé dès la confirmation et votre code ne pourra pas être renvoyé.") }}</p>
+    </section>
 
-  <fieldset class="form-group">
-    <legend>{{ _("Votre foyer") }}</legend>
-    <p class="hint">{{ _("Indiquez la composition de votre foyer pour le partage des frais et les groupes. Vous pourrez la modifier plus tard.") }}</p>
-    <div class="form-row">
-      <div class="form-group">
-        <label for="num_adults">{{ _("Adultes") }}</label>
-        <input type="number" id="num_adults" name="num_adults" min="1" max="20"
-               value="{{ form_data.get('num_adults', 1) }}">
+    <details class="rounded-md border border-line px-3" data-testid="verify-household">
+      <summary class="flex min-h-11 cursor-pointer items-center text-small font-semibold text-ink">{{ _("Composition de mon foyer (facultatif)") }}</summary>
+      <div class="flex flex-col gap-3 pb-3">
+        <p class="ui-help m-0">{{ _("Sert au partage des frais et aux groupes. Vous pourrez la modifier plus tard.") }}</p>
+        <div class="grid grid-cols-2 gap-4">
+          {{ field('num_adults', _("Adultes"), type='number', value=fd.get('num_adults', 1), id='num_adults', required=True, attrs={'min': 1, 'max': 20, 'inputmode': 'numeric'}) }}
+          {{ field('num_children', _("Enfants"), type='number', value=fd.get('num_children', 0), id='num_children', required=True, attrs={'min': 0, 'max': 20, 'inputmode': 'numeric'}) }}
+        </div>
       </div>
-      <div class="form-group">
-        <label for="num_children">{{ _("Enfants") }}</label>
-        <input type="number" id="num_children" name="num_children" min="0" max="20"
-               value="{{ form_data.get('num_children', 0) }}">
+    </details>
+
+    {% if mail_enabled %}
+    <details class="rounded-md border border-line px-3" data-testid="verify-invites"{% if fd.get('invite_emails') %} open{% endif %}>
+      <summary class="flex min-h-11 cursor-pointer items-center text-small font-semibold text-ink">{{ _("Inviter des proches par e-mail (facultatif)") }}</summary>
+      <div class="pb-3">
+        {{ field('invite_emails', _("E-mails, séparés par des virgules"), value=fd.get('invite_emails', ''), id='invite_emails', placeholder=_('Ex : alice@mail.com, bob@mail.fr'), help=_("Ces adresses ne servent qu'à envoyer l'invitation : elles ne sont pas conservées."), attrs={'inputmode': 'email'}) }}
       </div>
-    </div>
-  </fieldset>
+    </details>
+    {% endif %}
 
-  <fieldset class="form-group">
-    <legend>{{ _("Votre email") }}</legend>
-    <label class="checkbox-label">
-      <input type="checkbox" name="store_creator_email" value="1">
-      <span>{{ _("Conserver mon email pour récupérer mon code si perdu") }}</span>
-    </label>
-    <p class="hint">{{ _("Si la case n'est pas cochée, votre email est effacé après validation. Vous ne pourrez pas récupérer votre code.") }}</p>
-  </fieldset>
-
-  <div class="form-actions">
-    <button type="submit" class="btn btn-primary btn-lg">{{ _("Confirmer et accéder") }}</button>
-  </div>
-</form>
+    <button type="submit" class="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" data-testid="verify-submit">{{ _("Confirmer mon événement") }}</button>
+  </form>
+</div>
 {% endblock %}
