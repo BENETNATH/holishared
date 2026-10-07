@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 08:30+0200\n"
+"POT-Creation-Date: 2026-10-07 09:48+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1399,6 +1399,11 @@ msgstr ""
 
 #: app/meals/__init__.py
 msgid "Repas déplacé."
+msgstr ""
+
+#: app/meals/__init__.py
+#, python-format
+msgid "Repas ajouté à : %(cell)s."
 msgstr ""
 
 #: app/meals/__init__.py
@@ -3508,8 +3513,20 @@ msgstr ""
 msgid "%(n)d repas"
 msgstr ""
 
-#: app/templates/meals/_grid.html app/templates/planning/index.html
-msgid "Jours de l'événement"
+#: app/templates/meals/_grid.html app/templates/meals/index.html
+msgid "Échanger"
+msgstr ""
+
+#: app/templates/meals/_grid.html
+msgid "Déposer ici"
+msgstr ""
+
+#: app/templates/meals/_grid.html
+msgid "Ajouter ici"
+msgstr ""
+
+#: app/templates/meals/_grid.html
+msgid "Placer ici"
 msgstr ""
 
 #: app/templates/meals/_grid.html app/templates/meals/index.html
@@ -3562,10 +3579,6 @@ msgstr ""
 
 #: app/templates/meals/index.html
 msgid "Aucun autre repas à échanger."
-msgstr ""
-
-#: app/templates/meals/index.html
-msgid "Échanger"
 msgstr ""
 
 #: app/templates/meals/index.html
@@ -3840,6 +3853,10 @@ msgstr ""
 
 #: app/templates/planning/form.html
 msgid "Créer l'activité"
+msgstr ""
+
+#: app/templates/planning/index.html
+msgid "Jours de l'événement"
 msgstr ""
 
 #: app/templates/planning/index.html

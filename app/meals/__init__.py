@@ -57,7 +57,6 @@ def _grid_context(ctx: EventContext) -> dict[str, object]:
         "cells": cells,
         "days": [event.start_date + timedelta(days=i) for i in range(event.duration_days)],
         "today": today,
-        "selected_day": today if event.start_date <= today <= event.end_date else event.start_date,
         "max_per_cell": MAX_MEALS_PER_CELL,
     }
 

@@ -548,21 +548,36 @@ class TestGridRender:
 
 
 class TestGridDays:
-    def test_one_day_tab_and_section_per_day_with_selected_pressed(self, creator_client, event):
+    def test_overview_has_one_section_per_day_and_no_day_selector(self, creator_client, event):
         html = creator_client.get(f"/e/{event.code}/meals").get_data(as_text=True)
-        assert html.count('data-testid="meal-day-tab"') == 7
         assert html.count("data-meal-day=") == 7
-        # Hors période, le premier jour est sélectionné.
-        assert 'data-selected-day="2026-12-01"' in html
-        assert 'data-meal-day-tab="2026-12-01"\n            aria-pressed="true"' in html
+        assert (
+            html.count('data-testid="meal-cell"') == 14
+        )  # tous les jours visibles : 7 x (midi, soir)
+        assert "data-meal-day-tab" not in html
+        assert "data-selected-day" not in html
 
-    def test_today_is_selected_and_marked_current(self, creator_client, event, db):
+    def test_today_is_marked_current(self, creator_client, event, db):
         event.start_date = date.today()
         event.end_date = date.today()
         db.session.commit()
         html = creator_client.get(f"/e/{event.code}/meals").get_data(as_text=True)
-        assert f'data-selected-day="{date.today().isoformat()}"' in html
         assert html.count('aria-current="date"') == 1
+
+    def test_add_twice_in_same_cell_keeps_add_button_enabled(self, creator_client, event):
+        for title in ("Premier plat", "Deuxième plat"):
+            resp = _post(
+                creator_client, event, "create", title=title, date="2026-12-03", slot="lunch"
+            )
+            assert resp.status_code == 200
+        assert _cell_titles(event, D3, "lunch") == ["Premier plat", "Deuxième plat"]
+        import re
+
+        button = re.search(
+            r'<button[^>]*data-meal-add[^>]*data-date="2026-12-03" data-slot="lunch"[^>]*>',
+            resp.get_data(as_text=True),
+        ).group(0)
+        assert " disabled" not in button
 
     def test_cell_has_accessible_label_with_day_slot_and_count(self, creator_client, event, cell3):
         html = creator_client.get(f"/e/{event.code}/meals").get_data(as_text=True)
@@ -680,3 +695,11 @@ class TestDropZones:
     def test_non_editable_card_has_no_swap_zone(self, guest_client, event, db, cell3):
         html = guest_client.get(f"/e/{event.code}/meals").data.decode()
         assert 'data-testid="meal-drop-swap"' not in html
+
+    def test_forms_lock_listens_after_module_handlers(self):
+        """Le verrou anti double envoi doit passer après les modules qui envoient par fetch (bouton resté en chargement)."""
+        from pathlib import Path
+
+        source = Path("app/static/js/ui/forms.js").read_text(encoding="utf-8")
+        assert "window.addEventListener('submit'" in source
+        assert "document.addEventListener('submit'" not in source

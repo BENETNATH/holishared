@@ -1,5 +1,6 @@
 // Page Repas (B022) : feuille d'un repas, actions par fetch (le fragment de grille remplace l'ancien),
-// déplacement aux pointer events (souris + tactile). Aucune bibliothèque.
+// déplacement aux pointer events (souris + tactile) avec deux zones de dépôt : « Ajouter ici » (la case)
+// et « Échanger » (une carte). Aucune bibliothèque.
 import { t } from 'ui/strings';
 import { toast } from 'ui/toast';
 import { closeSheet } from 'ui/dialog';
@@ -7,10 +8,8 @@ import { closeSheet } from 'ui/dialog';
 const CELL = '[data-testid="meal-cell"]';
 const DRAG_THRESHOLD = 6;
 const EDGE = 72;
-const TAB_SWITCH_MS = 450;
 
 let initialized = false;
-let selectedDay = null;
 let current = null; // id du repas affiché dans la feuille
 let busy = false;
 let focusAfter = null; // { mealId } ou { date, slot }
@@ -18,39 +17,6 @@ let focusAfter = null; // { mealId } ou { date, slot }
 const grid = () => document.getElementById('meal-grid');
 const sheet = () => document.getElementById('meal-sheet');
 const moveForm = () => sheet().querySelector('[data-testid="meal-move-form"]');
-
-// --- Jour affiché (mobile) -------------------------------------------------
-
-function applyDay() {
-  const root = grid();
-  if (!root) return;
-  const days = [...root.querySelectorAll('[data-meal-day]')].map((s) => s.dataset.mealDay);
-  if (!days.includes(selectedDay)) selectedDay = root.dataset.selectedDay;
-  root.dataset.selectedDay = selectedDay;
-  root.querySelectorAll('[data-meal-day]').forEach((section) => {
-    const on = section.dataset.mealDay === selectedDay;
-    section.classList.toggle('hidden', !on);
-    section.classList.toggle('flex', on);
-  });
-  root.querySelectorAll('[data-meal-day-tab]').forEach((tab) => {
-    tab.setAttribute('aria-pressed', tab.dataset.mealDayTab === selectedDay ? 'true' : 'false');
-  });
-}
-
-function selectDay(day, { reveal = true } = {}) {
-  selectedDay = day;
-  applyDay();
-  if (reveal) {
-    const tab = grid().querySelector(`[data-meal-day-tab="${day}"]`);
-    if (tab) tab.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
-  }
-}
-
-function shiftDay(step) {
-  const days = [...grid().querySelectorAll('[data-meal-day]')].map((s) => s.dataset.mealDay);
-  const next = days[days.indexOf(selectedDay) + step];
-  if (next) selectDay(next);
-}
 
 // --- Envoi et remplacement de la grille -------------------------------------
 
@@ -83,7 +49,6 @@ function swapGrid(html) {
   const next = template.content.firstElementChild;
   if (!next || next.id !== 'meal-grid') return false;
   grid().replaceWith(next);
-  applyDay();
   return true;
 }
 
@@ -198,11 +163,6 @@ async function reorder(direction) {
 
 function onClick(event) {
   const target = event.target;
-  const tab = target.closest('[data-meal-day-tab]');
-  if (tab) {
-    selectDay(tab.dataset.mealDayTab);
-    return;
-  }
   const open = target.closest('[data-meal-open]');
   if (open) {
     fillSheet(open.closest('[data-meal-id]'));
@@ -244,36 +204,39 @@ let drag = null;
 
 function clearTarget() {
   if (!drag) return;
-  if (drag.cell) drag.cell.classList.remove('ring-2', 'ring-primary-strong');
+  if (drag.zone) delete drag.zone.dataset.active;
   if (drag.indicator) drag.indicator.remove();
   drag.cell = null;
+  drag.zone = null;
+  drag.swap = null;
   drag.before = null;
 }
 
 function updateTarget() {
   const el = document.elementFromPoint(drag.x, drag.y);
-  const tab = el && el.closest('[data-meal-day-tab]');
   const cell = el && el.closest(CELL);
-  if (tab) {
-    clearTarget();
-    if (tab.dataset.mealDayTab !== selectedDay && drag.tabTimer === null) {
-      drag.tabTimer = setTimeout(() => {
-        selectDay(tab.dataset.mealDayTab, { reveal: false });
-        drag.tabTimer = null;
-      }, TAB_SWITCH_MS);
-    }
-    return;
-  }
-  clearTimeout(drag.tabTimer);
-  drag.tabTimer = null;
   if (!cell) {
     clearTarget();
     return;
   }
-  if (cell !== drag.cell) {
+  const swapZone = el.closest('[data-meal-drop="swap"]');
+  if (swapZone) {
+    // Carte visée : échange (jamais deux zones actives à la fois).
+    if (swapZone !== drag.zone) {
+      clearTarget();
+      drag.cell = cell;
+      drag.zone = swapZone;
+      drag.swap = swapZone.closest('[data-meal-id]');
+      swapZone.dataset.active = '';
+    }
+    return;
+  }
+  const addZone = cell.querySelector('[data-meal-drop="add"]');
+  if (drag.swap || cell !== drag.cell) {
     clearTarget();
     drag.cell = cell;
-    cell.classList.add('ring-2', 'ring-primary-strong');
+    drag.zone = addZone;
+    if (addZone) addZone.dataset.active = '';
   }
   const list = cell.querySelector('[data-meal-list]');
   const cards = [...list.querySelectorAll('[data-meal-id]')].filter((c) => c !== drag.card);
@@ -322,19 +285,23 @@ function activateDrag() {
   drag.ghost.style.width = `${box.width}px`;
   document.body.appendChild(drag.ghost);
   drag.card.classList.add('opacity-40');
+  drag.card.dataset.dragSource = '';
+  drag.card.closest(CELL).dataset.dropOrigin = '';
   document.body.classList.add('select-none');
   grid().dataset.dragging = 'true';
   moveGhost();
+  if (navigator.vibrate && navigator.userActivation?.hasBeenActive) navigator.vibrate(10); // retour tactile (ignoré là où non pris en charge)
   drag.raf = requestAnimationFrame(scrollLoop);
 }
 
 function endDrag() {
   if (!drag) return;
-  clearTimeout(drag.tabTimer);
   cancelAnimationFrame(drag.raf);
   clearTarget();
   if (drag.ghost) drag.ghost.remove();
   drag.card.classList.remove('opacity-40');
+  delete drag.card.dataset.dragSource;
+  document.querySelectorAll('[data-drop-origin]').forEach((c) => delete c.dataset.dropOrigin);
   document.body.classList.remove('select-none');
   const root = grid();
   if (root) delete root.dataset.dragging;
@@ -355,8 +322,9 @@ function onPointerDown(event) {
     x: event.clientX,
     y: event.clientY,
     active: false,
-    tabTimer: null,
     cell: null,
+    zone: null,
+    swap: null,
     before: null,
     indicator: null,
   };
@@ -386,9 +354,21 @@ function onPointerMove(event) {
 
 function onPointerUp() {
   if (!drag) return;
-  const { card, active, cell, before } = drag;
+  const { card, active, cell, before, swap } = drag;
   endDrag();
   if (!active || !cell) return;
+  if (swap) {
+    send(
+      sheet().querySelector('[data-testid="meal-swap-form"]').action,
+      {
+        csrf_token: sheet().querySelector('input[name="csrf_token"]').value,
+        meal_id: card.dataset.mealId,
+        other_id: swap.dataset.mealId,
+      },
+      { focus: { mealId: card.dataset.mealId } },
+    );
+    return;
+  }
   if (card.closest(CELL) === cell) {
     // Même case : rien à envoyer si la carte reste à sa place.
     const next = card.nextElementSibling;
@@ -405,47 +385,13 @@ function onDragKey(event) {
   if (active) toast(t('meal_drag_cancelled'), { tone: 'info' });
 }
 
-// --- Balayage (mobile) ---------------------------------------------------------
-
-function initSwipe() {
-  let start = null;
-  document.addEventListener(
-    'touchstart',
-    (event) => {
-      const root = grid();
-      const inside = root && root.contains(event.target);
-      const blocked = event.target.closest('[data-meal-tabs], [data-meal-handle]');
-      start =
-        inside && !blocked && event.touches.length === 1
-          ? { x: event.touches[0].clientX, y: event.touches[0].clientY }
-          : null;
-    },
-    { passive: true },
-  );
-  document.addEventListener(
-    'touchend',
-    (event) => {
-      if (!start || window.matchMedia('(min-width: 1024px)').matches) return;
-      const touch = event.changedTouches[0];
-      const dx = touch.clientX - start.x;
-      const dy = touch.clientY - start.y;
-      start = null;
-      if (Math.abs(dx) > 70 && Math.abs(dy) < 40) shiftDay(dx < 0 ? 1 : -1);
-    },
-    { passive: true },
-  );
-}
-
 export function initMeals() {
   if (initialized || !grid()) return;
   initialized = true;
-  selectedDay = grid().dataset.selectedDay;
-  applyDay();
   document.addEventListener('click', onClick);
   document.addEventListener('submit', onSubmit);
   document.addEventListener('pointerdown', onPointerDown);
   document.addEventListener('contextmenu', (event) => {
     if (event.target.closest?.('[data-meal-handle]')) event.preventDefault();
   });
-  initSwipe();
 }

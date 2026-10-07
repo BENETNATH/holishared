@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 08:30+0200\n"
+"POT-Creation-Date: 2026-10-07 09:48+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -1447,6 +1447,11 @@ msgstr "Meal deleted."
 #: app/meals/__init__.py
 msgid "Repas déplacé."
 msgstr "Meal moved."
+
+#: app/meals/__init__.py
+#, python-format
+msgid "Repas ajouté à : %(cell)s."
+msgstr "Meal added to: %(cell)s."
 
 #: app/meals/__init__.py
 msgid "Choisissez un autre repas."
@@ -3616,9 +3621,21 @@ msgstr "1 meal"
 msgid "%(n)d repas"
 msgstr "%(n)d meals"
 
-#: app/templates/meals/_grid.html app/templates/planning/index.html
-msgid "Jours de l'événement"
-msgstr "Event days"
+#: app/templates/meals/_grid.html app/templates/meals/index.html
+msgid "Échanger"
+msgstr "Swap"
+
+#: app/templates/meals/_grid.html
+msgid "Déposer ici"
+msgstr "Drop here"
+
+#: app/templates/meals/_grid.html
+msgid "Ajouter ici"
+msgstr "Add here"
+
+#: app/templates/meals/_grid.html
+msgid "Placer ici"
+msgstr "Place here"
 
 #: app/templates/meals/_grid.html app/templates/meals/index.html
 msgid "Ajouter un repas"
@@ -3675,10 +3692,6 @@ msgstr "Other meal"
 #: app/templates/meals/index.html
 msgid "Aucun autre repas à échanger."
 msgstr "No other meal to swap with."
-
-#: app/templates/meals/index.html
-msgid "Échanger"
-msgstr "Swap"
 
 #: app/templates/meals/index.html
 msgid "Ordre dans le créneau"
@@ -3955,6 +3968,10 @@ msgstr "Details"
 #: app/templates/planning/form.html
 msgid "Créer l'activité"
 msgstr "Create activity"
+
+#: app/templates/planning/index.html
+msgid "Jours de l'événement"
+msgstr "Event days"
 
 #: app/templates/planning/index.html
 msgid "Voir les repas"
