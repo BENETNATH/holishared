@@ -3,7 +3,7 @@
 
 {% macro essentials(p, fv, e, event) %}
 {{ field('title', _('Titre'), id=p ~ '-title', required=True, value=fv.get('title', ''), error=e.text('title'), attrs={'minlength': 2, 'maxlength': 200, 'autocomplete': 'off', 'placeholder': _('Ex : Randonnée au lac')}) }}
-<div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
+<div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-end gap-3">
   {{ field('date', _('Date'), type='date', id=p ~ '-date', required=True, value=fv.get('date', ''), error=e.text('date'), attrs={'min': event.start_date.isoformat(), 'max': event.end_date.isoformat()}) }}
   {{ field('start_time', _('Heure de début'), type='time', id=p ~ '-start_time', value=fv.get('start_time', ''), error=e.text('start_time')) }}
 </div>

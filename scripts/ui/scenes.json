@@ -172,6 +172,178 @@
       ]
     },
     {
+      "lot": "B021",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/planning",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "id": "planning-program",
+      "langs": [
+        "fr",
+        "en"
+      ]
+    },
+    {
+      "lot": "B021",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/planning",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "id": "planning-rsvp",
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "(window.__before = document.querySelector('[data-planning-day]:not(.hidden) [data-testid=rsvp-no]').getAttribute('aria-pressed'), window.__sameDoc = true)",
+          "message": "état initial mémorisé"
+        },
+        {
+          "type": "click",
+          "target": "[data-planning-day]:not(.hidden) [data-testid=rsvp-no]"
+        },
+        {
+          "type": "waitFor",
+          "expr": "document.querySelector('[data-planning-day]:not(.hidden) [data-testid=rsvp-no]').getAttribute('aria-pressed') !== window.__before",
+          "message": "la réponse « Non » change sans rechargement"
+        },
+        {
+          "type": "assert",
+          "expr": "window.__sameDoc === true",
+          "message": "la page n'a pas été rechargée"
+        }
+      ]
+    },
+    {
+      "lot": "B021",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/planning",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "id": "planning-add-sheet",
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "actions": [
+        {
+          "type": "click",
+          "target": "[data-testid=planning-add]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=activity-sheet]').open",
+          "message": "la feuille d'ajout est ouverte"
+        },
+        {
+          "type": "assert",
+          "expr": "document.activeElement && document.activeElement.id === 'sheet-title'",
+          "message": "le champ titre a le focus"
+        },
+        {
+          "type": "assert",
+          "expr": "!!document.querySelector('[data-testid=activity-more-options]') && !document.querySelector('[data-testid=activity-more-options]').open",
+          "message": "les options avancées sont repliées"
+        }
+      ]
+    },
+    {
+      "lot": "B021",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/planning",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "id": "planning-day-tabs",
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        360,
+        390,
+        820
+      ],
+      "actions": [
+        {
+          "type": "click",
+          "target": "[data-planning-day-tab]:nth-child(4)"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelectorAll('[data-planning-day-tab]')[3].getAttribute('aria-pressed') === 'true'",
+          "message": "le 4e jour est sélectionné"
+        },
+        {
+          "type": "assert",
+          "expr": "[...document.querySelectorAll('[data-planning-day]')].filter(s => s.getBoundingClientRect().height > 0).length === 1",
+          "message": "un seul jour est visible sur mobile"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=planning-today]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-planning-day]:not(.hidden)').querySelector('h2').dataset.today === 'true'",
+          "message": "« Aujourd'hui » ramène au jour courant"
+        }
+      ]
+    },
+    {
+      "lot": "B021",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/planning",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "id": "planning-timeline",
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        1280
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "[...document.querySelectorAll('[data-planning-day]')].every(s => s.getBoundingClientRect().height > 0)",
+          "message": "tous les jours sont visibles sur grand écran"
+        },
+        {
+          "type": "assert",
+          "expr": "getComputedStyle(document.querySelector('[data-planning-day] h2')).position === 'sticky'",
+          "message": "les en-têtes de jour sont collants"
+        }
+      ]
+    },
+    {
+      "lot": "B021",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/planning/new",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "id": "planning-form",
+      "langs": [
+        "fr",
+        "en"
+      ]
+    },
+    {
       "id": "meals",
       "lot": "B017",
       "role": "guest_household",

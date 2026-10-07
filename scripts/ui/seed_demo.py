@@ -81,7 +81,12 @@ def _populate_rich(db: Any, models: Any, rich: Any, creator_guest: Any) -> dict[
             "Randonnée Grande Moucherolle",
             0,
             time(9, 0),
-            {"description": "Départ du parking de la Molière.", "location": "Corrençon-en-Vercors"},
+            {
+                "description": "Départ du parking de la Molière.",
+                "location": "Corrençon-en-Vercors",
+                "bring_items": "Eau, chaussures de marche, pique-nique",
+                "min_headcount": 3,
+            },
         ),
         ("Piscine", 1, time(14, 30), {}),
         ("Visite des grottes de Choranche", 2, None, {}),
@@ -98,6 +103,10 @@ def _populate_rich(db: Any, models: Any, rich: Any, creator_guest: Any) -> dict[
             )
         )
 
+    db.session.flush()
+    hike = m.Activity.query.filter_by(event_id=rich.id).order_by(m.Activity.date).first()
+    for who, status in ((antoine, "yes"), (chloe, "yes"), (guests["Dimitri"], "maybe")):
+        db.session.add(m.ActivityRSVP(activity_id=hike.id, guest_id=who.id, status=status))
     meal_titles = ("Raclette", "Pique-nique", "Spaghetti pesto")
     index = 0
     for offset in range(-1, 5):

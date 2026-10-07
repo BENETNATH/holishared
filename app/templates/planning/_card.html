@@ -68,7 +68,7 @@
   </div>
 
   <form method="post" action="{{ url_for('planning.rsvp', **base) }}" hx-post="{{ url_for('planning.rsvp', **base) }}"
-        hx-target="#activity-{{ act.id }}" hx-swap="outerHTML" data-testid="rsvp-form">
+        hx-target="#activity-{{ act.id }}" hx-swap="outerHTML" data-testid="rsvp-form" class="sm:max-w-sm">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="ui-segmented" role="group" aria-label="{{ _('Ma réponse') }}">
       {%- for status, status_label in choices('rsvp_status') %}
