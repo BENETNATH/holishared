@@ -1812,7 +1812,7 @@
     },
     {
       "id": "list-panel-mobile",
-      "lot": "B023",
+      "lot": "B032",
       "role": "guest_household",
       "path": "/e/{event.rich}/lists/{list.rich}",
       "scope": "shell",
@@ -1824,16 +1824,22 @@
         "en"
       ],
       "viewports": [
+        360,
         390
       ],
       "actions": [
+        {
+          "type": "assert",
+          "expr": "(sessionStorage.removeItem('holishared:list-panel-mobile'), true)",
+          "message": "état mémorisé réinitialisé"
+        },
         {
           "type": "click",
           "target": "[data-testid=list-panel-toggle]"
         },
         {
           "type": "assert",
-          "expr": "document.querySelector('[data-testid=list-panel-toggle]').getAttribute('aria-expanded') === 'true' && getComputedStyle(document.querySelector('[data-testid=list-panel]')).display !== 'none'",
+          "expr": "document.querySelector('[data-list-layout]').dataset.panel === 'open' && document.querySelector('[data-testid=list-panel-toggle]').getAttribute('aria-expanded') === 'true' && getComputedStyle(document.querySelector('[data-testid=list-panel]')).display !== 'none'",
           "message": "le panneau est ouvert"
         },
         {
@@ -1853,8 +1859,8 @@
         },
         {
           "type": "assert",
-          "expr": "(() => { const r = document.querySelector('[data-testid=list-panel]').getBoundingClientRect(); const h = window.innerHeight; return r.height >= h*0.45 && r.height <= h*0.65 && r.bottom <= h; })()",
-          "message": "le tiroir occupe 45 à 65 % de la hauteur et reste au-dessus de la barre du bas"
+          "expr": "(() => { const p = document.querySelector('[data-testid=list-panel]').getBoundingClientRect(); const h = window.innerHeight; return p.height <= h*0.5 && p.height > 150 && p.bottom <= h; })()",
+          "message": "le tiroir ouvert occupe au plus 50 % de la hauteur et reste au-dessus de la barre du bas"
         },
         {
           "type": "assert",
@@ -1863,8 +1869,199 @@
         },
         {
           "type": "assert",
-          "expr": "(() => { const f = document.querySelector('#list-add-name'); const r = f.getBoundingClientRect(); const el = document.elementFromPoint(r.left + r.width/2, r.top + r.height/2); return el === f; })()",
-          "message": "le champ d'ajout reste visible et utilisable au-dessus du tiroir"
+          "expr": "(() => { const f = document.querySelector('#list-add-name'); const r = f.getBoundingClientRect(); const el = document.elementFromPoint(r.left + r.width/2, r.top + r.height/2); return el === f && r.bottom <= document.querySelector('[data-testid=list-panel]').getBoundingClientRect().top; })()",
+          "message": "le champ d'ajout reste visible, utilisable et sans recouvrement"
+        },
+        {
+          "type": "assert",
+          "expr": "(() => { const t = [document.querySelector('[data-testid=list-panel-handle]'), document.querySelector('[data-testid=list-panel-collapse]'), document.querySelector('[data-testid=list-panel-close]')]; return t.every((e) => { const r = e.getBoundingClientRect(); return r.height >= 44 && r.width >= 44 || (e === t[0] && r.height >= 44); }); })()",
+          "message": "poignée, chevron et fermeture : cibles d'au moins 44 px"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=list-panel-handle]').getBoundingClientRect().height <= 48.5",
+          "message": "l'en-tête du panneau fait au plus 48 px"
+        },
+        {
+          "type": "assert",
+          "expr": "(() => { const rows = [...document.querySelectorAll('[data-testid=panel-row]')].filter((r) => r.offsetParent); return rows.length > 0 && rows.every((r) => { const l = r.querySelector('label').getBoundingClientRect(); return l.height >= 44 && r.getBoundingClientRect().height <= 50; }); })()",
+          "message": "lignes sur une seule ligne, zone cliquable d'au moins 44 px"
+        },
+        {
+          "type": "swipe",
+          "target": "[data-testid=list-panel-handle]",
+          "dy": 90
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-list-layout]').dataset.panel === 'collapsed'",
+          "message": "glisser la poignée vers le bas : ouvert devient réduit"
+        },
+        {
+          "type": "swipe",
+          "target": "[data-testid=list-panel-handle]",
+          "dy": -90
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-list-layout]').dataset.panel === 'open'",
+          "message": "glisser la poignée vers le haut : réduit devient ouvert"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=list-panel-collapse]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-list-layout]').dataset.panel === 'collapsed'",
+          "message": "le chevron réduit le panneau"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=list-panel-collapse]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-list-layout]').dataset.panel === 'open' && document.querySelector('[data-testid=list-panel-collapse]').getAttribute('aria-expanded') === 'true'",
+          "message": "le chevron agrandit le panneau"
+        },
+        {
+          "type": "swipe",
+          "target": "[data-testid=list-panel-handle]",
+          "dy": 220,
+          "ms": 120
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-list-layout]').dataset.panel === 'closed' && getComputedStyle(document.querySelector('[data-testid=list-panel]')).display === 'none'",
+          "message": "un long glissé rapide ferme le panneau"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=list-panel-toggle]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-list-layout]').dataset.panel === 'open'",
+          "message": "le bouton rouvre le panneau (état ouvert compact)"
+        }
+      ]
+    },
+    {
+      "id": "list-panel-collapsed",
+      "lot": "B032",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/lists/{list.rich}",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "viewports": [
+        360,
+        390
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "(sessionStorage.removeItem('holishared:list-panel-mobile'), true)",
+          "message": "état mémorisé réinitialisé"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=list-panel-toggle]"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=list-panel-collapse]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-list-layout]').dataset.panel === 'collapsed' && document.querySelector('[data-testid=list-panel-collapse]').getAttribute('aria-expanded') === 'false'",
+          "message": "le panneau est réduit (chevron : aria-expanded=false)"
+        },
+        {
+          "type": "assert",
+          "expr": "(() => { const p = document.querySelector('[data-testid=list-panel]').getBoundingClientRect(); return p.height <= 64 && p.height > 0; })()",
+          "message": "le panneau réduit fait au plus 64 px de haut"
+        },
+        {
+          "type": "assert",
+          "expr": "getComputedStyle(document.getElementById('list-panel-body')).display === 'none'",
+          "message": "le corps du panneau est masqué"
+        },
+        {
+          "type": "assert",
+          "expr": "(() => { const bar = document.querySelector('[data-testid=nav-bottom]').getBoundingClientRect(); const p = document.querySelector('[data-testid=list-panel]').getBoundingClientRect(); return bar.top >= p.bottom - 1 && bar.height > 0; })()",
+          "message": "la barre du bas reste visible sous la barre réduite"
+        },
+        {
+          "type": "assert",
+          "expr": "(() => { const f = document.querySelector('#list-add-name'); const r = f.getBoundingClientRect(); const el = document.elementFromPoint(r.left + r.width/2, r.top + r.height/2); return el === f && r.bottom <= document.querySelector('[data-testid=list-panel]').getBoundingClientRect().top; })()",
+          "message": "le champ d'ajout n'est pas recouvert par la barre réduite"
+        }
+      ]
+    },
+    {
+      "id": "list-panel-states",
+      "lot": "B032",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/lists/{list.rich}",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "viewports": [
+        390
+      ],
+      "themes": [
+        "light"
+      ],
+      "langs": [
+        "fr"
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "(sessionStorage.removeItem('holishared:list-panel-mobile'), true)",
+          "message": "état mémorisé réinitialisé"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=list-panel-toggle]"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=list-panel-collapse]"
+        },
+        {
+          "type": "reload"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-list-layout]').dataset.panel === 'closed'",
+          "message": "après rechargement, le tiroir démarre fermé"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=list-panel-toggle]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-list-layout]').dataset.panel === 'collapsed'",
+          "message": "l'état réduit est mémorisé pendant la session"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=list-panel-handle]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-list-layout]').dataset.panel === 'open'",
+          "message": "un appui sur la poignée alterne réduit et ouvert"
         },
         {
           "type": "press",
@@ -1872,7 +2069,7 @@
         },
         {
           "type": "assert",
-          "expr": "document.querySelector('[data-testid=list-panel-toggle]').getAttribute('aria-expanded') === 'false' && getComputedStyle(document.querySelector('[data-testid=list-panel]')).display === 'none'",
+          "expr": "document.querySelector('[data-list-layout]').dataset.panel === 'closed' && getComputedStyle(document.querySelector('[data-testid=list-panel]')).display === 'none'",
           "message": "Échap ferme le tiroir"
         },
         {
@@ -1929,6 +2126,16 @@
           "type": "assert",
           "expr": "(() => { const m = document.querySelector('[data-testid=list-main]').getBoundingClientRect(); const p = document.querySelector('[data-testid=list-panel]').getBoundingClientRect(); return p.left >= m.right - 1 && p.width > 300 && Math.abs(p.top - m.top) < 400; })()",
           "message": "le panneau est une colonne à côté de la liste"
+        },
+        {
+          "type": "assert",
+          "expr": "getComputedStyle(document.querySelector('[data-testid=list-panel-collapse]')).display === 'none' && document.querySelector('[data-testid=list-panel-handle]').getBoundingClientRect().height <= 48.5",
+          "message": "bureau : pas de chevron, en-tête compact (48 px)"
+        },
+        {
+          "type": "assert",
+          "expr": "[...document.querySelectorAll('[data-testid=panel-row]')].filter((r) => r.offsetParent).every((r) => r.getBoundingClientRect().height <= 50)",
+          "message": "bureau : lignes sur une seule ligne"
         },
         {
           "type": "reload"

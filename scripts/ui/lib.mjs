@@ -102,7 +102,7 @@ export function loadScenes(file = path.join(UI_DIR, 'scenes.json'), { selfTest =
     if (selfTest && !Array.isArray(s.expectFail)) throw new ToolError(`${where} : expectFail obligatoire`);
     if (!selfTest && (s.expectFail || s.forceLang)) throw new ToolError(`${where} : expectFail/forceLang réservés à l'auto-contrôle`);
     for (const a of s.actions ?? []) {
-      if (!['click', 'press', 'scroll', 'wait', 'waitFor', 'reload', 'navigate', 'offline', 'assert', 'drag'].includes(a.type)) {
+      if (!['click', 'press', 'scroll', 'wait', 'waitFor', 'reload', 'navigate', 'offline', 'assert', 'drag', 'swipe'].includes(a.type)) {
         throw new ToolError(`${where} : action inconnue ${a.type}`);
       }
       if (a.type === 'wait' && !(a.ms <= 2000)) throw new ToolError(`${where} : wait > 2000 ms`);
@@ -375,6 +375,23 @@ export async function runActions(cdp, page, actions) {
       }
       await s('Input.dispatchMouseEvent', { type: 'mouseReleased', x: to.value.x, y: to.value.y, button: 'left', clickCount: 1 });
       await evaluate(cdp, page.sessionId, settleAfter(400), 5000);
+    } else if (a.type === 'swipe') {
+      // Glissé tactile réel (CDP) depuis le centre de `target` : `dy` pixels (négatif = vers le haut), `ms` de durée.
+      const r = await evaluate(cdp, page.sessionId, `(() => { const el = document.querySelector(${JSON.stringify(a.target)}); if (!el) return null; const b = el.getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2 }; })()`, 5000);
+      if (!r.ok || !r.value) {
+        page.failures.push(`swipe : cible introuvable ${a.target}`);
+        return;
+      }
+      const { x, y } = r.value;
+      const steps = 8;
+      const touch = (type, dy) => s('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y: y + dy, id: 1 }] });
+      await touch('touchStart', 0);
+      for (let i = 1; i <= steps; i++) {
+        await touch('touchMove', (a.dy * i) / steps);
+        await sleep((a.ms ?? 240) / steps);
+      }
+      await touch('touchEnd', a.dy);
+      await evaluate(cdp, page.sessionId, settleAfter(250), 5000);
     } else if (a.type === 'press') {
       const code = KEYS[a.key];
       if (!code) throw new ToolError(`touche non prise en charge ${a.key}`);
