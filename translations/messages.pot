@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 04:32+0200\n"
+"POT-Creation-Date: 2026-10-07 05:26+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,10 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
+
+#: app/__init__.py
+msgid "Trop de requêtes. Patientez un instant."
+msgstr ""
 
 #: app/freemium.py
 msgid "Fonctionnalité avancée"
@@ -1245,16 +1249,17 @@ msgstr ""
 msgid "Se connecter"
 msgstr ""
 
-#: app/templates/chat/_messages.html
-msgid "Aucun message"
+#: app/templates/chat/_messages.html app/templates/lists/_items.html
+msgid "Vous"
 msgstr ""
 
 #: app/templates/chat/_messages.html
-msgid "Lancez la conversation !"
+#, python-format
+msgid "Actions pour le message de %(name)s"
 msgstr ""
 
 #: app/templates/chat/_messages.html
-msgid "Supprimer le message de"
+msgid "Supprimer ce message ?"
 msgstr ""
 
 #: app/templates/chat/_messages.html app/templates/costs/_balance.html
@@ -1265,6 +1270,26 @@ msgstr ""
 #: app/templates/media/detail.html app/templates/planning/_card.html
 #: app/templates/voting/detail.html
 msgid "Supprimer"
+msgstr ""
+
+#: app/templates/chat/index.html
+msgid "Messages précédents"
+msgstr ""
+
+#: app/templates/chat/index.html
+msgid "Aucun message"
+msgstr ""
+
+#: app/templates/chat/index.html
+msgid "Lancez la conversation !"
+msgstr ""
+
+#: app/templates/chat/index.html
+msgid "Messages"
+msgstr ""
+
+#: app/templates/chat/index.html
+msgid "Nouveaux messages"
 msgstr ""
 
 #: app/templates/chat/index.html
@@ -2445,10 +2470,6 @@ msgstr ""
 
 #: app/templates/freemium/pdf_export.html
 msgid "Généré par Holishared Vacances+ — prêt à partager ou à comptabiliser."
-msgstr ""
-
-#: app/templates/lists/_items.html
-msgid "Vous"
 msgstr ""
 
 #: app/templates/lists/_items.html

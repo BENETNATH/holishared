@@ -4,7 +4,7 @@ import os
 import shutil
 import time
 from pathlib import Path
-from typing import cast
+from typing import Any, cast
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request, session
@@ -253,6 +253,23 @@ def create_app() -> Flask:
         from flask import render_template
 
         return render_template("errors/403.html"), 403
+
+    @app.errorhandler(429)
+    def too_many_requests(e: Exception) -> Any:
+        """Limite de débit : requête HTMX -> toast lisible ; sinon réponse par défaut."""
+        import json
+
+        from flask import make_response, request
+        from flask_babel import gettext
+
+        if request.headers.get("HX-Request") != "true":
+            return e
+        response = make_response("", 429)
+        response.headers["HX-Trigger"] = json.dumps(
+            {"ui:toast": {"message": gettext("Trop de requêtes. Patientez un instant."), "tone": "danger"}},
+            ensure_ascii=True,
+        )
+        return response
 
     # Security headers (B015) — applied to every response
     @app.after_request

@@ -1,44 +1,45 @@
 {% extends "base.html" %}
+{% from "_components/ui.html" import empty_state %}
 {% block title %}{{ _("Chat") }} — {{ event.title }}{% endblock %}
 {% block content %}
-<div class="page-head">
-    <div>
-        <h1>{{ _("Chat") }}</h1>
-        <p class="page-sub">{{ event.title }}</p>
-    </div>
+<div class="ui-page-header">
+  <div>
+    <h1>{{ _("Chat") }}</h1>
+    <p>{{ event.title }}</p>
+  </div>
 </div>
 
-<div id="messages"
-     class="chat-messages"
-     role="log"
-     aria-live="polite"
-     hx-get="{{ url_for('chat.index', code=event.code) }}"
-     hx-trigger="load, every 5s"
-     hx-swap="innerHTML">
-  {% include "chat/_messages.html" %}
-</div>
+<div id="chat" class="ui-chat" data-testid="chat" data-url="{{ url_for('chat.index', code=event.code) }}" data-poll-ms="5000" data-poll-hidden-ms="30000">
+  {%- if older_id %}
+  <a id="chat-older" class="ui-btn ui-btn--ghost ui-btn--sm ui-chat__older" href="{{ url_for('chat.index', code=event.code, before=older_id) }}"
+     data-testid="chat-older" data-before="{{ older_id }}">{{ icon('chevron-up', size=16) }}<span>{{ _("Messages précédents") }}</span></a>
+  {%- endif %}
+  {%- if not rows %}
+  <div id="chat-empty" data-testid="chat-empty" class="ui-chat__empty">
+    {% call empty_state('message-circle', _("Aucun message"), _("Lancez la conversation !")) %}{% endcall %}
+  </div>
+  {%- endif %}
+  <ul id="chat-list" class="ui-chat__list" role="log" aria-live="polite" aria-relevant="additions" aria-label="{{ _('Messages') }}" data-testid="chat-list">
+    {%- include "chat/_messages.html" %}
+  </ul>
 
-<form method="post" action="{{ url_for('chat.send', code=event.code) }}" class="chat-form">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  <div class="form-group">
-    <label for="chat-content">{{ _("Votre message") }}</label>
-    <textarea id="chat-content" name="content" rows="2" maxlength="2000" required></textarea>
+  <div class="ui-chat__dock">
+    <button type="button" id="chat-new" class="ui-btn ui-btn--secondary ui-btn--sm ui-chat__new" data-testid="chat-new-messages" hidden>{{ icon('chevron-down', size=16) }}<span>{{ _("Nouveaux messages") }}</span></button>
+    <form method="post" action="{{ url_for('chat.send', code=event.code) }}" class="ui-chat__composer" data-testid="chat-composer"
+          hx-post="{{ url_for('chat.send', code=event.code) }}" hx-swap="none">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label class="sr-only" for="chat-input">{{ _("Votre message") }}</label>
+      <textarea id="chat-input" name="content" rows="1" maxlength="2000" required autocomplete="off" enterkeyhint="send"
+                class="ui-input ui-textarea ui-chat__input" data-testid="chat-input" placeholder="{{ _('Votre message') }}"></textarea>
+      <button type="submit" class="ui-btn ui-btn--primary ui-btn--icon" data-testid="chat-send" aria-label="{{ _('Envoyer') }}">{{ icon('send') }}</button>
+    </form>
   </div>
-  <div class="form-actions">
-    <button type="submit" class="btn btn-primary">{{ _("Envoyer") }}</button>
-  </div>
-</form>
+</div>
 {% endblock %}
+
 {% block scripts %}
-<script>
-  function scrollChat() {
-    var box = document.getElementById("messages");
-    if (box) { box.scrollTop = box.scrollHeight; }
-  }
-  // Initial scroll + scroll after every HTMX poll swap (new messages).
-  document.addEventListener("DOMContentLoaded", scrollChat);
-  document.body.addEventListener("htmx:afterSwap", function (e) {
-    if (e.target && e.target.id === "messages") { scrollChat(); }
-  });
+<script type="module">
+  import { initChat } from 'ui/chat';
+  initChat();
 </script>
 {% endblock %}

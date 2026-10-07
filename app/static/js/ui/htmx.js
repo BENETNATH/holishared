@@ -9,7 +9,12 @@ let initialized = false;
 export function initHtmx() {
   if (initialized) return;
   initialized = true;
-  const fail = () => toast(t('action_failed'), { tone: 'danger' });
+  // Une réponse d'erreur qui porte déjà son toast (HX-Trigger) n'en reçoit pas un second, générique.
+  const fail = (event) => {
+    const trigger = event.detail?.xhr?.getResponseHeader?.('HX-Trigger');
+    if (trigger && trigger.includes('ui:toast')) return;
+    toast(t('action_failed'), { tone: 'danger' });
+  };
   document.addEventListener('htmx:responseError', fail);
   document.addEventListener('htmx:sendError', fail);
   document.addEventListener('ui:toast', (event) => {

@@ -1,28 +1,29 @@
-{# Partial HTMX — fragment des messages (polling toutes les 5s). #}
-{% if not messages %}
-  <div class="empty-state chat-empty">
-    <span class="empty-icon" aria-hidden="true">💬</span>
-    <h3>{{ _("Aucun message") }}</h3>
-    <p>{{ _("Lancez la conversation !") }}</p>
+{# Fragment <li> du chat (B025b) : page, polling incrémental, messages précédents, réponse à l'envoi. #}
+{%- for row in rows %}
+{%- set msg = row.msg %}
+{%- if row.new_day %}
+<li class="ui-chat__date" role="separator" data-testid="chat-date" data-day="{{ msg.created_at.date().isoformat() }}"><span>{{ msg.created_at|format_date('EEE d MMM') }}</span></li>
+{%- endif %}
+<li id="msg-{{ msg.id }}" class="ui-chat__msg" data-testid="chat-message" data-message-id="{{ msg.id }}"
+    data-created="{{ msg.created_at.isoformat() }}" data-day="{{ msg.created_at.date().isoformat() }}" data-author="{{ row.author }}"
+    data-mine="{{ 'true' if row.mine else 'false' }}" data-continued="{{ 'true' if row.continued else 'false' }}">
+  <span class="ui-avatar ui-chat__avatar" aria-hidden="true">{{ msg.author_name[:1] | upper }}</span>
+  <div class="ui-chat__bubble">
+    <p class="ui-chat__meta"><span class="ui-chat__author" data-testid="chat-author" translate="no">{% if row.mine %}<span translate="yes">{{ _("Vous") }}</span>{% else %}{{ msg.author_name }}{% endif %}</span> <time datetime="{{ msg.created_at.isoformat() }}">{{ msg.created_at|time }}</time></p>
+    <p class="ui-chat__text" data-testid="chat-content">{{ msg.content }}</p>
   </div>
-{% else %}
-  <ul class="chat-list">
-    {% for msg in messages %}
-      <li class="chat-msg{% if msg.author_type == 'creator' %} creator{% endif %}">
-        <span class="avatar" aria-hidden="true">{{ msg.author_name[:1] | upper }}</span>
-        <div class="chat-body">
-          <span class="chat-author">{{ msg.author_name }}</span>
-          <time datetime="{{ msg.created_at.isoformat() }}">{{ msg.created_at|time }}</time>
-          <p class="chat-content">{{ msg.content }}</p>
-          {% if ctx.can_delete(msg) %}
-            <form method="post" action="{{ url_for('chat.delete', code=event.code, msg_id=msg.id) }}">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <button type="submit" class="chat-delete"
-                      aria-label="{{ _('Supprimer le message de') }} {{ msg.author_name }}">{{ _("Supprimer") }}</button>
-            </form>
-          {% endif %}
-        </div>
-      </li>
-    {% endfor %}
-  </ul>
-{% endif %}
+  {%- if ctx.can_delete(msg) %}
+  <details class="ui-chat__menu relative shrink-0" data-testid="chat-menu">
+    <summary class="ui-btn ui-btn--ghost ui-btn--icon list-none" aria-label="{{ _('Actions pour le message de %(name)s', name=msg.author_name) }}">{{ icon('ellipsis-vertical') }}</summary>
+    <div class="ui-chat__menu-panel absolute mt-1 flex w-44 flex-col gap-1 rounded-md border border-line bg-surface p-1 shadow-raised">
+      <form method="post" action="{{ url_for('chat.delete', code=event.code, msg_id=msg.id) }}"
+            hx-post="{{ url_for('chat.delete', code=event.code, msg_id=msg.id) }}" hx-target="#msg-{{ msg.id }}" hx-swap="outerHTML"
+            data-confirm="{{ _('Supprimer ce message ?') }}" data-confirm-label="{{ _('Supprimer') }}" data-testid="chat-delete-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="ui-btn ui-btn--ghost ui-btn--sm w-full justify-start text-danger">{{ icon('trash-2', size=16) }}<span>{{ _("Supprimer") }}</span></button>
+      </form>
+    </div>
+  </details>
+  {%- endif %}
+</li>
+{%- endfor %}
