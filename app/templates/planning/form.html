@@ -1,83 +1,32 @@
 {% extends "base.html" %}
+{% from "_components/ui.html" import form_errors %}
+{% from "planning/_forms.html" import essentials, details %}
 {% block title %}{% if activity %}{{ _("Modifier") }}{% else %}{{ _("Nouvelle activité") }}{% endif %} — {{ event.title }}{% endblock %}
 {% block content %}
-<div class="page-head">
-    <div>
-        <h1>{% if activity %}{{ _("Modifier l'activité") }}{% else %}{{ _("Nouvelle activité") }}{% endif %}</h1>
-        <p class="page-sub">{{ event.title }}</p>
-    </div>
+<div class="ui-page-header">
+  <div>
+    <h1>{% if activity %}{{ _("Modifier l'activité") }}{% else %}{{ _("Nouvelle activité") }}{% endif %}</h1>
+    <p>{{ event.title }}</p>
+  </div>
 </div>
 
-{% from "_components/ui.html" import aria_invalid, field_errors, form_errors %}
-<form method="post" action="{{ action_url }}">
+<form method="post" action="{{ action_url }}" class="ui-form max-w-xl" data-testid="activity-form">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {{ form_errors(errors, 'title', 'description', 'date', 'location', 'end_time', 'start_time', 'min_headcount', 'bring_items') }}
 
-  <div class="form-group">
-    <label for="title">{{ _("Titre") }} *</label>
-    <input type="text" id="title" name="title" required minlength="2" maxlength="200"
-           value="{{ form_data.get('title', '') }}" placeholder="{{ _('Ex : Randonnée au lac') }}"
-           {{ aria_invalid(errors, 'title') }}>
-    {{ field_errors(errors, 'title') }}
-  </div>
+  <section class="ui-form rounded-md border border-line bg-surface p-4" aria-labelledby="activity-essentials">
+    <h2 id="activity-essentials" class="m-0 text-subheading font-semibold text-ink">{{ _("L'essentiel") }}</h2>
+    {{ essentials('f', form_data, errors, event) }}
+  </section>
 
-  <div class="form-group">
-    <label for="description">{{ _("Description") }}</label>
-    <textarea id="description" name="description" rows="3" maxlength="2000"{{ aria_invalid(errors, 'description') }}>{{ form_data.get('description', '') }}</textarea>
-    {{ field_errors(errors, 'description') }}
-  </div>
+  <section class="ui-form rounded-md border border-line bg-surface p-4" aria-labelledby="activity-details">
+    <h2 id="activity-details" class="m-0 text-subheading font-semibold text-ink">{{ _("Détails") }}</h2>
+    {{ details('f', form_data, errors) }}
+  </section>
 
-  <div class="form-grid">
-    <div class="form-group">
-      <label for="date">{{ _("Date") }} *</label>
-      <input type="date" id="date" name="date" required
-             min="{{ event.start_date.isoformat() }}" max="{{ event.end_date.isoformat() }}"
-             value="{{ form_data.get('date', '') }}"
-             {{ aria_invalid(errors, 'date') }}>
-      {{ field_errors(errors, 'date') }}
-    </div>
-    <div class="form-group">
-      <label for="location">{{ _("Lieu") }}</label>
-      <input type="text" id="location" name="location" maxlength="300" value="{{ form_data.get('location', '') }}"
-             {{ aria_invalid(errors, 'location') }}>
-      {{ field_errors(errors, 'location') }}
-    </div>
-  </div>
-
-  <div class="form-grid">
-    <div class="form-group">
-      <label for="start_time">{{ _("Heure de début") }}</label>
-      <input type="time" id="start_time" name="start_time" value="{{ form_data.get('start_time', '') }}"
-             {{ aria_invalid(errors, 'start_time') }}>
-      {{ field_errors(errors, 'start_time') }}
-    </div>
-    <div class="form-group">
-      <label for="end_time">{{ _("Heure de fin") }}</label>
-      <input type="time" id="end_time" name="end_time" value="{{ form_data.get('end_time', '') }}"
-             {{ aria_invalid(errors, 'end_time') }}>
-      {{ field_errors(errors, 'end_time') }}
-    </div>
-  </div>
-
-  <div class="form-grid">
-    <div class="form-group">
-      <label for="min_headcount">{{ _("Nombre minimum de participants") }}</label>
-      <input type="number" id="min_headcount" name="min_headcount" min="1" max="50" value="{{ form_data.get('min_headcount', 1) }}"
-             {{ aria_invalid(errors, 'min_headcount') }}>
-      {{ field_errors(errors, 'min_headcount') }}
-    </div>
-    <div class="form-group">
-      <label for="bring_items">{{ _("Apporter") }}</label>
-      <input type="text" id="bring_items" name="bring_items" maxlength="500"
-             placeholder="{{ _('Ex : 2 chaises, 1 nappe') }}" value="{{ form_data.get('bring_items', '') }}"
-             {{ aria_invalid(errors, 'bring_items') }}>
-      {{ field_errors(errors, 'bring_items') }}
-    </div>
-  </div>
-
-  <div class="form-actions">
-    <button type="submit" class="btn btn-primary">{% if activity %}{{ _("Enregistrer") }}{% else %}{{ _("Créer l'activité") }}{% endif %}</button>
+  <div class="flex flex-wrap items-center gap-3">
+    <button type="submit" class="ui-btn ui-btn--primary">{% if activity %}{{ _("Enregistrer") }}{% else %}{{ _("Créer l'activité") }}{% endif %}</button>
+    <a class="ui-link" href="{{ url_for('planning.index', code=event.code) }}">{{ _("Annuler") }}</a>
   </div>
 </form>
-
-{{ form_errors(errors, 'title', 'description', 'date', 'location', 'end_time', 'start_time', 'min_headcount', 'bring_items') }}
 {% endblock %}

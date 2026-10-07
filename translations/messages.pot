@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 01:47+0200\n"
+"POT-Creation-Date: 2026-10-07 02:28+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -426,7 +426,8 @@ msgstr ""
 msgid "Fermer"
 msgstr ""
 
-#: app/lists/__init__.py app/templates/base.html app/ui.py
+#: app/lists/__init__.py app/templates/base.html
+#: app/templates/planning/form.html app/ui.py
 msgid "Annuler"
 msgstr ""
 
@@ -487,7 +488,8 @@ msgstr ""
 msgid "Planning"
 msgstr ""
 
-#: app/templates/lists/_panel.html app/templates/meals/index.html app/ui.py
+#: app/templates/lists/_panel.html app/templates/meals/index.html
+#: app/templates/planning/index.html app/ui.py
 msgid "Repas"
 msgstr ""
 
@@ -1227,7 +1229,7 @@ msgstr ""
 #: app/templates/costs/index.html app/templates/lists/_items.html
 #: app/templates/lists/detail.html app/templates/logistics/index.html
 #: app/templates/main/ui_catalog.html app/templates/meals/index.html
-#: app/templates/media/detail.html app/templates/planning/index.html
+#: app/templates/media/detail.html app/templates/planning/_card.html
 msgid "Supprimer"
 msgstr ""
 
@@ -1248,6 +1250,7 @@ msgid "doit"
 msgstr ""
 
 #: app/templates/costs/_balance.html app/templates/costs/_requests.html
+#: app/templates/planning/_card.html
 msgid "à"
 msgstr ""
 
@@ -1334,8 +1337,8 @@ msgstr ""
 
 #: app/templates/costs/_balance.html app/templates/costs/_expenses.html
 #: app/templates/logistics/form.html app/templates/logistics/index.html
-#: app/templates/main/ui_catalog.html app/templates/planning/form.html
-#: app/templates/planning/index.html
+#: app/templates/main/ui_catalog.html app/templates/planning/_card.html
+#: app/templates/planning/form.html
 msgid "Modifier"
 msgstr ""
 
@@ -1377,7 +1380,7 @@ msgid "Payé par"
 msgstr ""
 
 #: app/templates/costs/_expenses.html app/templates/costs/_forms.html
-#: app/templates/planning/form.html app/templates/planning/index.html
+#: app/templates/planning/_forms.html
 msgid "Date"
 msgstr ""
 
@@ -1415,7 +1418,7 @@ msgstr ""
 
 #: app/templates/costs/_forms.html app/templates/events/create.html
 #: app/templates/events/dashboard.html app/templates/main/ui_catalog.html
-#: app/templates/planning/form.html
+#: app/templates/planning/_forms.html
 msgid "Description"
 msgstr ""
 
@@ -1459,6 +1462,7 @@ msgstr ""
 
 #: app/templates/costs/_forms.html app/templates/logistics/form.html
 #: app/templates/meals/index.html app/templates/planning/form.html
+#: app/templates/planning/index.html
 msgid "Enregistrer"
 msgstr ""
 
@@ -1760,8 +1764,7 @@ msgid "Ex : alice@mail.com"
 msgstr ""
 
 #: app/templates/events/create.html app/templates/logistics/form.html
-#: app/templates/main/ui_catalog.html app/templates/planning/form.html
-#: app/templates/planning/index.html
+#: app/templates/main/ui_catalog.html app/templates/planning/_forms.html
 msgid "Titre"
 msgstr ""
 
@@ -1778,7 +1781,7 @@ msgid "Date de fin"
 msgstr ""
 
 #: app/templates/events/create.html app/templates/main/ui_catalog.html
-#: app/templates/planning/form.html
+#: app/templates/planning/_forms.html
 msgid "Lieu"
 msgstr ""
 
@@ -1822,7 +1825,7 @@ msgid "Partager"
 msgstr ""
 
 #: app/templates/events/dashboard.html app/templates/lists/_panel.html
-#: app/templates/meals/_grid.html
+#: app/templates/meals/_grid.html app/templates/planning/index.html
 msgid "Aujourd'hui"
 msgstr ""
 
@@ -1830,7 +1833,7 @@ msgstr ""
 msgid "Programme du jour"
 msgstr ""
 
-#: app/templates/events/dashboard.html
+#: app/templates/events/dashboard.html app/templates/planning/_card.html
 msgid "Journée"
 msgstr ""
 
@@ -2078,7 +2081,7 @@ msgstr ""
 msgid "Cible"
 msgstr ""
 
-#: app/templates/events/log.html
+#: app/templates/events/log.html app/templates/planning/form.html
 msgid "Détails"
 msgstr ""
 
@@ -2875,7 +2878,7 @@ msgstr ""
 msgid "%(n)d repas"
 msgstr ""
 
-#: app/templates/meals/_grid.html
+#: app/templates/meals/_grid.html app/templates/planning/index.html
 msgid "Jours de l'événement"
 msgstr ""
 
@@ -3010,36 +3013,100 @@ msgstr ""
 msgid "Partagez les photos et vidéos du séjour."
 msgstr ""
 
-#: app/templates/planning/form.html app/templates/planning/index.html
-msgid "Nouvelle activité"
+#: app/templates/planning/_card.html
+#, python-format
+msgid "Actions pour %(title)s"
+msgstr ""
+
+#: app/templates/planning/_card.html
+msgid "Supprimer cette activité ?"
+msgstr ""
+
+#: app/templates/planning/_card.html
+msgid "Voir plus"
+msgstr ""
+
+#: app/templates/planning/_card.html
+msgid "Voir moins"
+msgstr ""
+
+#: app/templates/planning/_card.html app/templates/planning/_forms.html
+msgid "À apporter"
+msgstr ""
+
+#: app/templates/planning/_card.html
+#, python-format
+msgid "%(yes)d oui · %(maybe)d peut-être"
+msgstr ""
+
+#: app/templates/planning/_card.html
+msgid "Aucune réponse pour l'instant"
+msgstr ""
+
+#: app/templates/planning/_card.html
+msgid "Seuil atteint"
+msgstr ""
+
+#: app/templates/planning/_card.html
+msgid "Il manque 1 participant"
+msgstr ""
+
+#: app/templates/planning/_card.html
+#, python-format
+msgid "Il manque %(n)d participants"
+msgstr ""
+
+#: app/templates/planning/_card.html
+msgid "Ma réponse"
+msgstr ""
+
+#: app/templates/planning/_card.html
+msgid "Qui a répondu ?"
+msgstr ""
+
+#: app/templates/planning/_card.html
+#, python-format
+msgid "Ajoutée par %(name)s"
+msgstr ""
+
+#: app/templates/planning/_forms.html
+msgid "Ex : Randonnée au lac"
+msgstr ""
+
+#: app/templates/planning/_forms.html
+msgid "Heure de début"
+msgstr ""
+
+#: app/templates/planning/_forms.html
+msgid "Heure de fin"
+msgstr ""
+
+#: app/templates/planning/_forms.html
+msgid "Nombre minimum de participants"
+msgstr ""
+
+#: app/templates/planning/_forms.html
+msgid "Le badge « Seuil atteint » s'affiche à ce nombre de réponses « Oui »."
+msgstr ""
+
+#: app/templates/planning/_forms.html
+msgid "Visible sur la carte de l'activité."
+msgstr ""
+
+#: app/templates/planning/_forms.html
+msgid "Ex : 2 chaises, 1 nappe"
 msgstr ""
 
 #: app/templates/planning/form.html
+msgid "Nouvelle activité"
+msgstr ""
+
+#: app/templates/planning/form.html app/templates/planning/index.html
 msgid "Modifier l'activité"
 msgstr ""
 
 #: app/templates/planning/form.html
-msgid "Ex : Randonnée au lac"
-msgstr ""
-
-#: app/templates/planning/form.html
-msgid "Heure de début"
-msgstr ""
-
-#: app/templates/planning/form.html
-msgid "Heure de fin"
-msgstr ""
-
-#: app/templates/planning/form.html
-msgid "Nombre minimum de participants"
-msgstr ""
-
-#: app/templates/planning/form.html
-msgid "Apporter"
-msgstr ""
-
-#: app/templates/planning/form.html
-msgid "Ex : 2 chaises, 1 nappe"
+msgid "L'essentiel"
 msgstr ""
 
 #: app/templates/planning/form.html
@@ -3047,27 +3114,15 @@ msgid "Créer l'activité"
 msgstr ""
 
 #: app/templates/planning/index.html
-msgid "Aucune activité planifiée. Ajoutez-en une avec l'ajout rapide ci-dessous."
+msgid "Voir les repas"
 msgstr ""
 
 #: app/templates/planning/index.html
-msgid "Randonnée, piscine, sortie…"
+msgid "Aucune activité ce jour."
 msgstr ""
 
 #: app/templates/planning/index.html
-msgid "Ex : Randonnée, piscine, resto…"
-msgstr ""
-
-#: app/templates/planning/index.html
-msgid "Heure"
-msgstr ""
-
-#: app/templates/planning/index.html
-msgid "Plus d'options (description, lieu, effectif…) →"
-msgstr ""
-
-#: app/templates/planning/index.html
-msgid "Indiquez votre participation"
+msgid "Plus d'options"
 msgstr ""
 
 #: app/templates/voting/detail.html

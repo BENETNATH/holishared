@@ -1,0 +1,20 @@
+{# Champs d'activité partagés par la feuille d'ajout rapide et le formulaire page entière (B021). #}
+{% from "_components/ui.html" import field %}
+
+{% macro essentials(p, fv, e, event) %}
+{{ field('title', _('Titre'), id=p ~ '-title', required=True, value=fv.get('title', ''), error=e.text('title'), attrs={'minlength': 2, 'maxlength': 200, 'autocomplete': 'off', 'placeholder': _('Ex : Randonnée au lac')}) }}
+<div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
+  {{ field('date', _('Date'), type='date', id=p ~ '-date', required=True, value=fv.get('date', ''), error=e.text('date'), attrs={'min': event.start_date.isoformat(), 'max': event.end_date.isoformat()}) }}
+  {{ field('start_time', _('Heure de début'), type='time', id=p ~ '-start_time', value=fv.get('start_time', ''), error=e.text('start_time')) }}
+</div>
+{% endmacro %}
+
+{% macro details(p, fv, e) %}
+<div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
+  {{ field('end_time', _('Heure de fin'), type='time', id=p ~ '-end_time', value=fv.get('end_time', ''), error=e.text('end_time')) }}
+  {{ field('min_headcount', _('Nombre minimum de participants'), type='number', id=p ~ '-min_headcount', required=True, value=fv.get('min_headcount', 1), error=e.text('min_headcount'), help=_("Le badge « Seuil atteint » s'affiche à ce nombre de réponses « Oui »."), attrs={'min': 1, 'max': 50, 'inputmode': 'numeric'}) }}
+</div>
+{{ field('location', _('Lieu'), id=p ~ '-location', value=fv.get('location', ''), error=e.text('location'), attrs={'maxlength': 300, 'autocomplete': 'off'}) }}
+{{ field('description', _('Description'), type='textarea', id=p ~ '-description', value=fv.get('description', ''), error=e.text('description'), attrs={'maxlength': 2000}) }}
+{{ field('bring_items', _('À apporter'), id=p ~ '-bring_items', value=fv.get('bring_items', ''), error=e.text('bring_items'), help=_('Visible sur la carte de l\'activité.'), attrs={'maxlength': 500, 'autocomplete': 'off', 'placeholder': _('Ex : 2 chaises, 1 nappe')}) }}
+{% endmacro %}

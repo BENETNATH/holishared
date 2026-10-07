@@ -1,12 +1,14 @@
 """Planning blueprint — activités et RSVP (B003)."""
 
-from dataclasses import dataclass
-from datetime import date, datetime, time
+from collections import defaultdict
+from dataclasses import dataclass, field
+from datetime import date, datetime, time, timedelta
 
 from flask import (
     Blueprint,
     abort,
     flash,
+    make_response,
     redirect,
     render_template,
     request,
@@ -16,14 +18,13 @@ from flask_babel import _
 from sqlalchemy.exc import IntegrityError
 from werkzeug.wrappers import Response
 
-from app.context import load_event_context, log_event
+from app.context import EventContext, load_event_context, log_event
 from app.extensions import db, limiter
 from app.forms import FormErrors
 from app.i18n import RSVP_STATUSES
-from app.models import Activity, ActivityRSVP, Event
+from app.models import Activity, ActivityRSVP, Event, Guest, Meal
 
 planning_bp = Blueprint("planning", __name__)
-
 
 
 @dataclass
@@ -132,29 +133,102 @@ def _validate_form(event: Event) -> tuple[FormErrors, dict[str, str], ActivityFi
     return errors, form_data, fields
 
 
+RSVP_CLEAR = "none"  # statut spécial : retire la réponse de la personne
+
+
+@dataclass
+class RsvpSummary:
+    """Réponses à une activité : prénoms d'affichage par statut et réponse de la personne."""
+
+    names: dict[str, list[str]] = field(default_factory=lambda: {"yes": [], "maybe": [], "no": []})
+    mine: str | None = None
+
+    def count(self, status: str) -> int:
+        return len(self.names[status])
+
+
+def _rsvp_summaries(
+    ctx: EventContext, activity_id: str | None = None
+) -> defaultdict[str, RsvpSummary]:
+    """Réponses de tout l'événement (ou d'une activité) en une seule requête."""
+    query = (
+        db.session.query(
+            ActivityRSVP.activity_id,
+            ActivityRSVP.status,
+            ActivityRSVP.guest_id,
+            Guest.display_name,
+        )
+        .join(Guest, Guest.id == ActivityRSVP.guest_id)
+        .join(Activity, Activity.id == ActivityRSVP.activity_id)
+        .filter(Activity.event_id == ctx.event.id, Guest.is_active.is_(True))
+        .order_by(Guest.display_name, Guest.id)
+    )
+    if activity_id is not None:
+        query = query.filter(ActivityRSVP.activity_id == activity_id)
+    summaries: defaultdict[str, RsvpSummary] = defaultdict(RsvpSummary)
+    for act_id, status, guest_id, name in query:
+        summaries[act_id].names[status].append(name)
+        if ctx.is_author(guest_id):
+            summaries[act_id].mine = status
+    return summaries
+
+
+def _author_names(event: Event) -> dict[str, str]:
+    return dict(db.session.query(Guest.id, Guest.display_name).filter_by(event_id=event.id))
+
+
+def _parse_day(value: str | None) -> date | None:
+    try:
+        return datetime.strptime(value or "", "%Y-%m-%d").date()
+    except ValueError:
+        return None
+
+
+def _default_day(event: Event, requested: str | None = None) -> date:
+    """Jour demandé s'il est dans la période, sinon aujourd'hui, sinon le premier jour."""
+    for day in (_parse_day(requested), date.today()):
+        if day is not None and event.start_date <= day <= event.end_date:
+            return day
+    return event.start_date
+
+
+def _card_context(ctx: EventContext, activity: Activity) -> dict[str, object]:
+    return {
+        "ctx": ctx,
+        "event": ctx.event,
+        "act": activity,
+        "summary": _rsvp_summaries(ctx, activity.id)[activity.id],
+        "authors": _author_names(ctx.event),
+    }
+
+
 @planning_bp.route("/e/<code>/planning")
 def index(code: str) -> Response | tuple[str, int] | str:
-    """List the event's activities, grouped by date."""
+    """Programme : jours de l'événement (jours vides inclus), repas en lecture seule et activités."""
     ctx = load_event_context(code)
     event = ctx.event
 
-    activities = (
-        Activity.query.filter_by(event_id=event.id)
-        .order_by(Activity.date.asc(), Activity.start_time.asc().nulls_last())
-        .all()
-    )
-
-    guest_rsvps: dict[str, str] = {}
-    if ctx.participant is not None:
-        for rsvp in ActivityRSVP.query.filter_by(guest_id=ctx.participant.id).all():
-            guest_rsvps[rsvp.activity_id] = rsvp.status
+    activities: dict[date, list[Activity]] = defaultdict(list)
+    for activity in Activity.query.filter_by(event_id=event.id).order_by(
+        Activity.date, Activity.start_time.asc().nulls_first(), Activity.created_at, Activity.id
+    ):
+        activities[activity.date].append(activity)
+    meals: dict[date, list[Meal]] = defaultdict(list)
+    for meal in Meal.query.filter_by(event_id=event.id).order_by(*Meal.ordering()):
+        meals[meal.date].append(meal)
 
     return render_template(
         "planning/index.html",
         event=event,
+        days=[event.start_date + timedelta(days=i) for i in range(event.duration_days)],
         activities=activities,
+        meals=meals,
+        summaries=_rsvp_summaries(ctx),
+        authors=_author_names(event),
         today=date.today(),
-        guest_rsvps=guest_rsvps,
+        selected_day=_default_day(event, request.args.get("day")),
+        form_data={},
+        errors=FormErrors(),
     )
 
 
@@ -170,7 +244,7 @@ def create(code: str) -> Response | tuple[str, int] | str:
             "planning/form.html",
             event=event,
             activity=None,
-            form_data={},
+            form_data={"date": _default_day(event, request.args.get("date")).isoformat()},
             errors=FormErrors(),
             action_url=url_for("planning.create", code=code),
         )
@@ -286,7 +360,10 @@ def delete(code: str, activity_id: str) -> Response | tuple[str, int] | str:
 
 @planning_bp.route("/e/<code>/planning/<activity_id>/rsvp", methods=["POST"])
 def rsvp(code: str, activity_id: str) -> Response | tuple[str, int] | str:
-    """Upsert the guest's RSVP for an activity."""
+    """Upsert (ou retire, ``status=none``) la réponse du participant, créateur compris.
+
+    Une requête HTMX reçoit la carte à jour ; sinon redirection vers le programme.
+    """
     ctx = load_event_context(code)
     participant = ctx.participant
     if participant is None:  # garanti par require="participant"
@@ -295,22 +372,39 @@ def rsvp(code: str, activity_id: str) -> Response | tuple[str, int] | str:
     if activity is None:
         abort(404)
 
+    htmx = request.headers.get("HX-Request") == "true"
     status = request.form.get("status", "")
-    if status not in RSVP_STATUSES:
+    if status not in RSVP_STATUSES and status != RSVP_CLEAR:
+        if htmx:
+            html = render_template("planning/_card.html", **_card_context(ctx, activity))
+            return make_response(html, 422)
         flash(_("Statut invalide."))
         return redirect(url_for("planning.index", code=code))
 
-    try:
-        db.session.add(ActivityRSVP(activity_id=activity.id, guest_id=participant.id, status=status))
-        db.session.commit()
-    except IntegrityError:
-        db.session.rollback()
-        existing = ActivityRSVP.query.filter_by(activity_id=activity.id, guest_id=participant.id).first()
+    existing = ActivityRSVP.query.filter_by(
+        activity_id=activity.id, guest_id=participant.id
+    ).first()
+    if status == RSVP_CLEAR:
         if existing is not None:
+            db.session.delete(existing)
+    elif existing is not None:
+        existing.status = status
+    else:
+        db.session.add(
+            ActivityRSVP(activity_id=activity.id, guest_id=participant.id, status=status)
+        )
+    try:
+        db.session.flush()
+    except IntegrityError:  # double envoi concurrent : la réponse existe déjà, on la met à jour
+        db.session.rollback()
+        existing = ActivityRSVP.query.filter_by(
+            activity_id=activity.id, guest_id=participant.id
+        ).first()
+        if existing is not None and status != RSVP_CLEAR:
             existing.status = status
-            db.session.commit()
-
     log_event(ctx, "rsvp.updated", target=activity.title, details=status)
     db.session.commit()
 
+    if htmx:
+        return render_template("planning/_card.html", **_card_context(ctx, activity))
     return redirect(url_for("planning.index", code=code))

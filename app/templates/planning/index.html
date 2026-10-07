@@ -1,90 +1,93 @@
 {% extends "base.html" %}
+{% from "_components/ui.html" import sheet, empty_state %}
+{% from "planning/_forms.html" import essentials, details %}
 {% block title %}{{ _("Planning") }} — {{ event.title }}{% endblock %}
 {% block content %}
-<div class="page-head">
-    <div>
-        <h1>{{ _("Planning") }}</h1>
-        <p class="page-sub">{{ event.title }} · {{ event.start_date|date_short }} → {{ event.end_date|date_short }}</p>
-    </div>
-    <div class="head-actions">
-        <a href="{{ url_for('planning.create', code=event.code) }}" class="btn btn-primary">{{ _("Nouvelle activité") }}</a>
-    </div>
+<div class="ui-page-header">
+  <div>
+    <h1>{{ _("Planning") }}</h1>
+    <p>{{ event.title }} · {{ event.start_date|date_short }} → {{ event.end_date|date_short }}</p>
+  </div>
+  <a href="{{ url_for('planning.create', code=event.code, date=selected_day.isoformat()) }}" class="ui-btn ui-btn--primary"
+     data-testid="planning-add" data-planning-add aria-haspopup="dialog">{{ icon('plus', size=16) }}<span>{{ _("Ajouter une activité") }}</span></a>
 </div>
 
-{# Activities (meals live on the dedicated Repas page) #}
-{% if not activities %}
-<p class="empty-hint">{{ _("Aucune activité planifiée. Ajoutez-en une avec l'ajout rapide ci-dessous.") }}</p>
-{% endif %}
+<div id="program" data-testid="program" data-selected-day="{{ selected_day.isoformat() }}" class="flex flex-col gap-3">
+  <div class="flex items-start gap-2">
+    <div class="flex min-w-0 flex-1 gap-2 overflow-x-auto pb-1 lg:hidden" data-planning-tabs role="group" aria-label="{{ _('Jours de l\'événement') }}">
+      {%- for day in days %}
+      <button type="button" data-testid="planning-day-tab" data-planning-day-tab="{{ day.isoformat() }}"
+              aria-pressed="{{ 'true' if day == selected_day else 'false' }}"{% if day == today %} aria-current="date"{% endif %}
+              class="flex min-h-[44px] min-w-[3.5rem] shrink-0 flex-col items-center justify-center rounded-md border border-line bg-surface px-3 py-1 text-small text-ink aria-pressed:border-primary-strong aria-pressed:bg-primary-strong aria-pressed:text-on-primary aria-[current=date]:border-primary-strong">
+        <span class="text-caption uppercase">{{ day|format_date('EEE') }}</span>
+        <span class="font-semibold">{{ day|format_date('d MMM') }}</span>
+      </button>
+      {%- endfor %}
+    </div>
+    {%- if event.start_date <= today <= event.end_date %}
+    <button type="button" class="ui-btn ui-btn--secondary ui-btn--sm min-h-[44px] shrink-0 lg:ml-auto" data-testid="planning-today" data-planning-today="{{ today.isoformat() }}">{{ _("Aujourd'hui") }}</button>
+    {%- endif %}
+  </div>
 
-{% if activities %}
-<div class="other-activities">
-  {% set grouped = activities | groupby("date") %}
-  {% for day, acts in grouped %}
-    <h3 class="day-header{% if day == today %} today{% endif %}">{{ day | format_date('full') }}</h3>
-    {% for act in acts %}
-      <div class="card activity-card">
-        {% if act.start_time %}
-          <span class="time">{{ act.start_time|time }}{% if act.end_time %} – {{ act.end_time|time }}{% endif %}</span>
-        {% endif %}
-        <div class="activity-main">
-          <h3>{{ act.title }}</h3>
-          {% if act.description %}<p>{{ act.description }}</p>{% endif %}
-          {% if act.location %}<p class="location">📍 {{ act.location }}</p>{% endif %}
-        </div>
-        {% if ctx.can_edit(act) %}
-          <div class="activity-actions">
-            <a href="{{ url_for('planning.edit', code=event.code, activity_id=act.id) }}" class="btn btn-small btn-secondary">{{ _("Modifier") }}</a>
-            <form method="post" action="{{ url_for('planning.delete', code=event.code, activity_id=act.id) }}">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <button type="submit" class="btn btn-small btn-danger">{{ _("Supprimer") }}</button>
-            </form>
-          </div>
-        {% endif %}
+  <div class="flex flex-col gap-4 lg:gap-6">
+  {%- for day in days %}
+  {%- set day_meals = meals.get(day, []) %}
+  {%- set day_acts = activities.get(day, []) %}
+  <section data-testid="planning-day" data-planning-day="{{ day.isoformat() }}" aria-labelledby="planning-day-{{ day.isoformat() }}"
+           class="{{ 'flex' if day == selected_day else 'hidden' }} flex-col gap-3 lg:flex">
+    <h2 id="planning-day-{{ day.isoformat() }}" class="m-0 flex items-center gap-2 border-b border-line bg-canvas py-2 text-subheading font-semibold text-ink lg:sticky lg:top-[var(--ui-header-h)] lg:z-10"{% if day == today %} data-today="true"{% endif %}>
+      {{ day|format_date('EEEE d MMMM') }}
+      {%- if day == today %} <span class="ui-badge ui-badge--primary">{{ _("Aujourd'hui") }}</span>{% endif %}
+    </h2>
+
+    {%- if day_meals %}
+    <div class="rounded-md bg-surface-2 p-3" data-testid="day-meals">
+      <div class="flex items-center justify-between gap-2">
+        <h3 class="m-0 flex items-center gap-2 text-small font-semibold text-ink-2">{{ icon('utensils', size=16) }}<span>{{ _("Repas") }}</span></h3>
+        {%- if "meals" in enabled_modules %}
+        <a class="ui-link text-small" href="{{ url_for('meals.index', code=event.code) }}" data-testid="meals-link">{{ _("Voir les repas") }}</a>
+        {%- endif %}
       </div>
-    {% endfor %}
-  {% endfor %}
-</div>
-{% endif %}
-
-{# Quick-add: simple activity in one row (title + date + time).
-   The full form (planning.create) stays available for advanced fields. #}
-{% set default_date = today if event.start_date <= today <= event.end_date else event.start_date %}
-<div class="quick-act" id="quick-activity">
-  <h2>{{ _("Ajouter une activité") }}</h2>
-  <p class="hint">{{ _("Randonnée, piscine, sortie…") }}</p>
-  <form method="post" action="{{ url_for('planning.create', code=event.code) }}" class="quick-act-form">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <input type="hidden" name="min_headcount" value="1">
-    <input type="text" name="title" required minlength="2" maxlength="200"
-           placeholder="{{ _('Ex : Randonnée, piscine, resto…') }}" aria-label="{{ _('Titre') }}">
-    <input type="date" name="date" required
-           min="{{ event.start_date.isoformat() }}" max="{{ event.end_date.isoformat() }}"
-           value="{{ default_date.isoformat() }}" aria-label="{{ _('Date') }}">
-    <input type="time" name="start_time" aria-label="{{ _('Heure') }}">
-    <button type="submit" class="btn btn-primary">{{ _("Ajouter") }}</button>
-  </form>
-  <p class="hint"><a href="{{ url_for('planning.create', code=event.code) }}">{{ _("Plus d'options (description, lieu, effectif…) →") }}</a></p>
-</div>
-
-{# RSVP section for guests #}
-{% if ctx.participant and activities %}
-<div class="rsvp-section">
-  <h2>{{ _("Indiquez votre participation") }}</h2>
-  {% for act in activities %}
-    <div class="card rsvp-card">
-      <div class="rsvp-meta">
-        <span class="rsvp-date">{{ act.date | format_date('full') }}</span>
-        {% if act.start_time %}<span class="time">{{ act.start_time|time }}</span>{% endif %}
-      </div>
-      <h3>{{ act.title }}</h3>
-      <form method="post" action="{{ url_for('planning.rsvp', code=event.code, activity_id=act.id) }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        {% for status, status_label in choices('rsvp_status') %}
-        <button type="submit" name="status" value="{{ status }}" class="rsvp-btn {% if guest_rsvps.get(act.id) == status %}active{% endif %}" aria-pressed="{{ 'true' if guest_rsvps.get(act.id) == status else 'false' }}">{{ status_label }}</button>
-        {% endfor %}
-      </form>
+      <ul class="m-0 mt-2 flex list-none flex-col gap-1 p-0 text-small text-ink">
+        {%- for meal in day_meals %}
+        <li data-testid="program-meal" data-slot="{{ meal.slot }}" class="break-words"><span class="font-semibold">{{ meal.slot|label('meal_slot') }}</span> : {{ meal.title }}</li>
+        {%- endfor %}
+      </ul>
     </div>
-  {% endfor %}
+    {%- endif %}
+
+    {%- if day_acts %}
+    <ul class="m-0 flex list-none flex-col gap-3 p-0" data-testid="day-activities">
+      {%- for act in day_acts %}
+      {%- with summary=summaries[act.id] %}{% include "planning/_card.html" %}{% endwith %}
+      {%- endfor %}
+    </ul>
+    {%- else %}
+    <p class="m-0 text-small text-ink-muted" data-testid="day-empty">{{ _("Aucune activité ce jour.") }}</p>
+    {%- endif %}
+  </section>
+  {%- endfor %}
+  </div>
 </div>
-{% endif %}
+
+{% call sheet('activity-sheet', _('Ajouter une activité')) %}
+<form method="post" action="{{ url_for('planning.create', code=event.code) }}" class="ui-form" data-testid="activity-sheet-form"
+      data-create-url="{{ url_for('planning.create', code=event.code) }}" data-create-title="{{ _('Ajouter une activité') }}"
+      data-edit-title="{{ _('Modifier l\'activité') }}" data-create-submit="{{ _('Ajouter') }}" data-edit-submit="{{ _('Enregistrer') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {{ essentials('sheet', {'date': selected_day.isoformat()}, errors, event) }}
+  <details class="group" data-testid="activity-more-options" data-planning-more>
+    <summary class="ui-link inline-flex min-h-[44px] cursor-pointer items-center">{{ _("Plus d'options") }}</summary>
+    <div class="ui-form mt-2">{{ details('sheet', {}, errors) }}</div>
+  </details>
+  <button type="submit" class="ui-btn ui-btn--primary ui-btn--block" data-planning-submit>{{ _("Ajouter") }}</button>
+</form>
+{% endcall %}
+{% endblock %}
+
+{% block scripts %}
+<script type="module">
+  import { initPlanning } from 'ui/planning';
+  initPlanning();
+</script>
 {% endblock %}

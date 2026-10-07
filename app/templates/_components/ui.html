@@ -38,7 +38,7 @@
   <p class="ui-help" id="{{ fid }}-help">{{ help }}</p>
   {%- endif %}
   {%- if error %}
-  <p class="ui-error" id="{{ fid }}-error">{{ icon('circle-alert', size=16) }}<span>{{ error }}</span></p>
+  <p class="ui-error" id="{{ fid }}-error" data-testid="err-{{ name }}">{{ icon('circle-alert', size=16) }}<span>{{ error }}</span></p>
   {%- endif %}
 </div>
 {% endmacro %}
