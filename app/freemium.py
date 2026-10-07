@@ -28,9 +28,9 @@ TIER_ORDER: dict[str, int] = {
 
 # A feature is unlocked at the tier listed (and every tier above it).
 FEATURES: dict[str, str] = {
-    "pdf_export": TIER_PRO,          # certified accountancy PDF export
-    "unlimited_guests": TIER_PRO,    # more than the free guest cap
-    "hd_video": TIER_UNLIMITED,      # high-resolution video uploads
+    "pdf_export": TIER_PRO,  # certified accountancy PDF export
+    "unlimited_guests": TIER_PRO,  # more than the free guest cap
+    "hd_video": TIER_UNLIMITED,  # high-resolution video uploads
 }
 
 
@@ -103,7 +103,11 @@ def require_tier(min_tier: str) -> Callable[..., Callable[..., Any]]:
             if creator is not None and not tier_at_least(creator, min_tier):
                 _upgrade_target(kwargs.get("code"))
                 feature_name = _feature_name_for_tier(min_tier)
-                feature_label = FEATURE_LABELS.get(feature_name, FALLBACK_FEATURE_LABEL) if feature_name else FALLBACK_FEATURE_LABEL
+                feature_label = (
+                    FEATURE_LABELS.get(feature_name, FALLBACK_FEATURE_LABEL)
+                    if feature_name
+                    else FALLBACK_FEATURE_LABEL
+                )
                 return render_template(
                     "freemium/paywall.html",
                     min_tier=min_tier,
@@ -134,9 +138,28 @@ FEATURE_LABELS = {
 
 
 def can_add_guest(event: Event) -> bool:
-    """Check if the event can accept more guests."""
+    """Check if the event can accept more participants.
+
+    The count is ``Event.guest_count``: active participants, the creator included
+    (the creator is a participant of their own event). Unlimited on a paid tier.
+    """
+    if has_feature(event.creator, "unlimited_guests"):
+        return True
     limit: int = current_app.config["MAX_GUESTS_PER_EVENT"]
     return event.guest_count < limit
+
+
+def guest_gauge(event: Event) -> dict[str, Any]:
+    """Jauge de participants (n / max), cohérente avec ``can_add_guest`` (B020)."""
+    maximum = int(current_app.config["MAX_GUESTS_PER_EVENT"])
+    count = event.guest_count
+    return {
+        "count": count,
+        "max": maximum,
+        "pct": min(100, round(count * 100 / maximum)) if maximum else 0,
+        "unlimited": has_feature(event.creator, "unlimited_guests"),
+        "at_limit": not can_add_guest(event),
+    }
 
 
 def can_create_event(creator: Creator) -> bool:
@@ -170,9 +193,9 @@ def get_limits() -> dict[str, object]:
 # --- Media quota (freemium tiers) ---
 
 MEDIA_TIERS: dict[str, dict[str, int]] = {
-    "free": {"max_bytes": 524_288_000},       # 500 MB
-    "basic": {"max_bytes": 5_242_880_000},    # 5 GB
-    "premium": {"max_bytes": 52_428_800_000}, # 50 GB
+    "free": {"max_bytes": 524_288_000},  # 500 MB
+    "basic": {"max_bytes": 5_242_880_000},  # 5 GB
+    "premium": {"max_bytes": 52_428_800_000},  # 50 GB
 }
 
 
@@ -203,6 +226,7 @@ def consume_media_quota(creator: Creator, size_bytes: int) -> None:
     quota = get_media_quota(creator)
     quota.used_bytes += size_bytes
     from app.extensions import db
+
     db.session.commit()
 
 
@@ -212,6 +236,7 @@ def release_media_quota(creator: Creator, size_bytes: int, *, commit: bool = Tru
     quota.used_bytes = max(0, quota.used_bytes - size_bytes)
     if commit:
         from app.extensions import db
+
         db.session.commit()
 
 
@@ -223,4 +248,5 @@ def set_media_tier(creator: Creator, tier: str) -> None:
     quota.tier = tier
     quota.max_bytes = MEDIA_TIERS[tier]["max_bytes"]
     from app.extensions import db
+
     db.session.commit()

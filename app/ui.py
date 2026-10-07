@@ -53,10 +53,10 @@ LOG_ICONS: Final[dict[str, str]] = {**_MODULE_ICONS, "participants": "users"}
 _EVENT_SECTIONS: Final[dict[str, str]] = {
     "events.dashboard": "home",
     "events.members": "participants",
-    "events.invite": "invite",
-    "events.invite_qr": "invite",
-    "events.invite_email": "invite",
-    "events.invite_resend": "invite",
+    "events.invite": "participants",
+    "events.invite_qr": "participants",
+    "events.invite_email": "participants",
+    "events.invite_resend": "participants",
     "events.log": "log",
     "events.me": "me",
     "events.manage": "manage",
@@ -176,7 +176,9 @@ class Nav:
     context: str  # "event" | "global"
     primary: list[NavItem]  # destinations de la barre du bas (sans « Plus »)
     more_modules: list[NavItem]  # modules relégués dans « Plus »
-    event_items: list[NavItem]  # créateur : participants, invite, log ; invité : log
+    event_items: list[
+        NavItem
+    ]  # participants, partage, journal, profil (+ gestion pour le créateur)
     account_items: list[NavItem]  # mes événements, déconnexion (contexte event)
     more_active: bool  # une entrée de la feuille « Plus » est active
 
@@ -240,14 +242,9 @@ def build_nav(
     primary = [item("home", _("Accueil"), "house", "events.dashboard", code=event_code)]
     primary += modules[:BOTTOM_NAV_MODULES]
     more_modules = modules[BOTTOM_NAV_MODULES:]
-    event_items = []
-    if role == "creator":
-        event_items.append(
-            item("participants", _("Participants"), "users", "events.members", code=event_code)
-        )
-        event_items.append(
-            item("invite", _("Inviter"), "user-plus", "events.invite", code=event_code)
-        )
+    event_items = [
+        item("participants", _("Participants"), "users", "events.members", code=event_code)
+    ]
     join_url = current_app.config["APP_URL"].rstrip("/") + url_for(
         "events.guest_access", code=event_code
     )

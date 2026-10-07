@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 07:17+0200\n"
+"POT-Creation-Date: 2026-10-07 07:21+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -638,7 +638,7 @@ msgstr "Chat"
 msgid "Media"
 msgstr "Media"
 
-#: app/i18n.py app/ui.py
+#: app/i18n.py app/templates/events/members.html app/ui.py
 msgid "Participants"
 msgstr "Participants"
 
@@ -886,11 +886,7 @@ msgstr "Create"
 msgid "Mes événements"
 msgstr "My events"
 
-#: app/templates/events/dashboard.html app/ui.py
-msgid "Inviter"
-msgstr "Invite"
-
-#: app/ui.py
+#: app/templates/events/members.html app/ui.py
 msgid "Partager le lien"
 msgstr "Share link"
 
@@ -1215,10 +1211,6 @@ msgstr "The name must be between 2 and 50 characters."
 msgid "Nom d'affichage enregistré."
 msgstr "Display name saved."
 
-#: app/events/__init__.py app/meals/__init__.py
-msgid "Nom requis (min 2 caractères)."
-msgstr "Name required (min. 2 characters)."
-
 #: app/events/__init__.py
 msgid "Limite d'invités atteinte."
 msgstr "Guest limit reached."
@@ -1227,6 +1219,11 @@ msgstr "Guest limit reached."
 #, python-format
 msgid "%(name)s ajouté·e (code : %(code)s)"
 msgstr "%(name)s added (code: %(code)s)"
+
+#: app/events/__init__.py
+#, python-format
+msgid "%(name)s retiré·e. Son foyer « %(household)s » reste dans les Frais."
+msgstr "%(name)s removed. Their household \"%(household)s\" stays in Costs."
 
 #: app/events/__init__.py
 #, python-format
@@ -1254,13 +1251,13 @@ msgid "Invitation envoyée à %(email)s."
 msgstr "Invitation sent to %(email)s."
 
 #: app/events/__init__.py
+msgid "Aucun email enregistré pour cet invité."
+msgstr "No email on file for this guest."
+
+#: app/events/__init__.py
 #, python-format
 msgid "Invitation renvoyée à %(name)s."
 msgstr "Invitation resent to %(name)s."
-
-#: app/events/__init__.py
-msgid "Aucun email enregistré pour cet invité."
-msgstr "No email on file for this guest."
 
 #: app/events/__init__.py
 msgid "Code perso requis (4 à 8 caractères)."
@@ -1380,6 +1377,10 @@ msgstr "Practical info updated."
 #: app/logistics/__init__.py
 msgid "Info pratique supprimée."
 msgstr "Practical info deleted."
+
+#: app/meals/__init__.py
+msgid "Nom requis (min 2 caractères)."
+msgstr "Name required (min. 2 characters)."
 
 #: app/meals/__init__.py
 msgid "Nom trop long (max 200)."
@@ -1612,7 +1613,7 @@ msgid ""
 "utilisez plutôt votre code."
 msgstr "For site administration only. To open your event, use your code instead."
 
-#: app/templates/auth/login.html
+#: app/templates/auth/login.html app/templates/events/members.html
 msgid "E-mail"
 msgstr "E-mail"
 
@@ -1624,7 +1625,8 @@ msgstr "Password"
 msgid "Se connecter"
 msgstr "Log in"
 
-#: app/templates/chat/_messages.html app/templates/lists/_items.html
+#: app/templates/chat/_messages.html app/templates/events/members.html
+#: app/templates/lists/_items.html
 msgid "Vous"
 msgstr "You"
 
@@ -1740,14 +1742,14 @@ msgstr "is owed"
 msgid "réglé"
 msgstr "settled"
 
-#: app/templates/costs/_balance.html
+#: app/templates/costs/_balance.html app/templates/events/members.html
 #, python-format
 msgid "%(n)d adulte"
 msgid_plural "%(n)d adultes"
 msgstr[0] "%(n)d adult"
 msgstr[1] "%(n)d adults"
 
-#: app/templates/costs/_balance.html
+#: app/templates/costs/_balance.html app/templates/events/members.html
 #, python-format
 msgid "%(n)d enfant"
 msgid_plural "%(n)d enfants"
@@ -2280,6 +2282,10 @@ msgstr "Quick actions"
 msgid "Ajouter une activité"
 msgstr "Add activity"
 
+#: app/templates/events/dashboard.html app/templates/events/members.html
+msgid "Inviter"
+msgstr "Invite"
+
 #: app/templates/events/dashboard.html
 msgid "Partager"
 msgstr "Share"
@@ -2456,7 +2462,7 @@ msgstr "Share event"
 msgid "Lien d'invitation"
 msgstr "Invitation link"
 
-#: app/templates/events/invite.html
+#: app/templates/events/invite.html app/templates/events/members.html
 msgid "QR code d'invitation"
 msgstr "Invitation QR code"
 
@@ -2468,7 +2474,7 @@ msgstr "Scan to join the event and create your personal code"
 msgid "Inviter par email"
 msgstr "Invite by email"
 
-#: app/templates/events/invite.html
+#: app/templates/events/invite.html app/templates/events/members.html
 msgid "La personne reçoit un lien pour créer son code personnel."
 msgstr "The person receives a link to create their personal code."
 
@@ -2476,7 +2482,7 @@ msgstr "The person receives a link to create their personal code."
 msgid "Adresse email de l'invité"
 msgstr "Guest email address"
 
-#: app/templates/events/invite.html
+#: app/templates/events/invite.html app/templates/events/members.html
 msgid "Envoyer l'invitation"
 msgstr "Send invitation"
 
@@ -2689,7 +2695,8 @@ msgid ""
 " partagez pas."
 msgstr "It lets you come back to the event from another device. Do not share it."
 
-#: app/templates/events/me.html app/templates/events/mycode.html
+#: app/templates/events/me.html app/templates/events/members.html
+#: app/templates/events/mycode.html
 msgid "Code personnel"
 msgstr "Personal code"
 
@@ -2697,17 +2704,82 @@ msgstr "Personal code"
 msgid "Vous n'avez pas encore de code personnel. Vous vous connectez par e-mail."
 msgstr "You do not have a personal code yet. You sign in by email."
 
-#: app/templates/events/members.html
-msgid "Membres"
-msgstr "Members"
+#: app/templates/_components/ui.html app/templates/events/members.html
+#, python-format
+msgid "%(n)d participant"
+msgid_plural "%(n)d participants"
+msgstr[0] "%(n)d participant"
+msgstr[1] "%(n)d participants"
 
 #: app/templates/events/members.html
-msgid "membres"
-msgstr "members"
+msgid "Illimité"
+msgstr "Unlimited"
 
 #: app/templates/events/members.html
-msgid "Ajouter un membre"
-msgstr "Add member"
+msgid "Participants sur le maximum du plan"
+msgstr "Participants out of the plan maximum"
+
+#: app/templates/events/members.html
+msgid "Vous comptez dans la limite, comme chaque participant."
+msgstr "You count towards the limit, like every participant."
+
+#: app/templates/events/members.html
+msgid "Limite du plan gratuit atteinte"
+msgstr "Free plan limit reached"
+
+#: app/templates/events/members.html
+msgid ""
+"Vous ne pouvez plus ajouter ni inviter de participants à cet événement. "
+"Les plans payants arrivent bientôt."
+msgstr ""
+"You can no longer add or invite participants to this event. Paid plans "
+"are coming soon."
+
+#: app/templates/events/members.html
+msgid "Partagez ce lien : chaque personne choisit son nom et son code personnel."
+msgstr "Share this link: everyone picks their own name and personal code."
+
+#: app/templates/events/members.html
+msgid "Lien pour rejoindre l'événement"
+msgstr "Link to join the event"
+
+#: app/templates/events/members.html
+msgid "Copier le lien"
+msgstr "Copy the link"
+
+#: app/templates/events/members.html
+msgid "Afficher le QR code"
+msgstr "Show the QR code"
+
+#: app/templates/events/members.html
+msgid "Scannez pour rejoindre l'événement et créer votre code personnel."
+msgstr "Scan to join the event and create your personal code."
+
+#: app/templates/events/members.html
+msgid "Inviter par e-mail"
+msgstr "Invite by email"
+
+#: app/templates/events/members.html
+msgid "Adresse e-mail de la personne"
+msgstr "Person's email address"
+
+#: app/templates/events/members.html
+msgid ""
+"L'envoi d'e-mails n'est pas configuré sur ce serveur : partagez le lien "
+"ci-dessus."
+msgstr "Email sending is not configured on this server: share the link above."
+
+#: app/templates/events/members.html
+msgid "Ajouter un participant"
+msgstr "Add a participant"
+
+#: app/templates/events/members.html
+msgid ""
+"Pour quelqu'un qui n'utilise pas son téléphone : un code personnel et un "
+"foyer pour les frais sont créés."
+msgstr ""
+"For someone who isn't using their phone: a personal code and a household "
+"for costs are created."
 
 #: app/templates/events/members.html app/templates/main/ui_catalog.html
 msgid "Nom"
@@ -2718,41 +2790,33 @@ msgid "Ex : Alice Martin"
 msgstr "E.g. Alice Martin"
 
 #: app/templates/events/members.html
-msgid "Email"
-msgstr "Email"
+msgid "Inviter quelqu'un"
+msgstr "Invite someone"
 
 #: app/templates/events/members.html
-msgid "optionnel"
-msgstr "optional"
+msgid "Partagez le lien de l'événement pour que d'autres personnes le rejoignent."
+msgstr "Share the event link so other people can join."
 
 #: app/templates/events/members.html
-msgid "alice@example.com"
-msgstr "alice@example.com"
+msgid "Liste des participants"
+msgstr "Participant list"
 
 #: app/templates/events/members.html
-msgid "Liste des membres"
-msgstr "Member list"
+msgid "Renvoyer l'invitation"
+msgstr "Resend the invitation"
 
 #: app/templates/events/members.html
 #, python-format
-msgid "Retirer %(name)s ?"
-msgstr "Remove %(name)s?"
+msgid "Retirer %(name)s de l'événement ?"
+msgstr "Remove %(name)s from the event?"
 
 #: app/templates/events/members.html
 msgid "Retirer"
 msgstr "Remove"
 
 #: app/templates/events/members.html
-msgid "Aucun membre pour l'instant"
-msgstr "No members yet"
-
-#: app/templates/events/members.html
-msgid "Ajoutez des invités ci-dessus ou partagez le lien d'invitation."
-msgstr "Add guests above or share the invitation link."
-
-#: app/templates/events/members.html
-msgid "Le créateur peut vous ajouter."
-msgstr "The creator can add you."
+msgid "Aucun participant pour l'instant"
+msgstr "No participants yet"
 
 #: app/templates/events/mycode.html app/templates/main/landing.html
 msgid "Votre code"
@@ -4032,11 +4096,4 @@ msgstr "Poll deleted."
 #: app/templates/_components/ui.html
 msgid "facultatif"
 msgstr "optional"
-
-#: app/templates/_components/ui.html
-#, python-format
-msgid "%(n)d participant"
-msgid_plural "%(n)d participants"
-msgstr[0] "%(n)d participant"
-msgstr[1] "%(n)d participants"
 

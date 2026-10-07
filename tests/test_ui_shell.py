@@ -173,10 +173,14 @@ def test_more_sheet_lists_remaining_modules_in_order(guest_client, event):
     ] == ["more-item-voting", "more-item-logistics", "more-item-chat", "more-item-media"]
 
 
-def test_more_sheet_event_group_is_log_only_for_guest(guest_client, event):
+def test_more_sheet_event_group_is_participants_and_log_for_guest(guest_client, event):
+    # B020 : la page Participants (noms seulement) est ouverte à tous ; « Inviter » est fusionné dedans.
     sheet = block(_html(guest_client.get(f"/e/{event.code}")), "more-sheet", "dialog")
     group = ("more-item-participants", "more-item-invite", "more-item-log")
-    assert [t for t in testids(sheet, "more-item-") if t in group] == ["more-item-log"]
+    assert [t for t in testids(sheet, "more-item-") if t in group] == [
+        "more-item-participants",
+        "more-item-log",
+    ]
 
 
 def test_more_sheet_hides_invite_for_guest(guest_client, event):
@@ -184,9 +188,10 @@ def test_more_sheet_hides_invite_for_guest(guest_client, event):
     assert "more-item-invite" not in testids(sheet, "more-item-")
 
 
-def test_more_sheet_shows_participants_and_invite_for_creator(creator_client, event):
+def test_more_sheet_shows_participants_without_separate_invite_for_creator(creator_client, event):
     sheet = block(_html(creator_client.get(f"/e/{event.code}")), "more-sheet", "dialog")
-    assert {"more-item-participants", "more-item-invite"} <= set(testids(sheet, "more-item-"))
+    ids = set(testids(sheet, "more-item-"))
+    assert ("more-item-participants" in ids, "more-item-invite" in ids) == (True, False)
 
 
 def test_more_sheet_hides_account_items_for_guest(guest_client, event):
@@ -233,7 +238,6 @@ def test_desktop_nav_lists_all_destinations_for_creator(creator_client, event):
         "navlink-chat",
         "navlink-media",
         "navlink-participants",
-        "navlink-invite",
         "navlink-share",
         "navlink-log",
         "navlink-me",
@@ -316,7 +320,7 @@ NEW_SHELL_MSGIDS = [
     "Compte",
     "Aller au contenu",
     "Thème sombre",
-    "Retirer %(name)s ?",
+    "Retirer %(name)s de l'événement ?",  # B020 : libellé de la confirmation de retrait
     "Accueil holishared",
     "Notifications",
     "Annuler",
@@ -472,8 +476,8 @@ def test_members_page_hides_other_participant_codes_for_guest(guest_client, even
         ("events.index", "events"),
         ("events.dashboard", "home"),
         ("events.members", "participants"),
-        ("events.invite", "invite"),
-        ("events.invite_qr", "invite"),
+        ("events.invite", "participants"),
+        ("events.invite_qr", "participants"),
         ("events.log", "log"),
         ("planning.index", "planning"),
         ("meals.index", "meals"),

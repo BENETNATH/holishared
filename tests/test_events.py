@@ -228,8 +228,9 @@ class TestInviteEmail:
             sess["_user_id"] = creator.id
 
     def test_invite_page_lists_guests(self, client, event, creator, guest):
+        # B020 : /invite est fusionnée dans Participants (redirection).
         self._login(client, creator)
-        resp = client.get(f"/e/{event.code}/invite")
+        resp = client.get(f"/e/{event.code}/invite", follow_redirects=True)
         assert resp.status_code == 200
         assert guest.display_name.encode() in resp.data
 
@@ -252,6 +253,7 @@ class TestInviteEmail:
 
     def test_invite_email_rejects_disposable(self, client, event, creator, monkeypatch):
         self._login(client, creator)
+        monkeypatch.setitem(client.application.config, "SMTP_HOST", "smtp.test.com")  # B020 : formulaire proposé seulement avec SMTP
         def boom(*a, **k):
             raise AssertionError("should not send")
         monkeypatch.setattr("app.events._send_guest_invite_email", boom)
@@ -262,6 +264,7 @@ class TestInviteEmail:
 
     def test_invite_resend_to_existing_guest(self, client, event, creator, guest, monkeypatch):
         self._login(client, creator)
+        monkeypatch.setitem(client.application.config, "SMTP_HOST", "smtp.test.com")  # B020 : état SMTP honnête
         guest.email = "member@test.com"
         from app.extensions import db
         db.session.commit()
@@ -286,7 +289,7 @@ class TestInviteQr:
     def test_invite_page_shows_qr(self, client, event, creator):
         with client.session_transaction() as sess:
             sess["_user_id"] = creator.id
-        resp = client.get(f"/e/{event.code}/invite")
+        resp = client.get(f"/e/{event.code}/members")
         assert resp.status_code == 200
         assert b"invite/qr" in resp.data
 

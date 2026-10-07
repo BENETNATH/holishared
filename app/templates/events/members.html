@@ -1,75 +1,144 @@
 {% extends "base.html" %}
-{% block title %}{{ _("Membres") }} — {{ event.title }}{% endblock %}
+{% from "_components/ui.html" import field, form_errors, empty_state %}
+{% block title %}{{ _("Participants") }} — {{ event.title }}{% endblock %}
 {% block content %}
-<div class="page-head">
+{% set creator = ctx.is_creator %}
+<div class="mx-auto flex max-w-2xl flex-col gap-4" data-testid="participants-page">
+  <div class="ui-page-header">
     <div>
-        <h1>{{ _("Membres") }}</h1>
-        <p class="page-sub">{{ event.title }} · {{ guests|length }} {{ _("membres") }}</p>
+      <h1>{{ _("Participants") }}</h1>
+      <p data-testid="participants-count">{{ event.title }} · {{ ngettext("%(n)d participant", "%(n)d participants", guests|length, n=guests|length) }}</p>
     </div>
-</div>
+  </div>
 
-{% if ctx.is_creator %}
-<section class="section" aria-labelledby="h-add">
-    <h2 id="h-add">{{ _("Ajouter un membre") }}</h2>
-    <form method="POST" class="expense-form">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="hidden" name="action" value="add">
-        <div class="form-grid">
-            <div class="form-group">
-                <label for="display_name">{{ _("Nom") }} *</label>
-                <input type="text" id="display_name" name="display_name" required minlength="2" maxlength="50"
-                       placeholder="{{ _('Ex : Alice Martin') }}">
-            </div>
-            <div class="form-group">
-                <label for="email">{{ _("Email") }} <span class="optional">({{ _("optionnel") }})</span></label>
-                <input type="email" id="email" name="email" maxlength="255"
-                       placeholder="{{ _('alice@example.com') }}" autocomplete="off">
-            </div>
-            <div class="form-group form-group--action">
-                <button type="submit" class="btn btn-primary">{{ _("Ajouter") }}</button>
-            </div>
-        </div>
-    </form>
-</section>
-{% endif %}
-
-<section class="section" aria-labelledby="h-list">
-    <h2 id="h-list">{{ _("Liste des membres") }}</h2>
-    {% if guests %}
-    <div class="members-grid">
-        {% for g in guests %}
-        {% set is_creator_guest = g.creator_id == event.creator_id %}
-        <div class="card member-card">
-            <div class="member-info">
-                <span class="member-name">{{ g.display_name }}</span>
-                {% if is_creator_guest %}<span class="badge badge-creator">{{ _("Créateur") }}</span>{% endif %}
-                {% if g.email and not is_creator_guest and (ctx.is_creator or (ctx.participant and ctx.participant.id == g.id)) %}<span class="member-email">{{ g.email }}</span>{% endif %}
-            </div>
-            <div class="member-code">
-                {% if is_creator_guest %}<span class="muted">—</span>{% elif ctx.is_creator %}
-                <code class="guest-code" id="guest-code-{{ g.id }}" data-secret data-masked="true">{{ g.code }}</code>
-                <button type="button" class="btn btn-small btn-ghost" data-reveal aria-controls="guest-code-{{ g.id }}" aria-pressed="false"><span data-reveal-label>{{ _("Voir") }}</span></button>
-                <button type="button" class="btn btn-small btn-ghost" data-copy="{{ g.code }}">{{ _("Copier") }}</button>
-                {% endif %}
-            </div>
-            {% if ctx.is_creator and not is_creator_guest %}
-            <form method="POST" class="member-remove">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <input type="hidden" name="action" value="remove">
-                <input type="hidden" name="guest_id" value="{{ g.id }}">
-                <button type="submit" class="btn btn-small btn-danger"
-                        data-confirm="{{ _('Retirer %(name)s ?', name=g.display_name) }}">{{ _("Retirer") }}</button>
-            </form>
-            {% endif %}
-        </div>
-        {% endfor %}
+  {% if creator %}
+  {# La jauge compte les participants actifs, créateur compris : même base que can_add_guest. #}
+  <section class="ui-card" aria-labelledby="h-gauge" data-testid="guest-gauge" data-at-limit="{{ 'true' if gauge.at_limit else 'false' }}">
+    <div class="flex items-center justify-between gap-3">
+      <h2 id="h-gauge" class="m-0 text-subheading font-semibold text-ink">{{ _("Participants") }}</h2>
+      {% if gauge.unlimited %}
+      <span class="ui-badge ui-badge--success" data-testid="gauge-values">{{ _("Illimité") }}</span>
+      {% else %}
+      <span class="ui-badge {{ 'ui-badge--warning' if gauge.at_limit else 'ui-badge--neutral' }}" data-testid="gauge-values">{{ gauge.count }} / {{ gauge.max }}</span>
+      {% endif %}
     </div>
-    {% else %}
-    <div class="empty-state">
-      <span class="empty-icon" aria-hidden="true">👥</span>
-      <h3>{{ _("Aucun membre pour l'instant") }}</h3>
-      <p>{% if ctx.is_creator %}{{ _("Ajoutez des invités ci-dessus ou partagez le lien d'invitation.") }}{% else %}{{ _("Le créateur peut vous ajouter.") }}{% endif %}</p>
+    {% if not gauge.unlimited %}
+    <progress class="ui-progress mt-2" max="{{ gauge.max }}" value="{{ gauge.count }}" aria-label="{{ _('Participants sur le maximum du plan') }}"></progress>
+    <p class="mt-2 mb-0 text-small text-ink-2">{{ _("Vous comptez dans la limite, comme chaque participant.") }}</p>
+    {% endif %}
+    {% if gauge.at_limit %}
+    <div class="mt-3 flex items-start gap-2 rounded-md bg-surface-2 p-3" role="note" data-testid="limit-card">
+      <span class="mt-0.5 shrink-0 text-warning">{{ icon('triangle-alert') }}</span>
+      <div>
+        <p class="m-0 font-semibold text-ink">{{ _("Limite du plan gratuit atteinte") }}</p>
+        <p class="m-0 text-small text-ink-2">{{ _("Vous ne pouvez plus ajouter ni inviter de participants à cet événement. Les plans payants arrivent bientôt.") }}</p>
+      </div>
     </div>
     {% endif %}
-</section>
+  </section>
+  {% endif %}
+
+  {% if creator and not gauge.at_limit %}
+  <section id="invite" class="ui-card" aria-labelledby="h-invite" data-testid="invite-block">
+    <h2 id="h-invite" class="mt-0 text-subheading font-semibold text-ink">{{ _("Inviter") }}</h2>
+    <p class="text-small text-ink-2">{{ _("Partagez ce lien : chaque personne choisit son nom et son code personnel.") }}</p>
+    <div class="flex flex-col gap-2 sm:flex-row">
+      <label for="invite-url" class="sr-only">{{ _("Lien pour rejoindre l'événement") }}</label>
+      <input class="ui-input min-w-0 flex-1" type="text" id="invite-url" value="{{ join_url }}" readonly data-testid="join-url">
+      <button type="button" class="ui-btn ui-btn--primary" data-copy-target="#invite-url" data-testid="copy-join-link">{{ icon('copy') }}<span>{{ _("Copier le lien") }}</span></button>
+    </div>
+    <details class="mt-3 rounded-md border border-line px-3" data-testid="qr-details">
+      <summary class="flex min-h-11 cursor-pointer items-center gap-2 text-small font-semibold text-ink">{{ icon('qr-code', size=16) }}{{ _("Afficher le QR code") }}</summary>
+      <div class="flex flex-col items-center gap-2 pb-3">
+        <img src="{{ url_for('events.invite_qr', code=event.code) }}" alt="{{ _("QR code d'invitation") }}" width="220" height="220" data-testid="invite-qr">
+        <p class="m-0 text-center text-small text-ink-2">{{ _("Scannez pour rejoindre l'événement et créer votre code personnel.") }}</p>
+      </div>
+    </details>
+
+    <div class="mt-4 border-t border-line pt-3" data-testid="invite-email-block">
+      <h3 class="mt-0 text-body font-semibold text-ink">{{ _("Inviter par e-mail") }}</h3>
+      {% if smtp_ready %}
+      <form method="post" action="{{ url_for('events.invite_email', code=event.code) }}" class="ui-form" data-testid="invite-email-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {{ field('email', _("Adresse e-mail de la personne"), type='email', value=form.invite_email or '', id='f-invite-email', required=True, help=_("La personne reçoit un lien pour créer son code personnel."), error=errors.text('invite_email'), autocomplete='off') }}
+        <div><button type="submit" class="ui-btn ui-btn--secondary" data-testid="invite-email-submit">{{ icon('mail') }}<span>{{ _("Envoyer l'invitation") }}</span></button></div>
+      </form>
+      {% else %}
+      <p class="m-0 flex items-start gap-2 text-small text-ink-2" data-testid="smtp-note">{{ icon('mail', size=16) }}<span>{{ _("L'envoi d'e-mails n'est pas configuré sur ce serveur : partagez le lien ci-dessus.") }}</span></p>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="ui-card" aria-labelledby="h-add" data-testid="add-block">
+    <h2 id="h-add" class="mt-0 text-subheading font-semibold text-ink">{{ _("Ajouter un participant") }}</h2>
+    <p class="text-small text-ink-2">{{ _("Pour quelqu'un qui n'utilise pas son téléphone : un code personnel et un foyer pour les frais sont créés.") }}</p>
+    {{ form_errors(errors, 'display_name', 'email', 'invite_email') }}
+    <form method="post" action="{{ url_for('events.members', code=event.code) }}" class="ui-form" data-testid="add-participant-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="add">
+      {{ field('display_name', _("Nom"), value=form.display_name or '', id='f-display_name', required=True, placeholder=_('Ex : Alice Martin'), error=errors.text('display_name'), attrs={'minlength': 2, 'maxlength': 50}) }}
+      {{ field('email', _("E-mail"), type='email', value=form.email or '', id='f-add-email', error=errors.text('email'), autocomplete='off', attrs={'maxlength': 255}) }}
+      <div><button type="submit" class="ui-btn ui-btn--secondary" data-testid="add-participant-submit">{{ icon('user-plus') }}<span>{{ _("Ajouter") }}</span></button></div>
+    </form>
+  </section>
+  {% elif not creator %}
+  <section class="ui-card" aria-labelledby="h-share" data-testid="share-block">
+    <h2 id="h-share" class="mt-0 text-subheading font-semibold text-ink">{{ _("Inviter quelqu'un") }}</h2>
+    <p class="text-small text-ink-2">{{ _("Partagez le lien de l'événement pour que d'autres personnes le rejoignent.") }}</p>
+    <button type="button" class="ui-btn ui-btn--primary" data-copy="{{ join_url }}" data-testid="share-link">{{ icon('share-2') }}<span>{{ _("Partager le lien") }}</span></button>
+  </section>
+  {% endif %}
+
+  <section aria-labelledby="h-list" data-testid="participants-list">
+    <h2 id="h-list" class="sr-only">{{ _("Liste des participants") }}</h2>
+    {% if guests %}
+    <ul class="m-0 flex list-none flex-col gap-3 p-0">
+      {% for g in guests %}
+      {% set is_creator_guest = g.creator_id is not none %}
+      {% set is_me = ctx.participant and ctx.participant.id == g.id %}
+      {% set home = households.get(g.id) %}
+      <li class="ui-card" data-testid="participant-row" data-guest-id="{{ g.id }}">
+        <div class="flex items-start gap-3">
+          <span class="ui-avatar ui-avatar--lg" aria-hidden="true">{{ g.display_name[0]|upper }}</span>
+          <div class="min-w-0 flex-1">
+            <p class="m-0 flex flex-wrap items-center gap-x-2 gap-y-1 font-semibold text-ink">
+              <span class="break-words" translate="no" data-testid="participant-name">{{ g.display_name }}</span>
+              {% if is_creator_guest %}<span class="ui-badge ui-badge--primary" data-testid="badge-creator">{{ _("Créateur") }}</span>{% endif %}
+              {% if is_me %}<span class="ui-badge ui-badge--neutral" data-testid="badge-me">{{ _("Vous") }}</span>{% endif %}
+            </p>
+            {% if home %}
+            <p class="m-0 text-small text-ink-2" data-testid="participant-household"><span translate="no">{{ home.name }}</span> · {{ ngettext("%(n)d adulte", "%(n)d adultes", home.num_adults, n=home.num_adults) }}{% if home.num_children %}, {{ ngettext("%(n)d enfant", "%(n)d enfants", home.num_children, n=home.num_children) }}{% endif %}</p>
+            {% endif %}
+            {% if g.email and (creator or is_me) %}<p class="m-0 break-all text-small text-ink-2" data-testid="participant-email">{{ g.email }}</p>{% endif %}
+          </div>
+        </div>
+        {% if creator and not is_creator_guest %}
+        <div class="mt-3 flex flex-wrap items-center gap-2">
+          <code class="rounded-md bg-surface-2 px-3 py-2 font-mono tracking-widest" id="guest-code-{{ g.id }}" data-secret data-masked="true" data-testid="participant-code" aria-label="{{ _('Code personnel') }}">{{ g.code }}</code>
+          <button type="button" class="ui-btn ui-btn--secondary" data-reveal aria-controls="guest-code-{{ g.id }}" aria-pressed="false" data-testid="participant-code-reveal">{{ icon('eye') }}<span data-reveal-label>{{ _("Voir") }}</span></button>
+          <button type="button" class="ui-btn ui-btn--secondary" data-copy="{{ g.code }}" data-testid="participant-code-copy">{{ icon('copy') }}<span>{{ _("Copier") }}</span></button>
+        </div>
+        <div class="mt-2 flex flex-wrap items-center gap-2">
+          {% if g.email and smtp_ready %}
+          <form method="post" action="{{ url_for('events.invite_resend', code=event.code, guest_id=g.id) }}" class="contents">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="ui-btn ui-btn--secondary" data-testid="resend-invite">{{ icon('send') }}<span>{{ _("Renvoyer l'invitation") }}</span></button>
+          </form>
+          {% endif %}
+          <form method="post" action="{{ url_for('events.members', code=event.code) }}" class="contents">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="action" value="remove">
+            <input type="hidden" name="guest_id" value="{{ g.id }}">
+            <button type="submit" class="ui-btn ui-btn--danger" data-confirm="{{ _("Retirer %(name)s de l'événement ?", name=g.display_name) }}" data-testid="remove-participant">{{ icon('user-minus') }}<span>{{ _("Retirer") }}</span></button>
+          </form>
+        </div>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    {{ empty_state('users', _("Aucun participant pour l'instant")) }}
+    {% endif %}
+  </section>
+</div>
 {% endblock %}

@@ -101,7 +101,8 @@ class Event(db.Model):  # type: ignore[misc,name-defined]
 
     @property
     def guest_count(self) -> int:
-        return cast("int", self.guests.count())
+        """Participants actifs, créateur compris (base de la limite d'invités, B020)."""
+        return cast("int", self.guests.filter_by(is_active=True).count())
 
 
 class Guest(db.Model):  # type: ignore[misc,name-defined]

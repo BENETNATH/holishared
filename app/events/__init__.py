@@ -40,13 +40,24 @@ from app.access import (
     suggest_guest_code,
 )
 from app.auth import is_disposable_email
-from app.context import device_events, load_event_context, log_event
+from app.context import EventContext, device_events, load_event_context, log_event
 from app.extensions import db, limiter
 from app.forms import FormErrors
-from app.freemium import can_add_guest, has_feature, max_duration_days, require_tier
+from app.freemium import can_add_guest, guest_gauge, has_feature, max_duration_days, require_tier
 from app.i18n import action_module, current_locale, household_default_name
 from app.main import render_landing
-from app.models import Activity, Creator, Event, Guest, Household, Meal, generate_guest_code
+from app.models import (
+    Activity,
+    Creator,
+    Event,
+    Expense,
+    Guest,
+    Household,
+    Meal,
+    PaymentRequest,
+    Transfer,
+    generate_guest_code,
+)
 from app.utils import ensure_creator_guest
 
 
@@ -587,59 +598,136 @@ def manage(code: str) -> str:
     )
 
 
-@events_bp.route("/<code>/members", methods=["GET", "POST"])
-def members(code: str) -> str | Response:
-    """Event members page: list all guests, creator can add/remove."""
-    ctx = load_event_context(code)
+def _participants_page(
+    ctx: EventContext,
+    errors: FormErrors | None = None,
+    form: dict[str, str] | None = None,
+    status: int = 200,
+) -> tuple[str, int]:
+    """Page Participants (liste, jauge, invitation) ; ``errors``/``form`` rejouent un envoi refusé."""
     event = ctx.event
-
-    if request.method == "POST" and ctx.is_creator:
-        action = request.form.get("action", "")
-        if action == "add":
-            display_name = request.form.get("display_name", "").strip()
-            email = request.form.get("email", "").strip().lower() or None
-            errors = FormErrors()
-            if not display_name or len(display_name) < 2:
-                errors.add("display_name", _("Nom requis (min 2 caractères)."))
-            if email and not _valid_email(email):
-                errors.add("email", _("Format d'email invalide."))
-            if email and is_disposable_email(email):
-                errors.add("email", _("Domaine email non accepté (jetable)."))
-            if not can_add_guest(event):
-                errors.add_global(_("Limite d'invités atteinte."))
-            if errors:
-                errors.flash_all("danger")
-            else:
-                new_code = generate_guest_code()
-                member = Guest(
-                    code=new_code,
-                    display_name=display_name,
-                    email=email,
-                    event_id=event.id,
-                )
-                db.session.add(member)
-                db.session.commit()
-                flash(
-                    _("%(name)s ajouté·e (code : %(code)s)", name=display_name, code=new_code),
-                    "success",
-                )
-                return redirect(url_for("events.members", code=code))
-        elif action == "remove":
-            guest_id = request.form.get("guest_id", "")
-            target = Guest.query.filter_by(id=guest_id, event_id=event.id).first()
-            if target is None:
-                abort(404)
-            if not ctx.can_delete(target):
-                abort(403)
-            target.is_active = False
-            db.session.commit()
-            flash(_("%(name)s retiré·e.", name=target.display_name), "success")
-            return redirect(url_for("events.members", code=code))
-
-    all_guests = (
+    guests = (
         Guest.query.filter_by(event_id=event.id, is_active=True).order_by(Guest.display_name).all()
     )
-    return render_template("events/members.html", event=event, guests=all_guests)
+    guests.sort(key=lambda g: g.creator_id is None)  # le créateur en tête (tri stable)
+    page = render_template(
+        "events/members.html",
+        event=event,
+        guests=guests,
+        households={
+            h.guest_id: h for h in Household.query.filter_by(event_id=event.id) if h.guest_id
+        },
+        gauge=guest_gauge(event),
+        join_url=_join_url(event),
+        smtp_ready=bool(current_app.config["SMTP_HOST"]),
+        errors=errors or FormErrors(),
+        form=form or {},
+    )
+    return page, status
+
+
+def _check_email(errors: FormErrors, field: str, email: str | None) -> None:
+    if email and not _valid_email(email):
+        errors.add(field, _("Format d'email invalide."))
+    elif email and is_disposable_email(email):
+        errors.add(field, _("Domaine email non accepté (jetable)."))
+
+
+@events_bp.route("/<code>/members", methods=["GET", "POST"])
+def members(code: str) -> str | Response | tuple[str, int]:
+    """Participants : liste pour tous ; le créateur invite, ajoute et retire (B020)."""
+    ctx = load_event_context(code)
+    if request.method == "GET":
+        return _participants_page(ctx)
+    if not ctx.is_creator:
+        abort(403)
+    action = request.form.get("action", "")
+    if action == "add":
+        return _add_participant(ctx)
+    if action == "remove":
+        return _remove_participant(ctx)
+    abort(400)
+
+
+def _add_participant(ctx: EventContext) -> Response | tuple[str, int]:
+    """Le créateur ajoute un participant : Guest, code personnel et foyer (F21)."""
+    event = ctx.event
+    display_name = " ".join(request.form.get("display_name", "").split())
+    email = request.form.get("email", "").strip().lower() or None
+    errors = FormErrors()
+    if not 2 <= len(display_name) <= 50:
+        errors.add("display_name", _("Le nom doit faire entre 2 et 50 caractères."))
+    _check_email(errors, "email", email)
+    if not can_add_guest(event):
+        errors.add_global(_("Limite d'invités atteinte."))
+    if errors:
+        form = {"display_name": display_name, "email": email or ""}
+        return _participants_page(ctx, errors, form)
+    member = Guest(
+        code=generate_guest_code(), display_name=display_name, email=email, event_id=event.id
+    )
+    db.session.add(member)
+    db.session.flush()
+    db.session.add(
+        Household(
+            name=household_default_name(display_name),
+            num_adults=1,
+            num_children=0,
+            event_id=event.id,
+            guest_id=member.id,
+        )
+    )
+    log_event(ctx, "participant.added", target=display_name)
+    db.session.commit()
+    flash(_("%(name)s ajouté·e (code : %(code)s)", name=display_name, code=member.code), "success")
+    return redirect(url_for("events.members", code=event.code))
+
+
+def _remove_participant(ctx: EventContext) -> Response:
+    """Retire un participant (désactivation). Son foyer n'est supprimé que s'il est sans effet."""
+    event = ctx.event
+    target = Guest.query.filter_by(id=request.form.get("guest_id", ""), event_id=event.id).first()
+    if target is None or not target.is_active:
+        abort(404)
+    if not ctx.can_delete(target):
+        abort(403)
+    name = target.display_name
+    household = Household.query.filter_by(guest_id=target.id, event_id=event.id).first()
+    kept = None
+    if household is not None:
+        # Un foyer peut être cité par des dépenses (payeur, parts, répartition libre), des transferts
+        # ou des demandes : on ne le supprime que si l'événement n'a aucune dépense et que le foyer
+        # n'a ni transfert ni demande ; sinon il reste dans les Frais.
+        linked = (
+            Expense.query.filter_by(event_id=event.id).first()
+            or Transfer.query.filter(
+                (Transfer.from_household_id == household.id)
+                | (Transfer.to_household_id == household.id)
+            ).first()
+            or PaymentRequest.query.filter(
+                (PaymentRequest.from_household_id == household.id)
+                | (PaymentRequest.to_household_id == household.id)
+            ).first()
+        )
+        if linked is None:
+            db.session.delete(household)
+        else:
+            kept = household.name
+    target.is_active = False
+    log_event(ctx, "participant.removed", target=name)
+    db.session.commit()
+    if kept:
+        flash(
+            _(
+                "%(name)s retiré·e. Son foyer « %(household)s » reste dans les Frais.",
+                name=name,
+                household=kept,
+            ),
+            "success",
+        )
+    else:
+        flash(_("%(name)s retiré·e.", name=name), "success")
+    return redirect(url_for("events.members", code=event.code))
 
 
 @events_bp.route("/<code>/export")
@@ -826,41 +914,10 @@ def export_pdf(code: str) -> Response | str:
 
 
 @events_bp.route("/<code>/invite")
-def invite(code: str) -> str | Response:
-    """Generate invite links for guests."""
-    event = load_event_context(code, require="creator").event
-    if not can_add_guest(event):
-        flash(_("Limite d'invités atteinte."), "warning")
-        return redirect(url_for("events.dashboard", code=code))
-
-    invite_url = f"{current_app.config['APP_URL']}/e/{code}/join"
-    guests = (
-        Guest.query.filter_by(event_id=event.id, is_active=True)
-        .order_by(Guest.display_name.asc())
-        .all()
-    )
-
-    # Guest-cap gauge + premium state (Lot 5 freemium).
-    max_guests = int(current_app.config.get("MAX_GUESTS_PER_EVENT", 10))
-    from app.freemium import has_feature
-
-    unlimited = has_feature(current_user, "unlimited_guests")
-    count = len(guests)
-    pct = min(100, round(count / max_guests * 100)) if max_guests else 0
-    guest_gauge = {
-        "count": count,
-        "max": max_guests,
-        "pct": pct,
-        "unlimited": unlimited,
-        "at_limit": (not unlimited) and count >= max_guests,
-    }
-    return render_template(
-        "events/invite.html",
-        event=event,
-        invite_url=invite_url,
-        guests=guests,
-        guest_gauge=guest_gauge,
-    )
+def invite(code: str) -> Response:
+    """Ancienne page « Invitations » : fusionnée dans Participants (B020)."""
+    load_event_context(code, require="creator")
+    return redirect(url_for("events.members", code=code, _anchor="invite"))
 
 
 @events_bp.route("/<code>/invite/qr")
@@ -894,41 +951,42 @@ def invite_qr(code: str) -> tuple[bytes, int, dict[str, str]]:
 
 @events_bp.route("/<code>/invite/email", methods=["POST"])
 @limiter.limit("20 per hour")
-def invite_email(code: str) -> Response:
-    """Creator invites a person by email to create their personal code."""
-    event = load_event_context(code, require="creator").event
-    email = request.form.get("email", "").strip().lower()
-
-    if not email:
-        flash(_("Email requis."), "danger")
-    elif not _valid_email(email):
-        flash(_("Format d'email invalide."), "danger")
-    elif is_disposable_email(email):
-        flash(_("Domaine email non accepté (jetable)."), "danger")
-    elif not can_add_guest(event):
-        flash(_("Limite d'invités atteinte."), "warning")
-    elif not current_app.config["SMTP_HOST"]:
+def invite_email(code: str) -> Response | tuple[str, int]:
+    """Le créateur invite une personne par e-mail ; erreurs par champ, état honnête sans SMTP."""
+    ctx = load_event_context(code, require="creator")
+    event = ctx.event
+    if not current_app.config["SMTP_HOST"]:  # le formulaire n'est pas proposé : état honnête
         flash(_("L'envoi d'emails n'est pas configuré sur ce serveur."), "warning")
+        return redirect(url_for("events.members", code=code, _anchor="invite"))
+    email = request.form.get("email", "").strip().lower()
+    errors = FormErrors()
+    if not email:
+        errors.add("invite_email", _("Email requis."))
+    else:
+        _check_email(errors, "invite_email", email)
+    if errors:
+        return _participants_page(ctx, errors, {"invite_email": email})
+    if not can_add_guest(event):
+        flash(_("Limite d'invités atteinte."), "warning")
     else:
         _send_guest_invite_email(event, email)
         flash(_("Invitation envoyée à %(email)s.", email=email), "success")
-
-    return redirect(url_for("events.invite", code=code))
+    return redirect(url_for("events.members", code=code, _anchor="invite"))
 
 
 @events_bp.route("/<code>/invite/resend/<guest_id>", methods=["POST"])
 def invite_resend(code: str, guest_id: str) -> Response:
-    """Creator re-sends the code-creation invitation to an existing member."""
+    """Le créateur renvoie l'invitation à un participant qui a une adresse e-mail."""
     event = load_event_context(code, require="creator").event
     guest = Guest.query.filter_by(id=guest_id, event_id=event.id, is_active=True).first_or_404()
-
-    if guest.email:
+    if not guest.email:
+        flash(_("Aucun email enregistré pour cet invité."), "warning")
+    elif not current_app.config["SMTP_HOST"]:
+        flash(_("L'envoi d'emails n'est pas configuré sur ce serveur."), "warning")
+    else:
         _send_guest_invite_email(event, guest.email, guest.display_name)
         flash(_("Invitation renvoyée à %(name)s.", name=guest.display_name), "success")
-    else:
-        flash(_("Aucun email enregistré pour cet invité."), "warning")
-
-    return redirect(url_for("events.invite", code=code))
+    return redirect(url_for("events.members", code=code))
 
 
 # === Guest Access ===

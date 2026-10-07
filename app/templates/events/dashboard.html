@@ -34,7 +34,7 @@
       <a href="{{ url_for('planning.create', code=event.code) }}" class="{{ action_class('activity') }}" data-testid="add-activity-action">{{ icon('plus') }}<span>{{ _("Ajouter une activité") }}</span></a>
       {% endif %}
       {% if ctx.is_creator %}
-      <a href="{{ url_for('events.invite', code=event.code) }}" class="{{ action_class('invite') }}" data-testid="invite-action">{{ icon('user-plus') }}<span>{{ _("Inviter") }}</span></a>
+      <a href="{{ url_for('events.members', code=event.code, _anchor='invite') }}" class="{{ action_class('invite') }}" data-testid="invite-action">{{ icon('user-plus') }}<span>{{ _("Inviter") }}</span></a>
       {% endif %}
       <button type="button" class="{{ action_class('share') }}" data-testid="share-action" data-copy="{{ share_url }}">{{ icon('share-2') }}<span>{{ _("Partager") }}</span></button>
     </div>
