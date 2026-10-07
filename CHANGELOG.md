@@ -10,6 +10,12 @@ sous chaque lot.
 
 ## [Unreleased]
 
+### B025b — Infos pratiques & Chat (clôture de B025)
+
+- `feat(logistics)` : infos en cartes groupées par catégorie dans l'ordre du registre (adresse, accès, horaires, documents, notes, divers ; clés inconnues à la fin) puis `order`, puis ancienneté ; bouton « Copier » ; liens http(s) cliquables et échappés (`app/infos.py`, filtre `linkify`, aucun HTML brut) ; menu Modifier/Supprimer ; ajout et modification dans une feuille ancrée en bas (HTMX, fragment de liste, erreurs par champ). Le champ « Ordre d'affichage » disparaît de l'interface : la colonne reste en base, la valeur postée est ignorée (les anciennes valeurs continuent de trier dans leur catégorie). Droits inchangés (modifier : tout participant ; supprimer : créateur). L'accueil affiche les 3 premières infos dans le même ordre. `confirm.js` gère `data-confirm` sur les formulaires HTMX (`htmx:confirm`).
+- `feat(chat)` : composeur collant au-dessus de la barre du bas (Entrée envoie sur bureau, Maj+Entrée = saut de ligne, champ extensible), envoi sans rechargement (la réponse contient tout ce qui est arrivé depuis le curseur du client : aucun trou), polling incrémental `GET /chat?after=<id>&ts=<iso>` (ordre `(created_at, id)`, repli sur l'horodatage si le curseur a été supprimé) ralenti quand l'onglet est masqué, défilement automatique seulement si la personne est déjà en bas sinon bouton « Nouveaux messages », historique « Messages précédents » (`?before=<id>`, par 50), messages groupés par auteur (5 min) avec séparateurs de date, libellé « Vous », menu par message (`data-confirm`, suppression sans rechargement). Plus de gros bouton « Supprimer ». Gestionnaire global 429 : toast lisible pour les requêtes HTMX.
+- `test(ui)` : scènes Infos (cartes, copie, feuille d'ajout/édition/erreur, suppression) et Chat (page, envoi, historique, nouveaux messages, suppression).
+
 ### B025a — Sondages (partie de B025 ; 25.2 Infos pratiques et 25.3 Chat à faire)
 
 - `feat(models)` : `Poll.kind` (`free` / `activities`), `Poll.created_by`, `PollOption.activity_id` (FK `ON DELETE SET NULL` : l'option garde son libellé), `Activity.status` (`planned` / `retained` / `dropped`) ; migration idempotente `migrate_polls` (calcul à blanc, sauvegarde `pre-polls-*` seulement si des lignes existent, exécutée au démarrage avant la purge). Droits : un sondage est géré par le créateur ou son auteur (`test_rights` adapté).

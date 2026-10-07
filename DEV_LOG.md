@@ -287,6 +287,17 @@ Audit B017/B029 : constats 1 à 6 corrigés (variables `INSTANCE_PATH` et `SKIP_
 - Piège UI : la garde `lang-fr` scanne tout `[data-ui-shell]`, feuilles fermées comprises : les données utilisateur d'une feuille (titres d'activités) portent `translate="no"`.
 - Audit B018–B024 : étapes de démarrage dans `app/startup.py` (indépendantes) ; `ruff format app` global reformate des fichiers hors périmètre (ne formater que ses fichiers).
 
+### 2026-10-07 — B025b Infos pratiques & Chat
+
+- Ordre des infos : `app/infos.py::ordered_infos` (registre `LABELS["info_category"]`, puis `order`, `created_at`, `id`) partagé par la page et l'accueil ; `INFOS_ON_HOME` passe de 5 à 3.
+- `order` : colonne conservée, plus saisissable ni modifiée (pas de migration destructrice) ; les tests qui postaient `order` sont adaptés (valeur ignorée).
+- Liens : `linkify` échappe chaque segment, ne reconnaît que `http(s)://`, retire la ponctuation finale ; `target=_blank rel="noopener noreferrer"`.
+- `data-confirm` + HTMX : le gestionnaire `submit` global ignore les formulaires `hx-post`/`hx-delete` ; `htmx:confirm` émet la requête après accord.
+- Chat : les ids sont aléatoires, le curseur est donc `(created_at, id)` ; `?after=<id>&ts=` retombe sur `ts` si le message curseur a été supprimé ; `AFTER_CAP`=100 par relève. L'envoi renvoie les messages depuis le curseur du client (le sien compris) : un message arrivé entre-temps n'est jamais sauté. Dédoublonnage côté client par `data-message-id`.
+- Limite connue : une suppression par un autre participant n'est pas répercutée chez les autres avant rechargement (le polling ne transmet que des ajouts).
+- Piège CSS : le CSS historique impose `flex-direction: column` et une largeur max aux `<form>` : le composeur les redéfinit explicitement. Le menu d'un message du bas doit passer au-dessus du composeur collant (`z-index: 30`).
+- Gate tests : la suite complète dure environ 6,5 minutes.
+
 ### À faire (backlog)
 
 | Priorité | Tâche | Statut |
