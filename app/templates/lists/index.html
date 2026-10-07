@@ -9,7 +9,7 @@
   </div>
 </div>
 
-<form method="post" action="{{ url_for('lists.index', code=event.code) }}" class="mb-4 flex flex-wrap items-start gap-2" data-testid="list-create-form">
+<form method="post" action="{{ url_for('lists.index', code=event.code) }}" class="mb-4 flex max-w-none flex-row flex-wrap items-start gap-2" data-testid="list-create-form">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <div class="min-w-0 flex-[1_1_16rem]">
     <label class="sr-only" for="list-create-title">{{ _("Nouvelle liste") }}</label>

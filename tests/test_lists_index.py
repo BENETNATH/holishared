@@ -112,3 +112,9 @@ def test_index_does_not_issue_two_queries_per_list(db, guest_client, event):
     finally:
         sa_event.remove(db.engine, "before_cursor_execute", count)
     assert sum("list_items" in s for s in statements) == 1
+
+
+def test_list_create_form_overrides_legacy_column_layout(guest_client, event):
+    html = guest_client.get(f"/e/{event.code}/lists").get_data(as_text=True)
+    form_tag = tag(html, "list-create-form")
+    assert ("flex-row" in form_tag, "max-w-none" in form_tag) == (True, True)

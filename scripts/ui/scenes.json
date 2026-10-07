@@ -835,6 +835,11 @@
           "type": "assert",
           "expr": "document.querySelectorAll('[data-testid=list-card]').length >= 2",
           "message": "les cartes de listes sont rendues"
+        },
+        {
+          "type": "assert",
+          "expr": "(() => { const f = document.querySelector('[data-testid=list-create-form]').getBoundingClientRect(); const c = document.querySelector('[data-testid=list-cards]').getBoundingClientRect(); return f.height < 130 && c.top - f.bottom < 40; })()",
+          "message": "pas d'écart vertical entre la création rapide et les cartes (règle legacy form en colonne)"
         }
       ]
     },
