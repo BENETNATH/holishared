@@ -29,6 +29,7 @@ EXPENSE_CATEGORY_ICONS = {
 TABS = ("expenses", "balance", "requests")
 MAX_AMOUNT = 1_000_000.0
 MAX_RATE = 10000.0
+MIN_RATE = 0.0001
 DATE_PAST_DAYS = 365 * 5
 DATE_FUTURE_DAYS = 366
 
@@ -157,7 +158,7 @@ def _parse_decimal(raw: str) -> float | None:
 
 def _parse_amount(raw: str, errors: FormErrors) -> int:
     value = _parse_decimal(raw)
-    if value is None or value <= 0 or value > MAX_AMOUNT:
+    if value is None or value <= 0 or value > MAX_AMOUNT or round(value * 100) < 1:
         errors.add("amount", _("Montant invalide."))
         return 0
     return round(value * 100)
@@ -185,15 +186,15 @@ def _parse_date(raw: str, errors: FormErrors) -> date:
 
 
 def _parse_rate(raw: str, currency: str, errors: FormErrors) -> float:
-    """Taux vers la devise de base : 1.0 pour la devise de base, obligatoire sinon (0 < taux ≤ 10000)."""
+    """Taux vers la devise de base : 1.0 pour la devise de base, obligatoire sinon (0,0001 ≤ taux ≤ 10000)."""
     if currency == BASE_CURRENCY:
         return 1.0
     if not raw.strip():
         errors.add("exchange_rate", _("Taux de change requis pour cette devise."))
         return 1.0
     value = _parse_decimal(raw)
-    if value is None or value <= 0 or value > MAX_RATE:
-        errors.add("exchange_rate", _("Taux de change invalide (0 < taux ≤ 10000)."))
+    if value is None or not MIN_RATE <= value <= MAX_RATE:
+        errors.add("exchange_rate", _("Taux de change invalide (0,0001 ≤ taux ≤ 10000)."))
         return 1.0
     return value
 
@@ -506,6 +507,10 @@ def _parse_expense(ctx: EventContext, form: Any) -> tuple[dict[str, Any], FormEr
         errors.add("currency", _("Devise invalide."))
         currency = BASE_CURRENCY
     exchange_rate = _parse_rate(form.get("exchange_rate", ""), currency, errors)
+    if not (errors.has("amount") or errors.has("exchange_rate")) and (
+        _base_cents(amount_cents, exchange_rate) < 1
+    ):
+        errors.add("amount", _("Montant trop faible une fois converti."))
     if not is_valid("expense_category", category):
         errors.add("category", _("Catégorie invalide."))
     payer: Household | None = None

@@ -620,3 +620,22 @@ def test_index_query_count_does_not_grow_with_activities(creator_client, event, 
         _rsvp(db, a, guest, "maybe")
         _rsvp(db, a, _guest(db, event, f"G{i}"), "yes")
     assert _queries_for_index(creator_client, event) == few
+
+
+def test_planning_page_tolerates_null_min_headcount(creator_client, db, event):
+    act = _act(db, event)
+    db.session.execute(
+        db.text("UPDATE activities SET min_headcount = NULL WHERE id = :i"), {"i": act.id}
+    )
+    db.session.commit()
+    assert creator_client.get(f"/e/{event.code}/planning").status_code == 200
+
+
+def test_edit_form_tolerates_null_min_headcount(creator_client, db, event):
+    act = _act(db, event)
+    db.session.execute(
+        db.text("UPDATE activities SET min_headcount = NULL WHERE id = :i"), {"i": act.id}
+    )
+    db.session.commit()
+    resp = creator_client.get(f"/e/{event.code}/planning/{act.id}/edit")
+    assert 'value="1"' in resp.get_data(as_text=True)

@@ -2,7 +2,8 @@
 {%- set editable = ctx.can_edit(act) -%}
 {%- set yes = summary.count('yes') -%}
 {%- set maybe = summary.count('maybe') -%}
-{%- set missing = act.min_headcount - yes -%}
+{%- set min_headcount = act.min_headcount or 1 -%}
+{%- set missing = min_headcount - yes -%}
 {%- set base = {'code': event.code, 'activity_id': act.id} -%}
 {%- set limit = 160 -%}
 <li id="activity-{{ act.id }}" data-testid="activity-card" data-activity-id="{{ act.id }}"
@@ -22,7 +23,7 @@
       <summary class="ui-btn ui-btn--ghost ui-btn--icon list-none" aria-label="{{ _('Actions pour %(title)s', title=act.title) }}">{{ icon('ellipsis-vertical') }}</summary>
       <div class="absolute right-0 z-10 mt-1 flex w-44 flex-col gap-1 rounded-md border border-line bg-surface p-1 shadow-raised">
         <a class="ui-btn ui-btn--ghost ui-btn--sm justify-start" data-testid="activity-edit" data-planning-edit
-           data-fields='{{ {"title": act.title, "date": act.date.isoformat(), "start_time": act.start_time.strftime("%H:%M") if act.start_time else "", "end_time": act.end_time.strftime("%H:%M") if act.end_time else "", "location": act.location or "", "description": act.description or "", "min_headcount": act.min_headcount, "bring_items": act.bring_items or ""}|tojson }}'
+           data-fields='{{ {"title": act.title, "date": act.date.isoformat(), "start_time": act.start_time.strftime("%H:%M") if act.start_time else "", "end_time": act.end_time.strftime("%H:%M") if act.end_time else "", "location": act.location or "", "description": act.description or "", "min_headcount": min_headcount, "bring_items": act.bring_items or ""}|tojson }}'
            href="{{ url_for('planning.edit', **base) }}">{{ icon('pencil', size=16) }}<span>{{ _("Modifier") }}</span></a>
         {%- if ctx.can_delete(act) %}
         <form method="post" action="{{ url_for('planning.delete', **base) }}" data-confirm="{{ _('Supprimer cette activité ?') }}" data-confirm-label="{{ _('Supprimer') }}" data-testid="activity-delete-form">
@@ -58,7 +59,7 @@
     <p class="m-0 text-small text-ink-2" data-testid="rsvp-count">
       {%- if yes or maybe %}{{ _("%(yes)d oui · %(maybe)d peut-être", yes=yes, maybe=maybe) }}{% else %}{{ _("Aucune réponse pour l'instant") }}{% endif -%}
     </p>
-    {%- if act.min_headcount > 1 %}
+    {%- if min_headcount > 1 %}
     {%- if missing <= 0 %}
     <span class="ui-badge ui-badge--success" data-testid="threshold" data-reached="true">{{ icon('circle-check', size=14) }}&nbsp;{{ _("Seuil atteint") }}</span>
     {%- else %}

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 03:25+0200\n"
+"POT-Creation-Date: 2026-10-07 03:35+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -595,7 +595,7 @@ msgid "Taux de change requis pour cette devise."
 msgstr ""
 
 #: app/costs/__init__.py
-msgid "Taux de change invalide (0 < taux ≤ 10000)."
+msgid "Taux de change invalide (0,0001 ≤ taux ≤ 10000)."
 msgstr ""
 
 #: app/costs/__init__.py
@@ -636,6 +636,10 @@ msgstr ""
 
 #: app/costs/__init__.py
 msgid "Devise invalide."
+msgstr ""
+
+#: app/costs/__init__.py
+msgid "Montant trop faible une fois converti."
 msgstr ""
 
 #: app/costs/__init__.py app/logistics/__init__.py
@@ -855,7 +859,7 @@ msgstr ""
 msgid "%(name)s retiré·e."
 msgstr ""
 
-#: app/events/__init__.py
+#: app/events/__init__.py app/media/__init__.py
 msgid "La suppression a échoué. Réessayez."
 msgstr ""
 

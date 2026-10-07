@@ -1093,3 +1093,48 @@ def test_deleting_event_removes_expenses_that_reference_their_author(db, setup):
     db.session.delete(s.event)
     db.session.commit()
     assert Expense.query.count() + Transfer.query.count() + PaymentRequest.query.count() == 0
+
+
+# --- Audit B018-B024 #5 / #6 : bornes des montants et des taux, NULL legacy ---
+
+
+def test_amount_rounding_to_zero_cent_is_refused(client, setup):
+    _as(client, setup.event, setup.alice)
+    _post_expense(client, setup, amount="0,004")
+    assert Expense.query.count() == 0
+
+
+def test_amount_of_one_cent_is_accepted(client, setup):
+    _as(client, setup.event, setup.alice)
+    _post_expense(client, setup, amount="0,01")
+    assert Expense.query.one().amount_cents == 1
+
+
+@pytest.mark.parametrize("rate", ["1e-9", "0.00009"])
+def test_rate_below_minimum_is_refused(client, setup, rate):
+    _as(client, setup.event, setup.alice)
+    _post_expense(client, setup, amount="5000", currency="USD", exchange_rate=rate)
+    assert Expense.query.count() == 0
+
+
+def test_rate_at_minimum_with_amount_converting_to_zero_cent_is_refused(client, setup):
+    _as(client, setup.event, setup.alice)
+    _post_expense(client, setup, amount="0,01", currency="USD", exchange_rate="0.0001")
+    assert Expense.query.count() == 0
+
+
+def test_rate_at_minimum_with_amount_converting_to_a_cent_is_accepted(client, setup):
+    _as(client, setup.event, setup.alice)
+    _post_expense(client, setup, amount="100", currency="USD", exchange_rate="0.0001")
+    assert Expense.query.one().exchange_rate == 0.0001
+
+
+def test_costs_page_tolerates_null_exchange_rate(client, setup):
+    s = setup
+    exp = _expense(s, "Legacy", s.ha, s.alice)
+    s.db.session.execute(
+        s.db.text("UPDATE expenses SET exchange_rate = NULL WHERE id = :i"), {"i": exp.id}
+    )
+    s.db.session.commit()
+    _as(client, s.event, s.alice)
+    assert client.get(s.url).status_code == 200

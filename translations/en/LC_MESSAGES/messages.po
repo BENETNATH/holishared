@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 03:25+0200\n"
+"POT-Creation-Date: 2026-10-07 03:35+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -638,8 +638,8 @@ msgid "Taux de change requis pour cette devise."
 msgstr "An exchange rate is required for this currency."
 
 #: app/costs/__init__.py
-msgid "Taux de change invalide (0 < taux ≤ 10000)."
-msgstr "Invalid exchange rate (0 < rate ≤ 10000)."
+msgid "Taux de change invalide (0,0001 ≤ taux ≤ 10000)."
+msgstr "Invalid exchange rate (0.0001 ≤ rate ≤ 10000)."
 
 #: app/costs/__init__.py
 msgid "Nom du foyer requis (min 2 caractères)."
@@ -680,6 +680,10 @@ msgstr "Description too long (max 300)."
 #: app/costs/__init__.py
 msgid "Devise invalide."
 msgstr "Invalid currency."
+
+#: app/costs/__init__.py
+msgid "Montant trop faible une fois converti."
+msgstr "Amount too small once converted."
 
 #: app/costs/__init__.py app/logistics/__init__.py
 msgid "Catégorie invalide."
@@ -900,7 +904,7 @@ msgstr "%(name)s added (code: %(code)s)"
 msgid "%(name)s retiré·e."
 msgstr "%(name)s removed."
 
-#: app/events/__init__.py
+#: app/events/__init__.py app/media/__init__.py
 msgid "La suppression a échoué. Réessayez."
 msgstr "Deletion failed. Please try again."
 

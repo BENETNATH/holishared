@@ -301,7 +301,7 @@ def edit(code: str, activity_id: str) -> Response | tuple[str, int] | str:
             "start_time": activity.start_time.strftime("%H:%M") if activity.start_time else "",
             "end_time": activity.end_time.strftime("%H:%M") if activity.end_time else "",
             "location": activity.location,
-            "min_headcount": str(activity.min_headcount),
+            "min_headcount": str(activity.min_headcount or 1),
             "bring_items": activity.bring_items,
         }
         return render_template(

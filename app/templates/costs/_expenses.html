@@ -7,7 +7,7 @@
   {%- if expenses %}
   <ul class="ui-list" data-testid="expense-list">
     {%- for exp in expenses %}
-    {%- set base = exp.amount_cents / 100.0 * exp.exchange_rate %}
+    {%- set base = exp.amount_cents / 100.0 * (exp.exchange_rate or 1.0) %}
     <li data-testid="expense-row" data-expense-id="{{ exp.id }}" data-shared="{{ 'true' if exp.is_shared else 'false' }}" class="border-t border-line first:border-t-0">
       <details data-testid="expense-details">
         <summary class="flex min-h-[56px] cursor-pointer list-none items-center gap-3 px-3 py-2">
@@ -27,7 +27,7 @@
             <dt class="text-ink-2">{{ _("Catégorie") }}</dt><dd class="m-0">{{ exp.category|label('expense_category') }}</dd>
             {%- if exp.currency != base_currency %}
             <dt class="text-ink-2">{{ _("Montant d'origine") }}</dt><dd class="m-0" data-testid="detail-original">{{ exp.amount_original|money(exp.currency) }}</dd>
-            <dt class="text-ink-2">{{ _("Taux") }}</dt><dd class="m-0" data-testid="detail-rate">1 {{ exp.currency }} = {{ exp.exchange_rate|number }} {{ base_currency }}</dd>
+            <dt class="text-ink-2">{{ _("Taux") }}</dt><dd class="m-0" data-testid="detail-rate">1 {{ exp.currency }} = {{ (exp.exchange_rate or 1.0)|number }} {{ base_currency }}</dd>
             {%- endif %}
             <dt class="text-ink-2">{{ _("Payé par") }}</dt><dd class="m-0 break-words">{{ exp.paid_by.name }}</dd>
             {%- if exp.date %}<dt class="text-ink-2">{{ _("Date") }}</dt><dd class="m-0" data-testid="detail-date">{{ exp.date|format_date('medium') }}</dd>{% endif %}
