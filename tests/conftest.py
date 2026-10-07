@@ -12,7 +12,7 @@ from app.models import Creator, Event, Guest, generate_event_code, generate_gues
 
 
 @pytest.fixture
-def app(monkeypatch):
+def app(monkeypatch, tmp_path):
     """Create a test app with in-memory SQLite.
 
     Flask-SQLAlchemy 3.1 crée le moteur dans ``init_app()`` (appelé par
@@ -31,6 +31,7 @@ def app(monkeypatch):
     )
     app = create_app()
     limiter.reset()
+    app.instance_path = str(tmp_path)  # jamais le vrai dossier instance/media (B026)
     app.config["TESTING"] = True
     app.config["WTF_CSRF_ENABLED"] = False
     app.config["SUPERADMIN_EMAIL"] = "admin@test.com"
