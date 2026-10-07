@@ -19,6 +19,12 @@ sous chaque lot.
 - `chore(infra)` / `docs` : service `worker` (`SKIP_STARTUP_MIGRATION`, `DATABASE_URL`, `VAPID_*`, volume), `app` reçoit `VAPID_*` ; ADR-005 ; README ; `.env.example`.
 - `test(push)` : `test_push_b027.py`, `test_push_sw_b027.py`, `test_push_ui_b027.py` ; scène de garde `my-notifications`.
 
+### B032 — Panneau « Repas & activités » : poignée fonctionnelle et mode compact
+
+- `feat(lists)` : poignée réelle (`touch-action: none`, capture du pointeur) : glissé vers le bas = réduit puis fermé, vers le haut = ouvert, appui = alterne ; bouton chevron « Réduire / Agrandir » (`aria-expanded`, `aria-controls`) ; trois états mobiles `data-panel="closed|collapsed|open"` (barre réduite ≈ 50 px, ouvert ≤ 45 % de l'écran), état mémorisé en `sessionStorage` ; en-tête 48 px avec compteur, filtre segmenté, interrupteur « masquer », lignes sur une seule ligne (titre tronqué + `title`, pastille créneau/heure), jours en petites capitales, aide supprimée.
+- `feat(css)` : CSS compilé.
+- `test(ui)` : action CDP `swipe` (tactile) ; scènes `list-panel-mobile` (360/390), `list-panel-collapsed`, `list-panel-states`, bureau complété.
+
 ### B031 — Finitions (retours du test utilisateur)
 
 - `feat(events)` : section « Mon foyer » sur `/e/<code>/me` (nom, adultes ≥ 1, enfants ≥ 0, erreurs par champ, toast ; création si le participant n'a pas de foyer) ; liens « Modifier mon foyer » depuis la carte « Mon solde » (Frais) et la ligne « Vous » de Participants. Logique partagée avec `costs` (`parse_household`, `save_my_household`) ; journal `household.created` / `household.updated`.

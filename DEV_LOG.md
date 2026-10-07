@@ -377,6 +377,11 @@ Audit B017/B029 : constats 1 à 6 corrigés (variables `INSTANCE_PATH` et `SKIP_
 - Accueil : `columns` CSS (`.ui-masonry`), `#my-items` en `display: contents`. La grille reflue si la hauteur d'une carte change (colonnes équilibrées par le navigateur).
 - Flaky connu sans lien : `test_chat::test_history_shows_50_max` (« msg-09 » peut apparaître par hasard dans la page).
 
+### 2026-10-07 — B032 Panneau compact
+
+- Cause du glissé inopérant : sans `touch-action: none` le navigateur tactile annulait le geste (`pointercancel`). Décision au relâchement (distance/vitesse), `setPointerCapture`.
+- Le jour courant et les suivants étaient déjà dépliés, les jours passés repliés (B023) : inchangé. Pas d'animation : `prefers-reduced-motion` respecté par construction.
+
 ### 2026-10-07 — B031 Finitions
 
 - « Mon foyer » : `events.me_household` (POST) réutilise `costs.parse_household` / `save_my_household` ; le propriétaire modifie son foyer, un participant sans foyer (créateur inclus) le crée avec ses propres parts (poids du premier foyer). Les parts de Frais suivent `Household.total_weight`.
