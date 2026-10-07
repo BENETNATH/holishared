@@ -32,6 +32,32 @@
       <div><button type="submit" class="ui-btn ui-btn--secondary" data-testid="household-submit">{{ _("Enregistrer le foyer") if household else _("Créer mon foyer") }}</button></div>
     </form>
   </section>
+  <section class="ui-card" aria-labelledby="h-notifications" id="h-notifications" data-testid="push-card" data-push
+    data-vapid-key="{{ vapid_public_key if push_available else '' }}" data-csrf="{{ csrf_token() }}"
+    data-url-subscribe="{{ url_for('push.subscribe', code=event.code) }}" data-url-unsubscribe="{{ url_for('push.unsubscribe', code=event.code) }}"
+    data-url-prefs="{{ url_for('push.prefs', code=event.code) }}" data-url-status="{{ url_for('push.status', code=event.code) }}">
+    <h2 id="h-notifications" class="mt-0 text-subheading font-semibold text-ink">{{ _("Notifications") }}</h2>
+    {% if not push_available %}
+    <p class="m-0 text-small text-ink-2" data-testid="push-state-unavailable">{{ _("Notifications indisponibles sur ce serveur.") }}</p>
+    {% else %}
+    <p class="text-small text-ink-2" data-testid="push-intro">{{ _("Recevez une alerte sur cet appareil quand un message, un sondage ou une demande de remboursement vous concerne. Le choix se fait appareil par appareil et vous pouvez le révoquer à tout moment.") }}</p>
+    <p class="ui-help" data-push-state="unsupported" data-testid="push-state-unsupported" hidden>{{ _("Ce navigateur ne prend pas en charge les notifications.") }}</p>
+    <p class="ui-help" data-push-state="install" data-testid="push-state-install" hidden>{{ _("Sur iPhone et iPad, les notifications ne fonctionnent que depuis l'application installée : touchez Partager, puis « Sur l'écran d'accueil », et ouvrez holishared depuis son icône.") }}</p>
+    <p class="ui-help" data-push-state="denied" data-testid="push-state-denied" hidden>{{ _("Les notifications sont bloquées pour ce site. Pour les réactiver, autorisez-les dans les réglages de votre navigateur (icône à gauche de l'adresse), puis rechargez la page.") }}</p>
+    <div class="flex flex-col gap-2" data-push-controls data-testid="push-controls" hidden>
+      <label class="ui-switch"><input type="checkbox" role="switch" data-push-toggle data-testid="push-toggle"><span>{{ _("Recevoir les notifications sur cet appareil") }}</span></label>
+      <p class="ui-help m-0" data-push-state="granted" data-testid="push-state-granted" hidden>{{ _("Les notifications sont activées sur cet appareil.") }}</p>
+      <fieldset class="m-0 flex flex-col gap-1 border-0 p-0" data-push-prefs data-testid="push-prefs" hidden>
+        <legend class="mb-1 p-0 text-small font-semibold text-ink-2">{{ _("Me prévenir pour") }}</legend>
+        <label class="ui-check"><input type="checkbox" data-pref="notify_chat" data-testid="push-pref-chat"><span>{{ _("Messages") }}</span></label>
+        <label class="ui-check"><input type="checkbox" data-pref="notify_polls" data-testid="push-pref-polls"><span>{{ _("Sondages") }}</span></label>
+        <label class="ui-check"><input type="checkbox" data-pref="notify_requests" data-testid="push-pref-requests"><span>{{ _("Remboursements") }}</span></label>
+        <label class="ui-check"><input type="checkbox" data-pref="show_preview" data-testid="push-pref-preview"><span>{{ _("Afficher un aperçu du message") }}</span></label>
+        <div class="mt-2"><button type="button" class="ui-btn ui-btn--secondary" data-push-disable-all data-testid="push-disable-all">{{ icon('bell-off') }}<span>{{ _("Tout désactiver") }}</span></button></div>
+      </fieldset>
+    </div>
+    {% endif %}
+  </section>
   <section class="ui-card" aria-labelledby="h-code">
     <h2 id="h-code" class="mt-0 text-subheading font-semibold text-ink">{{ _("Votre code personnel") }}</h2>
     {% if personal_code %}
@@ -48,4 +74,10 @@
     {% endif %}
   </section>
 </div>
+{% endblock %}
+{% block scripts %}
+<script type="module">
+  import { initPush } from 'ui/push';
+  initPush();
+</script>
 {% endblock %}

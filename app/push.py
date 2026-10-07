@@ -19,7 +19,7 @@ from werkzeug.wrappers import Response
 
 from app.context import load_event_context
 from app.extensions import db, limiter
-from app.models import Event, Guest, PushSubscription
+from app.models import ChatMessage, Event, Guest, PushSubscription
 from app.tasks import _translations
 
 logger = logging.getLogger(__name__)
@@ -37,6 +37,20 @@ def push_enabled() -> bool:
     """Vrai si le serveur a des clés VAPID."""
     return bool(
         current_app.config.get("VAPID_PUBLIC_KEY") and current_app.config.get("VAPID_PRIVATE_KEY")
+    )
+
+
+def invite_notifications(ctx: Any) -> bool:
+    """Invitation de l'accueil : clés présentes, aucun appareil abonné, premier geste utile fait."""
+    guest = ctx.participant
+    if guest is None or not push_enabled():
+        return False
+    if PushSubscription.query.filter_by(guest_id=guest.id).first() is not None:
+        return False
+    return (
+        ChatMessage.query.filter_by(guest_id=guest.id).first() is not None
+        or guest.activity_rsvps.first() is not None
+        or guest.poll_votes.first() is not None
     )
 
 

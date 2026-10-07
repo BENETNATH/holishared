@@ -91,6 +91,9 @@ JS_STRINGS: Final[dict[str, str]] = {
     "media_remove": N_("Retirer"),
     "media_added": N_("Médias ajoutés"),
     "media_network": N_("Connexion perdue. Réessayez."),
+    "push_on": N_("Notifications activées"),
+    "push_off": N_("Notifications désactivées"),
+    "push_error": N_("Notifications : action impossible. Réessayez."),
     "media_rate_limited": N_("Trop d'envois. Patientez quelques minutes, puis réessayez."),
 }
 

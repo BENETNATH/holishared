@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 11:27+0200\n"
+"POT-Creation-Date: 2026-10-07 11:32+0200\n"
 "PO-Revision-Date: 2026-10-04 11:18+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -622,7 +622,8 @@ msgstr ""
 msgid "Frais"
 msgstr ""
 
-#: app/i18n.py app/templates/voting/index.html app/ui.py
+#: app/i18n.py app/templates/events/me.html app/templates/voting/index.html
+#: app/ui.py
 msgid "Sondages"
 msgstr ""
 
@@ -884,6 +885,18 @@ msgstr ""
 
 #: app/ui.py
 msgid "Connexion perdue. Réessayez."
+msgstr ""
+
+#: app/ui.py
+msgid "Notifications activées"
+msgstr ""
+
+#: app/ui.py
+msgid "Notifications désactivées"
+msgstr ""
+
+#: app/ui.py
+msgid "Notifications : action impossible. Réessayez."
 msgstr ""
 
 #: app/ui.py
@@ -1644,6 +1657,18 @@ msgid ""
 msgstr ""
 
 #: app/templates/base.html
+msgid "Notifications facultatives"
+msgstr ""
+
+#: app/templates/base.html
+msgid ""
+"Si vous les activez, elles transitent par le service de notification de "
+"votre navigateur et ne contiennent que le texte affiché. Vous pouvez les "
+"révoquer à tout moment."
+msgstr ""
+
+#: app/templates/base.html app/templates/events/dashboard.html
+#: app/templates/events/me.html
 msgid "Notifications"
 msgstr ""
 
@@ -1709,7 +1734,7 @@ msgstr ""
 msgid "Lancez la conversation !"
 msgstr ""
 
-#: app/templates/chat/index.html
+#: app/templates/chat/index.html app/templates/events/me.html
 msgid "Messages"
 msgstr ""
 
@@ -2328,6 +2353,20 @@ msgstr ""
 msgid "Partager"
 msgstr ""
 
+#: app/templates/events/dashboard.html
+msgid ""
+"Activez les notifications pour ne rien manquer : messages, sondages et "
+"demandes de remboursement."
+msgstr ""
+
+#: app/templates/events/dashboard.html
+msgid "Activer"
+msgstr ""
+
+#: app/templates/events/dashboard.html
+msgid "Plus tard"
+msgstr ""
+
 #: app/templates/events/dashboard.html app/templates/lists/_panel.html
 #: app/templates/meals/_grid.html app/templates/planning/index.html
 msgid "Aujourd'hui"
@@ -2728,6 +2767,59 @@ msgstr ""
 
 #: app/templates/events/me.html
 msgid "Enregistrer le foyer"
+msgstr ""
+
+#: app/templates/events/me.html
+msgid "Notifications indisponibles sur ce serveur."
+msgstr ""
+
+#: app/templates/events/me.html
+msgid ""
+"Recevez une alerte sur cet appareil quand un message, un sondage ou une "
+"demande de remboursement vous concerne. Le choix se fait appareil par "
+"appareil et vous pouvez le révoquer à tout moment."
+msgstr ""
+
+#: app/templates/events/me.html
+msgid "Ce navigateur ne prend pas en charge les notifications."
+msgstr ""
+
+#: app/templates/events/me.html
+msgid ""
+"Sur iPhone et iPad, les notifications ne fonctionnent que depuis "
+"l'application installée : touchez Partager, puis « Sur l'écran d'accueil "
+"», et ouvrez holishared depuis son icône."
+msgstr ""
+
+#: app/templates/events/me.html
+msgid ""
+"Les notifications sont bloquées pour ce site. Pour les réactiver, "
+"autorisez-les dans les réglages de votre navigateur (icône à gauche de "
+"l'adresse), puis rechargez la page."
+msgstr ""
+
+#: app/templates/events/me.html
+msgid "Recevoir les notifications sur cet appareil"
+msgstr ""
+
+#: app/templates/events/me.html
+msgid "Les notifications sont activées sur cet appareil."
+msgstr ""
+
+#: app/templates/events/me.html
+msgid "Me prévenir pour"
+msgstr ""
+
+#: app/templates/events/me.html
+msgid "Remboursements"
+msgstr ""
+
+#: app/templates/events/me.html
+msgid "Afficher un aperçu du message"
+msgstr ""
+
+#: app/templates/events/me.html
+msgid "Tout désactiver"
 msgstr ""
 
 #: app/templates/events/me.html

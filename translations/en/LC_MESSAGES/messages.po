@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 11:27+0200\n"
+"POT-Creation-Date: 2026-10-07 11:32+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -622,7 +622,8 @@ msgstr "Lists"
 msgid "Frais"
 msgstr "Expenses"
 
-#: app/i18n.py app/templates/voting/index.html app/ui.py
+#: app/i18n.py app/templates/events/me.html app/templates/voting/index.html
+#: app/ui.py
 msgid "Sondages"
 msgstr "Polls"
 
@@ -927,6 +928,18 @@ msgstr "Media added"
 #: app/ui.py
 msgid "Connexion perdue. Réessayez."
 msgstr "Connection lost. Try again."
+
+#: app/ui.py
+msgid "Notifications activées"
+msgstr "Notifications on"
+
+#: app/ui.py
+msgid "Notifications désactivées"
+msgstr "Notifications off"
+
+#: app/ui.py
+msgid "Notifications : action impossible. Réessayez."
+msgstr "Notifications: action failed. Please try again."
 
 #: app/ui.py
 msgid "Trop d'envois. Patientez quelques minutes, puis réessayez."
@@ -1696,6 +1709,20 @@ msgstr ""
 "want."
 
 #: app/templates/base.html
+msgid "Notifications facultatives"
+msgstr "Optional notifications"
+
+#: app/templates/base.html
+msgid ""
+"Si vous les activez, elles transitent par le service de notification de "
+"votre navigateur et ne contiennent que le texte affiché. Vous pouvez les "
+"révoquer à tout moment."
+msgstr ""
+"If you turn them on, they go through your browser's notification service "
+"and only contain the text shown. You can revoke them at any time."
+
+#: app/templates/base.html app/templates/events/dashboard.html
+#: app/templates/events/me.html
 msgid "Notifications"
 msgstr "Notifications"
 
@@ -1761,7 +1788,7 @@ msgstr "No messages"
 msgid "Lancez la conversation !"
 msgstr "Start the conversation!"
 
-#: app/templates/chat/index.html
+#: app/templates/chat/index.html app/templates/events/me.html
 msgid "Messages"
 msgstr "Messages"
 
@@ -2395,6 +2422,22 @@ msgstr "Invite"
 msgid "Partager"
 msgstr "Share"
 
+#: app/templates/events/dashboard.html
+msgid ""
+"Activez les notifications pour ne rien manquer : messages, sondages et "
+"demandes de remboursement."
+msgstr ""
+"Turn on notifications so you miss nothing: messages, polls and "
+"reimbursement requests."
+
+#: app/templates/events/dashboard.html
+msgid "Activer"
+msgstr "Turn on"
+
+#: app/templates/events/dashboard.html
+msgid "Plus tard"
+msgstr "Later"
+
 #: app/templates/events/dashboard.html app/templates/lists/_panel.html
 #: app/templates/meals/_grid.html app/templates/planning/index.html
 msgid "Aujourd'hui"
@@ -2808,6 +2851,67 @@ msgstr "You do not have a household yet. Create it to take part in cost sharing.
 #: app/templates/events/me.html
 msgid "Enregistrer le foyer"
 msgstr "Save household"
+
+#: app/templates/events/me.html
+msgid "Notifications indisponibles sur ce serveur."
+msgstr "Notifications are unavailable on this server."
+
+#: app/templates/events/me.html
+msgid ""
+"Recevez une alerte sur cet appareil quand un message, un sondage ou une "
+"demande de remboursement vous concerne. Le choix se fait appareil par "
+"appareil et vous pouvez le révoquer à tout moment."
+msgstr ""
+"Get an alert on this device when a message, a poll or a reimbursement "
+"request concerns you. The choice is made device by device and you can "
+"revoke it at any time."
+
+#: app/templates/events/me.html
+msgid "Ce navigateur ne prend pas en charge les notifications."
+msgstr "This browser does not support notifications."
+
+#: app/templates/events/me.html
+msgid ""
+"Sur iPhone et iPad, les notifications ne fonctionnent que depuis "
+"l'application installée : touchez Partager, puis « Sur l'écran d'accueil "
+"», et ouvrez holishared depuis son icône."
+msgstr ""
+"On iPhone and iPad, notifications only work from the installed app: tap "
+"Share, then \"Add to Home Screen\", and open holishared from its icon."
+
+#: app/templates/events/me.html
+msgid ""
+"Les notifications sont bloquées pour ce site. Pour les réactiver, "
+"autorisez-les dans les réglages de votre navigateur (icône à gauche de "
+"l'adresse), puis rechargez la page."
+msgstr ""
+"Notifications are blocked for this site. To turn them back on, allow them"
+" in your browser settings (icon to the left of the address), then reload "
+"the page."
+
+#: app/templates/events/me.html
+msgid "Recevoir les notifications sur cet appareil"
+msgstr "Receive notifications on this device"
+
+#: app/templates/events/me.html
+msgid "Les notifications sont activées sur cet appareil."
+msgstr "Notifications are on for this device."
+
+#: app/templates/events/me.html
+msgid "Me prévenir pour"
+msgstr "Notify me about"
+
+#: app/templates/events/me.html
+msgid "Remboursements"
+msgstr "Reimbursements"
+
+#: app/templates/events/me.html
+msgid "Afficher un aperçu du message"
+msgstr "Show a message preview"
+
+#: app/templates/events/me.html
+msgid "Tout désactiver"
+msgstr "Turn everything off"
 
 #: app/templates/events/me.html
 msgid ""

@@ -3058,6 +3058,32 @@
           "message": "la feuille de légende est ouverte"
         }
       ]
+    },
+    {
+      "id": "my-notifications",
+      "lot": "B027",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/me",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "note": "section « Notifications » : interrupteur ou message d'état visible, sans débordement",
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "(() => { const c = document.querySelector('[data-testid=push-card]'); return !!c && c.querySelector('[data-testid=push-toggle], [data-push-state]:not([hidden])') !== null && document.documentElement.scrollWidth <= document.documentElement.clientWidth; })()",
+          "message": "section Notifications présente, sans débordement"
+        }
+      ]
     }
   ]
 }

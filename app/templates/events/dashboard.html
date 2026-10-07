@@ -40,6 +40,16 @@
     </div>
   </header>
 
+  {% if push_invite %}
+  <section class="ui-card flex flex-wrap items-center justify-between gap-3" data-push-invite data-testid="push-invite" aria-label="{{ _('Notifications') }}" hidden>
+    <p class="m-0 min-w-0 flex-1 text-small text-ink-2">{{ _("Activez les notifications pour ne rien manquer : messages, sondages et demandes de remboursement.") }}</p>
+    <div class="flex flex-wrap gap-2">
+      <a href="{{ url_for('events.me', code=event.code, _anchor='h-notifications') }}" class="ui-btn ui-btn--secondary" data-testid="push-invite-activate">{{ icon('bell') }}<span>{{ _("Activer") }}</span></a>
+      <button type="button" class="ui-btn ui-btn--ghost" data-push-dismiss data-testid="push-invite-dismiss">{{ _("Plus tard") }}</button>
+    </div>
+  </section>
+  {% endif %}
+
   <div class="ui-masonry">
     <section class="ui-card" aria-labelledby="h-today" data-testid="today">
       <div class="mb-2 flex items-center justify-between gap-2">
@@ -150,4 +160,10 @@
     {% endif %}
   </div>
 </div>
+{% endblock %}
+{% block scripts %}
+<script type="module">
+  import { initPush } from 'ui/push';
+  initPush();
+</script>
 {% endblock %}

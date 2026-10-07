@@ -60,6 +60,7 @@ from app.models import (
     Transfer,
     generate_guest_code,
 )
+from app.push import invite_notifications, push_enabled
 from app.utils import ensure_creator_guest
 
 
@@ -547,6 +548,7 @@ def dashboard(code: str) -> str | Response:
         infos=ordered_infos(event.id, INFOS_ON_HOME),
         infos_total=infos_total,
         share_url=_join_url(event),
+        push_invite=invite_notifications(ctx),
         **(home_items(ctx) if "lists" in modules else {}),
     )
 
@@ -605,6 +607,8 @@ def _me_page(
             hh_errors=hh_errors or FormErrors(),
             hh_form=hh_form or {},
             default_household_name=household_default_name(participant.display_name),
+            push_available=push_enabled(),
+            vapid_public_key=current_app.config["VAPID_PUBLIC_KEY"],
         ),
         status,
     )

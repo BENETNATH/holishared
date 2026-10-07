@@ -46,6 +46,8 @@ def demo_env(out_dir: Path, secret_key: str, superadmin_password: str, port: int
         "APP_URL": f"http://127.0.0.1:{port}",
         "UI_CATALOG_ENABLED": "true",
         "SW_ENABLED": "true",
+        "VAPID_PUBLIC_KEY": "demo-public-key",  # affiche la section Notifications (B027)
+        "VAPID_PRIVATE_KEY": "demo-private-key",
     }
 
 
