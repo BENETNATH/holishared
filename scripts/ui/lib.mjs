@@ -327,7 +327,7 @@ export async function openRun(cdp, run, fixtures) {
   return page;
 }
 
-const KEYS = { Escape: 27, Tab: 9, Enter: 13 };
+const KEYS = { Escape: 27, Tab: 9, Enter: 13, ArrowLeft: 37, ArrowRight: 39 };
 const settleAfter = (ms) => `new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(() => r(true), ${ms}))))`;
 
 /** Exécute les actions de la scène ; les échecs vont dans page.failures (contrôle `assert`). */

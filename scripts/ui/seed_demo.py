@@ -374,6 +374,96 @@ def _populate_rich(db: Any, models: Any, rich: Any, creator_guest: Any) -> dict[
     }
 
 
+def _demo_image(kind: str, index: int, exif: Any = None) -> bytes:
+    """Vraie image JPEG (paysage, portrait ou carré) : dégradé coloré et formes, EXIF facultatif."""
+    import io
+
+    from PIL import Image, ImageDraw
+
+    width, height = {"landscape": (1600, 1066), "portrait": (1066, 1600), "square": (1200, 1200)}[kind]
+    hue = (index * 47) % 360
+    img = Image.new("RGB", (width, height))
+    draw = ImageDraw.Draw(img)
+    for y in range(height):
+        shade = int(255 * y / height)
+        draw.line([(0, y), (width, y)], fill=(40 + shade // 3, 90 + (hue % 120), 160 + shade // 4))
+    draw.ellipse([width * 0.15, height * 0.2, width * 0.55, height * 0.2 + width * 0.4], fill=(240, 200 - hue % 80, 90))
+    draw.polygon([(0, height), (width * 0.45, height * 0.55), (width, height)], fill=(36, 70 + hue % 60, 52))
+    buf = io.BytesIO()
+    img.save(buf, "JPEG", quality=82, exif=exif or Image.Exif())
+    return buf.getvalue()
+
+
+def _populate_media(db: Any, m: Any, rich: Any, creator_guest: Any, antoine: Any, instance_path: Path) -> dict[str, str]:
+    """Galerie de démo : vraies images (paysage, portrait, carré, EXIF GPS/date), une vidéo ; sur trois jours."""
+    from PIL import Image
+
+    from app.freemium import consume_media_quota
+
+    folder = instance_path / "media" / rich.code
+    folder.mkdir(parents=True, exist_ok=True)
+    exif = Image.Exif()
+    exif.get_ifd(0x8769)[36867] = "2026:01:03 11:42:10"
+    gps = exif.get_ifd(0x8825)
+    gps[1], gps[2], gps[3], gps[4] = "N", (45.0, 4.0, 12.0), "E", (5.0, 33.0, 20.0)
+    plan = [  # (genre, jour décalé, heure, légende, auteur, EXIF)
+        ("landscape", 0, 9, "Premier matin au gîte", creator_guest, None),
+        ("portrait", 0, 11, "", antoine, None),
+        ("square", 0, 15, "Balade dans les bois", creator_guest, None),
+        ("landscape", 1, 10, "", antoine, None),
+        ("landscape", 1, 14, "Pique-nique", creator_guest, None),
+        ("portrait", 1, 17, "", creator_guest, None),
+        ("square", 2, 9, "", antoine, None),
+        ("landscape", 2, 12, "Vue depuis le col", creator_guest, exif),
+        ("portrait", 2, 16, "", antoine, None),
+        ("square", 2, 18, "Soirée raclette", creator_guest, None),
+    ]
+    base = datetime.combine(date.today(), time(0, 0)) - timedelta(days=2)
+    ids: list[str] = []
+    total = 0
+    for index, (kind, offset, hour, caption, author, with_exif) in enumerate(plan):
+        data = _demo_image(kind, index, with_exif)
+        name = f"demo-{index}.jpg"
+        (folder / name).write_bytes(data)
+        taken = base + timedelta(days=offset, hours=hour)
+        item = m.MediaItem(
+            filename=name,
+            original_name=f"IMG_{2000 + index}.jpg",
+            mime_type="image/jpeg",
+            size_bytes=len(data),
+            caption=caption,
+            taken_at=taken,
+            latitude=45.0700 if with_exif is not None else None,
+            longitude=5.5556 if with_exif is not None else None,
+            uploaded_by=author.id,
+            uploaded_by_name=author.display_name,
+            event_id=rich.id,
+        )
+        db.session.add(item)
+        db.session.flush()
+        ids.append(item.id)
+        total += len(data)
+    video = b"\x00\x00\x00\x18ftypisom\x00\x00\x02\x00" + b"\x00" * 64
+    (folder / "demo-video.mp4").write_bytes(video)
+    db.session.add(
+        m.MediaItem(
+            filename="demo-video.mp4",
+            original_name="VID_0001.mp4",
+            mime_type="video/mp4",
+            size_bytes=len(video),
+            caption="",
+            taken_at=base + timedelta(days=1, hours=11),
+            uploaded_by=creator_guest.id,
+            uploaded_by_name=creator_guest.display_name,
+            event_id=rich.id,
+        )
+    )
+    consume_media_quota(rich.creator, total + len(video))
+    db.session.commit()
+    # ids[3] : au milieu (précédent et suivant) ; ids[7] : image avec date et lieu EXIF.
+    return {"media.middle": ids[3], "media.located": ids[7], "media.first": ids[9]}
+
+
 def seed(out_dir: Path, port: int = 8499) -> dict[str, Any]:
     """Create the demo database and return (and write) ``fixtures.json``."""
     out_dir = Path(out_dir).resolve()
@@ -454,6 +544,7 @@ def seed(out_dir: Path, port: int = 8499) -> dict[str, Any]:
 
         rich = events["rich"]
         objects = _populate_rich(db, m, rich, creator_guests["rich"])
+        media_ids = _populate_media(db, m, rich, creator_guests["rich"], objects["antoine"], instance_path)
 
         ser = app.session_interface.get_signing_serializer(app)  # type: ignore[attr-defined]
         cookies = {
@@ -462,6 +553,7 @@ def seed(out_dir: Path, port: int = 8499) -> dict[str, Any]:
             "guest_solo": ser.dumps({f"guest_{rich.code}": objects["chloe"].id}),
         }
         placeholders = {f"event.{key}": ev.code for key, ev in events.items()}
+        placeholders.update(media_ids)
         placeholders["list.rich"] = objects["list"].id
         placeholders["list.packing"] = objects["packing"].id
         placeholders["poll.rich"] = objects["poll"].id

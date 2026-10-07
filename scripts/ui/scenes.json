@@ -1030,15 +1030,20 @@
     },
     {
       "id": "media",
-      "lot": "B017",
+      "lot": "B026",
       "role": "guest_household",
       "path": "/e/{event.rich}/media",
-      "scope": "shell",
+      "scope": "page",
       "expect": {
         "nav": "event"
       },
       "langs": [
-        "fr"
+        "fr",
+        "en"
+      ],
+      "viewports": [
+        390,
+        1280
       ]
     },
     {
@@ -2535,6 +2540,239 @@
         "en"
       ],
       "expectStatus": 403
+    },
+    {
+      "id": "media-creator",
+      "lot": "B026",
+      "role": "creator",
+      "path": "/e/{event.rich}/media",
+      "scope": "page",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "document.querySelectorAll('[data-testid=media-tile]').length === 11 && !!document.querySelector('[data-testid=media-gauge]') && !document.querySelector('[data-testid=media-gauge] button')",
+          "message": "11 tuiles, jauge de stockage sans bouton de paiement"
+        },
+        {
+          "type": "assert",
+          "expr": "[...document.querySelectorAll('[data-testid=media-tile] img')].every((i) => i.getAttribute('src').includes('/thumb/320'))",
+          "message": "la grille ne charge que des miniatures"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelectorAll('[data-testid=media-day]').length === 3",
+          "message": "trois jours de prise de vue"
+        }
+      ]
+    },
+    {
+      "id": "media-empty",
+      "lot": "B026",
+      "role": "creator",
+      "path": "/e/{event.empty}/media",
+      "scope": "page",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "!!document.querySelector('[data-testid=media-empty]')",
+          "message": "état vide affiché"
+        }
+      ]
+    },
+    {
+      "id": "media-upload-sheet",
+      "lot": "B026",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/media",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "actions": [
+        {
+          "type": "click",
+          "target": "[data-testid=media-add]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=media-upload-sheet]').open",
+          "message": "la feuille d'envoi est ouverte"
+        },
+        {
+          "type": "assert",
+          "expr": "document.getElementById('media-file').multiple && !document.getElementById('media-file').accept.includes('heic')",
+          "message": "sélection multiple, HEIC non annoncé"
+        }
+      ]
+    },
+    {
+      "id": "media-upload-queue",
+      "lot": "B026",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/media",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "actions": [
+        {
+          "type": "click",
+          "target": "[data-testid=media-add]"
+        },
+        {
+          "type": "assert",
+          "expr": "(() => { const dt = new DataTransfer(); dt.items.add(new File([new ArrayBuffer(51 * 1024 * 1024)], 'trop-gros.mp4', { type: 'video/mp4' })); dt.items.add(new File(['x'], 'photo.jpg', { type: 'image/jpeg' })); const i = document.getElementById('media-file'); i.files = dt.files; i.dispatchEvent(new Event('change', { bubbles: true })); return true; })()",
+          "message": "un fichier trop lourd et un fichier valide ajoutés à la file"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelectorAll('[data-testid=media-upload-item][data-state=error]').length === 1 && document.querySelectorAll('[data-testid=media-upload-item][data-state=pending]').length === 1",
+          "message": "le fichier trop lourd est refusé avec message, l'autre attend"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-state=error] .ui-media-job__status').textContent.trim().length > 10",
+          "message": "message d'erreur lisible"
+        }
+      ]
+    },
+    {
+      "id": "media-viewer",
+      "lot": "B026",
+      "role": "guest_household",
+      "path": "/e/{event.rich}/media/{media.middle}",
+      "scope": "page",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "!!document.querySelector('a[rel=prev]') && !!document.querySelector('a[rel=next]')",
+          "message": "précédent et suivant présents"
+        },
+        {
+          "type": "waitFor",
+          "timeout": 4000,
+          "expr": "(() => { const i = document.querySelector('[data-testid=viewer-media]'); return i.complete && i.naturalWidth > 0; })()",
+          "message": "la grande image est chargée"
+        },
+        {
+          "type": "assert",
+          "expr": "(window.__start = location.pathname) !== ''",
+          "message": "adresse de départ mémorisée"
+        },
+        {
+          "type": "press",
+          "key": "ArrowRight"
+        },
+        {
+          "type": "waitFor",
+          "timeout": 4000,
+          "expr": "location.pathname !== window.__start && !!document.querySelector('[data-testid=media-viewer]')",
+          "message": "la flèche droite ouvre le média suivant"
+        }
+      ]
+    },
+    {
+      "id": "media-viewer-located",
+      "lot": "B026",
+      "role": "creator",
+      "path": "/e/{event.rich}/media/{media.located}",
+      "scope": "page",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "(() => { const a = document.querySelector('[data-testid=viewer-map]'); return a.rel === 'noopener noreferrer' && a.target === '_blank' && a.href.startsWith('https://www.openstreetmap.org/'); })()",
+          "message": "lien carte sûr, ouvert au clic"
+        }
+      ]
+    },
+    {
+      "id": "media-caption-sheet",
+      "lot": "B026",
+      "role": "creator",
+      "path": "/e/{event.rich}/media/{media.middle}",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "actions": [
+        {
+          "type": "click",
+          "target": "[data-testid=viewer-edit-caption]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=media-caption-sheet]').open",
+          "message": "la feuille de légende est ouverte"
+        }
+      ]
     }
   ]
 }
