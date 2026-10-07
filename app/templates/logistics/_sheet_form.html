@@ -1,0 +1,11 @@
+{# Formulaire de la feuille (B025b) : remplacé en bloc par la réponse HTMX quand la validation échoue. #}
+{% from "logistics/_fields.html" import info_fields %}
+{%- set action = url_for('logistics.edit', code=event.code, item_id=item.id) if item else url_for('logistics.create', code=event.code) -%}
+<form id="info-sheet-form" method="post" action="{{ action }}" class="ui-form" data-testid="info-sheet-form"
+      data-create-url="{{ url_for('logistics.create', code=event.code) }}"
+      data-create-title="{{ _('Ajouter une info') }}" data-edit-title="{{ _("Modifier l'info") }}"
+      hx-post="{{ action }}" hx-target="#infos-list" hx-swap="outerHTML">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {{ info_fields('sheet', form_data, errors) }}
+  <button type="submit" class="ui-btn ui-btn--primary ui-btn--block" data-testid="info-sheet-submit">{{ _("Enregistrer") }}</button>
+</form>

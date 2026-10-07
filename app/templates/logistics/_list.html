@@ -1,0 +1,51 @@
+{# Liste des infos groupées par catégorie (B025b) : fragment HTMX remplacé en bloc (outerHTML). #}
+{% from "_components/ui.html" import empty_state %}
+<div id="infos-list" data-testid="infos-list">
+{%- if not groups %}
+{% call empty_state('info', _("Aucune info pratique"), _("Ajoutez l'adresse, l'accès, les horaires… pour que tout le monde soit au courant.")) %}
+<a href="{{ url_for('logistics.create', code=event.code) }}" class="ui-btn ui-btn--secondary" data-info-add aria-haspopup="dialog" data-testid="info-add-empty">{{ _("Ajouter une info") }}</a>
+{% endcall %}
+{%- endif %}
+{%- for category, cat_items in groups %}
+<section aria-labelledby="cat-{{ category }}" class="mb-6" data-testid="info-category" data-category="{{ category }}">
+  <h2 id="cat-{{ category }}" class="mb-2 mt-0 text-subheading font-semibold text-ink">{{ category|label('info_category') }}</h2>
+  <ul class="m-0 grid list-none gap-3 p-0 md:grid-cols-2">
+    {%- for item in cat_items %}
+    <li class="min-w-0" id="info-{{ item.id }}">
+      <article class="ui-card flex h-full flex-col gap-3" data-testid="info-card" data-info-id="{{ item.id }}">
+        <div class="flex items-start justify-between gap-2">
+          <h3 class="m-0 min-w-0 break-words text-body font-semibold text-ink" data-testid="info-title" translate="no">{{ item.title }}</h3>
+          {%- set can_delete = ctx.can_delete(item) %}
+          {%- if ctx.can_edit(item) or can_delete %}
+          <details class="relative shrink-0" data-testid="info-menu">
+            <summary class="ui-btn ui-btn--ghost ui-btn--icon list-none" aria-label="{{ _('Actions pour %(title)s', title=item.title) }}">{{ icon('ellipsis-vertical') }}</summary>
+            <div class="absolute right-0 z-10 mt-1 flex w-44 flex-col gap-1 rounded-md border border-line bg-surface p-1 shadow-raised">
+              {%- if ctx.can_edit(item) %}
+              <a class="ui-btn ui-btn--ghost ui-btn--sm justify-start" data-testid="info-edit" data-info-edit
+                 data-fields='{{ {"title": item.title, "content": item.content, "category": item.category or "general"}|tojson }}'
+                 href="{{ url_for('logistics.edit', code=event.code, item_id=item.id) }}">{{ icon('pencil', size=16) }}<span>{{ _("Modifier") }}</span></a>
+              {%- endif %}
+              {%- if can_delete %}
+              <form method="post" action="{{ url_for('logistics.delete', code=event.code, item_id=item.id) }}"
+                    hx-post="{{ url_for('logistics.delete', code=event.code, item_id=item.id) }}" hx-target="#infos-list" hx-swap="outerHTML"
+                    data-confirm="{{ _('Supprimer cette info ?') }}" data-confirm-label="{{ _('Supprimer') }}" data-testid="info-delete-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="ui-btn ui-btn--ghost ui-btn--sm w-full justify-start text-danger" data-testid="info-delete">{{ icon('trash-2', size=16) }}<span>{{ _("Supprimer") }}</span></button>
+              </form>
+              {%- endif %}
+            </div>
+          </details>
+          {%- endif %}
+        </div>
+        <p class="m-0 whitespace-pre-line break-words text-body text-ink-2" data-testid="info-content">{{ item.content|linkify }}</p>
+        <div class="mt-auto">
+          <button type="button" class="ui-btn ui-btn--secondary ui-btn--sm" data-copy="{{ item.content }}" data-testid="info-copy"
+                  aria-label="{{ _('Copier') }} : {{ item.title }}">{{ icon('copy', size=16) }}<span>{{ _("Copier") }}</span></button>
+        </div>
+      </article>
+    </li>
+    {%- endfor %}
+  </ul>
+</section>
+{%- endfor %}
+</div>

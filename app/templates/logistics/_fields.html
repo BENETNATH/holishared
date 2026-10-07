@@ -1,0 +1,8 @@
+{# Champs d'une info pratique, partagés par la feuille d'ajout et le formulaire page entière (B025b). #}
+{% from "_components/ui.html" import field %}
+
+{% macro info_fields(p, fv, e) %}
+{{ field('title', _('Titre'), id=p ~ '-title', required=True, value=fv.get('title', ''), error=e.text('title'), attrs={'minlength': 2, 'maxlength': 200, 'autocomplete': 'off', 'placeholder': _('Ex : Adresse du gîte')}) }}
+{{ field('content', _('Contenu'), type='textarea', id=p ~ '-content', required=True, value=fv.get('content', ''), error=e.text('content'), attrs={'rows': 5, 'maxlength': 5000}) }}
+{{ field('category', _('Catégorie'), type='select', id=p ~ '-category', value=fv.get('category', 'general'), error=e.text('category'), options=choices('info_category')) }}
+{% endmacro %}

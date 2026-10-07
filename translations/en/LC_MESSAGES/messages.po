@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 03:44+0200\n"
+"POT-Creation-Date: 2026-10-07 04:32+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -490,7 +490,8 @@ msgid "Fermer"
 msgstr "Close"
 
 #: app/lists/__init__.py app/templates/base.html
-#: app/templates/planning/form.html app/templates/voting/form.html app/ui.py
+#: app/templates/logistics/form.html app/templates/planning/form.html
+#: app/templates/voting/form.html app/ui.py
 msgid "Annuler"
 msgstr "Cancel"
 
@@ -1047,10 +1048,6 @@ msgid "Contenu trop long (max 5000)."
 msgstr "Content too long (max 5000)."
 
 #: app/logistics/__init__.py
-msgid "Ordre invalide."
-msgstr "Invalid order."
-
-#: app/logistics/__init__.py
 msgid "Info pratique créée."
 msgstr "Practical info created."
 
@@ -1314,7 +1311,7 @@ msgstr "Delete message from"
 #: app/templates/chat/_messages.html app/templates/costs/_balance.html
 #: app/templates/costs/_expenses.html app/templates/costs/_requests.html
 #: app/templates/costs/index.html app/templates/lists/_items.html
-#: app/templates/lists/detail.html app/templates/logistics/index.html
+#: app/templates/lists/detail.html app/templates/logistics/_list.html
 #: app/templates/main/ui_catalog.html app/templates/meals/index.html
 #: app/templates/media/detail.html app/templates/planning/_card.html
 #: app/templates/voting/detail.html
@@ -1424,7 +1421,7 @@ msgid "Dépenses personnelles (visibles de vous seul)"
 msgstr "Personal expenses (visible to you only)"
 
 #: app/templates/costs/_balance.html app/templates/costs/_expenses.html
-#: app/templates/logistics/form.html app/templates/logistics/index.html
+#: app/templates/logistics/_list.html app/templates/logistics/form.html
 #: app/templates/main/ui_catalog.html app/templates/planning/_card.html
 #: app/templates/planning/form.html
 msgid "Modifier"
@@ -1451,7 +1448,7 @@ msgid "Personnelle"
 msgstr "Personal"
 
 #: app/templates/costs/_expenses.html app/templates/costs/_forms.html
-#: app/templates/logistics/form.html
+#: app/templates/logistics/_fields.html
 msgid "Catégorie"
 msgstr "Category"
 
@@ -1552,9 +1549,9 @@ msgstr ""
 "Untick for a personal expense: only members of your household see it and "
 "it counts in no shared total."
 
-#: app/templates/costs/_forms.html app/templates/logistics/form.html
-#: app/templates/meals/index.html app/templates/planning/form.html
-#: app/templates/planning/index.html
+#: app/templates/costs/_forms.html app/templates/logistics/_sheet_form.html
+#: app/templates/logistics/form.html app/templates/meals/index.html
+#: app/templates/planning/form.html app/templates/planning/index.html
 msgid "Enregistrer"
 msgstr "Save"
 
@@ -1861,7 +1858,7 @@ msgstr "Your email"
 msgid "Ex : alice@mail.com"
 msgstr "E.g. alice@mail.com"
 
-#: app/templates/events/create.html app/templates/logistics/form.html
+#: app/templates/events/create.html app/templates/logistics/_fields.html
 #: app/templates/main/ui_catalog.html app/templates/planning/_forms.html
 msgid "Titre"
 msgstr "Title"
@@ -2002,14 +1999,15 @@ msgstr "Open the chat"
 msgid "Infos importantes"
 msgstr "Important info"
 
-#: app/templates/events/dashboard.html app/templates/logistics/form.html
+#: app/templates/events/dashboard.html app/templates/logistics/_list.html
+#: app/templates/logistics/_sheet_form.html app/templates/logistics/form.html
 #: app/templates/logistics/index.html
 msgid "Ajouter une info"
 msgstr "Add info"
 
 #: app/templates/events/dashboard.html app/templates/events/invite.html
 #: app/templates/events/me.html app/templates/events/members.html
-#: app/templates/main/ui_catalog.html
+#: app/templates/logistics/_list.html app/templates/main/ui_catalog.html
 msgid "Copier"
 msgstr "Copy"
 
@@ -2676,21 +2674,40 @@ msgstr "Event lists"
 msgid "Progression"
 msgstr "Progress"
 
-#: app/templates/logistics/form.html
+#: app/templates/logistics/_fields.html
+msgid "Ex : Adresse du gîte"
+msgstr "E.g. Gite address"
+
+#: app/templates/logistics/_fields.html
+msgid "Contenu"
+msgstr "Content"
+
+#: app/templates/logistics/_list.html
+msgid "Aucune info pratique"
+msgstr "No practical info"
+
+#: app/templates/logistics/_list.html
+msgid ""
+"Ajoutez l'adresse, l'accès, les horaires… pour que tout le monde soit au "
+"courant."
+msgstr "Add the address, access, schedule… so everyone is informed."
+
+#: app/templates/logistics/_list.html app/templates/planning/_card.html
+#, python-format
+msgid "Actions pour %(title)s"
+msgstr "Actions for %(title)s"
+
+#: app/templates/logistics/_list.html
+msgid "Supprimer cette info ?"
+msgstr "Delete this item?"
+
+#: app/templates/logistics/_sheet_form.html app/templates/logistics/form.html
 msgid "Modifier l'info"
 msgstr "Edit info"
 
 #: app/templates/logistics/form.html
-msgid "Ex : Adresse du gîte"
-msgstr "E.g. Gite address"
-
-#: app/templates/logistics/form.html
-msgid "Contenu"
-msgstr "Content"
-
-#: app/templates/logistics/form.html
-msgid "Ordre d'affichage"
-msgstr "Display order"
+msgid "L'information"
+msgstr "The information"
 
 #: app/templates/logistics/form.html
 msgid "Créer l'info"
@@ -2703,16 +2720,6 @@ msgstr "Practical info"
 #: app/templates/logistics/index.html
 msgid "Adresse, accès, horaires, documents…"
 msgstr "Address, access, schedule, documents…"
-
-#: app/templates/logistics/index.html
-msgid "Aucune info pratique"
-msgstr "No practical info"
-
-#: app/templates/logistics/index.html
-msgid ""
-"Ajoutez l'adresse, l'accès, les horaires… pour que tout le monde soit au "
-"courant."
-msgstr "Add the address, access, schedule… so everyone is informed."
 
 #: app/templates/main/landing.html
 msgid "Planifiez vos vacances en groupe"
@@ -3163,11 +3170,6 @@ msgstr "Not retained"
 #: app/templates/planning/_card.html
 msgid "En vote"
 msgstr "Being voted"
-
-#: app/templates/planning/_card.html
-#, python-format
-msgid "Actions pour %(title)s"
-msgstr "Actions for %(title)s"
 
 #: app/templates/planning/_card.html
 msgid "Restaurer"

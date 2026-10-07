@@ -1,4 +1,5 @@
 // Confirmation des actions destructives : [data-confirm="message"] sur un formulaire ou un bouton.
+// Les formulaires HTMX (hx-post) passent par l'événement htmx:confirm : la requête n'est émise qu'après accord.
 let initialized = false;
 
 export function confirmAction({ message, confirmLabel, tone = 'danger' }) {
@@ -29,6 +30,7 @@ export function initConfirm() {
   initialized = true;
   document.addEventListener('submit', async (event) => {
     const form = event.target;
+    if (form.matches('[hx-post], [hx-delete]')) return;
     const source = (event.submitter && event.submitter.closest('[data-confirm]')) ||
       (form.matches('[data-confirm]') ? form : null);
     if (!source) return;
@@ -46,5 +48,16 @@ export function initConfirm() {
       form.dataset.confirmed = '1';
       form.requestSubmit(event.submitter ?? undefined);
     }
+  });
+  document.addEventListener('htmx:confirm', async (event) => {
+    const source = event.detail.elt.closest('[data-confirm]');
+    if (!source) return;
+    event.preventDefault();
+    const accepted = await confirmAction({
+      message: source.dataset.confirm,
+      confirmLabel: source.dataset.confirmLabel,
+      tone: source.dataset.confirmTone,
+    });
+    if (accepted) event.detail.issueRequest(true);
   });
 }

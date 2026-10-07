@@ -82,8 +82,8 @@ class TestLogisticsIndex:
         db.session.commit()
         resp = client.get(f"/e/{event.code}/logistics")
         data = resp.data
-        # Tri category ASC : access avant address
-        assert data.index(b"Item Access") < data.index(b"Item Address")
+        # B025b : ordre logique du registre (adresse avant accès), plus l'ordre alphabétique des clés
+        assert data.index(b"Item Address") < data.index(b"Item Access")
         # En-têtes de sections par catégorie
         assert "Accès / Parking".encode() in data
         assert b"Adresse" in data
@@ -130,7 +130,7 @@ class TestCreateLogistics:
         assert b'name="title"' in resp.data
         assert b'name="content"' in resp.data
         assert b'name="category"' in resp.data
-        assert b'name="order"' in resp.data
+        assert b'name="order"' not in resp.data  # B025b : champ retiré de l'interface
 
     def test_create_success(self, client, creator, event, db):
         _login_creator(client, creator)
@@ -149,7 +149,7 @@ class TestCreateLogistics:
         assert item is not None
         assert item.content == "Parking gratuit derrière la maison"
         assert item.category == "access"
-        assert item.order == 3
+        assert item.order == 0  # B025b : l'ordre posté est ignoré
         assert item.event_id == event.id
 
     def test_create_success_as_guest(self, client, event, guest, db):
@@ -221,14 +221,13 @@ class TestCreateLogistics:
         assert resp.status_code == 200
         assert "Catégorie invalide".encode() in resp.data
 
-    def test_create_invalid_order(self, client, creator, event):
+    def test_create_non_numeric_order_is_ignored(self, client, creator, event):
         _login_creator(client, creator)
         resp = client.post(
             f"/e/{event.code}/logistics/new",
             data={"title": "Titre valide", "content": "x", "order": "abc"},
         )
-        assert resp.status_code == 200
-        assert b"Ordre invalide" in resp.data
+        assert resp.status_code == 302  # B025b : le champ n'existe plus
 
     def test_create_logs(self, client, creator, event, db):
         _login_creator(client, creator)
@@ -279,7 +278,7 @@ class TestEditLogistics:
         db.session.refresh(logistics_item)
         assert logistics_item.title == "Adresse mise à jour"
         assert logistics_item.content == "14 rue des Vignes"
-        assert logistics_item.order == 1
+        assert logistics_item.order == 0  # B025b : l'ordre n'est plus modifiable
 
     def test_edit_allowed_for_guest(self, client, event, guest, logistics_item, db):
         _login_guest(client, event, guest)

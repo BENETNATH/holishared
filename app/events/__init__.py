@@ -91,7 +91,7 @@ def event_status(event: Event, today: date) -> dict[str, Any]:
 events_bp = Blueprint("events", __name__)
 
 RECENT_MESSAGES = 3
-INFOS_ON_HOME = 5
+INFOS_ON_HOME = 3
 
 
 # === Creator: Event Management ===
@@ -364,6 +364,7 @@ def verify(token: str) -> str | Response:
 @events_bp.route("/<code>")
 def dashboard(code: str) -> str | Response:
     """Accueil de l'événement (créateur ou invité avec code valide)."""
+    from app.infos import ordered_infos
     from app.lists import home_items
     from app.models import ChatMessage, ListMealCoverage, LogisticsItem, Poll, SharedList
     from app.polls import poll_views
@@ -412,9 +413,7 @@ def dashboard(code: str) -> str | Response:
                 .all()
             )
         )
-    infos = LogisticsItem.query.filter_by(event_id=event.id).order_by(
-        LogisticsItem.category.asc(), LogisticsItem.order.asc()
-    )
+    infos_total = LogisticsItem.query.filter_by(event_id=event.id).count()
     return render_template(
         "events/dashboard.html",
         event=event,
@@ -428,8 +427,8 @@ def dashboard(code: str) -> str | Response:
             key=lambda view: view.has_voted,
         ),
         recent_messages=recent_messages,
-        infos=infos.limit(INFOS_ON_HOME).all(),
-        infos_total=infos.count(),
+        infos=ordered_infos(event.id, INFOS_ON_HOME),
+        infos_total=infos_total,
         share_url=_join_url(event),
         **(home_items(ctx) if "lists" in modules else {}),
     )
