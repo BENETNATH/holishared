@@ -10,6 +10,24 @@ sous chaque lot.
 
 ## [Unreleased]
 
+### B025a — Sondages (partie de B025 ; 25.2 Infos pratiques et 25.3 Chat à faire)
+
+- `feat(models)` : `Poll.kind` (`free` / `activities`), `Poll.created_by`, `PollOption.activity_id` (FK `ON DELETE SET NULL` : l'option garde son libellé), `Activity.status` (`planned` / `retained` / `dropped`) ; migration idempotente `migrate_polls` (calcul à blanc, sauvegarde `pre-polls-*` seulement si des lignes existent, exécutée au démarrage avant la purge). Droits : un sondage est géré par le créateur ou son auteur (`test_rights` adapté).
+- `feat(voting)` : page Sondages refaite (cartes cliquables, ouverts puis clos, état vide, bouton « Nouveau sondage » ouvrant une feuille de création rapide, formulaire page entière en sections avec erreurs par champ) ; types « Question libre » (2 à 10 options) et « Départager des activités » (cases à cocher des activités non écartées, filtre par jour, options libres en plus, question préremplie ; type désactivé avec explication sans Planning ou avec moins de 2 activités). Vote en un geste (HTMX : fragment de carte ; redirection sinon), modifiable tant que le sondage est ouvert ; les résultats ne s'affichent qu'après le vote (ou à tous une fois clos), pourcentages localisés, gagnants et égalités à la clôture. « Clore » (créateur ou auteur, avec confirmation), « Rouvrir » (créateur), « Supprimer » ; journal `poll.created/voted/closed/reopened/deleted`. Test existant `test_index_shows_results` devenu `test_index_hides_results_before_vote` (l'ancien comportement exposait les scores avant le vote). Le pourcentage utilisait un total partiel (erreur corrigée).
+- `feat(planning)` : badge « En vote » (lien vers le sondage) sur les activités d'un sondage ouvert ; après clôture d'un sondage d'activités le créateur « Retient » la ou les gagnantes (égalité : les autres gagnantes restent planifiées), les autres options liées passent « Non retenues » (carte grisée dans une section repliée du jour, restaurable par le créateur ou l'auteur, supprimable), exclues de l'accueil « Aujourd'hui », du panneau Listes et des seuils ; journal `activity.retained/dropped/restored`.
+- `feat(events)` : accueil — sondages ouverts, « À voter » en premier avec la mention.
+- `test` : `test_voting_b025.py` (68), `test_polls_planning.py` (41), `test_polls_migration.py` (9), scènes `voting-*` et `planning-poll-badge` (graine de démo enrichie).
+
+### Corrections de l'audit B018–B024 (`specs/audits/B018-B024-code.md`)
+
+- `fix(infra)` (bloquant) : un événement avec au moins un vote est supprimable (cascade `delete-orphan` sur `PollOption.votes`, `Guest.poll_votes`, `Guest.activity_rsvps`) ; `app/startup.py` : un `try/except` + `rollback` par étape de démarrage (migrations, purge un commit par événement, identité), `SKIP_STARTUP_MIGRATION=1` neutralise aussi la purge (`python -m app.migrations check` n'écrit plus).
+- `fix(infra)` (majeur) : rotation des sauvegardes par préfixe (3 par étape) et jamais de suppression d'une copie de moins de 30 jours ni de la dernière d'une étape ; restauration documentée dans le README.
+- `fix(media)` : supprimer un média référencé par un justificatif ne produit plus de 500 (référence mise à NULL ; fichier et quota seulement après le commit).
+- `fix(costs)` : montant ≥ 0,01 après arrondi et conversion, taux entre 1e-4 et 1e4 ; `min_headcount` / `exchange_rate` NULL tolérés.
+- `fix(i18n)` : `extract` et `check` échouent sur une erreur de syntaxe Jinja.
+- `fix(lists)` : couverture idempotente sur double clic ; limite de 6 repas revérifiée sous `BEGIN IMMEDIATE`.
+- `fix(infra)` : `PRAGMA foreign_key_check` journalisé au démarrage, `python manage.py fk-check` (rapport sans réparation) ; `/me` et `/manage` en `Cache-Control: no-store`.
+
 ### B021 — Planning
 
 - `feat(planning)` : programme par jour — tous les jours de l'événement (jours vides inclus), sélecteur horizontal sur mobile (`aria-pressed`, jour courant `aria-current`, `?day=`), bouton « Aujourd'hui », chronologie multi-jours à en-têtes collants dès 1024 px ; repas du jour en lecture seule (Midi/Soir, plusieurs possibles, lien vers Repas seulement si le module est actif) ; la section RSVP séparée disparaît.

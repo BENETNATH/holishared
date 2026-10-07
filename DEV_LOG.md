@@ -276,6 +276,17 @@ Audit B017/B029 : constats 1 à 6 corrigés (variables `INSTANCE_PATH` et `SKIP_
 - `Activity.confirmed_count` reste inutilisé (propriété historique, non supprimée).
 - Piège extraction i18n : une erreur de syntaxe Jinja dans un gabarit fait silencieusement disparaître ses msgids du `.po` à l'extraction suivante.
 
+### 2026-10-07 — B025a Sondages
+
+- Résultats : calculés par `app/polls.py` (`poll_views`, trois requêtes quel que soit le nombre de sondages) ; le gabarit n'a accès aux comptes que si `show_results` (sondage clos ou vote de la personne) : rien ne fuit dans le HTML avant le vote. L'ancien pourcentage divisait par un total partiel.
+- Un vote identique répété est sans effet (pas de doublon de journal) ; vote sur sondage clos : fragment + toast (HTMX), flash + redirection sinon.
+- Droits : `Poll` passe en « créateur ou auteur » (`created_by`) ; rouvrir reste réservé au créateur ; les sondages existants n'ont pas d'auteur (seul le créateur les gère).
+- « Retenir » : réservé au créateur, offert sur une gagnante d'un sondage clos (le plus récent) encore `planned`. En cas d'égalité, retenir l'une écarte les options liées non gagnantes ; l'autre gagnante reste planifiée et peut être retenue aussi (écart volontaire avec « les autres options liées passent écartées »).
+- « Programme » : les activités non retenues quittent la liste du jour mais restent dans une section repliée « N activités non retenues » (restaurables) ; elles sont exclues de l'accueil et du panneau Listes. L'archive ZIP/JSON de l'événement les inclut toujours.
+- Rouvrir un sondage d'activités déjà tranché ne rétablit pas les statuts (le créateur restaure à la main).
+- Piège UI : la garde `lang-fr` scanne tout `[data-ui-shell]`, feuilles fermées comprises : les données utilisateur d'une feuille (titres d'activités) portent `translate="no"`.
+- Audit B018–B024 : étapes de démarrage dans `app/startup.py` (indépendantes) ; `ruff format app` global reformate des fichiers hors périmètre (ne formater que ses fichiers).
+
 ### À faire (backlog)
 
 | Priorité | Tâche | Statut |

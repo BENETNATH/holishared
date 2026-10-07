@@ -514,14 +514,14 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B025 — Sondages, Infos pratiques & Chat
 
-**Statut** : ⬜ · **Réf.** F05, F12, F14
+**Statut** : partiel — 25.1, 25.4, 25.5 ✅ (2026-10-07, B025a) ; 25.2 Infos pratiques et 25.3 Chat à faire (B025b) · **Réf.** F05, F12, F14
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
-| 25.1 | Sondages | Création rapide ; clore et supprimer (créateur) ; résultats après le vote ; vote en un geste |
+| 25.1 ✅ | Sondages | Création rapide ; clore et supprimer (créateur) ; résultats après le vote ; vote en un geste |
 | 25.2 | Infos pratiques | Cartes avec copie en un geste ; édition sur place ; plus de champ « Ordre » exposé ; ordre logique des catégories |
-| 25.4 | Sondage d'activités | À la création, choix du type « Question libre » ou « Départager des activités » : sélection d'une ou plusieurs activités existantes comme options (au moins 2), possibilité d'ajouter des options libres ; les activités en vote portent un badge « En vote » dans le Planning avec lien vers le sondage |
-| 25.5 | Issue du vote | À la clôture d'un sondage d'activités : activité(s) gagnante(s) (égalité gérée) ; le créateur peut « Retenir » le gagnant : l'activité passe « Retenue », les autres « Non retenues » (grisées, restaurables ou supprimables) ; journal et notification associés |
+| 25.4 ✅ | Sondage d'activités | À la création, choix du type « Question libre » ou « Départager des activités » : sélection d'une ou plusieurs activités existantes comme options (au moins 2), possibilité d'ajouter des options libres ; les activités en vote portent un badge « En vote » dans le Planning avec lien vers le sondage |
+| 25.5 ✅ | Issue du vote | À la clôture d'un sondage d'activités : activité(s) gagnante(s) (égalité gérée) ; le créateur peut « Retenir » le gagnant : l'activité passe « Retenue », les autres « Non retenues » (grisées, restaurables ou supprimables) ; journal et notification associés |
 | 25.3 | Chat | Saisie ancrée en bas ; envoi sans rechargement ; polling sans forcer le défilement ; actions de message discrètes ; aperçu accueil limité à 3 messages côté serveur |
 
 ## B026 — Média
