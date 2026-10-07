@@ -36,7 +36,7 @@
       <li data-poll-activity-day="{{ act.date.isoformat() }}">
         <label class="ui-check">
           <input type="checkbox" name="activity_ids" value="{{ act.id }}" data-testid="poll-activity-option"{% if act.id in picked %} checked{% endif %}>
-          <span class="min-w-0 break-words">{{ act.title }} <span class="text-small text-ink-2">· {{ act.date|format_date('EEE d MMM') }}{% if act.start_time %} · {{ act.start_time|time }}{% endif %}</span></span>
+          <span class="min-w-0 break-words"><span translate="no">{{ act.title }}</span> <span class="text-small text-ink-2">· {{ act.date|format_date('EEE d MMM') }}{% if act.start_time %} · {{ act.start_time|time }}{% endif %}</span></span>
         </label>
       </li>
       {%- endfor %}

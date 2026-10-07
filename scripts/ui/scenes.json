@@ -805,6 +805,175 @@
       ]
     },
     {
+      "lot": "B025",
+      "role": "guest_household",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "id": "voting-polls",
+      "path": "/e/{event.rich}/voting",
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "!!document.querySelector('[data-testid=poll-badge-to-vote]')",
+          "message": "un sondage à voter porte la mention « À voter »"
+        },
+        {
+          "type": "assert",
+          "expr": "!document.querySelector('[data-poll-id][data-voted=false][data-closed=false] [data-testid=poll-option-result]')",
+          "message": "aucun résultat avant le vote"
+        },
+        {
+          "type": "assert",
+          "expr": "!!document.querySelector('[data-testid=polls-closed] [data-testid=poll-winner]')",
+          "message": "l'option gagnante d'un sondage clos est mise en évidence"
+        },
+        {
+          "type": "assert",
+          "expr": "!!document.querySelector('[data-testid=poll-add]')",
+          "message": "le bouton « Nouveau sondage » est présent"
+        }
+      ]
+    },
+    {
+      "lot": "B025",
+      "role": "guest_household",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "id": "voting-vote",
+      "path": "/e/{event.rich}/voting",
+      "langs": [
+        "fr"
+      ],
+      "viewports": [
+        390,
+        1280
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "(window.__sameDoc = true, !!document.querySelector('[data-kind=activities] [data-testid=poll-option]:not([aria-pressed=true])'))",
+          "message": "une option de sondage d'activités est disponible"
+        },
+        {
+          "type": "click",
+          "target": "[data-kind=activities] [data-testid=poll-option]:not([aria-pressed=true])"
+        },
+        {
+          "type": "waitFor",
+          "expr": "document.querySelector('[data-kind=activities]').dataset.voted === 'true' && !!document.querySelector('[data-kind=activities] [data-testid=poll-option-result]')",
+          "message": "le vote est enregistré et les résultats apparaissent sans rechargement"
+        },
+        {
+          "type": "assert",
+          "expr": "window.__sameDoc === true",
+          "message": "la page n'a pas été rechargée"
+        }
+      ]
+    },
+    {
+      "lot": "B025",
+      "role": "guest_household",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "id": "voting-add-sheet",
+      "path": "/e/{event.rich}/voting",
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "actions": [
+        {
+          "type": "click",
+          "target": "[data-testid=poll-add]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=poll-sheet]').open",
+          "message": "la feuille de création est ouverte"
+        },
+        {
+          "type": "assert",
+          "expr": "document.activeElement && document.activeElement.id === 'sheet-question'",
+          "message": "le champ question a le focus"
+        },
+        {
+          "type": "click",
+          "target": "[data-testid=poll-sheet] .ui-segmented__option:nth-child(2) span"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelectorAll('[data-testid=poll-sheet] [data-testid=poll-activity-option]').length >= 2 && document.getElementById('sheet-question').value.length > 2",
+          "message": "le type « activités » liste les activités et préremplit la question"
+        }
+      ]
+    },
+    {
+      "lot": "B025",
+      "role": "guest_household",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "id": "voting-form",
+      "path": "/e/{event.rich}/voting/new",
+      "langs": [
+        "fr",
+        "en"
+      ]
+    },
+    {
+      "lot": "B025",
+      "role": "creator",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "id": "voting-detail",
+      "path": "/e/{event.rich}/voting/{poll.activities}",
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "!!document.querySelector('[data-testid=poll-close]') && !!document.querySelector('[data-testid=poll-delete]')",
+          "message": "le créateur peut clore et supprimer"
+        }
+      ]
+    },
+    {
+      "lot": "B025",
+      "role": "guest_household",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "id": "planning-poll-badge",
+      "path": "/e/{event.rich}/planning",
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "(document.querySelector('[data-planning-day-tab=\"' + document.querySelector('[data-testid=activity-badge-voting]').closest('[data-planning-day]').dataset.planningDay + '\"]').click(), !!document.querySelector('[data-testid=activity-badge-voting]'))",
+          "message": "les activités du sondage ouvert portent le badge « En vote »"
+        }
+      ]
+    },
+    {
       "id": "logistics",
       "lot": "B017",
       "role": "guest_household",

@@ -183,6 +183,34 @@ def _populate_rich(db: Any, models: Any, rich: Any, creator_guest: Any) -> dict[
     db.session.flush()
     db.session.add(m.PollVote(option_id=options[1].id, guest_id=antoine.id))
 
+    # Sondage d'activités ouvert (B025) : badge « En vote » dans le Planning, Antoine n'a pas voté.
+    pool = m.Activity.query.filter_by(event_id=rich.id, title="Piscine").one()
+    caves = m.Activity.query.filter_by(event_id=rich.id, title="Visite des grottes de Choranche").one()
+    activities_poll = m.Poll(
+        question="Quelle activité pour mardi ?",
+        kind="activities",
+        created_by=antoine.id,
+        event_id=rich.id,
+    )
+    db.session.add(activities_poll)
+    db.session.flush()
+    for order, act in enumerate((pool, caves)):
+        db.session.add(
+            m.PollOption(label=act.title, order=order, poll_id=activities_poll.id, activity_id=act.id)
+        )
+    # Sondage clos (B025) : résultats visibles à tous, option gagnante mise en évidence.
+    closed = m.Poll(question="Où dîner samedi ?", is_closed=True, event_id=rich.id)
+    db.session.add(closed)
+    db.session.flush()
+    closed_options = []
+    for order, label in enumerate(("Pizzeria", "Crêperie")):
+        option = m.PollOption(label=label, order=order, poll_id=closed.id)
+        db.session.add(option)
+        closed_options.append(option)
+    db.session.flush()
+    for who, pick in ((antoine, 0), (chloe, 0), (guests["Dimitri"], 1)):
+        db.session.add(m.PollVote(option_id=closed_options[pick].id, guest_id=who.id))
+
     db.session.add(
         m.LogisticsItem(
             title="Adresse du gîte",
@@ -284,7 +312,14 @@ def _populate_rich(db: Any, models: Any, rich: Any, creator_guest: Any) -> dict[
         )
     )
     db.session.commit()
-    return {"antoine": antoine, "chloe": chloe, "list": shopping, "packing": packing, "poll": poll}
+    return {
+        "antoine": antoine,
+        "chloe": chloe,
+        "list": shopping,
+        "packing": packing,
+        "poll": poll,
+        "activities_poll": activities_poll,
+    }
 
 
 def seed(out_dir: Path, port: int = 8499) -> dict[str, Any]:
@@ -378,6 +413,7 @@ def seed(out_dir: Path, port: int = 8499) -> dict[str, Any]:
         placeholders["list.rich"] = objects["list"].id
         placeholders["list.packing"] = objects["packing"].id
         placeholders["poll.rich"] = objects["poll"].id
+        placeholders["poll.activities"] = objects["activities_poll"].id
         placeholders["token.unverified"] = events["unverified"].verification_token
 
     fixtures: dict[str, Any] = {
