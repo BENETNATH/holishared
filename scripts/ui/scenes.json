@@ -400,7 +400,7 @@
     },
     {
       "id": "costs",
-      "lot": "B017",
+      "lot": "B024",
       "role": "guest_household",
       "path": "/e/{event.rich}/costs",
       "scope": "shell",
@@ -408,7 +408,215 @@
         "nav": "event"
       },
       "langs": [
-        "fr"
+        "fr",
+        "en"
+      ],
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "!!document.querySelector('[data-testid=my-balance]')",
+          "message": "l'en-tête « Mon solde » est affiché"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelectorAll('[data-testid=expense-row]').length >= 2",
+          "message": "les dépenses sont listées en lignes"
+        },
+        {
+          "type": "assert",
+          "expr": "[...document.querySelectorAll('[data-testid=costs-segments] a')].every(a => a.getBoundingClientRect().height >= 44)",
+          "message": "les segments font au moins 44 px"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=costs-add-expense]').getBoundingClientRect().height >= 44",
+          "message": "le bouton d'ajout fait au moins 44 px"
+        },
+        {
+          "type": "assert",
+          "expr": "!document.querySelector('[data-testid=costs-expense-sheet]').open",
+          "message": "la feuille d'ajout n'est pas ouverte d'office"
+        },
+        {
+          "type": "assert",
+          "expr": "!document.querySelector('[data-testid=expense-personal]') || document.querySelector('[data-testid=expense-personal]').textContent.trim().length > 0",
+          "message": "la dépense personnelle de mon foyer porte un libellé"
+        }
+      ]
+    },
+    {
+      "lot": "B024",
+      "role": "guest_household",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "id": "costs-expense-detail",
+      "path": "/e/{event.rich}/costs",
+      "actions": [
+        {
+          "type": "click",
+          "target": "[data-testid=expense-details] summary"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=expense-details][open] [data-testid=expense-detail]').getBoundingClientRect().height > 0",
+          "message": "le détail de la dépense est déplié"
+        },
+        {
+          "type": "assert",
+          "expr": "document.documentElement.scrollWidth <= window.innerWidth",
+          "message": "aucun défilement horizontal"
+        }
+      ]
+    },
+    {
+      "lot": "B024",
+      "role": "guest_household",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "id": "costs-add-sheet",
+      "path": "/e/{event.rich}/costs",
+      "skip": [
+        "primary"
+      ],
+      "note": "la feuille ouverte montre son bouton d'enregistrement en plus du bouton d'ajout",
+      "actions": [
+        {
+          "type": "click",
+          "target": "[data-testid=costs-add-expense]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=costs-expense-sheet]').open",
+          "message": "la feuille d'ajout est ouverte"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=costs-expense-sheet]').contains(document.activeElement)",
+          "message": "le focus est dans la feuille"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=costs-expense-sheet] [data-rate-field]').hidden",
+          "message": "le taux est masqué pour la devise de base"
+        },
+        {
+          "type": "assert",
+          "expr": "(() => { const s = document.querySelector('[data-testid=costs-expense-sheet] [data-currency-select]'); s.value = 'USD'; s.dispatchEvent(new Event('change', { bubbles: true })); return !document.querySelector('[data-testid=costs-expense-sheet] [data-rate-field]').hidden; })()",
+          "message": "le taux apparaît pour une autre devise"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelectorAll('[data-testid=costs-expense-sheet] [data-testid=costs-expense-sheet-categories] input').length === 6",
+          "message": "les six catégories sont des puces"
+        }
+      ]
+    },
+    {
+      "lot": "B024",
+      "role": "guest_household",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "id": "costs-balance",
+      "path": "/e/{event.rich}/costs?tab=balance",
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=costs-seg-balance]').getAttribute('aria-current') === 'page'",
+          "message": "le segment Équilibre est actif"
+        },
+        {
+          "type": "assert",
+          "expr": "!!document.querySelector('[data-testid=who-owes]')",
+          "message": "« Qui doit à qui » est affiché"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=transfer-open]').getBoundingClientRect().height >= 44",
+          "message": "le bouton de remboursement fait au moins 44 px"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelectorAll('[data-testid=transfer-row]').length >= 1",
+          "message": "les remboursements effectués sont listés"
+        }
+      ]
+    },
+    {
+      "lot": "B024",
+      "role": "guest_household",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "id": "costs-transfer-sheet",
+      "path": "/e/{event.rich}/costs?tab=balance",
+      "skip": [
+        "primary"
+      ],
+      "note": "la feuille ouverte montre son bouton d'enregistrement",
+      "actions": [
+        {
+          "type": "click",
+          "target": "[data-testid=transfer-open]"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=costs-transfer-sheet]').open",
+          "message": "la feuille de remboursement est ouverte"
+        },
+        {
+          "type": "assert",
+          "expr": "!!document.querySelector('[data-testid=transfer-form] input[name=direction]')",
+          "message": "le sens du remboursement est proposé"
+        }
+      ]
+    },
+    {
+      "lot": "B024",
+      "role": "guest_household",
+      "scope": "shell",
+      "expect": {
+        "nav": "event"
+      },
+      "langs": [
+        "fr",
+        "en"
+      ],
+      "id": "costs-requests",
+      "path": "/e/{event.rich}/costs?tab=requests",
+      "actions": [
+        {
+          "type": "assert",
+          "expr": "document.querySelectorAll('[data-testid=request-row]').length >= 1",
+          "message": "les demandes sont listées"
+        },
+        {
+          "type": "assert",
+          "expr": "document.querySelector('[data-testid=request-message]').textContent.includes('gîte')",
+          "message": "la note de la demande est affichée"
+        }
       ]
     },
     {

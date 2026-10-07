@@ -72,7 +72,7 @@ def _populate_rich(db: Any, models: Any, rich: Any, creator_guest: Any) -> dict[
     db.session.flush()
     antoine, chloe = guests["Antoine"], guests["Chloé"]
     antoine_household = m.Household(
-        name="Antoine & Béa", num_adults=2, guest_id=antoine.id, event_id=rich.id
+        name="Antoine and Bea", num_adults=2, guest_id=antoine.id, event_id=rich.id
     )
     db.session.add(antoine_household)
 
@@ -209,6 +209,8 @@ def _populate_rich(db: Any, models: Any, rich: Any, creator_guest: Any) -> dict[
     creator_household = m.Household.query.filter_by(
         guest_id=creator_guest.id, event_id=rich.id
     ).one()
+    # Noms de foyers neutres : ce sont des données saisies, la garde « pas de français en EN » les lit telles quelles.
+    creator_household.name = "Camille family"
     db.session.flush()
     for description, cents, category, household in (
         ("Courses supermarché", 14250, "food", creator_household),
@@ -221,9 +223,57 @@ def _populate_rich(db: Any, models: Any, rich: Any, creator_guest: Any) -> dict[
                 category=category,
                 paid_by_household_id=household.id,
                 date=today,
+                created_by=antoine.id,
                 event_id=rich.id,
             )
         )
+    # Frais (B024) : une dépense en devise étrangère, un remboursement, une demande avec note.
+    db.session.add(
+        m.Expense(
+            description="Péage et essence (aller)",
+            amount_cents=6000,
+            currency="USD",
+            exchange_rate=0.92,
+            category="transport",
+            paid_by_household_id=antoine_household.id,
+            date=today - timedelta(days=1),
+            created_by=antoine.id,
+            event_id=rich.id,
+        )
+    )
+    db.session.add(
+        m.Expense(
+            description="Cadeau surprise",
+            amount_cents=2500,
+            category="other",
+            is_shared=False,
+            paid_by_household_id=antoine_household.id,
+            date=today,
+            created_by=antoine.id,
+            event_id=rich.id,
+        )
+    )
+    db.session.add(
+        m.Transfer(
+            from_household_id=creator_household.id,
+            to_household_id=antoine_household.id,
+            amount_cents=3000,
+            note="Acompte",
+            date=today,
+            created_by=antoine.id,
+            event_id=rich.id,
+        )
+    )
+    db.session.add(
+        m.PaymentRequest(
+            from_household_id=antoine_household.id,
+            to_household_id=creator_household.id,
+            amount_cents=4500,
+            message="Pour la location du gîte, merci !",
+            created_by=antoine.id,
+            event_id=rich.id,
+        )
+    )
     db.session.commit()
     return {"antoine": antoine, "chloe": chloe, "list": shopping, "packing": packing, "poll": poll}
 
