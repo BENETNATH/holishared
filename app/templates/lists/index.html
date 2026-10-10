@@ -7,7 +7,21 @@
     <h1>{{ _("Listes") }}</h1>
     <p>{{ event.title }} · {{ _("Courses, to-do, matériel…") }}</p>
   </div>
+  <a class="ui-btn shrink-0" href="{{ url_for('lists.export_all', code=event.code) }}" data-testid="list-export-all">{{ _("Exporter les listes (XLSX)") }}</a>
 </div>
+
+<form method="post" action="{{ url_for('lists.import_xlsx', code=event.code) }}" enctype="multipart/form-data" class="mb-4 flex max-w-none flex-row flex-wrap items-start gap-2" data-testid="list-import-form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="min-w-0 flex-[1_1_16rem]">
+    <label class="sr-only" for="list-import-file">{{ _("Importer une liste (XLSX)") }}</label>
+    <input class="ui-input" type="file" id="list-import-file" name="file" accept=".xlsx" required data-testid="list-import-file">
+  </div>
+  <div class="min-w-0 flex-[1_1_12rem]">
+    <label class="sr-only" for="list-import-title">{{ _("Titre (optionnel)") }}</label>
+    <input class="ui-input" type="text" id="list-import-title" name="title" maxlength="200" autocomplete="off" data-testid="list-import-title" placeholder="{{ _('Titre (optionnel)') }}">
+  </div>
+  <button type="submit" class="ui-btn shrink-0" data-testid="list-import-submit">{{ _("Importer") }}</button>
+</form>
 
 <form method="post" action="{{ url_for('lists.index', code=event.code) }}" class="mb-4 flex max-w-none flex-row flex-wrap items-start gap-2" data-testid="list-create-form">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

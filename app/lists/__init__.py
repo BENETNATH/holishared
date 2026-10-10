@@ -617,3 +617,7 @@ def toggle_meal(code: str, list_id: str, meal_id: str) -> Response | tuple[str, 
 def toggle_activity(code: str, list_id: str, activity_id: str) -> Response | tuple[str, int] | str:
     """Cette liste prend en compte (ou non) cette activité."""
     return _toggle_coverage(code, list_id, activity_id, "activity")
+
+
+# Importé en dernier : enregistre les routes XLSX (B035) sur ``lists_bp``.
+from app.lists import xlsx  # noqa: E402,F401

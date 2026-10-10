@@ -475,6 +475,10 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 | 21.4 | Créateur participant | Le créateur peut répondre (F10) |
 | 21.5 | Programme unifié | `bring_items` affiché sur la carte d'activité (F10) ; programme du jour/semaine avec les repas en lecture seule ; aucun statut de couverture sur les activités (sens unique, contrat §11.5) |
 
+## B035 — Import/Export XLSX des listes
+
+**Statut** : ✅ (2026-10-10) · **Réf.** `specs/b035-xlsx-spec.md` — export une feuille par liste (noms tronqués à 31, collisions suffixées), import une feuille = une liste (README ignorée, en-têtes FR/EN insensibles casse/accents, rapport de lignes ignorées, limites 500 lignes / 20 feuilles / 2 Mo, transaction), `openpyxl` en dépendance, CSRF + rate limiting, i18n FR/EN, 25 tests
+
 ## B032 — Listes : poignée fonctionnelle et panneau compact
 
 **Statut** : ✅ (2026-10-07) — filtre et interrupteur sur une 2e ligne (sous l'en-tête 48 px), faute de place à 360 px
