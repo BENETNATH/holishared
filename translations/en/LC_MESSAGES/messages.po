@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 20:36+0000\n"
+"POT-Creation-Date: 2026-10-10 21:12+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -27,7 +27,7 @@ msgstr "Something went wrong"
 msgid "Retour à l'accueil"
 msgstr "Back to home"
 
-#: app/__init__.py
+#: app/__init__.py app/api/__init__.py
 msgid "Trop de requêtes. Patientez un instant."
 msgstr "Too many requests. Please wait a moment."
 
@@ -340,6 +340,14 @@ msgid "Nom d'affichage modifié"
 msgstr "Display name changed"
 
 #: app/i18n.py
+msgid "Clé API créée"
+msgstr "API key created"
+
+#: app/i18n.py
+msgid "Clé API révoquée"
+msgstr "API key revoked"
+
+#: app/i18n.py
 #, python-format
 msgid "%(actor)s a ajouté une activité"
 msgstr "%(actor)s added an activity"
@@ -593,6 +601,16 @@ msgstr "%(actor)s removed a participant"
 #, python-format
 msgid "%(actor)s a changé de nom d'affichage"
 msgstr "%(actor)s changed their display name"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a créé une clé API"
+msgstr "%(actor)s created an API key"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a révoqué une clé API"
+msgstr "%(actor)s revoked an API key"
 
 #: app/i18n.py
 #, python-format
@@ -987,6 +1005,248 @@ msgstr "Sign out"
 msgid "Oublier cet appareil"
 msgstr "Forget this device"
 
+#: app/api/__init__.py
+msgid "Requête invalide."
+msgstr "Invalid request."
+
+#: app/api/__init__.py
+msgid "Authentification requise."
+msgstr "Authentication required."
+
+#: app/api/__init__.py
+msgid "Accès refusé."
+msgstr "Access denied."
+
+#: app/api/__init__.py
+msgid "Introuvable."
+msgstr "Not found."
+
+#: app/api/__init__.py app/lists/__init__.py app/logistics/__init__.py
+#: app/planning/__init__.py
+msgid "Titre requis (min 2 caractères)."
+msgstr "Title required (min 2 characters)."
+
+#: app/api/__init__.py app/planning/__init__.py
+msgid "Description trop longue (max 2000)."
+msgstr "Description too long (max 2000)."
+
+#: app/api/__init__.py app/planning/__init__.py
+msgid "Date requise."
+msgstr "Date required."
+
+#: app/api/__init__.py app/events/__init__.py app/planning/__init__.py
+msgid "Format de date invalide (AAAA-MM-JJ)."
+msgstr "Invalid date format (YYYY-MM-DD)."
+
+#: app/api/__init__.py app/meals/__init__.py app/planning/__init__.py
+msgid "Date hors de la période de l'événement."
+msgstr "Date outside the event period."
+
+#: app/api/__init__.py app/planning/__init__.py
+msgid "Heure invalide."
+msgstr "Invalid time."
+
+#: app/api/__init__.py app/planning/__init__.py
+msgid "Heure de fin avant heure de début."
+msgstr "End time before start time."
+
+#: app/api/__init__.py app/planning/__init__.py
+msgid "Lieu trop long (max 300)."
+msgstr "Location too long (max 300)."
+
+#: app/api/__init__.py app/planning/__init__.py
+msgid "Nombre entre 1 et 50."
+msgstr "Number between 1 and 50."
+
+#: app/api/__init__.py app/planning/__init__.py
+msgid "Champ trop long (max 500)."
+msgstr "Field too long (max 500)."
+
+#: app/api/__init__.py app/meals/__init__.py
+msgid "Nom requis (min 2 caractères)."
+msgstr "Name required (min. 2 characters)."
+
+#: app/api/__init__.py app/meals/__init__.py
+msgid "Nom trop long (max 200)."
+msgstr "Name too long (max. 200)."
+
+#: app/api/__init__.py app/meals/__init__.py
+msgid "Créneau invalide."
+msgstr "Invalid time slot."
+
+#: app/api/__init__.py app/lists/__init__.py app/logistics/__init__.py
+msgid "Titre trop long (max 200)."
+msgstr "Title too long (max 200)."
+
+#: app/api/__init__.py app/lists/__init__.py
+msgid "Nom requis."
+msgstr "Name required."
+
+#: app/api/__init__.py app/lists/__init__.py
+msgid "Nom trop long (max 300)."
+msgstr "Name too long (max 300)."
+
+#: app/api/__init__.py app/lists/__init__.py
+msgid "Quantité trop longue (max 50)."
+msgstr "Quantity too long (max 50)."
+
+#: app/api/__init__.py app/lists/__init__.py
+msgid "Section trop longue (max 100)."
+msgstr "Section too long (max 100)."
+
+#: app/api/__init__.py app/lists/__init__.py
+msgid "Nom trop long (max 50)."
+msgstr "Name too long (max 50)."
+
+#: app/api/__init__.py app/logistics/__init__.py
+msgid "Contenu requis."
+msgstr "Content required."
+
+#: app/api/__init__.py app/logistics/__init__.py
+msgid "Contenu trop long (max 5000)."
+msgstr "Content too long (max 5000)."
+
+#: app/api/__init__.py app/costs/__init__.py app/logistics/__init__.py
+msgid "Catégorie invalide."
+msgstr "Invalid category."
+
+#: app/api/__init__.py app/voting/__init__.py
+msgid "Question requise (min 2 caractères)."
+msgstr "Question required (min 2 characters)."
+
+#: app/api/__init__.py app/voting/__init__.py
+msgid "Question trop longue (max 300 caractères)."
+msgstr "Question too long (max 300 characters)."
+
+#: app/api/__init__.py app/voting/__init__.py
+msgid "Type de sondage invalide."
+msgstr "Invalid poll type."
+
+#: app/api/__init__.py app/voting/__init__.py
+msgid "Au moins 2 options requises (une par ligne)."
+msgstr "At least 2 options required (one per line)."
+
+#: app/api/__init__.py app/voting/__init__.py
+msgid "Maximum 10 options (une par ligne)."
+msgstr "Maximum 10 options (one per line)."
+
+#: app/api/__init__.py app/voting/__init__.py
+msgid "Le Planning n'est pas activé : choisissez une question libre."
+msgstr "The Schedule is not enabled: choose a free question."
+
+#: app/api/__init__.py app/voting/__init__.py
+msgid "Activité introuvable dans cet événement."
+msgstr "Activity not found in this event."
+
+#: app/api/__init__.py app/voting/__init__.py
+msgid "Sélectionnez au moins 2 activités."
+msgstr "Select at least 2 activities."
+
+#: app/api/__init__.py app/voting/__init__.py
+msgid "Maximum 10 options (activités comprises)."
+msgstr "Maximum 10 options (activities included)."
+
+#: app/api/__init__.py app/voting/__init__.py
+msgid "Option trop longue (max 200 caractères)."
+msgstr "Option too long (max 200 characters)."
+
+#: app/api/__init__.py app/chat/__init__.py
+msgid "Message vide."
+msgstr "Empty message."
+
+#: app/api/__init__.py app/chat/__init__.py
+msgid "Message trop long (max 2000)."
+msgstr "Message too long (max 2000)."
+
+#: app/api/__init__.py app/costs/__init__.py
+msgid "Description requise."
+msgstr "Description required."
+
+#: app/api/__init__.py app/costs/__init__.py
+msgid "Description trop longue (max 300)."
+msgstr "Description too long (max 300)."
+
+#: app/api/__init__.py app/costs/__init__.py
+msgid "Devise invalide."
+msgstr "Invalid currency."
+
+#: app/api/__init__.py app/costs/__init__.py
+msgid "Montant trop faible une fois converti."
+msgstr "Amount too small once converted."
+
+#: app/api/__init__.py app/costs/__init__.py
+msgid "Foyer payeur requis."
+msgstr "Paying household required."
+
+#: app/api/__init__.py app/costs/__init__.py
+msgid "Foyer payeur invalide."
+msgstr "Invalid paying household."
+
+#: app/api/__init__.py app/costs/__init__.py
+msgid "Une dépense personnelle doit être payée par votre foyer."
+msgstr "A personal expense must be paid by your household."
+
+#: app/api/__init__.py app/costs/__init__.py
+msgid "Nom du foyer requis (min 2 caractères)."
+msgstr "Household name required (min. 2 characters)."
+
+#: app/api/__init__.py app/costs/__init__.py
+msgid "Nom trop long (max 100)."
+msgstr "Name too long (max 100)."
+
+#: app/api/__init__.py app/costs/__init__.py
+msgid "Valeurs numériques invalides."
+msgstr "Invalid numeric values."
+
+#: app/api/__init__.py app/costs/__init__.py
+msgid "Adultes : entre 1 et 50."
+msgstr "Adults: between 1 and 50."
+
+#: app/api/__init__.py app/costs/__init__.py
+msgid "Enfants : entre 0 et 50."
+msgstr "Children: between 0 and 50."
+
+#: app/api/__init__.py app/costs/__init__.py
+msgid "Foyers d'origine et de destination requis."
+msgstr "Source and destination households required."
+
+#: app/api/__init__.py app/costs/__init__.py
+msgid "Le foyer d'origine et de destination doivent différer."
+msgstr "Source and destination households must differ."
+
+#: app/api/__init__.py app/costs/__init__.py
+msgid "Foyer invalide pour cet événement."
+msgstr "Invalid household for this event."
+
+#: app/api/__init__.py app/costs/__init__.py
+msgid "Note trop longue (max 300)."
+msgstr "Note too long (max 300)."
+
+#: app/api/__init__.py app/costs/__init__.py
+msgid "Foyers requis."
+msgstr "Households required."
+
+#: app/api/__init__.py app/costs/__init__.py
+msgid "Les foyers doivent différer."
+msgstr "The households must differ."
+
+#: app/api/__init__.py app/costs/__init__.py
+msgid "Message trop long (max 500)."
+msgstr "Message too long (max 500)."
+
+#: app/api/__init__.py app/planning/__init__.py
+msgid "Statut invalide."
+msgstr "Invalid status."
+
+#: app/api/__init__.py app/meals/__init__.py app/templates/meals/_grid.html
+#, python-format
+msgid "Cette case est pleine (%(max)d repas maximum)."
+msgstr "This slot is full (%(max)d meals maximum)."
+
+#: app/api/__init__.py app/voting/__init__.py
+msgid "Ce sondage est clos."
+msgstr "This poll is closed."
+
 #: app/auth/__init__.py
 msgid "Identifiants incorrects."
 msgstr "Incorrect credentials."
@@ -994,14 +1254,6 @@ msgstr "Incorrect credentials."
 #: app/auth/__init__.py
 msgid "Cet appareil est oublié : vous êtes déconnecté."
 msgstr "This device is forgotten: you are signed out."
-
-#: app/chat/__init__.py
-msgid "Message vide."
-msgstr "Empty message."
-
-#: app/chat/__init__.py
-msgid "Message trop long (max 2000)."
-msgstr "Message too long (max 2000)."
 
 #: app/chat/__init__.py
 msgid "Message supprimé."
@@ -1028,64 +1280,12 @@ msgid "Taux de change invalide (0,0001 ≤ taux ≤ 10000)."
 msgstr "Invalid exchange rate (0.0001 ≤ rate ≤ 10000)."
 
 #: app/costs/__init__.py
-msgid "Nom du foyer requis (min 2 caractères)."
-msgstr "Household name required (min. 2 characters)."
-
-#: app/costs/__init__.py
-msgid "Nom trop long (max 100)."
-msgstr "Name too long (max 100)."
-
-#: app/costs/__init__.py
-msgid "Valeurs numériques invalides."
-msgstr "Invalid numeric values."
-
-#: app/costs/__init__.py
-msgid "Adultes : entre 1 et 50."
-msgstr "Adults: between 1 and 50."
-
-#: app/costs/__init__.py
-msgid "Enfants : entre 0 et 50."
-msgstr "Children: between 0 and 50."
-
-#: app/costs/__init__.py
 msgid "Foyer ajouté."
 msgstr "Household added."
 
 #: app/costs/__init__.py
 msgid "Foyer modifié."
 msgstr "Household updated."
-
-#: app/costs/__init__.py
-msgid "Description requise."
-msgstr "Description required."
-
-#: app/costs/__init__.py
-msgid "Description trop longue (max 300)."
-msgstr "Description too long (max 300)."
-
-#: app/costs/__init__.py
-msgid "Devise invalide."
-msgstr "Invalid currency."
-
-#: app/costs/__init__.py
-msgid "Montant trop faible une fois converti."
-msgstr "Amount too small once converted."
-
-#: app/costs/__init__.py app/logistics/__init__.py
-msgid "Catégorie invalide."
-msgstr "Invalid category."
-
-#: app/costs/__init__.py
-msgid "Foyer payeur requis."
-msgstr "Paying household required."
-
-#: app/costs/__init__.py
-msgid "Foyer payeur invalide."
-msgstr "Invalid paying household."
-
-#: app/costs/__init__.py
-msgid "Une dépense personnelle doit être payée par votre foyer."
-msgstr "A personal expense must be paid by your household."
 
 #: app/costs/__init__.py
 msgid "Frais ajouté."
@@ -1108,40 +1308,12 @@ msgid "Foyer supprimé."
 msgstr "Household deleted."
 
 #: app/costs/__init__.py
-msgid "Foyers d'origine et de destination requis."
-msgstr "Source and destination households required."
-
-#: app/costs/__init__.py
-msgid "Le foyer d'origine et de destination doivent différer."
-msgstr "Source and destination households must differ."
-
-#: app/costs/__init__.py
-msgid "Foyer invalide pour cet événement."
-msgstr "Invalid household for this event."
-
-#: app/costs/__init__.py
-msgid "Note trop longue (max 300)."
-msgstr "Note too long (max 300)."
-
-#: app/costs/__init__.py
 msgid "Transfert enregistré."
 msgstr "Transfer recorded."
 
 #: app/costs/__init__.py
 msgid "Transfert supprimé."
 msgstr "Transfer deleted."
-
-#: app/costs/__init__.py
-msgid "Foyers requis."
-msgstr "Households required."
-
-#: app/costs/__init__.py
-msgid "Les foyers doivent différer."
-msgstr "The households must differ."
-
-#: app/costs/__init__.py
-msgid "Message trop long (max 500)."
-msgstr "Message too long (max 500)."
 
 #: app/costs/__init__.py
 msgid "Demande de paiement créée."
@@ -1166,10 +1338,6 @@ msgstr "Shares per child: 0 ≤ value ≤ 10."
 #: app/costs/__init__.py
 msgid "Ratio appliqué à tous les foyers."
 msgstr "Ratio applied to all households."
-
-#: app/events/__init__.py app/planning/__init__.py
-msgid "Format de date invalide (AAAA-MM-JJ)."
-msgstr "Invalid date format (YYYY-MM-DD)."
 
 #: app/events/__init__.py
 msgid "À venir"
@@ -1383,37 +1551,9 @@ msgstr ""
 msgid "Votre code : %(code)s"
 msgstr "Your code: %(code)s"
 
-#: app/lists/__init__.py app/logistics/__init__.py app/planning/__init__.py
-msgid "Titre requis (min 2 caractères)."
-msgstr "Title required (min 2 characters)."
-
-#: app/lists/__init__.py app/logistics/__init__.py
-msgid "Titre trop long (max 200)."
-msgstr "Title too long (max 200)."
-
 #: app/lists/__init__.py
 msgid "Liste créée."
 msgstr "List created."
-
-#: app/lists/__init__.py
-msgid "Nom requis."
-msgstr "Name required."
-
-#: app/lists/__init__.py
-msgid "Nom trop long (max 300)."
-msgstr "Name too long (max 300)."
-
-#: app/lists/__init__.py
-msgid "Quantité trop longue (max 50)."
-msgstr "Quantity too long (max 50)."
-
-#: app/lists/__init__.py
-msgid "Section trop longue (max 100)."
-msgstr "Section too long (max 100)."
-
-#: app/lists/__init__.py
-msgid "Nom trop long (max 50)."
-msgstr "Name too long (max 50)."
 
 #: app/lists/__init__.py
 msgid "Article ajouté."
@@ -1498,14 +1638,6 @@ msgid "Lignes ignorées : %(rows)s."
 msgstr "Ignored rows: %(rows)s."
 
 #: app/logistics/__init__.py
-msgid "Contenu requis."
-msgstr "Content required."
-
-#: app/logistics/__init__.py
-msgid "Contenu trop long (max 5000)."
-msgstr "Content too long (max 5000)."
-
-#: app/logistics/__init__.py
 msgid "Info pratique créée."
 msgstr "Practical info created."
 
@@ -1516,27 +1648,6 @@ msgstr "Practical info updated."
 #: app/logistics/__init__.py
 msgid "Info pratique supprimée."
 msgstr "Practical info deleted."
-
-#: app/meals/__init__.py
-msgid "Nom requis (min 2 caractères)."
-msgstr "Name required (min. 2 characters)."
-
-#: app/meals/__init__.py
-msgid "Nom trop long (max 200)."
-msgstr "Name too long (max. 200)."
-
-#: app/meals/__init__.py app/planning/__init__.py
-msgid "Date hors de la période de l'événement."
-msgstr "Date outside the event period."
-
-#: app/meals/__init__.py
-msgid "Créneau invalide."
-msgstr "Invalid time slot."
-
-#: app/meals/__init__.py app/templates/meals/_grid.html
-#, python-format
-msgid "Cette case est pleine (%(max)d repas maximum)."
-msgstr "This slot is full (%(max)d meals maximum)."
 
 #: app/meals/__init__.py
 msgid "Repas ajouté."
@@ -1630,34 +1741,6 @@ msgid "Média supprimé."
 msgstr "Media deleted."
 
 #: app/planning/__init__.py
-msgid "Description trop longue (max 2000)."
-msgstr "Description too long (max 2000)."
-
-#: app/planning/__init__.py
-msgid "Date requise."
-msgstr "Date required."
-
-#: app/planning/__init__.py
-msgid "Heure invalide."
-msgstr "Invalid time."
-
-#: app/planning/__init__.py
-msgid "Heure de fin avant heure de début."
-msgstr "End time before start time."
-
-#: app/planning/__init__.py
-msgid "Lieu trop long (max 300)."
-msgstr "Location too long (max 300)."
-
-#: app/planning/__init__.py
-msgid "Nombre entre 1 et 50."
-msgstr "Number between 1 and 50."
-
-#: app/planning/__init__.py
-msgid "Champ trop long (max 500)."
-msgstr "Field too long (max 500)."
-
-#: app/planning/__init__.py
 msgid "Activité créée."
 msgstr "Activity created."
 
@@ -1668,10 +1751,6 @@ msgstr "Activity updated."
 #: app/planning/__init__.py
 msgid "Activité supprimée."
 msgstr "Activity deleted."
-
-#: app/planning/__init__.py
-msgid "Statut invalide."
-msgstr "Invalid status."
 
 #: app/planning/__init__.py
 msgid "Cette activité ne peut pas être retenue."
@@ -1789,6 +1868,62 @@ msgstr ""
 #: app/templates/events/me.html
 msgid "Notifications"
 msgstr "Notifications"
+
+#: app/templates/apikeys/index.html
+msgid "Clés API"
+msgstr "API keys"
+
+#: app/templates/apikeys/index.html
+msgid "Accès programmatique (agent) à cet événement"
+msgstr "Programmatic (agent) access to this event"
+
+#: app/templates/apikeys/index.html
+msgid "Nouvelle clé créée"
+msgstr "New key created"
+
+#: app/templates/apikeys/index.html
+msgid "Copiez cette clé maintenant : elle ne sera pas réaffichée."
+msgstr "Copy this key now: it will not be shown again."
+
+#: app/templates/apikeys/index.html
+msgid "Préfixe :"
+msgstr "Prefix:"
+
+#: app/templates/apikeys/index.html
+msgid "Événement :"
+msgstr "Event:"
+
+#: app/templates/apikeys/index.html
+msgid "Libellé (optionnel)"
+msgstr "Label (optional)"
+
+#: app/templates/apikeys/index.html
+msgid "Libellé — ex : Agent de planning"
+msgstr "Label — e.g. Planning agent"
+
+#: app/templates/apikeys/index.html
+msgid "Créer une clé"
+msgstr "Create a key"
+
+#: app/templates/apikeys/index.html
+msgid "Créée le"
+msgstr "Created on"
+
+#: app/templates/apikeys/index.html
+msgid "Dernière utilisation"
+msgstr "Last used"
+
+#: app/templates/apikeys/index.html
+msgid "Révoquée"
+msgstr "Revoked"
+
+#: app/templates/apikeys/index.html
+msgid "Révoquer"
+msgstr "Revoke"
+
+#: app/templates/apikeys/index.html
+msgid "Aucune clé API pour le moment."
+msgstr "No API keys yet."
 
 #: app/templates/auth/login.html
 msgid "Connexion"
@@ -4402,52 +4537,8 @@ msgid "Quelle activité choisir ?"
 msgstr "Which activity should we pick?"
 
 #: app/voting/__init__.py
-msgid "Question requise (min 2 caractères)."
-msgstr "Question required (min 2 characters)."
-
-#: app/voting/__init__.py
-msgid "Question trop longue (max 300 caractères)."
-msgstr "Question too long (max 300 characters)."
-
-#: app/voting/__init__.py
-msgid "Type de sondage invalide."
-msgstr "Invalid poll type."
-
-#: app/voting/__init__.py
-msgid "Au moins 2 options requises (une par ligne)."
-msgstr "At least 2 options required (one per line)."
-
-#: app/voting/__init__.py
-msgid "Maximum 10 options (une par ligne)."
-msgstr "Maximum 10 options (one per line)."
-
-#: app/voting/__init__.py
-msgid "Le Planning n'est pas activé : choisissez une question libre."
-msgstr "The Schedule is not enabled: choose a free question."
-
-#: app/voting/__init__.py
-msgid "Activité introuvable dans cet événement."
-msgstr "Activity not found in this event."
-
-#: app/voting/__init__.py
-msgid "Sélectionnez au moins 2 activités."
-msgstr "Select at least 2 activities."
-
-#: app/voting/__init__.py
-msgid "Maximum 10 options (activités comprises)."
-msgstr "Maximum 10 options (activities included)."
-
-#: app/voting/__init__.py
-msgid "Option trop longue (max 200 caractères)."
-msgstr "Option too long (max 200 characters)."
-
-#: app/voting/__init__.py
 msgid "Sondage créé."
 msgstr "Poll created."
-
-#: app/voting/__init__.py
-msgid "Ce sondage est clos."
-msgstr "This poll is closed."
 
 #: app/voting/__init__.py
 msgid "Vote enregistré."

@@ -120,6 +120,8 @@ ACTION_LABELS: Final[dict[str, Any]] = {
     "participant.added": _l("Participant ajouté"),
     "participant.removed": _l("Participant retiré"),
     "participant.renamed": _l("Nom d'affichage modifié"),
+    "api_key.created": _l("Clé API créée"),
+    "api_key.revoked": _l("Clé API révoquée"),
 }
 
 # Journal lisible (B020) : phrase par code d'action, ``%(actor)s`` = auteur de l'action.
@@ -176,6 +178,8 @@ ACTION_SENTENCES: Final[dict[str, Any]] = {
     "participant.added": _l("%(actor)s a ajouté un participant"),
     "participant.removed": _l("%(actor)s a retiré un participant"),
     "participant.renamed": _l("%(actor)s a changé de nom d'affichage"),
+    "api_key.created": _l("%(actor)s a créé une clé API"),
+    "api_key.revoked": _l("%(actor)s a révoqué une clé API"),
 }
 # Variantes selon les détails enregistrés (cocher / décocher un article).
 ACTION_VARIANTS: Final[dict[tuple[str, str], Any]] = {
@@ -203,6 +207,7 @@ ACTION_MODULES: Final[dict[str, str]] = {
     "payment_request": "costs",
     "ratio": "costs",
     "participant": "participants",
+    "api_key": "apikeys",
 }
 LOG_MODULE_LABELS: Final[dict[str, Any]] = {
     "planning": _l("Planning"),
@@ -214,6 +219,7 @@ LOG_MODULE_LABELS: Final[dict[str, Any]] = {
     "chat": _l("Chat"),
     "media": _l("Media"),
     "participants": _l("Participants"),
+    "apikeys": _l("Clés API"),
 }
 
 
