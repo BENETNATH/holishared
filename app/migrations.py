@@ -694,3 +694,22 @@ def run_push_migration(app: Flask) -> dict[str, int]:
     """Étape de démarrage B027 (la table est aussi créée par ``create_all``)."""
     created = migrate_push(db.engine)
     return {"push_table_created": int(created)}
+
+
+def migrate_api_keys(engine: Any) -> bool:
+    """Table ``api_keys`` (B034) : création seule, idempotente, sans sauvegarde."""
+    from sqlalchemy import inspect
+
+    from app.models import ApiKey
+
+    table = ApiKey.__table__
+    with engine.begin() as conn:
+        existed = inspect(conn).has_table(table.name)
+        table.create(conn, checkfirst=True)
+    return not existed
+
+
+def run_api_keys_migration(app: Flask) -> dict[str, int]:
+    """Étape de démarrage B034 (la table est aussi créée par ``create_all``)."""
+    created = migrate_api_keys(db.engine)
+    return {"api_keys_table_created": int(created)}

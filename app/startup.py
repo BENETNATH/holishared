@@ -59,6 +59,7 @@ def default_steps() -> list[Step]:
     """Migrations (avant la purge : elle charge les lignes), purge, puis identité."""
     from app.migrations import (
         log_foreign_key_orphans,
+        run_api_keys_migration,
         run_costs_migration,
         run_identity_migration,
         run_lists_migration,
@@ -73,6 +74,7 @@ def default_steps() -> list[Step]:
         ("costs", run_costs_migration),
         ("polls", run_polls_migration),
         ("push", run_push_migration),
+        ("api_keys", run_api_keys_migration),
         ("purge", purge_expired_events),
         ("identity", run_identity_migration),
         ("fk-check", log_foreign_key_orphans),  # lecture seule

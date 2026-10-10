@@ -49,6 +49,7 @@ from app.i18n import action_module, current_locale, household_default_name
 from app.main import render_landing
 from app.models import (
     Activity,
+    ApiKey,
     Creator,
     Event,
     Expense,
@@ -762,6 +763,7 @@ def _remove_participant(ctx: EventContext) -> Response:
             kept = household.name
     target.is_active = False
     PushSubscription.query.filter_by(guest_id=target.id).delete()  # B027 : plus de notifications
+    ApiKey.query.filter_by(owner_guest_id=target.id).delete()  # B034 : plus d'accès API
     log_event(ctx, "participant.removed", target=name)
     db.session.commit()
     if kept:

@@ -197,6 +197,8 @@ def create_app() -> Flask:
     app.before_request(reset_event_context)
 
     # Core blueprints (always registered)
+    from app.api import api_bp
+    from app.apikeys import apikeys_bp
     from app.auth import auth_bp
     from app.events import events_bp
     from app.main import main_bp
@@ -206,6 +208,8 @@ def create_app() -> Flask:
     app.register_blueprint(push_bp)
     app.register_blueprint(auth_bp, url_prefix="/admin")
     app.register_blueprint(events_bp, url_prefix="/e")
+    app.register_blueprint(apikeys_bp, url_prefix="/e")
+    app.register_blueprint(api_bp, url_prefix="/api")
 
     # Module blueprints — registered only when the module is enabled, so a
     # disabled (e.g. premium) module returns 404 instead of exposing a
