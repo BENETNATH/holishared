@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 13:56+0200\n"
+"POT-Creation-Date: 2026-10-10 20:36+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -114,7 +114,7 @@ msgstr ""
 msgid "Buffet"
 msgstr ""
 
-#: app/i18n.py app/templates/main/ui_catalog.html
+#: app/i18n.py app/lists/xlsx.py app/templates/main/ui_catalog.html
 msgid "Oui"
 msgstr ""
 
@@ -122,7 +122,7 @@ msgstr ""
 msgid "Peut-être"
 msgstr ""
 
-#: app/i18n.py app/templates/main/ui_catalog.html
+#: app/i18n.py app/lists/xlsx.py app/templates/main/ui_catalog.html
 msgid "Non"
 msgstr ""
 
@@ -1390,6 +1390,62 @@ msgstr ""
 
 #: app/lists/__init__.py
 msgid "Liste supprimée."
+msgstr ""
+
+#: app/lists/xlsx.py app/templates/lists/detail.html
+msgid "Section"
+msgstr ""
+
+#: app/lists/xlsx.py
+msgid "Item"
+msgstr ""
+
+#: app/lists/xlsx.py app/templates/lists/detail.html
+msgid "Quantité"
+msgstr ""
+
+#: app/lists/xlsx.py
+msgid "Assigné à"
+msgstr ""
+
+#: app/lists/xlsx.py
+msgid "Fait"
+msgstr ""
+
+#: app/lists/xlsx.py
+msgid "Fichier non reconnu : seul le format .xlsx est accepté."
+msgstr ""
+
+#: app/lists/xlsx.py
+msgid "Fichier trop volumineux (2 Mo maximum)."
+msgstr ""
+
+#: app/lists/xlsx.py
+msgid "Aucune liste à importer dans ce fichier."
+msgstr ""
+
+#: app/lists/xlsx.py
+msgid "Classeur trop volumineux : 20 feuilles maximum."
+msgstr ""
+
+#: app/lists/xlsx.py
+msgid ""
+"Format non reconnu : en-têtes attendus Section | Item | Quantité | "
+"Assigné à | Fait."
+msgstr ""
+
+#: app/lists/xlsx.py
+msgid "Feuille trop longue : 500 lignes maximum par liste."
+msgstr ""
+
+#: app/lists/xlsx.py
+#, python-format
+msgid "Import terminé : %(lists)s liste(s), %(items)s item(s)."
+msgstr ""
+
+#: app/lists/xlsx.py
+#, python-format
+msgid "Lignes ignorées : %(rows)s."
 msgstr ""
 
 #: app/logistics/__init__.py
@@ -3268,15 +3324,7 @@ msgid "Quantité et section"
 msgstr ""
 
 #: app/templates/lists/detail.html
-msgid "Quantité"
-msgstr ""
-
-#: app/templates/lists/detail.html
 msgid "Ex : 2 kg"
-msgstr ""
-
-#: app/templates/lists/detail.html
-msgid "Section"
 msgstr ""
 
 #: app/templates/lists/detail.html
@@ -3293,6 +3341,22 @@ msgstr ""
 
 #: app/templates/lists/index.html
 msgid "Courses, to-do, matériel…"
+msgstr ""
+
+#: app/templates/lists/index.html
+msgid "Exporter les listes (XLSX)"
+msgstr ""
+
+#: app/templates/lists/index.html
+msgid "Importer une liste (XLSX)"
+msgstr ""
+
+#: app/templates/lists/index.html
+msgid "Titre (optionnel)"
+msgstr ""
+
+#: app/templates/lists/index.html
+msgid "Importer"
 msgstr ""
 
 #: app/templates/lists/index.html

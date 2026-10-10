@@ -10,6 +10,14 @@ sous chaque lot.
 
 ## [Unreleased]
 
+### B035 — Import/Export XLSX des listes
+
+- `feat(lists)` : export `GET /e/<code>/lists/export.xlsx` (une feuille par liste, nom de feuille = titre tronqué à 31 caractères, collisions suffixées `-2`/`-3`) et `GET /e/<code>/lists/<list_id>/export.xlsx` (1 feuille) ; en-têtes localisés `Section | Item | Quantité | Assigné à | Fait`, `Fait` → « Oui »/« Non » localisés, accents préservés, fichier en mémoire (BytesIO).
+- `feat(lists)` : import `POST /e/<code>/lists/import` (multipart `.xlsx` + `title` optionnel) : une feuille = une nouvelle liste (feuille `README` ignorée), en-têtes FR/EN insensibles à la casse et aux accents, `name` requis (lignes ignorées comptées et signalées avec numéros), `quantity` défaut « 1 », `is_done` multi-locale (oui/yes/x/true/1), `assigned_to` texte libre ; lecture openpyxl `data_only` (valeurs, jamais d'exécution de formules) ; rapport d'import en flash i18n ; limites 500 lignes/feuille, 20 feuilles, 2 Mo (dépassement → erreur propre, rien n'est importé) ; CSRF + rate limiting 200/h ; extension `.xlsx` uniquement.
+- `feat(ui)` : bouton « Exporter les listes (XLSX) » et formulaire d'import (input fichier avec `<label>`, titre optionnel) sur la page Listes.
+- `chore(deps)` : `openpyxl` ajouté à `requirements.txt` et `pyproject.toml` (+ override mypy).
+- `test(lists)` : `test_lists_xlsx.py` (25 tests) : export (contenu, accents, en-têtes FR/EN, collisions de noms de feuilles, single-list, 404 autre événement), import (round-trip, en-têtes FR/EN, lignes invalides + rapport, `is_done` multi-locale, défaut quantité, README ignoré, titre par champ/nom de fichier, limites 500/20/2 Mo, non-xlsx rejeté, CSRF requis), droits (participant requis), i18n (msgids dans les 2 catalogs).
+
 ### B027 — Notifications Web Push
 
 - `feat(models)` : `PushSubscription` (guest/event en `ON DELETE CASCADE`, endpoint https, clés, langue, préférences par appareil) ; unicité (événement, endpoint) ; migration idempotente `migrate_push` ; abonnements supprimés au retrait du participant.

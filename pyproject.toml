@@ -18,6 +18,7 @@ dependencies = [
     "python-dotenv>=1.0",
     "pillow>=10.0",
     "pywebpush>=2.0",
+    "openpyxl>=3.1",
 ]
 
 [project.optional-dependencies]
@@ -91,6 +92,7 @@ module = [
     "flask_wtf.*",
     "flask_limiter.*",
     "qrcode.*",
+    "openpyxl.*",
 ]
 ignore_missing_imports = true
 

@@ -377,6 +377,14 @@ Audit B017/B029 : constats 1 à 6 corrigés (variables `INSTANCE_PATH` et `SKIP_
 - Accueil : `columns` CSS (`.ui-masonry`), `#my-items` en `display: contents`. La grille reflue si la hauteur d'une carte change (colonnes équilibrées par le navigateur).
 - Flaky connu sans lien : `test_chat::test_history_shows_50_max` (« msg-09 » peut apparaître par hasard dans la page).
 
+### 2026-10-10 — B035 Import/Export XLSX des listes
+
+- Export : une feuille par liste ; nom de feuille = titre tronqué à 31 caractères, collisions suffixées `-2`, `-3` (le suffixe empiète sur la base pour rester ≤ 31). En-têtes et valeurs « Oui »/« Non » passés par Babel (langue active de la requête).
+- Import : `load_workbook(read_only=True, data_only=True)` — on lit les valeurs calculées, jamais d'exécution de formules. Reconnaissance d'en-têtes par normalisation (casefold + suppression des accents) : « Quantité »/« Quantity », « Assigné à »/« Assigned to », « Fait »/« Done ». `is_done` reconnu sur {oui, yes, x, true, 1} normalisés.
+- Titre de la liste : nom de la feuille (multi-feuilles) ; single-sheet → champ `title` sinon tige du nom du fichier (cohérent avec le nom de fichier de l'export single-list `<titre>.xlsx`).
+- Limites vérifiées avant toute écriture (taille fichier, nb de feuilles, nb de lignes par feuille, schéma d'en-têtes) : un échec → flash i18n, rien n'est importé ; sinon création de toutes les listes + items puis un seul `commit`.
+- Piège openpyxl : cellules limitées à 32 767 caractères (le test de la limite 2 Mo remplit 100 cellules de base64 aléatoire, pas une seule grosse cellule) ; les cellules vides sont lues `None` (normalisé en « » côté test).
+
 ### 2026-10-07 — B032 Panneau compact
 
 - Cause du glissé inopérant : sans `touch-action: none` le navigateur tactile annulait le geste (`pointercancel`). Décision au relâchement (distance/vitesse), `setPointerCapture`.

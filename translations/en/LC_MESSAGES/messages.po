@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 13:56+0200\n"
+"POT-Creation-Date: 2026-10-10 20:36+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -115,7 +115,7 @@ msgstr "To do"
 msgid "Buffet"
 msgstr "Buffet"
 
-#: app/i18n.py app/templates/main/ui_catalog.html
+#: app/i18n.py app/lists/xlsx.py app/templates/main/ui_catalog.html
 msgid "Oui"
 msgstr "Yes"
 
@@ -123,7 +123,7 @@ msgstr "Yes"
 msgid "Peut-être"
 msgstr "Maybe"
 
-#: app/i18n.py app/templates/main/ui_catalog.html
+#: app/i18n.py app/lists/xlsx.py app/templates/main/ui_catalog.html
 msgid "Non"
 msgstr "No"
 
@@ -1438,6 +1438,64 @@ msgstr "Item released."
 #: app/lists/__init__.py
 msgid "Liste supprimée."
 msgstr "List deleted."
+
+#: app/lists/xlsx.py app/templates/lists/detail.html
+msgid "Section"
+msgstr "Section"
+
+#: app/lists/xlsx.py
+msgid "Item"
+msgstr "Item"
+
+#: app/lists/xlsx.py app/templates/lists/detail.html
+msgid "Quantité"
+msgstr "Quantity"
+
+#: app/lists/xlsx.py
+msgid "Assigné à"
+msgstr "Assigned to"
+
+#: app/lists/xlsx.py
+msgid "Fait"
+msgstr "Done"
+
+#: app/lists/xlsx.py
+msgid "Fichier non reconnu : seul le format .xlsx est accepté."
+msgstr "Unrecognized file: only the .xlsx format is accepted."
+
+#: app/lists/xlsx.py
+msgid "Fichier trop volumineux (2 Mo maximum)."
+msgstr "File too large (2 MB maximum)."
+
+#: app/lists/xlsx.py
+msgid "Aucune liste à importer dans ce fichier."
+msgstr "No list to import in this file."
+
+#: app/lists/xlsx.py
+msgid "Classeur trop volumineux : 20 feuilles maximum."
+msgstr "Workbook too large: 20 sheets maximum."
+
+#: app/lists/xlsx.py
+msgid ""
+"Format non reconnu : en-têtes attendus Section | Item | Quantité | "
+"Assigné à | Fait."
+msgstr ""
+"Unrecognized format: expected headers Section | Item | Quantity | "
+"Assigned to | Done."
+
+#: app/lists/xlsx.py
+msgid "Feuille trop longue : 500 lignes maximum par liste."
+msgstr "Sheet too long: 500 rows maximum per list."
+
+#: app/lists/xlsx.py
+#, python-format
+msgid "Import terminé : %(lists)s liste(s), %(items)s item(s)."
+msgstr "Import finished: %(lists)s list(s), %(items)s item(s)."
+
+#: app/lists/xlsx.py
+#, python-format
+msgid "Lignes ignorées : %(rows)s."
+msgstr "Ignored rows: %(rows)s."
 
 #: app/logistics/__init__.py
 msgid "Contenu requis."
@@ -3382,16 +3440,8 @@ msgid "Quantité et section"
 msgstr "Quantity and section"
 
 #: app/templates/lists/detail.html
-msgid "Quantité"
-msgstr "Quantity"
-
-#: app/templates/lists/detail.html
 msgid "Ex : 2 kg"
 msgstr "e.g. 2 kg"
-
-#: app/templates/lists/detail.html
-msgid "Section"
-msgstr "Section"
 
 #: app/templates/lists/detail.html
 msgid "Ex : Boulangerie"
@@ -3408,6 +3458,22 @@ msgstr "Expand"
 #: app/templates/lists/index.html
 msgid "Courses, to-do, matériel…"
 msgstr "Groceries, to-do, equipment…"
+
+#: app/templates/lists/index.html
+msgid "Exporter les listes (XLSX)"
+msgstr "Export lists (XLSX)"
+
+#: app/templates/lists/index.html
+msgid "Importer une liste (XLSX)"
+msgstr "Import a list (XLSX)"
+
+#: app/templates/lists/index.html
+msgid "Titre (optionnel)"
+msgstr "Title (optional)"
+
+#: app/templates/lists/index.html
+msgid "Importer"
+msgstr "Import"
 
 #: app/templates/lists/index.html
 msgid "Nouvelle liste"
