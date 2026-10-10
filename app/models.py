@@ -626,3 +626,36 @@ class PushSubscription(db.Model):  # type: ignore[misc,name-defined]
         "Event",
         backref=db.backref("push_subscriptions", lazy="dynamic", cascade="all, delete-orphan"),
     )
+
+
+class ApiKey(db.Model):  # type: ignore[misc,name-defined]
+    """Clé API d'un utilisateur d'événement (B034) : accès REST avec les droits de son rôle.
+
+    Stockage hash-only : seule l'empreinte sha256 de la clé complète est persistée
+    (``key_hash``) ; ``key_prefix`` (12 caractères) sert à l'affichage. La clé complète
+    n'est renvoyée qu'une fois, à la création. La clé est liée à l'événement ET à son
+    owner (exactement un des deux) : suppression en cascade avec l'un ou l'autre.
+    """
+
+    __tablename__ = "api_keys"
+
+    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    event_id: Mapped[str] = db.Column(
+        db.String(32), db.ForeignKey("events.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    owner_guest_id: Mapped[str | None] = db.Column(
+        db.String(32), db.ForeignKey("guests.id", ondelete="CASCADE"), nullable=True, index=True
+    )
+    owner_creator_id: Mapped[str | None] = db.Column(
+        db.String(32), db.ForeignKey("creators.id", ondelete="CASCADE"), nullable=True, index=True
+    )
+    key_hash: Mapped[str] = db.Column(db.String(64), unique=True, nullable=False)  # sha256 hex de la clé
+    key_prefix: Mapped[str] = db.Column(db.String(12), nullable=False)  # key[:12]
+    label: Mapped[str] = db.Column(db.String(100), default="")
+    created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
+    last_used_at: Mapped[datetime | None] = db.Column(db.DateTime, nullable=True)
+    revoked_at: Mapped[datetime | None] = db.Column(db.DateTime, nullable=True)
+
+    event = db.relationship(
+        "Event", backref=db.backref("api_keys", lazy="dynamic", cascade="all, delete-orphan")
+    )

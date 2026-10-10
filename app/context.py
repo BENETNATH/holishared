@@ -153,9 +153,16 @@ def get_event_context() -> EventContext | None:
 
 
 def reset_event_context() -> None:
-    """Vide le cache de contexte et le drapeau d'échec de code (début de requête)."""
+    """Vide le cache de contexte et le drapeau d'échec de code (début de requête).
+
+    Inclut le cache de la clé API (B034) : sans ce reset, ``g.api_key`` persiste
+    entre requêtes (app context réutilisé) et contamine l'auth et le rate-limit.
+    """
     g.pop("event_ctx", None)
     g.pop("code_attempt_failed", None)
+    g.pop("api_key", None)
+    g.pop("api_event", None)
+    g.pop("api_ctx", None)
 
 
 def get_or_create_creator_participant(event: Event, creator: Creator) -> Guest:

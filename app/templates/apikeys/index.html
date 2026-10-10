@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Clés API") }} — {{ event.title }}{% endblock %}
+{% block content %}
+<div class="ui-page-header">
+  <div>
+    <h1>{{ _("Clés API") }}</h1>
+    <p>{{ event.title }} · {{ _("Accès programmatique (agent) à cet événement") }}</p>
+  </div>
+</div>
+
+{% if created %}
+<div class="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-4" role="alert" data-testid="api-key-created">
+  <h2 class="text-base font-semibold">{{ _("Nouvelle clé créée") }}</h2>
+  <p class="mt-1 text-sm">{{ _("Copiez cette clé maintenant : elle ne sera pas réaffichée.") }}</p>
+  <code class="mt-2 block break-all rounded bg-white p-2 text-sm" data-testid="api-key-full">{{ created.key }}</code>
+  <p class="mt-2 text-xs text-gray-600">{{ _("Préfixe :") }} <code>{{ created.api_key.key_prefix }}</code> · {{ _("Événement :") }} <code>{{ event.code }}</code></p>
+</div>
+{% endif %}
+
+<form method="post" action="{{ url_for('apikeys.index', code=event.code) }}" class="mb-4 flex max-w-none flex-row flex-wrap items-start gap-2" data-testid="api-key-create-form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="min-w-0 flex-[1_1_16rem]">
+    <label class="sr-only" for="api-key-label">{{ _("Libellé (optionnel)") }}</label>
+    <input class="ui-input" type="text" id="api-key-label" name="label" maxlength="100" autocomplete="off"
+           placeholder="{{ _('Libellé — ex : Agent de planning') }}" data-testid="api-key-label">
+  </div>
+  <button type="submit" class="ui-btn" data-testid="api-key-create-btn">{{ _("Créer une clé") }}</button>
+</form>
+
+{% if keys %}
+<ul class="divide-y rounded-lg border" data-testid="api-key-list">
+  {% for k in keys %}
+  <li class="flex flex-wrap items-center justify-between gap-2 p-3">
+    <div class="min-w-0">
+      <code class="text-sm" data-testid="api-key-prefix">{{ k.key_prefix }}…</code>
+      {% if k.label %}<span class="ml-2 text-sm">{{ k.label }}</span>{% endif %}
+      <div class="mt-1 text-xs text-gray-600">
+        {{ _("Créée le") }} {{ k.created_at.isoformat() }}
+        {% if k.last_used_at %} · {{ _("Dernière utilisation") }} {{ k.last_used_at.isoformat() }}{% endif %}
+        {% if k.revoked_at %} · <span class="font-medium text-red-600">{{ _("Révoquée") }}</span>{% endif %}
+      </div>
+    </div>
+    {% if not k.revoked_at %}
+    <form method="post" action="{{ url_for('apikeys.revoke', code=event.code, key_id=k.id) }}" data-testid="api-key-revoke-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="_method" value="DELETE">
+      <button type="submit" class="ui-btn ui-btn-danger" data-testid="api-key-revoke-btn">{{ _("Révoquer") }}</button>
+    </form>
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="text-sm text-gray-600">{{ _("Aucune clé API pour le moment.") }}</p>
+{% endif %}
+{% endblock %}
