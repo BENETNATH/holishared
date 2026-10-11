@@ -7,6 +7,7 @@ Un comportement = un test.
 import base64
 import io
 import secrets
+from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -91,14 +92,15 @@ class TestExportAll:
         resp = client.get(f"/e/{event.code}/lists/export.xlsx")
         assert resp.status_code == 200
         assert "spreadsheetml.sheet" in resp.content_type
-        assert f"filename=listes-{event.code}.xlsx" in resp.headers["Content-Disposition"]
+        date = datetime.now().date().isoformat()
+        assert f"filename={date}-{event.title}.xlsx" in resp.headers["Content-Disposition"]
 
     def test_one_sheet_per_list_named_by_title(self, client, creator, event, db, items):
         _login_creator(client, creator)
         db.session.add(SharedList(title="Valise", list_type="packing", event_id=event.id))
         db.session.commit()
         data = _read(client.get(f"/e/{event.code}/lists/export.xlsx").data)
-        assert set(data) == {"Shopping", "Valise"}
+        assert set(data) == {"Shopping", "Valise", "Refs"}
 
     def test_rows_and_headers_localized_fr(self, client, creator, event, shared_list, items):
         _login_creator(client, creator)
@@ -128,7 +130,7 @@ class TestExportAll:
         assert all(len(name) <= 31 for name in names)
         truncated = "L" * 29 + "-2"
         assert truncated in names
-        assert len(names) == 3  # Shopping + 2 collisions
+        assert len(names) == 4  # Shopping + 2 collisions + Refs
 
     def test_headers_localized_en(self, client, creator, event, shared_list, items):
         _login_creator(client, creator)
@@ -142,9 +144,10 @@ class TestExportSingle:
         _login_creator(client, creator)
         resp = client.get(f"/e/{event.code}/lists/{shared_list.id}/export.xlsx")
         assert resp.status_code == 200
-        assert "filename=Shopping.xlsx" in resp.headers["Content-Disposition"]
+        date = datetime.now().date().isoformat()
+        assert f"filename={date}-{event.title}-Shopping.xlsx" in resp.headers["Content-Disposition"]
         data = _read(resp.data)
-        assert set(data) == {"Shopping"}
+        assert set(data) == {"Shopping", "Refs"}
         assert len(data["Shopping"]) == 4  # en-tête + 3 items
 
     def test_list_from_another_event_404(self, client, creator, event, db, items):
@@ -164,6 +167,60 @@ class TestExportSingle:
         db.session.commit()
         resp = client.get(f"/e/{event.code}/lists/{other_list.id}/export.xlsx")
         assert resp.status_code == 404
+
+
+# === Contraintes / dropdowns (5 tests) ===
+
+
+class TestExportConstraints:
+    def test_user_dropdown_references_existing_users(
+        self, client, creator, event, shared_list, items
+    ):
+        _login_creator(client, creator)
+        data = client.get(f"/e/{event.code}/lists/export.xlsx").data
+        wb = load_workbook(io.BytesIO(data))
+        ws = wb["Shopping"]
+        user_dv = [dv for dv in ws.data_validations.dataValidation if "D2" in str(dv.sqref)]
+        assert len(user_dv) == 1
+        assert "Refs!$A$1" in user_dv[0].formula1
+
+    def test_refs_sheet_hidden_with_users(self, client, creator, event, shared_list, items):
+        _login_creator(client, creator)
+        data = client.get(f"/e/{event.code}/lists/export.xlsx").data
+        wb = load_workbook(io.BytesIO(data))
+        assert wb["Refs"].sheet_state == "hidden"
+        assert wb["Refs"]["A1"].value == "Test Guest"  # users en colonne A
+
+    def test_fait_dropdown_oui_non(self, client, creator, event, shared_list, items):
+        _login_creator(client, creator)
+        data = client.get(f"/e/{event.code}/lists/export.xlsx").data
+        wb = load_workbook(io.BytesIO(data))
+        ws = wb["Shopping"]
+        fait_dv = [dv for dv in ws.data_validations.dataValidation if "E2" in str(dv.sqref)]
+        assert len(fait_dv) == 1
+        assert "Oui" in fait_dv[0].formula1
+        assert "Non" in fait_dv[0].formula1
+
+    def test_quantity_whole_number_validation(self, client, creator, event, shared_list, items):
+        _login_creator(client, creator)
+        data = client.get(f"/e/{event.code}/lists/export.xlsx").data
+        wb = load_workbook(io.BytesIO(data))
+        ws = wb["Shopping"]
+        qty_dv = [dv for dv in ws.data_validations.dataValidation if "C2" in str(dv.sqref)]
+        assert len(qty_dv) == 1
+        assert qty_dv[0].type == "whole"
+
+    def test_empty_template_has_fait_and_quantity_constraints(self, client, creator, event):
+        _login_creator(client, creator)
+        data = client.get(f"/e/{event.code}/lists/export.xlsx").data
+        wb = load_workbook(io.BytesIO(data))
+        ws = wb["Liste"]
+        fait_dv = [dv for dv in ws.data_validations.dataValidation if "E2" in str(dv.sqref)]
+        qty_dv = [dv for dv in ws.data_validations.dataValidation if "C2" in str(dv.sqref)]
+        assert len(fait_dv) == 1
+        assert len(qty_dv) == 1
+        # pas de dropdown Assigné à (aucun user existant)
+        assert not [dv for dv in ws.data_validations.dataValidation if "D2" in str(dv.sqref)]
 
 
 # === Import (14 tests) ===
@@ -324,6 +381,28 @@ class TestImport:
         lists = SharedList.query.filter_by(event_id=event.id).all()
         assert len(lists) == 1  # la feuille README n'a pas créé de liste
         assert lists[0].title == "courses"  # single-sheet : titre = nom du fichier
+
+    def test_import_skips_hidden_sheets(self, client, creator, event, db):
+        _login_creator(client, creator)
+        wb = Workbook()
+        wb.remove(wb.active)
+        ws = wb.create_sheet("Courses")
+        for row in [FR_HEADERS, ["", "Milk", "1", "", "Non"]]:
+            ws.append(row)
+        refs = wb.create_sheet("Refs")
+        refs.cell(1, 1, "Dairy")
+        refs.cell(1, 2, "Bob")
+        refs.sheet_state = "hidden"
+        buf = io.BytesIO()
+        wb.save(buf)
+        client.post(
+            f"/e/{event.code}/lists/import",
+            data={"file": (io.BytesIO(buf.getvalue()), "l.xlsx")},
+            content_type="multipart/form-data",
+        )
+        lists = SharedList.query.filter_by(event_id=event.id).all()
+        assert len(lists) == 1  # la feuille cachée Refs n'a pas créé de liste
+        assert lists[0].title != "Refs"
 
     def test_single_sheet_uses_title_field(self, client, creator, event, db):
         _login_creator(client, creator)

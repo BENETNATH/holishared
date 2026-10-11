@@ -1,18 +1,23 @@
 """Import/export XLSX des listes partagées (B035).
 
-Export : une feuille par liste, en-têtes localisés. Import : une feuille = une
-nouvelle liste (feuille ``README`` ignorée), en-têtes FR/EN insensibles à la
-casse et aux accents, limites 500 lignes / 20 feuilles / 2 Mo, transaction.
+Export : une feuille par liste, en-têtes localisés, nom de fichier
+``<date ISO>-<nom événement>.xlsx``, dropdowns Assigné à/Fait +
+validation numérique Quantité (valeurs issues des items existants). Import :
+une feuille visible = une nouvelle liste (feuilles ``README``/``Refs`` et
+feuilles cachées ignorées), en-têtes FR/EN insensibles à la casse et aux
+accents, limites 500 lignes / 20 feuilles / 2 Mo, transaction.
 """
 
 import io
 import re
 import unicodedata
+from datetime import datetime
 from typing import Any, cast
 
 from flask import flash, make_response, redirect, request, url_for
 from flask_babel import _
 from openpyxl import Workbook, load_workbook
+from openpyxl.worksheet.datavalidation import DataValidation
 from werkzeug.wrappers import Response
 
 from app.context import load_event_context
@@ -24,6 +29,7 @@ MAX_SHEETS = 20
 MAX_ROWS_PER_SHEET = 500
 MAX_FILE_BYTES = 2 * 1024 * 1024
 SHEET_NAME_MAX = 31
+REFS_SHEET = "Refs"
 
 _DONE_VALUES = {"oui", "yes", "x", "true", "1"}
 _HEADER_MAP = {
@@ -70,6 +76,55 @@ def _sheet_name(title: str, used: set[str]) -> str:
     return name
 
 
+def _export_filename(event_title: str, extra: str = "") -> str:
+    """Nom de fichier : date ISO + nom d'événement (échappé) [+ titre de liste]."""
+    date = datetime.now().date().isoformat()
+    base = _FILENAME_UNSAFE.sub("_", event_title).strip() or "evenement"
+    name = f"{date}-{base}"
+    if extra:
+        name += f"-{_FILENAME_UNSAFE.sub('_', extra).strip()}"
+    return name[:200] + ".xlsx"
+
+
+def _distinct(values: list[str]) -> list[str]:
+    """Valeurs distinctes non vides, dans l'ordre d'apparition."""
+    seen: list[str] = []
+    for value in values:
+        value = (value or "").strip()
+        if value and value not in seen:
+            seen.append(value)
+    return seen
+
+
+def _make_refs_sheet(wb: Workbook, users: list[str]):
+    """Feuille d'aide cachée (A=users) pour le dropdown Assigné à ; None si vide."""
+    if not users:
+        return None
+    helper = wb.create_sheet(title=REFS_SHEET)
+    for i, user in enumerate(users, start=1):
+        helper.cell(row=i, column=1, value=user)
+    helper.sheet_state = "hidden"
+    return helper
+
+
+def _apply_constraints(ws: Any, users: list[str], last_row: int, refs: Any) -> None:
+    """Dropdown Assigné à/Fait + validation numérique Quantité (lignes 2..last_row)."""
+    if last_row < 2:
+        return
+    if users and refs is not None:
+        dv = DataValidation(
+            type="list", formula1=f"={REFS_SHEET}!$A$1:$A${len(users)}", allow_blank=True
+        )
+        ws.add_data_validation(dv)
+        dv.add(f"D2:D{last_row}")
+    dv = DataValidation(type="list", formula1=f'"{_("Oui")},{_("Non")}"', allow_blank=True)
+    ws.add_data_validation(dv)
+    dv.add(f"E2:E{last_row}")
+    dv = DataValidation(type="whole", operator="greaterThanOrEqual", formula1="1", allow_blank=True)
+    ws.add_data_validation(dv)
+    dv.add(f"C2:C{last_row}")
+
+
 def _export_rows(shared_list: SharedList) -> list[list[Any]]:
     items = cast(
         "list[ListItem]", cast("Any", shared_list.items).order_by(ListItem.created_at.asc()).all()
@@ -111,9 +166,18 @@ def _back_to_lists(code: str) -> Response:
 def export_all(code: str) -> Response:
     """Toutes les listes de l'événement : une feuille par liste."""
     ctx = load_event_context(code)
+    items = (
+        ListItem.query.join(SharedList, ListItem.list_id == SharedList.id)
+        .filter(SharedList.event_id == ctx.event.id)
+        .all()
+    )
+    users = _distinct([item.assigned_to for item in items])
     wb = Workbook()
     wb.remove(wb.active)
+    refs = _make_refs_sheet(wb, users)
     used: set[str] = set()
+    if refs is not None:
+        used.add(REFS_SHEET)
     lists = (
         SharedList.query.filter_by(event_id=ctx.event.id)
         .order_by(SharedList.created_at.asc())
@@ -121,9 +185,16 @@ def export_all(code: str) -> Response:
     )
     for shared_list in lists:
         ws = wb.create_sheet(title=_sheet_name(shared_list.title, used))
-        for row in _export_rows(shared_list):
+        rows = _export_rows(shared_list)
+        for row in rows:
             ws.append(row)
-    return _xlsx_response(_save_workbook(wb), f"listes-{ctx.event.code}.xlsx")
+        _apply_constraints(ws, users, len(rows), refs)
+    if not lists:
+        # Aucune liste : trame vide (en-têtes uniquement) — openpyxl exige ≥1 feuille visible.
+        ws = wb.create_sheet(title=_("Liste"))
+        ws.append([_("Section"), _("Item"), _("Quantité"), _("Assigné à"), _("Fait")])
+        _apply_constraints(ws, [], MAX_ROWS_PER_SHEET, None)
+    return _xlsx_response(_save_workbook(wb), _export_filename(ctx.event.title))
 
 
 @lists_bp.route("/e/<code>/lists/<list_id>/export.xlsx")
@@ -131,13 +202,20 @@ def export_one(code: str, list_id: str) -> Response:
     """Une seule liste (1 feuille)."""
     ctx = load_event_context(code)
     shared_list = _get_list_or_404(ctx.event, list_id)
+    items = cast("list[ListItem]", cast("Any", shared_list.items).all())
+    users = _distinct([item.assigned_to for item in items])
     wb = Workbook()
     wb.remove(wb.active)
-    ws = wb.create_sheet(title=_sheet_name(shared_list.title, set()))
-    for row in _export_rows(shared_list):
+    refs = _make_refs_sheet(wb, users)
+    used: set[str] = set()
+    if refs is not None:
+        used.add(REFS_SHEET)
+    ws = wb.create_sheet(title=_sheet_name(shared_list.title, used))
+    rows = _export_rows(shared_list)
+    for row in rows:
         ws.append(row)
-    filename = _FILENAME_UNSAFE.sub("_", shared_list.title)[:200] + ".xlsx"
-    return _xlsx_response(_save_workbook(wb), filename)
+    _apply_constraints(ws, users, len(rows), refs)
+    return _xlsx_response(_save_workbook(wb), _export_filename(ctx.event.title, shared_list.title))
 
 
 def _parse_sheet(rows: list[list[Any]]) -> tuple[list[dict[str, Any]], list[int]]:
@@ -197,7 +275,11 @@ def import_xlsx(code: str) -> Response:
         flash(_("Fichier non reconnu : seul le format .xlsx est accepté."))
         return _back_to_lists(code)
 
-    sheets = [ws for ws in workbook.worksheets if ws.title != "README"]
+    sheets = [
+        ws
+        for ws in workbook.worksheets
+        if ws.title not in ("README", REFS_SHEET) and ws.sheet_state == "visible"
+    ]
     if not sheets:
         workbook.close()
         flash(_("Aucune liste à importer dans ce fichier."))
