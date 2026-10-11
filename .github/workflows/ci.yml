@@ -23,6 +23,8 @@ jobs:
         run: mypy app/
       - name: Bandit
         run: bandit -r app/ -f txt --exit-zero
+      - name: i18n (catalogues synchronisés, tout traduit, .mo à jour)
+        run: python scripts/i18n.py check
 
   test:
     runs-on: ubuntu-latest

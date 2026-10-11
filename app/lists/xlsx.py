@@ -227,7 +227,7 @@ def import_xlsx(code: str) -> Response:
         if len(items) + len(ignored) > MAX_ROWS_PER_SHEET:
             flash(_("Feuille trop longue : 500 lignes maximum par liste."))
             return _back_to_lists(code)
-        title = title.strip()[:200] or f"Liste {len(parsed) + 1}"
+        title = title.strip()[:200] or _("Liste %(n)d") % {"n": len(parsed) + 1}
         parsed.append((title, items, ignored))
 
     if len(parsed) == 1:

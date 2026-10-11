@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 21:12+0000\n"
+"POT-Creation-Date: 2026-10-11 10:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -17,6 +17,14 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
+
+#: app/__init__.py app/api/__init__.py
+msgid "Introuvable."
+msgstr "Not found."
+
+#: app/__init__.py
+msgid "Une erreur interne est survenue."
+msgstr "An internal error occurred."
 
 #: app/__init__.py app/templates/errors/500.html
 msgid "Un problème est survenu"
@@ -661,6 +669,10 @@ msgstr "Media"
 msgid "Participants"
 msgstr "Participants"
 
+#: app/i18n.py app/templates/apikeys/index.html
+msgid "Clés API"
+msgstr "API keys"
+
 #: app/i18n.py
 #, python-format
 msgid "%(actor)s a effectué une action"
@@ -1016,10 +1028,6 @@ msgstr "Authentication required."
 #: app/api/__init__.py
 msgid "Accès refusé."
 msgstr "Access denied."
-
-#: app/api/__init__.py
-msgid "Introuvable."
-msgstr "Not found."
 
 #: app/api/__init__.py app/lists/__init__.py app/logistics/__init__.py
 #: app/planning/__init__.py
@@ -1629,6 +1637,11 @@ msgstr "Sheet too long: 500 rows maximum per list."
 
 #: app/lists/xlsx.py
 #, python-format
+msgid "Liste %(n)d"
+msgstr "List %(n)d"
+
+#: app/lists/xlsx.py
+#, python-format
 msgid "Import terminé : %(lists)s liste(s), %(items)s item(s)."
 msgstr "Import finished: %(lists)s list(s), %(items)s item(s)."
 
@@ -1868,10 +1881,6 @@ msgstr ""
 #: app/templates/events/me.html
 msgid "Notifications"
 msgstr "Notifications"
-
-#: app/templates/apikeys/index.html
-msgid "Clés API"
-msgstr "API keys"
 
 #: app/templates/apikeys/index.html
 msgid "Accès programmatique (agent) à cet événement"

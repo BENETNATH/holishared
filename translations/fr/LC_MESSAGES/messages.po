@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 21:12+0000\n"
+"POT-Creation-Date: 2026-10-11 10:10+0000\n"
 "PO-Revision-Date: 2026-10-04 11:18+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -17,6 +17,14 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
+
+#: app/__init__.py app/api/__init__.py
+msgid "Introuvable."
+msgstr ""
+
+#: app/__init__.py
+msgid "Une erreur interne est survenue."
+msgstr ""
 
 #: app/__init__.py app/templates/errors/500.html
 msgid "Un problème est survenu"
@@ -661,6 +669,10 @@ msgstr ""
 msgid "Participants"
 msgstr ""
 
+#: app/i18n.py app/templates/apikeys/index.html
+msgid "Clés API"
+msgstr ""
+
 #: app/i18n.py
 #, python-format
 msgid "%(actor)s a effectué une action"
@@ -973,10 +985,6 @@ msgstr ""
 
 #: app/api/__init__.py
 msgid "Accès refusé."
-msgstr ""
-
-#: app/api/__init__.py
-msgid "Introuvable."
 msgstr ""
 
 #: app/api/__init__.py app/lists/__init__.py app/logistics/__init__.py
@@ -1581,6 +1589,11 @@ msgstr ""
 
 #: app/lists/xlsx.py
 #, python-format
+msgid "Liste %(n)d"
+msgstr ""
+
+#: app/lists/xlsx.py
+#, python-format
 msgid "Import terminé : %(lists)s liste(s), %(items)s item(s)."
 msgstr ""
 
@@ -1811,10 +1824,6 @@ msgstr ""
 #: app/templates/base.html app/templates/events/dashboard.html
 #: app/templates/events/me.html
 msgid "Notifications"
-msgstr ""
-
-#: app/templates/apikeys/index.html
-msgid "Clés API"
 msgstr ""
 
 #: app/templates/apikeys/index.html
