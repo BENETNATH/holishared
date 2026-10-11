@@ -73,6 +73,11 @@
     <p class="m-0 text-small text-ink-2" data-testid="my-code-none">{{ _("Vous n'avez pas encore de code personnel. Vous vous connectez par e-mail.") }}</p>
     {% endif %}
   </section>
+  <section class="ui-card" aria-labelledby="h-apikeys" data-testid="apikeys-card">
+    <h2 id="h-apikeys" class="mt-0 text-subheading font-semibold text-ink">{{ _("Clés API") }}</h2>
+    <p class="text-small text-ink-2">{{ _("Accès programmatique (agent) à cet événement. Chaque clé est personnelle et révocable.") }}</p>
+    <div><a class="ui-btn ui-btn--secondary" href="{{ url_for('apikeys.index', code=event.code) }}" data-testid="apikeys-link">{{ icon('key-round') }}<span>{{ _("Gérer mes clés API") }}</span></a></div>
+  </section>
 </div>
 {% endblock %}
 {% block scripts %}

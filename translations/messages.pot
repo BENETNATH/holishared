@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-11 10:10+0000\n"
+"POT-Creation-Date: 2026-10-11 11:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -668,7 +668,7 @@ msgstr ""
 msgid "Participants"
 msgstr ""
 
-#: app/i18n.py app/templates/apikeys/index.html
+#: app/i18n.py app/templates/apikeys/index.html app/templates/events/me.html
 msgid "Clés API"
 msgstr ""
 
@@ -3040,6 +3040,16 @@ msgstr ""
 
 #: app/templates/events/me.html
 msgid "Vous n'avez pas encore de code personnel. Vous vous connectez par e-mail."
+msgstr ""
+
+#: app/templates/events/me.html
+msgid ""
+"Accès programmatique (agent) à cet événement. Chaque clé est personnelle "
+"et révocable."
+msgstr ""
+
+#: app/templates/events/me.html
+msgid "Gérer mes clés API"
 msgstr ""
 
 #: app/templates/_components/ui.html app/templates/events/members.html

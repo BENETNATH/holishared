@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-11 10:10+0000\n"
+"POT-Creation-Date: 2026-10-11 11:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -669,7 +669,7 @@ msgstr "Media"
 msgid "Participants"
 msgstr "Participants"
 
-#: app/i18n.py app/templates/apikeys/index.html
+#: app/i18n.py app/templates/apikeys/index.html app/templates/events/me.html
 msgid "Clés API"
 msgstr "API keys"
 
@@ -1885,6 +1885,16 @@ msgstr "Notifications"
 #: app/templates/apikeys/index.html
 msgid "Accès programmatique (agent) à cet événement"
 msgstr "Programmatic (agent) access to this event"
+
+#: app/templates/events/me.html
+msgid ""
+"Accès programmatique (agent) à cet événement. Chaque clé est personnelle "
+"et révocable."
+msgstr "Programmatic (agent) access to this event. Each key is personal and revocable."
+
+#: app/templates/events/me.html
+msgid "Gérer mes clés API"
+msgstr "Manage my API keys"
 
 #: app/templates/apikeys/index.html
 msgid "Nouvelle clé créée"
@@ -3135,6 +3145,16 @@ msgstr "Personal code"
 #: app/templates/events/me.html
 msgid "Vous n'avez pas encore de code personnel. Vous vous connectez par e-mail."
 msgstr "You do not have a personal code yet. You sign in by email."
+
+#: app/templates/events/me.html
+msgid ""
+"Accès programmatique (agent) à cet événement. Chaque clé est personnelle "
+"et révocable."
+msgstr ""
+
+#: app/templates/events/me.html
+msgid "Gérer mes clés API"
+msgstr ""
 
 #: app/templates/_components/ui.html app/templates/events/members.html
 #, python-format
