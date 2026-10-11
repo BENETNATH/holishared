@@ -14,10 +14,17 @@ def _login_guest(client, event, guest):
         sess[f"guest_{event.code}"] = guest.id
 
 
-def _make_household(db, event, name="Famille A", adults=2, children=1, aw=1.0, cw=0.5, guest_id=None):
+def _make_household(
+    db, event, name="Famille A", adults=2, children=1, aw=1.0, cw=0.5, guest_id=None
+):
     h = Household(
-        name=name, num_adults=adults, num_children=children,
-        adult_weight=aw, child_weight=cw, event_id=event.id, guest_id=guest_id,
+        name=name,
+        num_adults=adults,
+        num_children=children,
+        adult_weight=aw,
+        child_weight=cw,
+        event_id=event.id,
+        guest_id=guest_id,
     )
     db.session.add(h)
     db.session.commit()
@@ -26,8 +33,10 @@ def _make_household(db, event, name="Famille A", adults=2, children=1, aw=1.0, c
 
 def _make_expense(db, event, household, desc="Loyer", amount_cents=10000, is_shared=True):
     e = Expense(
-        description=desc, amount_cents=amount_cents,
-        paid_by_household_id=household.id, event_id=event.id,
+        description=desc,
+        amount_cents=amount_cents,
+        paid_by_household_id=household.id,
+        event_id=event.id,
         is_shared=is_shared,
     )
     db.session.add(e)
@@ -61,13 +70,16 @@ class TestCostsIndex:
 class TestHouseholds:
     def test_add_household_success(self, client, creator, event, db):
         _login_creator(client, creator)
-        resp = client.post(f"/e/{event.code}/costs/households/new", data={
-            "name": "Famille Dupont",
-            "num_adults": "2",
-            "num_children": "2",
-            "adult_weight": "1.0",
-            "child_weight": "0.5",
-        })
+        resp = client.post(
+            f"/e/{event.code}/costs/households/new",
+            data={
+                "name": "Famille Dupont",
+                "num_adults": "2",
+                "num_children": "2",
+                "adult_weight": "1.0",
+                "child_weight": "0.5",
+            },
+        )
         assert resp.status_code == 302
         h = Household.query.filter_by(name="Famille Dupont").first()
         assert h is not None
@@ -75,26 +87,37 @@ class TestHouseholds:
 
     def test_add_household_missing_name(self, client, creator, event):
         _login_creator(client, creator)
-        resp = client.post(f"/e/{event.code}/costs/households/new", data={
-            "name": "",
-            "num_adults": "2",
-        }, follow_redirects=True)
+        resp = client.post(
+            f"/e/{event.code}/costs/households/new",
+            data={
+                "name": "",
+                "num_adults": "2",
+            },
+            follow_redirects=True,
+        )
         assert b"requis" in resp.data.lower() or b"Nom" in resp.data
 
     def test_add_household_invalid_adults(self, client, creator, event):
         _login_creator(client, creator)
-        resp = client.post(f"/e/{event.code}/costs/households/new", data={
-            "name": "Test",
-            "num_adults": "0",
-        }, follow_redirects=True)
+        resp = client.post(
+            f"/e/{event.code}/costs/households/new",
+            data={
+                "name": "Test",
+                "num_adults": "0",
+            },
+            follow_redirects=True,
+        )
         assert b"entre 1 et 50" in resp.data or b"Adultes" in resp.data
 
     def test_add_household_logs(self, client, creator, event, db):
         _login_creator(client, creator)
-        client.post(f"/e/{event.code}/costs/households/new", data={
-            "name": "Logged HH",
-            "num_adults": "1",
-        })
+        client.post(
+            f"/e/{event.code}/costs/households/new",
+            data={
+                "name": "Logged HH",
+                "num_adults": "1",
+            },
+        )
         log = ActivityLog.query.filter_by(event_id=event.id, action="household.created").first()
         assert log is not None
         assert log.target == "Logged HH"
@@ -117,13 +140,16 @@ class TestExpenses:
     def test_add_expense_success(self, client, creator, event, db):
         _login_creator(client, creator)
         h = _make_household(db, event)
-        resp = client.post(f"/e/{event.code}/costs/expenses/new", data={
-            "description": "Loyer",
-            "amount": "500.00",
-            "household_id": h.id,
-            "date": "2026-12-01",
-            "is_shared": "on",
-        })
+        resp = client.post(
+            f"/e/{event.code}/costs/expenses/new",
+            data={
+                "description": "Loyer",
+                "amount": "500.00",
+                "household_id": h.id,
+                "date": "2026-12-01",
+                "is_shared": "on",
+            },
+        )
         assert resp.status_code == 302
         exp = Expense.query.filter_by(description="Loyer").first()
         assert exp is not None
@@ -132,32 +158,43 @@ class TestExpenses:
     def test_add_expense_missing_description(self, client, creator, event, db):
         _login_creator(client, creator)
         h = _make_household(db, event)
-        resp = client.post(f"/e/{event.code}/costs/expenses/new", data={
-            "description": "",
-            "amount": "100",
-            "household_id": h.id,
-        }, follow_redirects=True)
+        resp = client.post(
+            f"/e/{event.code}/costs/expenses/new",
+            data={
+                "description": "",
+                "amount": "100",
+                "household_id": h.id,
+            },
+            follow_redirects=True,
+        )
         assert b"Description" in resp.data or b"requise" in resp.data
 
     def test_add_expense_invalid_amount(self, client, creator, event, db):
         _login_creator(client, creator)
         h = _make_household(db, event)
-        resp = client.post(f"/e/{event.code}/costs/expenses/new", data={
-            "description": "Test",
-            "amount": "-5",
-            "household_id": h.id,
-        }, follow_redirects=True)
+        resp = client.post(
+            f"/e/{event.code}/costs/expenses/new",
+            data={
+                "description": "Test",
+                "amount": "-5",
+                "household_id": h.id,
+            },
+            follow_redirects=True,
+        )
         assert b"invalide" in resp.data.lower()
 
     def test_add_expense_logs(self, client, creator, event, db):
         _login_creator(client, creator)
         h = _make_household(db, event)
-        client.post(f"/e/{event.code}/costs/expenses/new", data={
-            "description": "Logged Expense",
-            "amount": "100",
-            "household_id": h.id,
-            "is_shared": "on",
-        })
+        client.post(
+            f"/e/{event.code}/costs/expenses/new",
+            data={
+                "description": "Logged Expense",
+                "amount": "100",
+                "household_id": h.id,
+                "is_shared": "on",
+            },
+        )
         log = ActivityLog.query.filter_by(event_id=event.id, action="expense.created").first()
         assert log is not None
         assert log.target == "Logged Expense"
@@ -235,13 +272,19 @@ class TestSettlement:
 class TestTransfers:
     def test_add_transfer(self, client, creator, event, db):
         from app.models import Transfer
+
         _login_creator(client, creator)
         h1 = _make_household(db, event, "A")
         h2 = _make_household(db, event, "B")
-        resp = client.post(f"/e/{event.code}/costs/transfers/new", data={
-            "from_household_id": h1.id, "to_household_id": h2.id,
-            "amount": "20.00", "note": "remboursement",
-        })
+        resp = client.post(
+            f"/e/{event.code}/costs/transfers/new",
+            data={
+                "from_household_id": h1.id,
+                "to_household_id": h2.id,
+                "amount": "20.00",
+                "note": "remboursement",
+            },
+        )
         assert resp.status_code == 302
         t = Transfer.query.filter_by(event_id=event.id).first()
         assert t is not None
@@ -250,18 +293,26 @@ class TestTransfers:
     def test_add_transfer_same_household_rejected(self, client, creator, event, db):
         _login_creator(client, creator)
         h1 = _make_household(db, event, "A")
-        resp = client.post(f"/e/{event.code}/costs/transfers/new", data={
-            "from_household_id": h1.id, "to_household_id": h1.id, "amount": "10",
-        }, follow_redirects=True)
+        resp = client.post(
+            f"/e/{event.code}/costs/transfers/new",
+            data={
+                "from_household_id": h1.id,
+                "to_household_id": h1.id,
+                "amount": "10",
+            },
+            follow_redirects=True,
+        )
         assert b"diff\u00e9rer" in resp.data or b"doivent" in resp.data
 
     def test_delete_transfer_as_creator(self, client, creator, event, db):
         from app.models import Transfer
+
         _login_creator(client, creator)
         h1 = _make_household(db, event, "A")
         h2 = _make_household(db, event, "B")
-        t = Transfer(from_household_id=h1.id, to_household_id=h2.id,
-                     amount_cents=1000, event_id=event.id)
+        t = Transfer(
+            from_household_id=h1.id, to_household_id=h2.id, amount_cents=1000, event_id=event.id
+        )
         db.session.add(t)
         db.session.commit()
         resp = client.post(f"/e/{event.code}/costs/transfers/{t.id}/delete")
@@ -271,13 +322,15 @@ class TestTransfers:
     def test_settlement_accounts_for_transfer(self, client, creator, event, db):
         """A owes B 30; a 30 transfer A->B settles it to zero."""
         from app.models import Transfer
+
         _login_creator(client, creator)
         h1 = _make_household(db, event, "A", adults=2, children=0)
         h2 = _make_household(db, event, "B", adults=2, children=0)
         _make_expense(db, event, h1, "Total", 10000)  # A paid 100, each owes 50
         # B owes A 50. Transfer B->A of 50 settles it.
-        t = Transfer(from_household_id=h2.id, to_household_id=h1.id,
-                     amount_cents=5000, event_id=event.id)
+        t = Transfer(
+            from_household_id=h2.id, to_household_id=h1.id, amount_cents=5000, event_id=event.id
+        )
         db.session.add(t)
         db.session.commit()
         resp = client.get(f"/e/{event.code}/costs")
@@ -289,13 +342,19 @@ class TestTransfers:
 class TestPaymentRequests:
     def test_add_payment_request(self, client, creator, event, db):
         from app.models import PaymentRequest
+
         _login_creator(client, creator)
         h1 = _make_household(db, event, "A")
         h2 = _make_household(db, event, "B")
-        resp = client.post(f"/e/{event.code}/costs/payment-requests/new", data={
-            "from_household_id": h1.id, "to_household_id": h2.id,
-            "amount": "15.00", "message": "pour le loyer",
-        })
+        resp = client.post(
+            f"/e/{event.code}/costs/payment-requests/new",
+            data={
+                "from_household_id": h1.id,
+                "to_household_id": h2.id,
+                "amount": "15.00",
+                "message": "pour le loyer",
+            },
+        )
         assert resp.status_code == 302
         pr = PaymentRequest.query.filter_by(event_id=event.id).first()
         assert pr is not None
@@ -304,11 +363,13 @@ class TestPaymentRequests:
 
     def test_resolve_payment_request(self, client, creator, event, db):
         from app.models import PaymentRequest
+
         _login_creator(client, creator)
         h1 = _make_household(db, event, "A")
         h2 = _make_household(db, event, "B")
-        pr = PaymentRequest(from_household_id=h1.id, to_household_id=h2.id,
-                            amount_cents=1000, event_id=event.id)
+        pr = PaymentRequest(
+            from_household_id=h1.id, to_household_id=h2.id, amount_cents=1000, event_id=event.id
+        )
         db.session.add(pr)
         db.session.commit()
         resp = client.post(f"/e/{event.code}/costs/payment-requests/{pr.id}/resolve")
@@ -318,11 +379,13 @@ class TestPaymentRequests:
 
     def test_delete_payment_request_forbidden_for_guest(self, client, event, guest, db):
         from app.models import PaymentRequest
+
         _login_guest(client, event, guest)
         h1 = _make_household(db, event, "A")
         h2 = _make_household(db, event, "B")
-        pr = PaymentRequest(from_household_id=h1.id, to_household_id=h2.id,
-                            amount_cents=1000, event_id=event.id)
+        pr = PaymentRequest(
+            from_household_id=h1.id, to_household_id=h2.id, amount_cents=1000, event_id=event.id
+        )
         db.session.add(pr)
         db.session.commit()
         resp = client.post(f"/e/{event.code}/costs/payment-requests/{pr.id}/delete")
@@ -334,11 +397,14 @@ class TestPersonalExpenses:
         """Unchecking 'Partagé' creates a personal (non-shared) expense."""
         _login_creator(client, creator)
         h = _make_household(db, event, guest_id=creator_guest.id)
-        resp = client.post(f"/e/{event.code}/costs/expenses/new", data={
-            "description": "Souvenir perso",
-            "amount": "30.00",
-            "household_id": h.id,
-        })
+        resp = client.post(
+            f"/e/{event.code}/costs/expenses/new",
+            data={
+                "description": "Souvenir perso",
+                "amount": "30.00",
+                "household_id": h.id,
+            },
+        )
         assert resp.status_code == 302
         exp = Expense.query.filter_by(description="Souvenir perso").first()
         assert exp is not None
@@ -348,18 +414,23 @@ class TestPersonalExpenses:
         """Leaving 'Partagé' checked (default) creates a shared expense."""
         _login_creator(client, creator)
         h = _make_household(db, event, guest_id=creator_guest.id)
-        resp = client.post(f"/e/{event.code}/costs/expenses/new", data={
-            "description": "Loyer",
-            "amount": "100.00",
-            "household_id": h.id,
-            "is_shared": "on",
-        })
+        resp = client.post(
+            f"/e/{event.code}/costs/expenses/new",
+            data={
+                "description": "Loyer",
+                "amount": "100.00",
+                "household_id": h.id,
+                "is_shared": "on",
+            },
+        )
         assert resp.status_code == 302
         exp = Expense.query.filter_by(description="Loyer").first()
         assert exp is not None
         assert exp.is_shared is True
 
-    def test_personal_expense_excluded_from_settlement(self, client, creator, creator_guest, event, db):
+    def test_personal_expense_excluded_from_settlement(
+        self, client, creator, creator_guest, event, db
+    ):
         """A personal expense does not create any debt between households."""
         _login_creator(client, creator)
         h1 = _make_household(db, event, "A", adults=2, children=0, guest_id=creator_guest.id)

@@ -25,8 +25,9 @@ def _translations(lang: str) -> NullTranslations:
     return Translations.load(str(_TRANSLATIONS_DIR), [lang if lang in _SUPPORTED else "fr"])
 
 
-def _smtp_send(host: str, port: int, user: str, password: str,
-               frm: str, to: str, subject: str, body: str) -> None:
+def _smtp_send(
+    host: str, port: int, user: str, password: str, frm: str, to: str, subject: str, body: str
+) -> None:
     """Send a plain-text email via SMTP."""
     msg = EmailMessage()
     msg["Subject"] = subject
@@ -40,10 +41,17 @@ def _smtp_send(host: str, port: int, user: str, password: str,
     logger.info("Email sent to %s (%s)", to, subject)
 
 
-def send_verification_email(smtp_host: str, smtp_port: int, smtp_user: str,
-                            smtp_password: str, smtp_from: str,
-                            to_addr: str, event_title: str,
-                            verify_url: str, lang: str = "fr") -> None:
+def send_verification_email(
+    smtp_host: str,
+    smtp_port: int,
+    smtp_user: str,
+    smtp_password: str,
+    smtp_from: str,
+    to_addr: str,
+    event_title: str,
+    verify_url: str,
+    lang: str = "fr",
+) -> None:
     """Send verification email with link to set code + nickname."""
     _ = _translations(lang).gettext
     body = _(
@@ -55,15 +63,32 @@ def send_verification_email(smtp_host: str, smtp_port: int, smtp_user: str,
         "et vous pourrez inviter vos proches.\n\n"
         "— holishared\n"
     ) % {"title": event_title, "url": verify_url}
-    _smtp_send(smtp_host, smtp_port, smtp_user, smtp_password, smtp_from,
-               to_addr, _("Validez votre événement - holishared"), body)
+    _smtp_send(
+        smtp_host,
+        smtp_port,
+        smtp_user,
+        smtp_password,
+        smtp_from,
+        to_addr,
+        _("Validez votre événement - holishared"),
+        body,
+    )
 
 
-def send_invite_email(smtp_host: str, smtp_port: int, smtp_user: str,
-                      smtp_password: str, smtp_from: str,
-                      to_addr: str, event_title: str,
-                      start_date: str, end_date: str,
-                      location: str, join_url: str, lang: str = "fr") -> None:
+def send_invite_email(
+    smtp_host: str,
+    smtp_port: int,
+    smtp_user: str,
+    smtp_password: str,
+    smtp_from: str,
+    to_addr: str,
+    event_title: str,
+    start_date: str,
+    end_date: str,
+    location: str,
+    join_url: str,
+    lang: str = "fr",
+) -> None:
     """Send an invite email to a guest (email NOT stored)."""
     _ = _translations(lang).gettext
     location_line = _("Lieu : %(location)s") % {"location": location} + "\n" if location else ""
@@ -76,38 +101,79 @@ def send_invite_email(smtp_host: str, smtp_port: int, smtp_user: str,
         "%(url)s\n\n"
         "Vous choisirez votre pseudo et votre code personnel.\n\n"
         "— holishared\n"
-    ) % {"title": event_title, "start": start_date, "end": end_date,
-         "location_line": location_line, "url": join_url}
-    _smtp_send(smtp_host, smtp_port, smtp_user, smtp_password, smtp_from,
-               to_addr, _("Invitation : %(title)s") % {"title": event_title}, body)
+    ) % {
+        "title": event_title,
+        "start": start_date,
+        "end": end_date,
+        "location_line": location_line,
+        "url": join_url,
+    }
+    _smtp_send(
+        smtp_host,
+        smtp_port,
+        smtp_user,
+        smtp_password,
+        smtp_from,
+        to_addr,
+        _("Invitation : %(title)s") % {"title": event_title},
+        body,
+    )
 
 
-def send_guest_invite_email(smtp_host: str, smtp_port: int, smtp_user: str,
-                            smtp_password: str, smtp_from: str,
-                            to_addr: str, event_title: str,
-                            start_date: str, end_date: str,
-                            join_url: str,
-                            display_name: str | None = None, lang: str = "fr") -> None:
+def send_guest_invite_email(
+    smtp_host: str,
+    smtp_port: int,
+    smtp_user: str,
+    smtp_password: str,
+    smtp_from: str,
+    to_addr: str,
+    event_title: str,
+    start_date: str,
+    end_date: str,
+    join_url: str,
+    display_name: str | None = None,
+    lang: str = "fr",
+) -> None:
     """Send a guest the invitation to create their personal code."""
     _ = _translations(lang).gettext
     greeting = _("Bonjour %(name)s,") % {"name": display_name} if display_name else _("Bonjour,")
-    body = greeting + "\n\n" + _(
-        "Vous êtes invité(e) à l'événement « %(title)s » sur holishared\n"
-        "(%(start)s → %(end)s).\n\n"
-        "Pour rejoindre, créez votre code personnel (4 à 8 lettres ou chiffres "
-        "que vous retiendrez) en suivant ce lien :\n\n"
-        "%(url)s\n\n"
-        "Votre code vous servira à vous reconnecter sur un autre appareil.\n\n"
-        "— holishared\n"
-    ) % {"title": event_title, "start": start_date, "end": end_date, "url": join_url}
-    _smtp_send(smtp_host, smtp_port, smtp_user, smtp_password, smtp_from,
-               to_addr, _("Invitation : %(title)s - holishared") % {"title": event_title}, body)
+    body = (
+        greeting
+        + "\n\n"
+        + _(
+            "Vous êtes invité(e) à l'événement « %(title)s » sur holishared\n"
+            "(%(start)s → %(end)s).\n\n"
+            "Pour rejoindre, créez votre code personnel (4 à 8 lettres ou chiffres "
+            "que vous retiendrez) en suivant ce lien :\n\n"
+            "%(url)s\n\n"
+            "Votre code vous servira à vous reconnecter sur un autre appareil.\n\n"
+            "— holishared\n"
+        )
+        % {"title": event_title, "start": start_date, "end": end_date, "url": join_url}
+    )
+    _smtp_send(
+        smtp_host,
+        smtp_port,
+        smtp_user,
+        smtp_password,
+        smtp_from,
+        to_addr,
+        _("Invitation : %(title)s - holishared") % {"title": event_title},
+        body,
+    )
 
 
-def send_recovery_email(smtp_host: str, smtp_port: int, smtp_user: str,
-                        smtp_password: str, smtp_from: str,
-                        to_addr: str, personal_code: str,
-                        display_name: str, lang: str = "fr") -> None:
+def send_recovery_email(
+    smtp_host: str,
+    smtp_port: int,
+    smtp_user: str,
+    smtp_password: str,
+    smtp_from: str,
+    to_addr: str,
+    personal_code: str,
+    display_name: str,
+    lang: str = "fr",
+) -> None:
     """Send recovery email with the personal code."""
     _ = _translations(lang).gettext
     body = _(
@@ -116,8 +182,16 @@ def send_recovery_email(smtp_host: str, smtp_port: int, smtp_user: str,
         "Pseudo : %(name)s\n\n"
         "— holishared\n"
     ) % {"code": personal_code, "name": display_name}
-    _smtp_send(smtp_host, smtp_port, smtp_user, smtp_password, smtp_from,
-               to_addr, _("Votre code holishared"), body)
+    _smtp_send(
+        smtp_host,
+        smtp_port,
+        smtp_user,
+        smtp_password,
+        smtp_from,
+        to_addr,
+        _("Votre code holishared"),
+        body,
+    )
 
 
 PUSH_GONE = (404, 410)  # le service de push signale un abonnement expiré

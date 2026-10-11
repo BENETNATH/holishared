@@ -197,8 +197,12 @@ def send(code: str) -> Response | str:
     log_event(ctx, "chat.message", target=content[:50])
     db.session.commit()
     notify(
-        ctx.event, "chat", participant, content,
-        url_for("chat.index", code=code), f"chat-{ctx.event.code}",
+        ctx.event,
+        "chat",
+        participant,
+        content,
+        url_for("chat.index", code=code),
+        f"chat-{ctx.event.code}",
     )
 
     if _is_htmx():

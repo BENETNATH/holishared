@@ -110,7 +110,9 @@ class TestLogisticsIndex:
         resp = client.get(f"/e/{event.code}/logistics")
         assert b"Aucune info pratique" in resp.data
 
-    def test_index_shows_edit_for_guest_delete_only_for_creator(self, client, event, guest, logistics_item):
+    def test_index_shows_edit_for_guest_delete_only_for_creator(
+        self, client, event, guest, logistics_item
+    ):
         _login_guest(client, event, guest)
         resp = client.get(f"/e/{event.code}/logistics")
         assert resp.status_code == 200
@@ -284,7 +286,11 @@ class TestEditLogistics:
         _login_guest(client, event, guest)
         resp = client.post(
             f"/e/{event.code}/logistics/{logistics_item.id}/edit",
-            data={"title": "Adresse corrigée", "content": "14 rue des Vignes", "category": "address"},
+            data={
+                "title": "Adresse corrigée",
+                "content": "14 rue des Vignes",
+                "category": "address",
+            },
         )
         assert resp.status_code == 302
         db.session.refresh(logistics_item)

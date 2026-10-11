@@ -29,6 +29,7 @@ def load_env():
 
     # Warn if .env has insecure permissions
     import stat
+
     mode = env_file.stat().st_mode
     if mode & (stat.S_IRGRP | stat.S_IROTH | stat.S_IWGRP | stat.S_IWOTH):
         print(f"[WARN] {env_file} has insecure permissions. Run: chmod 600 {env_file}")
@@ -62,6 +63,7 @@ def run(cmd, cwd=ROOT, shell=False, **kwargs):
 
 
 # === Commands ===
+
 
 def _generate_vapid_keys():
     """Generate VAPID key pair for Web Push notifications."""
@@ -207,7 +209,7 @@ APP_THREADS=4
 
 # === Sécurité ===
 SECRET_KEY={secret_key}
-SESSION_COOKIE_SECURE={'true' if domain != 'localhost' else 'false'}
+SESSION_COOKIE_SECURE={"true" if domain != "localhost" else "false"}
 SESSION_COOKIE_HTTPONLY=true
 PERMANENT_SESSION_LIFETIME=86400
 
@@ -277,7 +279,11 @@ def cmd_init():
     (ROOT / "instance").mkdir(exist_ok=True)
 
     print("[5/5] Initializing database...")
-    run([str(venv_python()), "-c", """
+    run(
+        [
+            str(venv_python()),
+            "-c",
+            """
 import sys; sys.path.insert(0, '.')
 from app import create_app
 app = create_app()
@@ -285,7 +291,9 @@ with app.app_context():
     from app.extensions import db
     db.create_all()
     print('  [OK] Database initialized')
-"""])
+""",
+        ]
+    )
     print("\n[OK] Init complete.")
     print("Next: python manage.py run  (dev)  or  docker compose up -d  (prod)")
 
@@ -293,9 +301,20 @@ with app.app_context():
 def cmd_run():
     """Run dev server (no debug, localhost only)."""
     load_env()
-    run([str(venv_python()), "-m", "flask", "--app", "app", "run",
-         "-h", "127.0.0.1",
-         "-p", os.environ.get("APP_PORT", "8400")])
+    run(
+        [
+            str(venv_python()),
+            "-m",
+            "flask",
+            "--app",
+            "app",
+            "run",
+            "-h",
+            "127.0.0.1",
+            "-p",
+            os.environ.get("APP_PORT", "8400"),
+        ]
+    )
 
 
 def cmd_start():
@@ -307,10 +326,17 @@ def cmd_start():
     print(f"Starting Waitress on {os.environ.get('APP_HOST')}:{os.environ.get('APP_PORT')}...")
     log_file = open(LOG_DIR / "waitress.log", "a")
     proc = subprocess.Popen(
-        [str(venv_python()), "-m", "waitress",
-         "--listen", f"{os.environ.get('APP_HOST', '127.0.0.1')}:{os.environ.get('APP_PORT', '8400')}",
-         "--threads", os.environ.get("APP_THREADS", "4"),
-         "--call", "app:create_app"],
+        [
+            str(venv_python()),
+            "-m",
+            "waitress",
+            "--listen",
+            f"{os.environ.get('APP_HOST', '127.0.0.1')}:{os.environ.get('APP_PORT', '8400')}",
+            "--threads",
+            os.environ.get("APP_THREADS", "4"),
+            "--call",
+            "app:create_app",
+        ],
         cwd=ROOT,
         stdout=log_file,
         stderr=log_file,
@@ -352,7 +378,11 @@ def cmd_status():
 def cmd_db_init():
     """Create database tables."""
     load_env()
-    run([str(venv_python()), "-c", """
+    run(
+        [
+            str(venv_python()),
+            "-c",
+            """
 import sys; sys.path.insert(0, '.')
 from app import create_app
 app = create_app()
@@ -360,7 +390,9 @@ with app.app_context():
     from app.extensions import db
     db.create_all()
     print('[OK] Tables created')
-"""])
+""",
+        ]
+    )
 
 
 def cmd_db_shell():
@@ -378,7 +410,11 @@ def cmd_migrate():
     after the initial schema, idempotently.
     """
     load_env()
-    run([str(venv_python()), "-c", """
+    run(
+        [
+            str(venv_python()),
+            "-c",
+            """
 import sys; sys.path.insert(0, '.')
 from app import create_app
 app = create_app()
@@ -420,7 +456,9 @@ with app.app_context():
     print('[OK] identity', run_identity_migration(app))
     print('[OK] backups pruned', prune_backups(app.instance_path))
     print("[OK] Migrations applied")
-"""])
+""",
+        ]
+    )
 
 
 def cmd_check_identity():
@@ -481,6 +519,7 @@ def cmd_logs():
 def cmd_reset_admin():
     """Reset superadmin password (generates new random)."""
     import secrets
+
     new_pass = secrets.token_urlsafe(12)
     env_file = ROOT / ".env"
     content = env_file.read_text()
@@ -496,6 +535,7 @@ def cmd_reset_admin():
 
 
 # === Helpers ===
+
 
 def get_pid():
     if PID_FILE.exists():

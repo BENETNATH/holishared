@@ -610,7 +610,9 @@ def _validate_household(data: dict[str, Any]) -> tuple[FormErrors, dict[str, Any
     return errors, values
 
 
-def _validate_transfer(data: dict[str, Any], ctx: EventContext) -> tuple[FormErrors, dict[str, Any]]:
+def _validate_transfer(
+    data: dict[str, Any], ctx: EventContext
+) -> tuple[FormErrors, dict[str, Any]]:
     errors = FormErrors()
     from_id = _str(data, "from_household_id")
     to_id = _str(data, "to_household_id")
@@ -889,9 +891,7 @@ def event_info(code: str) -> Response:
     ctx = _ctx()
     event = ctx.event
     guests = (
-        Guest.query.filter_by(event_id=event.id, is_active=True)
-        .order_by(Guest.display_name)
-        .all()
+        Guest.query.filter_by(event_id=event.id, is_active=True).order_by(Guest.display_name).all()
     )
     participants = [
         {"id": g.id, "display_name": g.display_name, "is_creator": g.creator_id is not None}
@@ -987,14 +987,18 @@ def rsvp(code: str, activity_id: str) -> Response:
     status = _str(data, "status")
     if status not in RSVP_STATUSES and status != RSVP_CLEAR:
         return _error(400, _("Statut invalide."))
-    existing = ActivityRSVP.query.filter_by(activity_id=activity.id, guest_id=participant.id).first()
+    existing = ActivityRSVP.query.filter_by(
+        activity_id=activity.id, guest_id=participant.id
+    ).first()
     if status == RSVP_CLEAR:
         if existing is not None:
             db.session.delete(existing)
     elif existing is not None:
         existing.status = status
     else:
-        db.session.add(ActivityRSVP(activity_id=activity.id, guest_id=participant.id, status=status))
+        db.session.add(
+            ActivityRSVP(activity_id=activity.id, guest_id=participant.id, status=status)
+        )
     try:
         db.session.flush()
     except IntegrityError:  # double envoi concurrent : la réponse existe déjà, on la met à jour
@@ -1025,7 +1029,11 @@ def meals_list(code: str) -> Response:
 @limiter.limit("60 per minute", key_func=api_key_func)
 @api_endpoint(
     description="Créer un repas",
-    request={"title": "string, requis, 2-200", "date": "YYYY-MM-DD, requis", "slot": "lunch|dinner, requis"},
+    request={
+        "title": "string, requis, 2-200",
+        "date": "YYYY-MM-DD, requis",
+        "slot": "lunch|dinner, requis",
+    },
     response={"id": "string"},
 )
 def meals_create(code: str) -> Response:
@@ -1035,12 +1043,14 @@ def meals_create(code: str) -> Response:
     if errors:
         return _error(400, _first_error(errors))
     cell = list(
-        Meal.query.filter_by(event_id=ctx.event.id, date=values["date"], slot=values["slot"]).order_by(
-            Meal.position, Meal.created_at, Meal.id
-        )
+        Meal.query.filter_by(
+            event_id=ctx.event.id, date=values["date"], slot=values["slot"]
+        ).order_by(Meal.position, Meal.created_at, Meal.id)
     )
     if len(cell) >= MAX_MEALS_PER_CELL:
-        return _error(400, _("Cette case est pleine (%(max)d repas maximum).", max=MAX_MEALS_PER_CELL))
+        return _error(
+            400, _("Cette case est pleine (%(max)d repas maximum).", max=MAX_MEALS_PER_CELL)
+        )
     meal = Meal(
         title=values["title"],
         date=values["date"],
@@ -1094,11 +1104,15 @@ def lists_create(code: str) -> Response:
     errors, values = _validate_list(data)
     if errors:
         return _error(400, _first_error(errors))
-    shared_list = SharedList(title=values["title"], list_type=values["list_type"], event_id=ctx.event.id)
+    shared_list = SharedList(
+        title=values["title"], list_type=values["list_type"], event_id=ctx.event.id
+    )
     db.session.add(shared_list)
     log_event(ctx, "list.created", target=values["title"])
     db.session.commit()
-    return jsonify({"id": shared_list.id, "title": shared_list.title, "list_type": shared_list.list_type}), 201
+    return jsonify(
+        {"id": shared_list.id, "title": shared_list.title, "list_type": shared_list.list_type}
+    ), 201
 
 
 @api_bp.route("/events/<code>/lists/<list_id>", methods=["DELETE"])
@@ -1124,7 +1138,9 @@ def lists_delete(code: str, list_id: str) -> Response:
 
 @api_bp.route("/events/<code>/lists/<list_id>/items")
 @limiter.limit("60 per minute", key_func=api_key_func)
-@api_endpoint(description="Liste des articles d'une liste", request=None, response={"items": "list"})
+@api_endpoint(
+    description="Liste des articles d'une liste", request=None, response={"items": "list"}
+)
 def items_list(code: str, list_id: str) -> Response:
     ctx = _ctx()
     shared_list = SharedList.query.filter_by(id=list_id, event_id=ctx.event.id).first()
@@ -1205,9 +1221,7 @@ def logistics_create(code: str) -> Response:
 def polls_list(code: str) -> Response:
     ctx = _ctx()
     polls = (
-        Poll.query.filter_by(event_id=ctx.event.id)
-        .order_by(Poll.created_at.desc(), Poll.id)
-        .all()
+        Poll.query.filter_by(event_id=ctx.event.id).order_by(Poll.created_at.desc(), Poll.id).all()
     )
     return jsonify({"polls": [_poll_json(v) for v in poll_views(polls, ctx.participant)]})
 
@@ -1216,7 +1230,11 @@ def polls_list(code: str) -> Response:
 @limiter.limit("60 per minute", key_func=api_key_func)
 @api_endpoint(
     description="Créer un sondage",
-    request={"question": "string, requis, 2-300", "kind": "free|activities", "options": "string (libellés séparés par saut de ligne)"},
+    request={
+        "question": "string, requis, 2-300",
+        "kind": "free|activities",
+        "options": "string (libellés séparés par saut de ligne)",
+    },
     response={"id": "string"},
 )
 def polls_create(code: str) -> Response:
@@ -1285,7 +1303,9 @@ def vote(code: str, poll_id: str) -> Response:
 
 @api_bp.route("/events/<code>/chat")
 @limiter.limit("60 per minute", key_func=api_key_func)
-@api_endpoint(description="Les 50 derniers messages du chat", request=None, response={"messages": "list"})
+@api_endpoint(
+    description="Les 50 derniers messages du chat", request=None, response={"messages": "list"}
+)
 def chat_list(code: str) -> Response:
     ctx = _ctx()
     messages = (
@@ -1370,7 +1390,11 @@ def costs_dashboard(code: str) -> Response:
 @limiter.limit("60 per minute", key_func=api_key_func)
 @api_endpoint(
     description="Ajouter une dépense",
-    request={"description": "string, requis, max 300", "amount": "string, requis, > 0", "household_id": "string, requis"},
+    request={
+        "description": "string, requis, max 300",
+        "amount": "string, requis, > 0",
+        "household_id": "string, requis",
+    },
     response={"id": "string"},
 )
 def expenses_create(code: str) -> Response:
@@ -1422,7 +1446,11 @@ def households_create(code: str) -> Response:
 @limiter.limit("60 per minute", key_func=api_key_func)
 @api_endpoint(
     description="Enregistrer un transfert",
-    request={"from_household_id": "string, requis", "to_household_id": "string, requis", "amount": "string, requis, > 0"},
+    request={
+        "from_household_id": "string, requis",
+        "to_household_id": "string, requis",
+        "amount": "string, requis, > 0",
+    },
     response={"id": "string"},
 )
 def transfers_create(code: str) -> Response:
@@ -1441,7 +1469,9 @@ def transfers_create(code: str) -> Response:
         created_by=ctx.participant.id if ctx.participant else None,
     )
     db.session.add(transfer)
-    log_event(ctx, "transfer.created", details=f"{values['amount_cents'] / 100:.2f} {BASE_CURRENCY}")
+    log_event(
+        ctx, "transfer.created", details=f"{values['amount_cents'] / 100:.2f} {BASE_CURRENCY}"
+    )
     db.session.commit()
     return jsonify(_transfer_json(transfer)), 201
 
@@ -1450,7 +1480,11 @@ def transfers_create(code: str) -> Response:
 @limiter.limit("60 per minute", key_func=api_key_func)
 @api_endpoint(
     description="Créer une demande de paiement",
-    request={"from_household_id": "string, requis", "to_household_id": "string, requis", "amount": "string, requis, > 0"},
+    request={
+        "from_household_id": "string, requis",
+        "to_household_id": "string, requis",
+        "amount": "string, requis, > 0",
+    },
     response={"id": "string"},
 )
 def payment_requests_create(code: str) -> Response:
@@ -1468,6 +1502,10 @@ def payment_requests_create(code: str) -> Response:
         created_by=ctx.participant.id if ctx.participant else None,
     )
     db.session.add(payment_request)
-    log_event(ctx, "payment_request.created", details=f"{values['amount_cents'] / 100:.2f} {BASE_CURRENCY}")
+    log_event(
+        ctx,
+        "payment_request.created",
+        details=f"{values['amount_cents'] / 100:.2f} {BASE_CURRENCY}",
+    )
     db.session.commit()
     return jsonify(_payment_request_json(payment_request)), 201

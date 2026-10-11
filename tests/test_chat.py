@@ -95,9 +95,10 @@ class TestChatSend:
         assert msg is not None
         assert msg.content == "Bonjour tout le monde"
         assert msg.author_type == "creator"
-        assert msg.guest_id == Guest.query.filter_by(
-            creator_id=creator.id, event_id=event.id
-        ).first().id
+        assert (
+            msg.guest_id
+            == Guest.query.filter_by(creator_id=creator.id, event_id=event.id).first().id
+        )
 
     def test_send_message_empty(self, client, creator, event, db):
         _login_creator(client, creator)

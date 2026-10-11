@@ -352,8 +352,12 @@ def test_media_delete_by_creator_logs_deleting_actor(creator_client, db, event, 
 def test_list_claim_item_assigned_to_other_guest_403(
     guest_client, db, event, guest, other_guest_c, shared_list
 ):
-    item = ListItem(name="Pain", assigned_to="Other Guest", assigned_to_id=other_guest_c.id,
-                    list_id=shared_list.id)
+    item = ListItem(
+        name="Pain",
+        assigned_to="Other Guest",
+        assigned_to_id=other_guest_c.id,
+        list_id=shared_list.id,
+    )
     db.session.add(item)
     db.session.commit()
     resp = guest_client.post(_item_url(event, shared_list, item, "claim"))
@@ -364,8 +368,12 @@ def test_list_claim_item_assigned_to_other_guest_403(
 def test_list_claim_item_assigned_to_other_guest_creator_may_reassign(
     creator_client, db, event, creator_guest, other_guest_c, shared_list
 ):
-    item = ListItem(name="Pain", assigned_to="Other Guest", assigned_to_id=other_guest_c.id,
-                    list_id=shared_list.id)
+    item = ListItem(
+        name="Pain",
+        assigned_to="Other Guest",
+        assigned_to_id=other_guest_c.id,
+        list_id=shared_list.id,
+    )
     db.session.add(item)
     db.session.commit()
     creator_client.post(_item_url(event, shared_list, item, "claim"))

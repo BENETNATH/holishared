@@ -187,7 +187,9 @@ def _populate_rich(db: Any, models: Any, rich: Any, creator_guest: Any) -> dict[
 
     # Sondage d'activités ouvert (B025) : badge « En vote » dans le Planning, Antoine n'a pas voté.
     pool = m.Activity.query.filter_by(event_id=rich.id, title="Piscine").one()
-    caves = m.Activity.query.filter_by(event_id=rich.id, title="Visite des grottes de Choranche").one()
+    caves = m.Activity.query.filter_by(
+        event_id=rich.id, title="Visite des grottes de Choranche"
+    ).one()
     activities_poll = m.Poll(
         question="Quelle activité pour mardi ?",
         kind="activities",
@@ -198,7 +200,9 @@ def _populate_rich(db: Any, models: Any, rich: Any, creator_guest: Any) -> dict[
     db.session.flush()
     for order, act in enumerate((pool, caves)):
         db.session.add(
-            m.PollOption(label=act.title, order=order, poll_id=activities_poll.id, activity_id=act.id)
+            m.PollOption(
+                label=act.title, order=order, poll_id=activities_poll.id, activity_id=act.id
+            )
         )
     # Sondage clos (B025) : résultats visibles à tous, option gagnante mise en évidence.
     closed = m.Poll(question="Où dîner samedi ?", is_closed=True, event_id=rich.id)
@@ -275,7 +279,9 @@ def _populate_rich(db: Any, models: Any, rich: Any, creator_guest: Any) -> dict[
         )
 
     # Journal (B020) : de quoi voir les groupes par jour, les icônes par module et les filtres.
-    yesterday = datetime.utcnow().replace(hour=18, minute=30, second=0, microsecond=0) - timedelta(days=1)
+    yesterday = datetime.utcnow().replace(hour=18, minute=30, second=0, microsecond=0) - timedelta(
+        days=1
+    )
     for hours, name, kind, action, target, details in (
         (0, "Camille", "creator", "activity.created", "Randonnée au lac", None),
         (1, "Antoine", "guest", "list_item.created", "Pain", "Courses"),
@@ -382,21 +388,30 @@ def _demo_image(kind: str, index: int, exif: Any = None) -> bytes:
 
     from PIL import Image, ImageDraw
 
-    width, height = {"landscape": (1600, 1066), "portrait": (1066, 1600), "square": (1200, 1200)}[kind]
+    width, height = {"landscape": (1600, 1066), "portrait": (1066, 1600), "square": (1200, 1200)}[
+        kind
+    ]
     hue = (index * 47) % 360
     img = Image.new("RGB", (width, height))
     draw = ImageDraw.Draw(img)
     for y in range(height):
         shade = int(255 * y / height)
         draw.line([(0, y), (width, y)], fill=(40 + shade // 3, 90 + (hue % 120), 160 + shade // 4))
-    draw.ellipse([width * 0.15, height * 0.2, width * 0.55, height * 0.2 + width * 0.4], fill=(240, 200 - hue % 80, 90))
-    draw.polygon([(0, height), (width * 0.45, height * 0.55), (width, height)], fill=(36, 70 + hue % 60, 52))
+    draw.ellipse(
+        [width * 0.15, height * 0.2, width * 0.55, height * 0.2 + width * 0.4],
+        fill=(240, 200 - hue % 80, 90),
+    )
+    draw.polygon(
+        [(0, height), (width * 0.45, height * 0.55), (width, height)], fill=(36, 70 + hue % 60, 52)
+    )
     buf = io.BytesIO()
     img.save(buf, "JPEG", quality=82, exif=exif or Image.Exif())
     return buf.getvalue()
 
 
-def _populate_media(db: Any, m: Any, rich: Any, creator_guest: Any, antoine: Any, instance_path: Path) -> dict[str, str]:
+def _populate_media(
+    db: Any, m: Any, rich: Any, creator_guest: Any, antoine: Any, instance_path: Path
+) -> dict[str, str]:
     """Galerie de démo : vraies images (paysage, portrait, carré, EXIF GPS/date), une vidéo ; sur trois jours."""
     from PIL import Image
 
@@ -546,7 +561,9 @@ def seed(out_dir: Path, port: int = 8499) -> dict[str, Any]:
 
         rich = events["rich"]
         objects = _populate_rich(db, m, rich, creator_guests["rich"])
-        media_ids = _populate_media(db, m, rich, creator_guests["rich"], objects["antoine"], instance_path)
+        media_ids = _populate_media(
+            db, m, rich, creator_guests["rich"], objects["antoine"], instance_path
+        )
 
         ser = app.session_interface.get_signing_serializer(app)  # type: ignore[attr-defined]
         cookies = {

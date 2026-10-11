@@ -105,10 +105,14 @@ class TestDeleteEvent:
         media_dir = Path(app.instance_path) / "media" / event.code
         media_dir.mkdir(parents=True, exist_ok=True)
         (media_dir / "file1.jpg").write_bytes(b"data")
-        db.session.add(MediaItem(
-            filename="file1.jpg", mime_type="image/jpeg",
-            size_bytes=4, event_id=event.id,
-        ))
+        db.session.add(
+            MediaItem(
+                filename="file1.jpg",
+                mime_type="image/jpeg",
+                size_bytes=4,
+                event_id=event.id,
+            )
+        )
         db.session.commit()
         assert media_dir.exists()
         client.post(f"/e/{event.code}/delete")

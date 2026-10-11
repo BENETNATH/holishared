@@ -45,7 +45,7 @@ def create_app() -> Flask:
     if db_uri == "sqlite:///:memory:":
         pass  # in-memory DB, no path resolution needed
     elif db_uri.startswith("sqlite:///") and not db_uri.startswith("sqlite:////"):
-        rel_path = db_uri[len("sqlite:///"):]
+        rel_path = db_uri[len("sqlite:///") :]
         abs_path = BASE_DIR / rel_path
         db_uri = f"sqlite:///{abs_path}"
     app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
@@ -102,9 +102,7 @@ def create_app() -> Flask:
         ","
     )
     # Compiled catalogs live in <project>/translations/<locale>/LC_MESSAGES.
-    app.config["BABEL_TRANSLATION_DIRECTORIES"] = os.path.join(
-        BASE_DIR, "translations"
-    )
+    app.config["BABEL_TRANSLATION_DIRECTORIES"] = os.path.join(BASE_DIR, "translations")
 
     # Extensions
     from flask_wtf import CSRFProtect
@@ -128,6 +126,7 @@ def create_app() -> Flask:
     # Ensure database tables exist (idempotent; no-op if already created).
     # Import models first so SQLAlchemy knows about all tables.
     from app import models as _models  # noqa: F401
+
     # SQLite: enable WAL mode + busy timeout for concurrent access.
     with app.app_context():
         if db_uri.startswith("sqlite"):
@@ -140,6 +139,7 @@ def create_app() -> Flask:
                 cursor.execute("PRAGMA busy_timeout=5000")
                 cursor.execute("PRAGMA foreign_keys=ON")  # cascades ON DELETE (B023)
                 cursor.close()
+
         db.create_all()
 
     with app.app_context():
@@ -159,9 +159,8 @@ def create_app() -> Flask:
         lang = session.get("lang")
         if lang in supported:
             return cast("str", lang)
-        return (
-            request.accept_languages.best_match(supported)
-            or cast("str", app.config["BABEL_DEFAULT_LOCALE"])
+        return request.accept_languages.best_match(supported) or cast(
+            "str", app.config["BABEL_DEFAULT_LOCALE"]
         )
 
     babel.init_app(app, locale_selector=get_locale)
@@ -174,6 +173,7 @@ def create_app() -> Flask:
     def _reset_locale_on_switch() -> None:
         if request.args.get("lang"):
             from flask import g as _g
+
             fb = getattr(_g, "_flask_babel", None)
             if fb is not None and hasattr(fb, "babel_locale"):
                 fb.babel_locale = None
@@ -187,6 +187,7 @@ def create_app() -> Flask:
     def add_days_filter(value: object, days: int) -> object:
         from datetime import date as _date
         from datetime import timedelta
+
         if isinstance(value, _date):
             return value + timedelta(days=days)
         return value
@@ -315,7 +316,12 @@ def create_app() -> Flask:
             return e
         response = make_response("", 429)
         response.headers["HX-Trigger"] = json.dumps(
-            {"ui:toast": {"message": gettext("Trop de requêtes. Patientez un instant."), "tone": "danger"}},
+            {
+                "ui:toast": {
+                    "message": gettext("Trop de requêtes. Patientez un instant."),
+                    "tone": "danger",
+                }
+            },
             ensure_ascii=True,
         )
         return response

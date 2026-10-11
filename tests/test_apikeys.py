@@ -104,9 +104,9 @@ class TestApiKeyModel:
 
     def test_apikey_exactly_one_owner(self, db, event, creator, guest):
         """§3.2 : ValueError si 0 ou 2 owners ; sinon exactement un non nul."""
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="exactly one of guest/creator"):
             make_key(db, event)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="exactly one of guest/creator"):
             make_key(db, event, guest=guest, creator=creator)
         api_key, _ = make_key(db, event, creator=creator)
         assert api_key.owner_creator_id == creator.id

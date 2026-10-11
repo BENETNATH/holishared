@@ -790,9 +790,13 @@ def add_payment_request(code: str) -> str | Response | tuple[str, int]:
     recipient = payment_request.to_household.guest_id
     if recipient:  # foyer sans participant : personne à notifier (jamais de diffusion)
         notify(
-            ctx.event, "requests", ctx.participant, "",
+            ctx.event,
+            "requests",
+            ctx.participant,
+            "",
             url_for("costs.index", code=code, tab="requests"),
-            f"request-{payment_request.id}", only_guest_id=recipient,
+            f"request-{payment_request.id}",
+            only_guest_id=recipient,
         )
     flash(_("Demande de paiement créée."), "success")
     return _back(code, "requests")

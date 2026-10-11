@@ -33,16 +33,22 @@ class Creator(UserMixin, db.Model):  # type: ignore[misc,name-defined]
 
     __tablename__ = "creators"
 
-    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    id: Mapped[str] = db.Column(
+        db.String(32), primary_key=True, default=lambda: secrets.token_hex(16)
+    )
     email: Mapped[str | None] = db.Column(db.String(255), unique=True, nullable=True)
     email_verified: Mapped[bool] = db.Column(db.Boolean, default=False)
-    verification_token: Mapped[str] = db.Column(db.String(64), default=lambda: secrets.token_hex(32))
+    verification_token: Mapped[str] = db.Column(
+        db.String(64), default=lambda: secrets.token_hex(32)
+    )
     verification_sent_at: Mapped[datetime | None] = db.Column(db.DateTime, nullable=True)
     display_name: Mapped[str] = db.Column(db.String(100), default="")
     personal_code: Mapped[str] = db.Column(db.String(8), unique=True, nullable=True, default=None)
     # Freemium feature tier: "free", "pro", "unlimited".
     # (Distinct from MediaQuota.tier, which is the storage-storage tier.)
-    tier: Mapped[str] = db.Column(db.String(20), nullable=False, default="free", server_default="free")
+    tier: Mapped[str] = db.Column(
+        db.String(20), nullable=False, default="free", server_default="free"
+    )
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
 
     events = db.relationship("Event", backref="creator", lazy="dynamic")
@@ -56,8 +62,12 @@ class Event(db.Model):  # type: ignore[misc,name-defined]
 
     __tablename__ = "events"
 
-    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
-    code: Mapped[str] = db.Column(db.String(6), unique=True, nullable=False, default=generate_event_code)
+    id: Mapped[str] = db.Column(
+        db.String(32), primary_key=True, default=lambda: secrets.token_hex(16)
+    )
+    code: Mapped[str] = db.Column(
+        db.String(6), unique=True, nullable=False, default=generate_event_code
+    )
     title: Mapped[str] = db.Column(db.String(200), nullable=False)
     description: Mapped[str] = db.Column(db.Text, default="")
     start_date: Mapped[date] = db.Column(db.Date, nullable=False)
@@ -77,9 +87,7 @@ class Event(db.Model):  # type: ignore[misc,name-defined]
     activities = db.relationship(
         "Activity", backref="event", lazy="dynamic", cascade="all, delete-orphan"
     )
-    meals = db.relationship(
-        "Meal", backref="event", lazy="dynamic", cascade="all, delete-orphan"
-    )
+    meals = db.relationship("Meal", backref="event", lazy="dynamic", cascade="all, delete-orphan")
     lists = db.relationship(
         "SharedList", backref="event", lazy="dynamic", cascade="all, delete-orphan"
     )
@@ -110,7 +118,9 @@ class Guest(db.Model):  # type: ignore[misc,name-defined]
 
     __tablename__ = "guests"
 
-    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    id: Mapped[str] = db.Column(
+        db.String(32), primary_key=True, default=lambda: secrets.token_hex(16)
+    )
     code: Mapped[str] = db.Column(db.String(16), nullable=False)
     display_name: Mapped[str] = db.Column(db.String(50), nullable=False)
     # Optional contact email, used only so the creator can re-send the
@@ -123,7 +133,9 @@ class Guest(db.Model):  # type: ignore[misc,name-defined]
     # Set when this Guest is the event creator's own participant identity
     # (the creator is a participant in their own event: they can vote, RSVP,
     # and appear in the groups). Null for regular invited guests.
-    creator_id: Mapped[str | None] = db.Column(db.String(32), db.ForeignKey("creators.id"), nullable=True)
+    creator_id: Mapped[str | None] = db.Column(
+        db.String(32), db.ForeignKey("creators.id"), nullable=True
+    )
 
     # Unique constraint: one code per event
     __table_args__ = (db.UniqueConstraint("event_id", "code", name="uq_guest_event_code"),)
@@ -141,7 +153,9 @@ class Activity(db.Model):  # type: ignore[misc,name-defined]
 
     __tablename__ = "activities"
 
-    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    id: Mapped[str] = db.Column(
+        db.String(32), primary_key=True, default=lambda: secrets.token_hex(16)
+    )
     title: Mapped[str] = db.Column(db.String(200), nullable=False)
     description: Mapped[str] = db.Column(db.Text, default="")
     date: Mapped[date] = db.Column(db.Date, nullable=False)
@@ -154,7 +168,9 @@ class Activity(db.Model):  # type: ignore[misc,name-defined]
     status: Mapped[str] = db.Column(
         db.String(10), nullable=False, default="planned", server_default="planned"
     )
-    created_by: Mapped[str | None] = db.Column(db.String(32), db.ForeignKey("guests.id"), default=None)
+    created_by: Mapped[str | None] = db.Column(
+        db.String(32), db.ForeignKey("guests.id"), default=None
+    )
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
 
     event_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False)
@@ -180,12 +196,16 @@ class Meal(db.Model):  # type: ignore[misc,name-defined]
 
     __tablename__ = "meals"
 
-    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    id: Mapped[str] = db.Column(
+        db.String(32), primary_key=True, default=lambda: secrets.token_hex(16)
+    )
     title: Mapped[str] = db.Column(db.String(200), nullable=False)
     date: Mapped[date] = db.Column(db.Date, nullable=False)
     slot: Mapped[str] = db.Column(db.String(10), nullable=False)  # 'lunch' | 'dinner'
     position: Mapped[int] = db.Column(db.Integer, nullable=False, default=0, server_default="0")
-    created_by: Mapped[str | None] = db.Column(db.String(32), db.ForeignKey("guests.id"), default=None)
+    created_by: Mapped[str | None] = db.Column(
+        db.String(32), db.ForeignKey("guests.id"), default=None
+    )
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
 
     event_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False)
@@ -204,11 +224,17 @@ class ActivityRSVP(db.Model):  # type: ignore[misc,name-defined]
 
     __tablename__ = "activity_rsvps"
 
-    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    id: Mapped[str] = db.Column(
+        db.String(32), primary_key=True, default=lambda: secrets.token_hex(16)
+    )
     status: Mapped[str] = db.Column(db.String(10), nullable=False)  # yes, no, maybe
-    updated_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at: Mapped[datetime] = db.Column(
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
-    activity_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("activities.id"), nullable=False)
+    activity_id: Mapped[str] = db.Column(
+        db.String(32), db.ForeignKey("activities.id"), nullable=False
+    )
     guest_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("guests.id"), nullable=False)
 
     __table_args__ = (
@@ -221,7 +247,9 @@ class ActivityLog(db.Model):  # type: ignore[misc,name-defined]
 
     __tablename__ = "activity_logs"
 
-    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    id: Mapped[str] = db.Column(
+        db.String(32), primary_key=True, default=lambda: secrets.token_hex(16)
+    )
     actor_name: Mapped[str] = db.Column(db.String(100), nullable=False)
     actor_type: Mapped[str] = db.Column(db.String(20), nullable=False)  # creator, guest, system
     action: Mapped[str] = db.Column(db.String(50), nullable=False)
@@ -229,7 +257,9 @@ class ActivityLog(db.Model):  # type: ignore[misc,name-defined]
     details: Mapped[str | None] = db.Column(db.Text, default=None)
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow, index=True)
 
-    event_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False, index=True)
+    event_id: Mapped[str] = db.Column(
+        db.String(32), db.ForeignKey("events.id"), nullable=False, index=True
+    )
 
 
 class SharedList(db.Model):  # type: ignore[misc,name-defined]
@@ -237,9 +267,13 @@ class SharedList(db.Model):  # type: ignore[misc,name-defined]
 
     __tablename__ = "shared_lists"
 
-    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    id: Mapped[str] = db.Column(
+        db.String(32), primary_key=True, default=lambda: secrets.token_hex(16)
+    )
     title: Mapped[str] = db.Column(db.String(200), nullable=False)
-    list_type: Mapped[str] = db.Column(db.String(50), default="general")  # shopping, packing, materials, buffet
+    list_type: Mapped[str] = db.Column(
+        db.String(50), default="general"
+    )  # shopping, packing, materials, buffet
     # Colonnes JSON historiques : ni lues ni écrites depuis B023 (remplacées par ListMealCoverage /
     # ListActivityCoverage, migrées par app.migrations) ; suppression physique prévue en B028.
     covered_meals: Mapped[list] = db.Column(db.JSON, default=list)
@@ -258,17 +292,25 @@ class ListItem(db.Model):  # type: ignore[misc,name-defined]
 
     __tablename__ = "list_items"
 
-    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    id: Mapped[str] = db.Column(
+        db.String(32), primary_key=True, default=lambda: secrets.token_hex(16)
+    )
     name: Mapped[str] = db.Column(db.String(300), nullable=False)
     quantity: Mapped[str] = db.Column(db.String(50), default="1")
     assigned_to: Mapped[str] = db.Column(db.String(50), default="")  # display name of who takes it
-    assigned_to_id: Mapped[str | None] = db.Column(db.String(32), nullable=True)  # guest id or creator id
+    assigned_to_id: Mapped[str | None] = db.Column(
+        db.String(32), nullable=True
+    )  # guest id or creator id
     is_done: Mapped[bool] = db.Column(db.Boolean, default=False)
     section: Mapped[str] = db.Column(db.String(100), default="")  # category within the list
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
-    created_by: Mapped[str | None] = db.Column(db.String(32), db.ForeignKey("guests.id"), default=None)
+    created_by: Mapped[str | None] = db.Column(
+        db.String(32), db.ForeignKey("guests.id"), default=None
+    )
 
-    list_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("shared_lists.id"), nullable=False)
+    list_id: Mapped[str] = db.Column(
+        db.String(32), db.ForeignKey("shared_lists.id"), nullable=False
+    )
 
 
 class ListMealCoverage(db.Model):  # type: ignore[misc,name-defined]
@@ -310,12 +352,18 @@ class Poll(db.Model):  # type: ignore[misc,name-defined]
 
     __tablename__ = "polls"
 
-    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    id: Mapped[str] = db.Column(
+        db.String(32), primary_key=True, default=lambda: secrets.token_hex(16)
+    )
     question: Mapped[str] = db.Column(db.String(300), nullable=False)
     is_closed: Mapped[bool] = db.Column(db.Boolean, default=False)
     # B025 : 'free' (question libre) | 'activities' (départager des activités du Planning).
-    kind: Mapped[str] = db.Column(db.String(20), nullable=False, default="free", server_default="free")
-    created_by: Mapped[str | None] = db.Column(db.String(32), db.ForeignKey("guests.id"), default=None)
+    kind: Mapped[str] = db.Column(
+        db.String(20), nullable=False, default="free", server_default="free"
+    )
+    created_by: Mapped[str | None] = db.Column(
+        db.String(32), db.ForeignKey("guests.id"), default=None
+    )
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
 
     event_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False)
@@ -330,7 +378,9 @@ class PollOption(db.Model):  # type: ignore[misc,name-defined]
 
     __tablename__ = "poll_options"
 
-    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    id: Mapped[str] = db.Column(
+        db.String(32), primary_key=True, default=lambda: secrets.token_hex(16)
+    )
     label: Mapped[str] = db.Column(db.String(200), nullable=False)
     order: Mapped[int] = db.Column(db.Integer, default=0)
 
@@ -351,10 +401,14 @@ class PollVote(db.Model):  # type: ignore[misc,name-defined]
 
     __tablename__ = "poll_votes"
 
-    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    id: Mapped[str] = db.Column(
+        db.String(32), primary_key=True, default=lambda: secrets.token_hex(16)
+    )
     voted_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
 
-    option_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("poll_options.id"), nullable=False)
+    option_id: Mapped[str] = db.Column(
+        db.String(32), db.ForeignKey("poll_options.id"), nullable=False
+    )
     guest_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("guests.id"), nullable=False)
 
     __table_args__ = (db.UniqueConstraint("option_id", "guest_id", name="uq_vote_option_guest"),)
@@ -365,10 +419,14 @@ class LogisticsItem(db.Model):  # type: ignore[misc,name-defined]
 
     __tablename__ = "logistics_items"
 
-    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    id: Mapped[str] = db.Column(
+        db.String(32), primary_key=True, default=lambda: secrets.token_hex(16)
+    )
     title: Mapped[str] = db.Column(db.String(200), nullable=False)
     content: Mapped[str] = db.Column(db.Text, default="")
-    category: Mapped[str] = db.Column(db.String(50), default="general")  # address, access, timing, docs, notes
+    category: Mapped[str] = db.Column(
+        db.String(50), default="general"
+    )  # address, access, timing, docs, notes
     order: Mapped[int] = db.Column(db.Integer, default=0)
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -380,27 +438,43 @@ class MediaItem(db.Model):  # type: ignore[misc,name-defined]
 
     __tablename__ = "media_items"
 
-    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    id: Mapped[str] = db.Column(
+        db.String(32), primary_key=True, default=lambda: secrets.token_hex(16)
+    )
     filename: Mapped[str] = db.Column(db.String(255), nullable=False)  # stored filename
     original_name: Mapped[str] = db.Column(db.String(255), default="")  # user's original filename
-    mime_type: Mapped[str] = db.Column(db.String(100), nullable=False)  # image/jpeg, video/mp4, etc.
+    mime_type: Mapped[str] = db.Column(
+        db.String(100), nullable=False
+    )  # image/jpeg, video/mp4, etc.
     size_bytes: Mapped[int] = db.Column(db.Integer, nullable=False)  # file size in bytes
     caption: Mapped[str] = db.Column(db.Text, default="")  # optional description
 
     # Geolocation (WGS84)
     latitude: Mapped[float | None] = db.Column(db.Float, nullable=True)
     longitude: Mapped[float | None] = db.Column(db.Float, nullable=True)
-    geo_precision: Mapped[str] = db.Column(db.String(20), default="approximate")  # exact, approximate, city
+    geo_precision: Mapped[str] = db.Column(
+        db.String(20), default="approximate"
+    )  # exact, approximate, city
 
     # Dating
-    taken_at: Mapped[datetime | None] = db.Column(db.DateTime, nullable=True)  # when the photo/video was taken
-    uploaded_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)  # when uploaded to the event
+    taken_at: Mapped[datetime | None] = db.Column(
+        db.DateTime, nullable=True
+    )  # when the photo/video was taken
+    uploaded_at: Mapped[datetime] = db.Column(
+        db.DateTime, default=datetime.utcnow
+    )  # when uploaded to the event
 
     # Author
-    uploaded_by: Mapped[str | None] = db.Column(db.String(32), db.ForeignKey("guests.id"), nullable=True)
-    uploaded_by_name: Mapped[str] = db.Column(db.String(100), default="Créateur")  # denormalized for display
+    uploaded_by: Mapped[str | None] = db.Column(
+        db.String(32), db.ForeignKey("guests.id"), nullable=True
+    )
+    uploaded_by_name: Mapped[str] = db.Column(
+        db.String(100), default="Créateur"
+    )  # denormalized for display
 
-    event_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False, index=True)
+    event_id: Mapped[str] = db.Column(
+        db.String(32), db.ForeignKey("events.id"), nullable=False, index=True
+    )
 
     event = db.relationship(
         "Event", backref=db.backref("media", lazy="dynamic", cascade="all, delete-orphan")
@@ -421,14 +495,20 @@ class ChatMessage(db.Model):  # type: ignore[misc,name-defined]
 
     __tablename__ = "chat_messages"
 
-    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    id: Mapped[str] = db.Column(
+        db.String(32), primary_key=True, default=lambda: secrets.token_hex(16)
+    )
     content: Mapped[str] = db.Column(db.Text, nullable=False)
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow, index=True)
-    guest_id: Mapped[str | None] = db.Column(db.String(32), db.ForeignKey("guests.id"), nullable=True)
+    guest_id: Mapped[str | None] = db.Column(
+        db.String(32), db.ForeignKey("guests.id"), nullable=True
+    )
     author_name: Mapped[str] = db.Column(db.String(100), nullable=False)
     author_type: Mapped[str] = db.Column(db.String(20), nullable=False)  # creator, guest
 
-    event_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False, index=True)
+    event_id: Mapped[str] = db.Column(
+        db.String(32), db.ForeignKey("events.id"), nullable=False, index=True
+    )
 
 
 class MediaQuota(db.Model):  # type: ignore[misc,name-defined]
@@ -436,12 +516,18 @@ class MediaQuota(db.Model):  # type: ignore[misc,name-defined]
 
     __tablename__ = "media_quotas"
 
-    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
-    creator_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("creators.id"), unique=True, nullable=False)
+    id: Mapped[str] = db.Column(
+        db.String(32), primary_key=True, default=lambda: secrets.token_hex(16)
+    )
+    creator_id: Mapped[str] = db.Column(
+        db.String(32), db.ForeignKey("creators.id"), unique=True, nullable=False
+    )
     tier: Mapped[str] = db.Column(db.String(20), default="free")  # free, basic, premium
     max_bytes: Mapped[int] = db.Column(db.BigInteger, default=524288000)  # 500 MB default (free)
     used_bytes: Mapped[int] = db.Column(db.BigInteger, default=0)
-    updated_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at: Mapped[datetime] = db.Column(
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     creator = db.relationship("Creator", backref=db.backref("media_quota", uselist=False))
 
@@ -462,18 +548,30 @@ class Household(db.Model):  # type: ignore[misc,name-defined]
 
     __tablename__ = "households"
 
-    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    id: Mapped[str] = db.Column(
+        db.String(32), primary_key=True, default=lambda: secrets.token_hex(16)
+    )
     name: Mapped[str] = db.Column(db.String(100), nullable=False)  # "Famille Dupont"
     num_adults: Mapped[int] = db.Column(db.Integer, nullable=False, default=1)
     num_children: Mapped[int] = db.Column(db.Integer, nullable=False, default=0)
-    adult_weight: Mapped[float] = db.Column(db.Float, nullable=False, default=1.0)  # parts per adult
-    child_weight: Mapped[float] = db.Column(db.Float, nullable=False, default=0.5)  # parts per child
+    adult_weight: Mapped[float] = db.Column(
+        db.Float, nullable=False, default=1.0
+    )  # parts per adult
+    child_weight: Mapped[float] = db.Column(
+        db.Float, nullable=False, default=0.5
+    )  # parts per child
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
 
-    event_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False, index=True)
-    guest_id: Mapped[str | None] = db.Column(db.String(32), db.ForeignKey("guests.id"), nullable=True)
+    event_id: Mapped[str] = db.Column(
+        db.String(32), db.ForeignKey("events.id"), nullable=False, index=True
+    )
+    guest_id: Mapped[str | None] = db.Column(
+        db.String(32), db.ForeignKey("guests.id"), nullable=True
+    )
 
-    event = db.relationship("Event", backref=db.backref("households", lazy="dynamic", cascade="all, delete-orphan"))
+    event = db.relationship(
+        "Event", backref=db.backref("households", lazy="dynamic", cascade="all, delete-orphan")
+    )
     guest = db.relationship("Guest", backref=db.backref("household", lazy=True))
 
     @property
@@ -491,25 +589,41 @@ class Expense(db.Model):  # type: ignore[misc,name-defined]
 
     __tablename__ = "expenses"
 
-    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    id: Mapped[str] = db.Column(
+        db.String(32), primary_key=True, default=lambda: secrets.token_hex(16)
+    )
     description: Mapped[str] = db.Column(db.String(300), nullable=False)
-    amount_cents: Mapped[int] = db.Column(db.Integer, nullable=False)  # in cents to avoid float issues
+    amount_cents: Mapped[int] = db.Column(
+        db.Integer, nullable=False
+    )  # in cents to avoid float issues
     currency: Mapped[str] = db.Column(db.String(3), default="EUR")  # ISO 4217
     exchange_rate: Mapped[float] = db.Column(db.Float, default=1.0)  # rate to base currency
-    paid_by_household_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("households.id"), nullable=False)
+    paid_by_household_id: Mapped[str] = db.Column(
+        db.String(32), db.ForeignKey("households.id"), nullable=False
+    )
     date: Mapped[date | None] = db.Column(db.Date, nullable=True)
-    category: Mapped[str] = db.Column(db.String(50), default="general")  # food, transport, lodging, activities, other
+    category: Mapped[str] = db.Column(
+        db.String(50), default="general"
+    )  # food, transport, lodging, activities, other
     # When False, the expense is personal (not included in cost sharing).
     is_shared: Mapped[bool] = db.Column(db.Boolean, default=True, nullable=False)
-    receipt_media_id: Mapped[str | None] = db.Column(db.String(32), db.ForeignKey("media_items.id"), nullable=True)
+    receipt_media_id: Mapped[str | None] = db.Column(
+        db.String(32), db.ForeignKey("media_items.id"), nullable=True
+    )
     # Custom split override: JSON {household_id: weight, ...}
     custom_split: Mapped[str | None] = db.Column(db.Text, nullable=True)
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
-    created_by: Mapped[str | None] = db.Column(db.String(32), db.ForeignKey("guests.id"), default=None)
+    created_by: Mapped[str | None] = db.Column(
+        db.String(32), db.ForeignKey("guests.id"), default=None
+    )
 
-    event_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False, index=True)
+    event_id: Mapped[str] = db.Column(
+        db.String(32), db.ForeignKey("events.id"), nullable=False, index=True
+    )
 
-    event = db.relationship("Event", backref=db.backref("expenses", lazy="dynamic", cascade="all, delete-orphan"))
+    event = db.relationship(
+        "Event", backref=db.backref("expenses", lazy="dynamic", cascade="all, delete-orphan")
+    )
     paid_by = db.relationship("Household", foreign_keys=[paid_by_household_id])
     receipt = db.relationship("MediaItem", foreign_keys=[receipt_media_id])
 
@@ -527,6 +641,7 @@ class Expense(db.Model):  # type: ignore[misc,name-defined]
         """Return {household_id: weight} for this expense.
         Uses custom_split if set, otherwise household total_weight."""
         import json
+
         if self.custom_split:
             try:
                 return cast("dict[str, float]", json.loads(self.custom_split))
@@ -540,20 +655,32 @@ class Transfer(db.Model):  # type: ignore[misc,name-defined]
 
     __tablename__ = "transfers"
 
-    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
-    from_household_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("households.id"), nullable=False)
-    to_household_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("households.id"), nullable=False)
+    id: Mapped[str] = db.Column(
+        db.String(32), primary_key=True, default=lambda: secrets.token_hex(16)
+    )
+    from_household_id: Mapped[str] = db.Column(
+        db.String(32), db.ForeignKey("households.id"), nullable=False
+    )
+    to_household_id: Mapped[str] = db.Column(
+        db.String(32), db.ForeignKey("households.id"), nullable=False
+    )
     amount_cents: Mapped[int] = db.Column(db.Integer, nullable=False)
     currency: Mapped[str] = db.Column(db.String(3), default="EUR")
     exchange_rate: Mapped[float] = db.Column(db.Float, default=1.0)
     note: Mapped[str] = db.Column(db.String(300), default="")
     date: Mapped[date | None] = db.Column(db.Date, nullable=True)
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
-    created_by: Mapped[str | None] = db.Column(db.String(32), db.ForeignKey("guests.id"), default=None)
+    created_by: Mapped[str | None] = db.Column(
+        db.String(32), db.ForeignKey("guests.id"), default=None
+    )
 
-    event_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False, index=True)
+    event_id: Mapped[str] = db.Column(
+        db.String(32), db.ForeignKey("events.id"), nullable=False, index=True
+    )
 
-    event = db.relationship("Event", backref=db.backref("transfers", lazy="dynamic", cascade="all, delete-orphan"))
+    event = db.relationship(
+        "Event", backref=db.backref("transfers", lazy="dynamic", cascade="all, delete-orphan")
+    )
     from_household = db.relationship("Household", foreign_keys=[from_household_id])
     to_household = db.relationship("Household", foreign_keys=[to_household_id])
 
@@ -567,19 +694,32 @@ class PaymentRequest(db.Model):  # type: ignore[misc,name-defined]
 
     __tablename__ = "payment_requests"
 
-    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
-    from_household_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("households.id"), nullable=False)
-    to_household_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("households.id"), nullable=False)
+    id: Mapped[str] = db.Column(
+        db.String(32), primary_key=True, default=lambda: secrets.token_hex(16)
+    )
+    from_household_id: Mapped[str] = db.Column(
+        db.String(32), db.ForeignKey("households.id"), nullable=False
+    )
+    to_household_id: Mapped[str] = db.Column(
+        db.String(32), db.ForeignKey("households.id"), nullable=False
+    )
     amount_cents: Mapped[int] = db.Column(db.Integer, nullable=False)
     message: Mapped[str] = db.Column(db.String(500), default="")
     is_resolved: Mapped[bool] = db.Column(db.Boolean, default=False)
     resolved_at: Mapped[datetime | None] = db.Column(db.DateTime, nullable=True)
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
-    created_by: Mapped[str | None] = db.Column(db.String(32), db.ForeignKey("guests.id"), default=None)
+    created_by: Mapped[str | None] = db.Column(
+        db.String(32), db.ForeignKey("guests.id"), default=None
+    )
 
-    event_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False, index=True)
+    event_id: Mapped[str] = db.Column(
+        db.String(32), db.ForeignKey("events.id"), nullable=False, index=True
+    )
 
-    event = db.relationship("Event", backref=db.backref("payment_requests", lazy="dynamic", cascade="all, delete-orphan"))
+    event = db.relationship(
+        "Event",
+        backref=db.backref("payment_requests", lazy="dynamic", cascade="all, delete-orphan"),
+    )
     from_household = db.relationship("Household", foreign_keys=[from_household_id])
     to_household = db.relationship("Household", foreign_keys=[to_household_id])
 
@@ -599,7 +739,9 @@ class PushSubscription(db.Model):  # type: ignore[misc,name-defined]
     __tablename__ = "push_subscriptions"
     __table_args__ = (db.UniqueConstraint("event_id", "endpoint", name="uq_push_event_endpoint"),)
 
-    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    id: Mapped[str] = db.Column(
+        db.String(32), primary_key=True, default=lambda: secrets.token_hex(16)
+    )
     guest_id: Mapped[str] = db.Column(
         db.String(32), db.ForeignKey("guests.id", ondelete="CASCADE"), nullable=False, index=True
     )
@@ -639,7 +781,9 @@ class ApiKey(db.Model):  # type: ignore[misc,name-defined]
 
     __tablename__ = "api_keys"
 
-    id: Mapped[str] = db.Column(db.String(32), primary_key=True, default=lambda: secrets.token_hex(16))
+    id: Mapped[str] = db.Column(
+        db.String(32), primary_key=True, default=lambda: secrets.token_hex(16)
+    )
     event_id: Mapped[str] = db.Column(
         db.String(32), db.ForeignKey("events.id", ondelete="CASCADE"), nullable=False, index=True
     )
@@ -649,7 +793,9 @@ class ApiKey(db.Model):  # type: ignore[misc,name-defined]
     owner_creator_id: Mapped[str | None] = db.Column(
         db.String(32), db.ForeignKey("creators.id", ondelete="CASCADE"), nullable=True, index=True
     )
-    key_hash: Mapped[str] = db.Column(db.String(64), unique=True, nullable=False)  # sha256 hex de la clé
+    key_hash: Mapped[str] = db.Column(
+        db.String(64), unique=True, nullable=False
+    )  # sha256 hex de la clé
     key_prefix: Mapped[str] = db.Column(db.String(12), nullable=False)  # key[:12]
     label: Mapped[str] = db.Column(db.String(100), default="")
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)

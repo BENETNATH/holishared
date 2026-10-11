@@ -81,9 +81,12 @@ class TestListsIndex:
 class TestCreateList:
     def test_create_list_success(self, client, creator, event, db):
         _login_creator(client, creator)
-        resp = client.post(f"/e/{event.code}/lists", data={
-            "title": "Buffet",
-        })
+        resp = client.post(
+            f"/e/{event.code}/lists",
+            data={
+                "title": "Buffet",
+            },
+        )
         assert resp.status_code == 302
         sl = SharedList.query.filter_by(title="Buffet").first()
         assert sl is not None
@@ -91,20 +94,24 @@ class TestCreateList:
 
     def test_create_list_missing_title(self, client, creator, event):
         _login_creator(client, creator)
-        resp = client.post(f"/e/{event.code}/lists", data={
-            "title": "",
-        })
+        resp = client.post(
+            f"/e/{event.code}/lists",
+            data={
+                "title": "",
+            },
+        )
         assert resp.status_code == 200
         assert b"Titre requis" in resp.data
 
     def test_create_list_logs(self, client, creator, event, db):
         _login_creator(client, creator)
-        client.post(f"/e/{event.code}/lists", data={
-            "title": "Logged List",
-        })
-        log = ActivityLog.query.filter_by(
-            event_id=event.id, action="list.created"
-        ).first()
+        client.post(
+            f"/e/{event.code}/lists",
+            data={
+                "title": "Logged List",
+            },
+        )
+        log = ActivityLog.query.filter_by(event_id=event.id, action="list.created").first()
         assert log is not None
         assert log.target == "Logged List"
         assert log.actor_type == "creator"
@@ -144,12 +151,15 @@ class TestListDetail:
 class TestAddItem:
     def test_add_item_success(self, client, creator, event, shared_list, db):
         _login_creator(client, creator)
-        resp = client.post(f"/e/{event.code}/lists/{shared_list.id}/items", data={
-            "name": "Bread",
-            "quantity": "3",
-            "section": "Bakery",
-            "assigned_to": "Test Guest",
-        })
+        resp = client.post(
+            f"/e/{event.code}/lists/{shared_list.id}/items",
+            data={
+                "name": "Bread",
+                "quantity": "3",
+                "section": "Bakery",
+                "assigned_to": "Test Guest",
+            },
+        )
         assert resp.status_code == 302
         item = ListItem.query.filter_by(name="Bread").first()
         assert item is not None
@@ -160,20 +170,24 @@ class TestAddItem:
 
     def test_add_item_missing_name(self, client, creator, event, shared_list):
         _login_creator(client, creator)
-        resp = client.post(f"/e/{event.code}/lists/{shared_list.id}/items", data={
-            "name": "",
-        })
+        resp = client.post(
+            f"/e/{event.code}/lists/{shared_list.id}/items",
+            data={
+                "name": "",
+            },
+        )
         assert resp.status_code == 200
         assert b"Nom requis" in resp.data
 
     def test_add_item_logs(self, client, creator, event, shared_list, db):
         _login_creator(client, creator)
-        client.post(f"/e/{event.code}/lists/{shared_list.id}/items", data={
-            "name": "Logged Item",
-        })
-        log = ActivityLog.query.filter_by(
-            event_id=event.id, action="list_item.created"
-        ).first()
+        client.post(
+            f"/e/{event.code}/lists/{shared_list.id}/items",
+            data={
+                "name": "Logged Item",
+            },
+        )
+        log = ActivityLog.query.filter_by(event_id=event.id, action="list_item.created").first()
         assert log is not None
         assert log.target == "Logged Item"
         assert log.actor_type == "creator"
@@ -186,9 +200,7 @@ class TestToggleItem:
     def test_toggle_item(self, client, creator, event, shared_list, list_item, db):
         _login_creator(client, creator)
         assert list_item.is_done is False
-        resp = client.post(
-            f"/e/{event.code}/lists/{shared_list.id}/items/{list_item.id}/toggle"
-        )
+        resp = client.post(f"/e/{event.code}/lists/{shared_list.id}/items/{list_item.id}/toggle")
         assert resp.status_code == 302
         db.session.refresh(list_item)
         assert list_item.is_done is True
@@ -196,9 +208,7 @@ class TestToggleItem:
     def test_toggle_item_logs(self, client, creator, event, shared_list, list_item, db):
         _login_creator(client, creator)
         client.post(f"/e/{event.code}/lists/{shared_list.id}/items/{list_item.id}/toggle")
-        log = ActivityLog.query.filter_by(
-            event_id=event.id, action="list_item.toggled"
-        ).first()
+        log = ActivityLog.query.filter_by(event_id=event.id, action="list_item.toggled").first()
         assert log is not None
         assert log.target == "Milk"
         assert log.details == "done"
@@ -210,18 +220,14 @@ class TestToggleItem:
 class TestDeleteItem:
     def test_delete_item(self, client, creator, event, shared_list, list_item, db):
         _login_creator(client, creator)
-        resp = client.post(
-            f"/e/{event.code}/lists/{shared_list.id}/items/{list_item.id}/delete"
-        )
+        resp = client.post(f"/e/{event.code}/lists/{shared_list.id}/items/{list_item.id}/delete")
         assert resp.status_code == 302
         assert ListItem.query.get(list_item.id) is None
 
     def test_delete_item_logs(self, client, creator, event, shared_list, list_item, db):
         _login_creator(client, creator)
         client.post(f"/e/{event.code}/lists/{shared_list.id}/items/{list_item.id}/delete")
-        log = ActivityLog.query.filter_by(
-            event_id=event.id, action="list_item.deleted"
-        ).first()
+        log = ActivityLog.query.filter_by(event_id=event.id, action="list_item.deleted").first()
         assert log is not None
         assert log.target == "Milk"
 
@@ -250,9 +256,7 @@ class TestDeleteList:
     def test_delete_list_logs(self, client, creator, event, shared_list, db):
         _login_creator(client, creator)
         client.post(f"/e/{event.code}/lists/{shared_list.id}/delete")
-        log = ActivityLog.query.filter_by(
-            event_id=event.id, action="list.deleted"
-        ).first()
+        log = ActivityLog.query.filter_by(event_id=event.id, action="list.deleted").first()
         assert log is not None
         assert log.target == "Shopping"
         assert log.actor_type == "creator"
@@ -267,9 +271,7 @@ class TestClaim:
         db.session.add(item)
         db.session.commit()
         _login_guest(client, event, guest)
-        resp = client.post(
-            f"/e/{event.code}/lists/{shared_list.id}/items/{item.id}/claim"
-        )
+        resp = client.post(f"/e/{event.code}/lists/{shared_list.id}/items/{item.id}/claim")
         assert resp.status_code == 302
         db.session.refresh(item)
         assert item.assigned_to == guest.display_name
@@ -280,20 +282,21 @@ class TestClaim:
         db.session.commit()
         _login_guest(client, event, guest)
         client.post(f"/e/{event.code}/lists/{shared_list.id}/items/{item.id}/claim")
-        log = ActivityLog.query.filter_by(
-            event_id=event.id, action="list_item.claimed"
-        ).first()
+        log = ActivityLog.query.filter_by(event_id=event.id, action="list_item.claimed").first()
         assert log is not None
         assert log.actor_type == "guest"
 
     def test_assignee_can_unclaim(self, client, event, guest, shared_list, db):
-        item = ListItem(name="Tâche", assigned_to=guest.display_name, assigned_to_id=guest.id, list_id=shared_list.id)
+        item = ListItem(
+            name="Tâche",
+            assigned_to=guest.display_name,
+            assigned_to_id=guest.id,
+            list_id=shared_list.id,
+        )
         db.session.add(item)
         db.session.commit()
         _login_guest(client, event, guest)
-        resp = client.post(
-            f"/e/{event.code}/lists/{shared_list.id}/items/{item.id}/unclaim"
-        )
+        resp = client.post(f"/e/{event.code}/lists/{shared_list.id}/items/{item.id}/unclaim")
         assert resp.status_code == 302
         db.session.refresh(item)
         assert item.assigned_to == ""
@@ -304,9 +307,7 @@ class TestClaim:
         db.session.add(item)
         db.session.commit()
         _login_guest(client, event, guest)
-        resp = client.post(
-            f"/e/{event.code}/lists/{shared_list.id}/items/{item.id}/unclaim"
-        )
+        resp = client.post(f"/e/{event.code}/lists/{shared_list.id}/items/{item.id}/unclaim")
         assert resp.status_code == 403
         db.session.refresh(item)
         assert item.assigned_to == other
@@ -316,9 +317,7 @@ class TestClaim:
         db.session.add(item)
         db.session.commit()
         _login_creator(client, creator)
-        resp = client.post(
-            f"/e/{event.code}/lists/{shared_list.id}/items/{item.id}/unclaim"
-        )
+        resp = client.post(f"/e/{event.code}/lists/{shared_list.id}/items/{item.id}/unclaim")
         assert resp.status_code == 302
         db.session.refresh(item)
         assert item.assigned_to == ""

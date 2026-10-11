@@ -31,13 +31,8 @@ def find_orphans(media_root: Path) -> list[Path]:
             # L'événement entier a été supprimé : tout le dossier est orphelin
             orphans.extend(f for f in event_dir.iterdir() if f.is_file())
             continue
-        known = {
-            item.filename
-            for item in MediaItem.query.filter_by(event_id=event.id).all()
-        }
-        orphans.extend(
-            f for f in event_dir.iterdir() if f.is_file() and f.name not in known
-        )
+        known = {item.filename for item in MediaItem.query.filter_by(event_id=event.id).all()}
+        orphans.extend(f for f in event_dir.iterdir() if f.is_file() and f.name not in known)
     return orphans
 
 

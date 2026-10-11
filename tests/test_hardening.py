@@ -55,10 +55,7 @@ class TestSecurityHeaders:
     def test_hsts_header(self, client):
         """HSTS est actif 1 an avec les sous-domaines."""
         resp = client.get("/health")
-        assert (
-            resp.headers["Strict-Transport-Security"]
-            == "max-age=31536000; includeSubDomains"
-        )
+        assert resp.headers["Strict-Transport-Security"] == "max-age=31536000; includeSubDomains"
 
     def test_x_frame_options(self, client):
         """X-Frame-Options est DENY (pas d'intégration en iframe)."""

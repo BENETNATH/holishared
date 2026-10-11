@@ -27,9 +27,7 @@ def app(monkeypatch, tmp_path):
     for name in ("PERMANENT_SESSION_LIFETIME", "DEV_SHOW_SECRETS"):
         monkeypatch.delenv(name, raising=False)
     # Enable every module so blueprint-gated routes exist in tests.
-    monkeypatch.setenv(
-        "ENABLED_MODULES", "planning,meals,lists,logistics,voting,media,chat,costs"
-    )
+    monkeypatch.setenv("ENABLED_MODULES", "planning,meals,lists,logistics,voting,media,chat,costs")
     app = create_app()
     limiter.reset()
     _reset_anon_api_hits()

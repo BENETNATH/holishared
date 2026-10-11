@@ -211,8 +211,12 @@ def create(code: str) -> Response | tuple[str, int] | str:
     log_event(ctx, "poll.created", target=fields.question)
     db.session.commit()
     notify(
-        ctx.event, "polls", ctx.participant, fields.question,
-        url_for("voting.index", code=code), f"poll-{poll.id}",
+        ctx.event,
+        "polls",
+        ctx.participant,
+        fields.question,
+        url_for("voting.index", code=code),
+        f"poll-{poll.id}",
     )
 
     flash(_("Sondage créé."))

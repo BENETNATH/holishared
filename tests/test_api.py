@@ -171,13 +171,17 @@ class TestAuth:
         resp = client.get(f"/api/events/{event.code}", headers=auth(key))
         assert resp.status_code == 401
 
-    def test_orphan_key_guest_deleted_is_401_not_500(self, creator_client, client, event, guest, db):
+    def test_orphan_key_guest_deleted_is_401_not_500(
+        self, creator_client, client, event, guest, db
+    ):
         """§6.2.7/S5 : retrait d'un invité → sa clé → 401 (jamais 500) ; clés supprimées (§3.4)."""
         from app.models import ApiKey
 
         _, key = make_key(db, event, guest=guest)
         # Retrait via l'UI : _remove_participant supprime les clés de l'invité.
-        creator_client.post(f"/e/{event.code}/members", data={"action": "remove", "guest_id": guest.id})
+        creator_client.post(
+            f"/e/{event.code}/members", data={"action": "remove", "guest_id": guest.id}
+        )
         assert ApiKey.query.filter_by(owner_guest_id=guest.id).count() == 0
         resp = client.get(f"/api/events/{event.code}", headers=auth(key))
         assert resp.status_code == 401
@@ -450,9 +454,7 @@ class TestRateLimit:
         ]
         assert codes[:60] == [200] * 60
         assert codes[60] == 429
-        assert "error" in client.get(
-            f"/api/events/{event.code}", headers=auth(key)
-        ).get_json()
+        assert "error" in client.get(f"/api/events/{event.code}", headers=auth(key)).get_json()
 
     def test_api_rate_limit_per_key(self, client, event, creator, db):
         """§7/A10 : deux clés distinctes ont chacune leur budget."""
@@ -467,14 +469,11 @@ class TestRateLimit:
         """F2 : 61 requêtes à clé invalide depuis la même IP : 60 fois 401 puis 429 (JSON)."""
         bad = {"Authorization": "Bearer hs_invalid"}
         codes = [
-            client.get(f"/api/events/{event.code}", headers=bad).status_code
-            for _ in range(61)
+            client.get(f"/api/events/{event.code}", headers=bad).status_code for _ in range(61)
         ]
         assert codes[:60] == [401] * 60
         assert codes[60] == 429
-        assert "error" in client.get(
-            f"/api/events/{event.code}", headers=bad
-        ).get_json()
+        assert "error" in client.get(f"/api/events/{event.code}", headers=bad).get_json()
 
 
 class TestSecurity:
