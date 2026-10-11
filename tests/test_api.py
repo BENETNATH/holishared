@@ -5,14 +5,9 @@ TDD : écrits avant le code. Les imports des modules nouveaux (``ApiKey``,
 possible à l'état rouge.
 """
 
-import hashlib
-import re
 import secrets
 from datetime import date, datetime
 
-import pytest
-
-from app.extensions import db as _db
 from app.models import (
     Activity,
     ActivityRSVP,
@@ -63,7 +58,8 @@ class TestDiscoverability:
         assert data["event"] == event.code
         assert "auth" in data
         endpoints = data["endpoints"]
-        assert isinstance(endpoints, list) and endpoints
+        assert isinstance(endpoints, list)
+        assert endpoints
         for ep in endpoints:
             assert "method" in ep
             assert "path" in ep
@@ -446,7 +442,7 @@ class TestCRUD:
 
 class TestRateLimit:
     def test_api_rate_limit_429_after_60(self, client, event, creator, db):
-        """§7 : 61 requêtes GET avec la même clé → 60 × 200 puis 429 (JSON)."""
+        """§7 : 61 requêtes GET avec la même clé → 60 fois 200 puis 429 (JSON)."""
         _, key = make_key(db, event, creator=creator)
         codes = [
             client.get(f"/api/events/{event.code}", headers=auth(key)).status_code
@@ -466,6 +462,19 @@ class TestRateLimit:
             client.get(f"/api/events/{event.code}", headers=auth(key1))
         assert client.get(f"/api/events/{event.code}", headers=auth(key1)).status_code == 429
         assert client.get(f"/api/events/{event.code}", headers=auth(key2)).status_code == 200
+
+    def test_api_rate_limit_invalid_key_per_ip(self, client, event, db):
+        """F2 : 61 requêtes à clé invalide depuis la même IP : 60 fois 401 puis 429 (JSON)."""
+        bad = {"Authorization": "Bearer hs_invalid"}
+        codes = [
+            client.get(f"/api/events/{event.code}", headers=bad).status_code
+            for _ in range(61)
+        ]
+        assert codes[:60] == [401] * 60
+        assert codes[60] == 429
+        assert "error" in client.get(
+            f"/api/events/{event.code}", headers=bad
+        ).get_json()
 
 
 class TestSecurity:

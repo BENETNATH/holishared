@@ -8,7 +8,9 @@ du rôle de l'owner (``EventContext`` + table ``_RIGHTS``). Toute réponse est J
 """
 
 import hashlib
+import threading
 from datetime import date, datetime, time
+from time import monotonic
 from typing import Any, cast
 
 from flask import Blueprint, abort, current_app, g, jsonify, request
@@ -131,6 +133,38 @@ def _touch_last_used(api_key: ApiKey) -> None:
     db.session.commit()
 
 
+# F2 : fenêtre glissante par IP pour les clés invalides (60 req/60 s). Les clés
+# valides sont limitées par les décorateurs ``@limiter.limit`` (qui ne s'exécutent
+# qu'à l'appel du view, donc jamais pour une clé rejetée en ``before_request``).
+_ANON_API_LIMIT = 60
+_ANON_API_WINDOW = 60.0
+_anon_api_hits: dict[str, list[float]] = {}
+_anon_api_lock = threading.Lock()
+
+
+def _anon_api_limited(ip: str) -> bool:
+    """True si l'IP a dépassé 60 requêtes à clé invalide sur la dernière minute (F2)."""
+    now = monotonic()
+    with _anon_api_lock:
+        hits = [t for t in _anon_api_hits.get(ip, []) if now - t < _ANON_API_WINDOW]
+        if len(hits) >= _ANON_API_LIMIT:
+            _anon_api_hits[ip] = hits
+            return True
+        hits.append(now)
+        _anon_api_hits[ip] = hits
+        if len(_anon_api_hits) > 1024:  # garde mémoire : purge des IP expirées
+            stale = [k for k, v in _anon_api_hits.items() if now - v[-1] >= _ANON_API_WINDOW]
+            for k in stale:
+                del _anon_api_hits[k]
+    return False
+
+
+def _reset_anon_api_hits() -> None:
+    """Efface la fenêtre glissante des clés invalides (isolation des tests)."""
+    with _anon_api_lock:
+        _anon_api_hits.clear()
+
+
 @api_bp.before_request
 def _authenticate() -> None:
     """Authentifie la clé (sauf ``/api/health``) et pose le contexte sur ``g``."""
@@ -138,10 +172,16 @@ def _authenticate() -> None:
         return
     api_key = _resolve_api_key()
     if api_key is None:
+        # F2 : les clés invalides sont rate-limitées par IP (60 req/60 s).
+        if _anon_api_limited(request.remote_addr or "unknown"):
+            abort(429)
         abort(401)
     event = db.session.get(Event, api_key.event_id)
     if event is None:
         abort(401)
+    # F1 : un événement inactif ou non-vérifié révoque l'accès API (spec §6.2.5 → 404).
+    if not event.is_active or event.verified_at is None:
+        abort(404)
     # Isolation inter-événements : la clé ne sert que pour SON événement.
     if request.view_args.get("code", "") != event.code:
         abort(404)

@@ -6,6 +6,7 @@ from datetime import date, datetime
 import pytest
 
 from app import create_app
+from app.api import _reset_anon_api_hits
 from app.extensions import db as _db
 from app.extensions import limiter
 from app.models import Creator, Event, Guest, generate_event_code, generate_guest_code
@@ -31,6 +32,7 @@ def app(monkeypatch, tmp_path):
     )
     app = create_app()
     limiter.reset()
+    _reset_anon_api_hits()
     app.instance_path = str(tmp_path)  # jamais le vrai dossier instance/media (B026)
     app.config["TESTING"] = True
     app.config["WTF_CSRF_ENABLED"] = False

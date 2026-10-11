@@ -10,7 +10,6 @@ import secrets
 from datetime import datetime
 
 from flask import Blueprint, abort, redirect, render_template, request, url_for
-from flask_babel import gettext as _
 from flask_login import current_user
 from werkzeug.wrappers import Response
 
@@ -95,10 +94,16 @@ def create(code: str) -> str:
     )
 
 
-@apikeys_bp.route("/<code>/api-keys/<key_id>", methods=["DELETE"])
+@apikeys_bp.route("/<code>/api-keys/<key_id>", methods=["POST", "DELETE"])
 @limiter.limit("10 per hour")
 def revoke(code: str, key_id: str) -> Response:
-    """Révoque SA clé (idempotent) ; une clé d'autrui → 404 (ne révèle pas son existence)."""
+    """Révoque SA clé (idempotent) ; une clé d'autrui → 404 (ne révèle pas son existence).
+
+    FN2 : la route accepte POST (formulaire ``_method=DELETE``) en plus de DELETE ;
+    le ``before_request`` ``_method_override`` convertit POST→DELETE avant le view.
+    """
+    if request.method != "DELETE":
+        abort(405)
     ctx = load_event_context(code)
     if ctx.is_creator:
         api_key = ApiKey.query.filter_by(

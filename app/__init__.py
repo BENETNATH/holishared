@@ -122,7 +122,7 @@ def create_app() -> Flask:
 
     db.init_app(app)
     login_manager.init_app(app)
-    CSRFProtect(app)
+    csrf = CSRFProtect(app)
     limiter.init_app(app)
 
     # Ensure database tables exist (idempotent; no-op if already created).
@@ -210,6 +210,8 @@ def create_app() -> Flask:
     app.register_blueprint(events_bp, url_prefix="/e")
     app.register_blueprint(apikeys_bp, url_prefix="/e")
     app.register_blueprint(api_bp, url_prefix="/api")
+    # FN1 : les routes API (Bearer token) sont exemptes de CSRF (spec S4).
+    csrf.exempt(api_bp)
 
     # Module blueprints — registered only when the module is enabled, so a
     # disabled (e.g. premium) module returns 404 instead of exposing a
@@ -265,8 +267,12 @@ def create_app() -> Flask:
     # Error handlers
     @app.errorhandler(404)
     def not_found(e: Exception) -> tuple[str, int]:
-        from flask import render_template
+        from flask import jsonify, render_template, request
+        from flask_babel import gettext
 
+        # FN3 : les 404 de routage sur /api/* renvoient JSON (spec S1).
+        if request.path.startswith("/api/"):
+            return jsonify({"error": gettext("Introuvable.")}), 404
         return render_template("errors/404.html"), 404
 
     @app.errorhandler(403)
@@ -278,10 +284,13 @@ def create_app() -> Flask:
     @app.errorhandler(500)
     def server_error(e: Exception) -> tuple[str, int]:
         """Page propre, sans trace ; l'exception est déjà journalisée par Flask."""
-        from flask import render_template
+        from flask import jsonify, render_template, request
         from flask_babel import gettext
 
         db.session.rollback()
+        # FN3 : les 500 sur /api/* renvoient JSON (spec S1).
+        if request.path.startswith("/api/"):
+            return jsonify({"error": gettext("Une erreur interne est survenue.")}), 500
         try:
             return render_template("errors/500.html"), 500
         except Exception:  # base de données ou gabarit indisponibles : page minimale
