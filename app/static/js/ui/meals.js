@@ -4,6 +4,7 @@
 import { t } from 'ui/strings';
 import { toast } from 'ui/toast';
 import { closeSheet } from 'ui/dialog';
+import { confirmAction } from 'ui/confirm';
 
 const CELL = '[data-testid="meal-cell"]';
 const DRAG_THRESHOLD = 6;
@@ -16,7 +17,7 @@ let focusAfter = null; // { mealId } ou { date, slot }
 
 const grid = () => document.getElementById('meal-grid');
 const sheet = () => document.getElementById('meal-sheet');
-const moveForm = () => sheet().querySelector('[data-testid="meal-move-form"]');
+const moveForm = () => sheet().querySelector('[data-meal-move-swap-form]');
 
 // --- Envoi et remplacement de la grille -------------------------------------
 
@@ -100,6 +101,11 @@ function moveParams(card, cell, before) {
 
 const cardById = (id) => grid().querySelector(`[data-meal-id="${id}"]`);
 
+function setMoveLabel(form, swap) {
+  const button = form.querySelector('[data-meal-move-swap-submit]');
+  button.textContent = swap ? button.dataset.labelSwap : button.dataset.labelMove;
+}
+
 function fillSheet(card) {
   const dialog = sheet();
   const cell = card.closest(CELL);
@@ -113,7 +119,7 @@ function fillSheet(card) {
   const edit = dialog.querySelector('[data-meal-edit-form]');
   edit.action = card.dataset.editUrl;
   edit.elements.title.value = card.dataset.title;
-  dialog.querySelector('[data-meal-delete-form]').action = card.dataset.deleteUrl;
+  dialog.querySelector('[data-meal-delete]').dataset.deleteUrl = card.dataset.deleteUrl;
   dialog.querySelectorAll('input[name="meal_id"]').forEach((input) => {
     input.value = current;
   });
@@ -132,11 +138,11 @@ function fillSheet(card) {
       option.textContent = `${other.closest(CELL).dataset.header} — ${other.dataset.title}`;
       select.appendChild(option);
     });
-  const none = select.options.length === 0;
-  const swapForm = dialog.querySelector('[data-testid="meal-swap-form"]');
-  swapForm.querySelector('[data-meal-swap-empty]').hidden = !none;
-  select.closest('.ui-field').hidden = none;
-  swapForm.querySelector('button[type="submit"]').disabled = none;
+  const toggle = dialog.querySelector('#meal-swap-toggle');
+  toggle.checked = false;
+  toggle.closest('label').hidden = select.options.length === 0;
+  dialog.querySelector('[data-meal-swap-field]').hidden = true;
+  setMoveLabel(move, false);
 
   const siblings = [...card.parentElement.children];
   const index = siblings.indexOf(card);
@@ -150,7 +156,7 @@ async function reorder(direction) {
   let before = null;
   if (direction === 'up') before = card.previousElementSibling;
   else if (card.nextElementSibling) before = card.nextElementSibling.nextElementSibling;
-  await send(moveForm().action, moveParams(card, card.closest(CELL), before), {
+  await send(moveForm().dataset.moveUrl, moveParams(card, card.closest(CELL), before), {
     focus: { mealId: current },
   });
   const next = current && cardById(current);
@@ -180,6 +186,36 @@ function onClick(event) {
   }
   const reorderButton = target.closest('[data-meal-reorder]');
   if (reorderButton) reorder(reorderButton.dataset.mealReorder);
+  const del = target.closest('[data-meal-delete]');
+  if (del) onDelete(del);
+}
+
+async function onDelete(button) {
+  const accepted = await confirmAction({
+    message: button.dataset.confirm,
+    confirmLabel: button.dataset.confirmLabel,
+  });
+  if (!accepted) return;
+  const card = cardById(current);
+  if (!card) return;
+  const cell = card.closest(CELL);
+  const ok = await send(
+    button.dataset.deleteUrl,
+    {
+      csrf_token: sheet().querySelector('input[name="csrf_token"]').value,
+      meal_id: current,
+    },
+    { focus: { date: cell.dataset.date, slot: cell.dataset.slot } },
+  );
+  if (ok) closeSheet(sheet());
+}
+
+function onChange(event) {
+  const toggle = event.target;
+  if (toggle.id !== 'meal-swap-toggle') return;
+  const form = moveForm();
+  form.querySelector('[data-meal-swap-field]').hidden = !toggle.checked;
+  setMoveLabel(form, toggle.checked);
 }
 
 async function onSubmit(event) {
@@ -188,13 +224,13 @@ async function onSubmit(event) {
   event.preventDefault();
   const data = Object.fromEntries(new FormData(form));
   let focus = { mealId: data.meal_id || current };
+  let url = form.action;
   if (form.matches('[data-testid="meal-add-form"]')) {
     focus = { date: data.date, slot: data.slot };
-  } else if (form.matches('[data-meal-delete-form]')) {
-    const cell = cardById(current).closest(CELL);
-    focus = { date: cell.dataset.date, slot: cell.dataset.slot };
+  } else if (form.matches('[data-meal-move-swap-form]')) {
+    url = data.swap ? form.dataset.swapUrl : form.dataset.moveUrl;
   }
-  const ok = await send(form.action, data, { focus });
+  const ok = await send(url, data, { focus });
   if (ok) closeSheet(form.closest('dialog'));
 }
 
@@ -359,7 +395,7 @@ function onPointerUp() {
   if (!active || !cell) return;
   if (swap) {
     send(
-      sheet().querySelector('[data-testid="meal-swap-form"]').action,
+      moveForm().dataset.swapUrl,
       {
         csrf_token: sheet().querySelector('input[name="csrf_token"]').value,
         meal_id: card.dataset.mealId,
@@ -374,7 +410,7 @@ function onPointerUp() {
     const next = card.nextElementSibling;
     if (before === next || (before === null && next === null)) return;
   }
-  send(moveForm().action, moveParams(card, cell, before), { focus: { mealId: card.dataset.mealId } });
+  send(moveForm().dataset.moveUrl, moveParams(card, cell, before), { focus: { mealId: card.dataset.mealId } });
 }
 
 function onDragKey(event) {
@@ -390,6 +426,7 @@ export function initMeals() {
   initialized = true;
   document.addEventListener('click', onClick);
   document.addEventListener('submit', onSubmit);
+  document.addEventListener('change', onChange);
   document.addEventListener('pointerdown', onPointerDown);
   document.addEventListener('contextmenu', (event) => {
     if (event.target.closest?.('[data-meal-handle]')) event.preventDefault();

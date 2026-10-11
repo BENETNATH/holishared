@@ -37,33 +37,33 @@
     <button type="submit" class="ui-btn ui-btn--primary ui-btn--block">{{ _("Enregistrer") }}</button>
   </form>
 
-  <form method="post" action="{{ url_for('meals.move', code=event.code) }}" class="ui-form" data-meal-form data-testid="meal-move-form">
+  <form method="post" class="ui-form" data-meal-form data-meal-move-swap-form data-testid="meal-move-swap-form"
+        data-move-url="{{ url_for('meals.move', code=event.code) }}"
+        data-swap-url="{{ url_for('meals.swap', code=event.code) }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <input type="hidden" name="meal_id" value="">
-    <h3 class="m-0 text-subheading font-semibold text-ink">{{ _("Déplacer vers…") }}</h3>
-    {{ field('date', _('Jour'), type='select', id='meal-move-date', options=day_options, required=True) }}
-    {{ field('slot', _('Créneau'), type='select', id='meal-move-slot', options=choices('meal_slot'), required=True) }}
-    <button type="submit" class="ui-btn ui-btn--secondary ui-btn--block">{{ icon('move', size=16) }}<span>{{ _("Déplacer") }}</span></button>
+    <div class="grid grid-cols-2 gap-2">
+      {{ field('date', _('Jour'), type='select', id='meal-move-date', options=day_options, required=True) }}
+      {{ field('slot', _('Créneau'), type='select', id='meal-move-slot', options=choices('meal_slot'), required=True) }}
+    </div>
+    <label class="flex items-center gap-2 text-small text-ink">
+      <input type="checkbox" name="swap" id="meal-swap-toggle">
+      <span>{{ _("Échanger avec un autre repas") }}</span>
+    </label>
+    <div data-meal-swap-field hidden>
+      {{ field('other_id', _('Autre repas'), type='select', id='meal-swap-other', options=[], required=True) }}
+    </div>
+    <button type="submit" class="ui-btn ui-btn--secondary ui-btn--block" data-meal-move-swap-submit
+            data-label-move="{{ _('Déplacer') }}" data-label-swap="{{ _('Échanger') }}">{{ _("Déplacer") }}</button>
   </form>
 
-  <form method="post" action="{{ url_for('meals.swap', code=event.code) }}" class="ui-form" data-meal-form data-testid="meal-swap-form">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <input type="hidden" name="meal_id" value="">
-    <h3 class="m-0 text-subheading font-semibold text-ink">{{ _("Échanger avec…") }}</h3>
-    {{ field('other_id', _('Autre repas'), type='select', id='meal-swap-other', options=[], required=True) }}
-    <p class="ui-help m-0" data-meal-swap-empty hidden>{{ _("Aucun autre repas à échanger.") }}</p>
-    <button type="submit" class="ui-btn ui-btn--secondary ui-btn--block">{{ icon('arrow-left-right', size=16) }}<span>{{ _("Échanger") }}</span></button>
-  </form>
-
-  <div class="flex gap-2" role="group" aria-label="{{ _('Ordre dans le créneau') }}">
+  <div class="flex items-center gap-2">
     <button type="button" class="ui-btn ui-btn--secondary flex-1" data-meal-reorder="up" data-testid="meal-up">{{ icon('chevron-up', size=16) }}<span>{{ _("Monter") }}</span></button>
     <button type="button" class="ui-btn ui-btn--secondary flex-1" data-meal-reorder="down" data-testid="meal-down">{{ icon('chevron-down', size=16) }}<span>{{ _("Descendre") }}</span></button>
+    <button type="button" class="ui-btn ui-btn--ghost ui-btn--icon" data-meal-delete data-testid="meal-delete"
+            data-confirm="{{ _('Supprimer ce repas ?') }}" data-confirm-label="{{ _('Supprimer') }}"
+            aria-label="{{ _('Supprimer ce repas') }}">{{ icon('trash-2', size=16) }}</button>
   </div>
-
-  <form method="post" data-meal-form data-meal-delete-form data-confirm="{{ _('Supprimer ce repas ?') }}" data-confirm-label="{{ _('Supprimer') }}" data-testid="meal-delete-form">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <button type="submit" class="ui-btn ui-btn--danger ui-btn--block">{{ icon('trash-2', size=16) }}<span>{{ _("Supprimer ce repas") }}</span></button>
-  </form>
 </div>
 {% endcall %}
 {% endblock %}
