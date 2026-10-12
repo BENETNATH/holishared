@@ -1,6 +1,6 @@
 // Page Repas (B022) : feuille d'un repas, actions par fetch (le fragment de grille remplace l'ancien),
-// déplacement aux pointer events (souris + tactile) avec deux zones de dépôt : « Ajouter ici » (la case)
-// et « Échanger » (une carte). Aucune bibliothèque.
+// déplacement aux pointer events (souris + tactile) avec deux zones de dépôt : pictogramme « ajout »
+// (la case) et pictogramme « échange » (une carte). Aucune bibliothèque.
 import { t } from 'ui/strings';
 import { toast } from 'ui/toast';
 import { closeSheet } from 'ui/dialog';
@@ -9,6 +9,9 @@ import { confirmAction } from 'ui/confirm';
 const CELL = '[data-testid="meal-cell"]';
 const DRAG_THRESHOLD = 6;
 const EDGE = 72;
+// Icône d'annulation (undo-2, Lucide) pour l'action « Annuler » du toast après déplacement/échange.
+const UNDO_ICON =
+  '<svg class="ui-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 14 4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" /></svg>';
 
 let initialized = false;
 let current = null; // id du repas affiché dans la feuille
@@ -21,11 +24,14 @@ const moveForm = () => sheet().querySelector('[data-meal-move-swap-form]');
 
 // --- Envoi et remplacement de la grille -------------------------------------
 
-function notify(header) {
+function notify(header, undo = null) {
   if (!header) return;
   try {
     const payload = JSON.parse(header)['meals:message'];
-    if (payload) toast(payload.message, { tone: payload.tone });
+    if (!payload) return;
+    const options = { tone: payload.tone };
+    if (undo) options.action = undo;
+    toast(payload.message, options);
   } catch {
     // en-tête illisible : aucun message plutôt qu'un message faux
   }
@@ -53,7 +59,7 @@ function swapGrid(html) {
   return true;
 }
 
-async function send(url, params, { focus = null } = {}) {
+async function send(url, params, { focus = null, undo = null } = {}) {
   if (busy) return false;
   busy = true;
   grid().setAttribute('aria-busy', 'true');
@@ -71,7 +77,7 @@ async function send(url, params, { focus = null } = {}) {
       return false;
     }
     if ((response.status === 200 || response.status === 422) && swapGrid(await response.text())) {
-      notify(response.headers.get('HX-Trigger'));
+      notify(response.headers.get('HX-Trigger'), undo);
       restoreFocus();
       return response.ok;
     }
@@ -94,6 +100,52 @@ function moveParams(card, cell, before) {
     date: cell.dataset.date,
     slot: cell.dataset.slot,
     before_id: before ? before.dataset.mealId : '',
+  };
+}
+
+// Action « Annuler » du toast : rejoue l'opération inverse (re-déplacement ou re-échange).
+function dismissToast(event) {
+  const toastEl = event?.currentTarget?.closest?.('.ui-toast');
+  toastEl?.querySelector('[data-toast-close]')?.click();
+}
+
+function undoMove(mealId, date, slot, beforeId) {
+  return {
+    label: t('undo'),
+    icon: UNDO_ICON,
+    onClick: (event) => {
+      dismissToast(event);
+      send(
+        moveForm().dataset.moveUrl,
+        {
+          csrf_token: sheet().querySelector('input[name="csrf_token"]').value,
+          meal_id: mealId,
+          date,
+          slot,
+          before_id: beforeId,
+        },
+        { focus: { mealId } },
+      );
+    },
+  };
+}
+
+function undoSwap(mealId, otherId) {
+  return {
+    label: t('undo'),
+    icon: UNDO_ICON,
+    onClick: (event) => {
+      dismissToast(event);
+      send(
+        moveForm().dataset.swapUrl,
+        {
+          csrf_token: sheet().querySelector('input[name="csrf_token"]').value,
+          meal_id: mealId,
+          other_id: otherId,
+        },
+        { focus: { mealId } },
+      );
+    },
   };
 }
 
@@ -156,8 +208,12 @@ async function reorder(direction) {
   let before = null;
   if (direction === 'up') before = card.previousElementSibling;
   else if (card.nextElementSibling) before = card.nextElementSibling.nextElementSibling;
-  await send(moveForm().dataset.moveUrl, moveParams(card, card.closest(CELL), before), {
+  // État d'origine pour l'annulation : position (repas suivant) avant le réordonnancement.
+  const originCell = card.closest(CELL);
+  const originAfterId = card.nextElementSibling?.dataset.mealId || '';
+  await send(moveForm().dataset.moveUrl, moveParams(card, originCell, before), {
     focus: { mealId: current },
+    undo: undoMove(card.dataset.mealId, originCell.dataset.date, originCell.dataset.slot, originAfterId),
   });
   const next = current && cardById(current);
   if (next && sheet().open) {
@@ -225,12 +281,23 @@ async function onSubmit(event) {
   const data = Object.fromEntries(new FormData(form));
   let focus = { mealId: data.meal_id || current };
   let url = form.action;
+  let undo = null;
   if (form.matches('[data-testid="meal-add-form"]')) {
     focus = { date: data.date, slot: data.slot };
   } else if (form.matches('[data-meal-move-swap-form]')) {
     url = data.swap ? form.dataset.swapUrl : form.dataset.moveUrl;
+    const card = cardById(data.meal_id);
+    if (card) {
+      if (data.swap) {
+        undo = undoSwap(data.meal_id, data.other_id);
+      } else {
+        const originCell = card.closest(CELL);
+        const originAfterId = card.nextElementSibling?.dataset.mealId || '';
+        undo = undoMove(data.meal_id, originCell.dataset.date, originCell.dataset.slot, originAfterId);
+      }
+    }
   }
-  const ok = await send(url, data, { focus });
+  const ok = await send(url, data, { focus, undo });
   if (ok) closeSheet(form.closest('dialog'));
 }
 
@@ -401,7 +468,7 @@ function onPointerUp() {
         meal_id: card.dataset.mealId,
         other_id: swap.dataset.mealId,
       },
-      { focus: { mealId: card.dataset.mealId } },
+      { focus: { mealId: card.dataset.mealId }, undo: undoSwap(card.dataset.mealId, swap.dataset.mealId) },
     );
     return;
   }
@@ -410,7 +477,13 @@ function onPointerUp() {
     const next = card.nextElementSibling;
     if (before === next || (before === null && next === null)) return;
   }
-  send(moveForm().dataset.moveUrl, moveParams(card, cell, before), { focus: { mealId: card.dataset.mealId } });
+  // État d'origine pour l'annulation : case et position (repas suivant) avant le glisser.
+  const originCell = card.closest(CELL);
+  const originAfterId = card.nextElementSibling?.dataset.mealId || '';
+  send(moveForm().dataset.moveUrl, moveParams(card, cell, before), {
+    focus: { mealId: card.dataset.mealId },
+    undo: undoMove(card.dataset.mealId, originCell.dataset.date, originCell.dataset.slot, originAfterId),
+  });
 }
 
 function onDragKey(event) {

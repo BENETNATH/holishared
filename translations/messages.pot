@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-11 11:09+0000\n"
+"POT-Creation-Date: 2026-10-11 20:12+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1558,6 +1558,10 @@ msgstr ""
 
 #: app/lists/xlsx.py
 msgid "Fait"
+msgstr ""
+
+#: app/lists/xlsx.py
+msgid "Liste"
 msgstr ""
 
 #: app/lists/xlsx.py
@@ -3886,22 +3890,6 @@ msgid "%(n)d repas"
 msgstr ""
 
 #: app/templates/meals/_grid.html app/templates/meals/index.html
-msgid "Échanger"
-msgstr ""
-
-#: app/templates/meals/_grid.html
-msgid "Déposer ici"
-msgstr ""
-
-#: app/templates/meals/_grid.html
-msgid "Ajouter ici"
-msgstr ""
-
-#: app/templates/meals/_grid.html
-msgid "Placer ici"
-msgstr ""
-
-#: app/templates/meals/_grid.html app/templates/meals/index.html
 msgid "Ajouter un repas"
 msgstr ""
 
@@ -3926,10 +3914,6 @@ msgid ""
 msgstr ""
 
 #: app/templates/meals/index.html
-msgid "Déplacer vers…"
-msgstr ""
-
-#: app/templates/meals/index.html
 msgid "Jour"
 msgstr ""
 
@@ -3938,11 +3922,7 @@ msgid "Créneau"
 msgstr ""
 
 #: app/templates/meals/index.html
-msgid "Déplacer"
-msgstr ""
-
-#: app/templates/meals/index.html
-msgid "Échanger avec…"
+msgid "Échanger avec un autre repas"
 msgstr ""
 
 #: app/templates/meals/index.html
@@ -3950,11 +3930,11 @@ msgid "Autre repas"
 msgstr ""
 
 #: app/templates/meals/index.html
-msgid "Aucun autre repas à échanger."
+msgid "Déplacer"
 msgstr ""
 
 #: app/templates/meals/index.html
-msgid "Ordre dans le créneau"
+msgid "Échanger"
 msgstr ""
 
 #: app/templates/meals/index.html

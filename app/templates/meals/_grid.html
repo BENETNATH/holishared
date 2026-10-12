@@ -35,18 +35,16 @@
                   class="min-h-[44px] min-w-0 flex-1 break-words rounded-md border-0 bg-transparent px-2 py-1 text-left text-caption font-medium text-ink lg:px-3 lg:py-2 lg:text-small"><span class="line-clamp-2">{{ meal.title }}</span></button>
           {%- if editable %}
           <span data-meal-handle aria-hidden="true" class="flex min-h-[44px] w-11 shrink-0 cursor-grab touch-none items-center justify-center text-ink-muted">{{ icon('grip-vertical') }}</span>
-          <span data-testid="meal-drop-swap" data-meal-drop="swap" aria-hidden="true" class="meal-drop meal-drop--swap"><span class="meal-drop__label">{{ icon('arrow-left-right', size=16) }}<span>{{ _("Échanger") }}</span></span><span class="meal-drop__title">{{ meal.title }}</span></span>
+           <span data-testid="meal-drop-swap" data-meal-drop="swap" aria-hidden="true" class="meal-drop meal-drop--swap"><span class="meal-drop__badge">{{ icon('arrow-left-right', size=20) }}</span></span>
           {%- endif %}
         </li>
         {%- endfor %}
       </ul>
       {%- if not cell %}
       <p class="m-0 text-caption text-ink-muted lg:text-small" data-meal-empty>{{ _("Aucun repas") }}</p>
-      <div data-testid="meal-drop-empty" data-meal-drop="add" aria-hidden="true" class="meal-drop meal-drop--add">{{ icon('plus', size=16) }}<span>{{ _("Déposer ici") }}</span></div>
-      {%- else %}
-      <div data-testid="meal-drop-add" data-meal-drop="add" aria-hidden="true" class="meal-drop meal-drop--add">{{ icon('plus', size=16) }}<span data-drop-label="add">{{ _("Ajouter ici") }}</span><span data-drop-label="here">{{ _("Placer ici") }}</span></div>
       {%- endif %}
-      <button type="button" data-testid="meal-add" data-meal-add data-sheet-open="meal-add-sheet" aria-haspopup="dialog"
+      {# Bouton « Ajouter un repas » = zone de dépôt de la case (un seul élément, toujours visible). #}
+      <button type="button" data-testid="meal-add" data-meal-add data-meal-drop="add" data-sheet-open="meal-add-sheet" aria-haspopup="dialog"
               data-date="{{ day.isoformat() }}" data-slot="{{ slot }}" data-header="{{ header }}"
               class="ui-btn ui-btn--secondary ui-btn--sm min-h-[44px] w-full"{% if cell|length >= max_per_cell %} disabled title="{{ _('Cette case est pleine (%(max)d repas maximum).', max=max_per_cell) }}"{% endif %}>
         {{- icon('plus', size=16) }}<span class="max-lg:sr-only">{{ _("Ajouter un repas") }}</span><span class="sr-only"> — {{ header }}</span>

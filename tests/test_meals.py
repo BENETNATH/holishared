@@ -636,7 +636,7 @@ def test_move_takes_write_lock_before_reading_the_target_cell(client, creator, e
 
 
 class TestDropZones:
-    """B022c : zones de dépôt « Ajouter ici » / « Échanger » (rendu) et échange entre cases à plusieurs repas."""
+    """B022c : zones de dépôt (bouton « Ajouter un repas » / « Échanger ») et échange entre cases à plusieurs repas."""
 
     def test_swap_between_multi_meal_cells_renumbers_and_keeps_ids(
         self, creator_client, event, db, cell3
@@ -688,9 +688,7 @@ class TestDropZones:
     def test_grid_renders_drop_zones(self, creator_client, event, db, cell3):
         html = creator_client.get(f"/e/{event.code}/meals").data.decode()
         assert html.count('data-testid="meal-drop-swap"') == 3  # une par carte modifiable
-        assert 'data-testid="meal-drop-add"' in html  # case occupée
-        assert 'data-testid="meal-drop-empty"' in html  # cases vides
-        assert html.count('data-testid="meal-drop-add"') == 1
+        assert html.count('data-meal-drop="add"') == 14  # le bouton d'ajout est la zone de dépôt de chaque case
 
     def test_non_editable_card_has_no_swap_zone(self, guest_client, event, db, cell3):
         html = guest_client.get(f"/e/{event.code}/meals").data.decode()

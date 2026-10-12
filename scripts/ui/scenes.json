@@ -632,17 +632,17 @@
       "themes": [
         "light"
       ],
-      "note": "glisser vers la zone « Ajouter ici » d'une case occupée (zone visible seulement pendant le glisser)",
+      "note": "glisser vers le bouton « Ajouter un repas » d'une case occupée (zone de dépôt de la case)",
       "actions": [
         {
           "type": "drag",
           "from": "expr:(() => { const h = document.querySelector('[data-meal-handle]'); h.scrollIntoView({ block: 'start' }); window.scrollBy(0, -150); return h; })()",
-          "to": "expr:(() => { const src = document.querySelector('[data-drag-source]'); const home = src.closest('[data-testid=meal-cell]'); const y0 = src.getBoundingClientRect().top; return [...document.querySelectorAll('[data-testid=meal-drop-add]')].filter(z => z.closest('[data-testid=meal-cell]') !== home && z.getBoundingClientRect().height > 0).sort((a, b) => Math.abs(a.getBoundingClientRect().top - y0) - Math.abs(b.getBoundingClientRect().top - y0))[0]; })()"
+          "to": "expr:(() => { const src = document.querySelector('[data-drag-source]'); const home = src.closest('[data-testid=meal-cell]'); const y0 = src.getBoundingClientRect().top; return [...document.querySelectorAll('[data-meal-drop=add]')].filter(z => z.closest('[data-testid=meal-cell]') !== home && z.getBoundingClientRect().height > 0).sort((a, b) => Math.abs(a.getBoundingClientRect().top - y0) - Math.abs(b.getBoundingClientRect().top - y0))[0]; })()"
         },
         {
           "type": "waitFor",
           "expr": "(() => { const [d, s] = sessionStorage.getItem('__dropCell').split('|'); const c = document.querySelector('[data-testid=meal-cell][data-date=\"' + d + '\"][data-slot=\"' + s + '\"]'); return !!c && !!c.querySelector('[data-meal-id=\"' + sessionStorage.getItem('__dragMealId') + '\"]'); })()",
-          "message": "la carte glissée a rejoint la case de la zone « Ajouter ici »"
+          "message": "la carte glissée a rejoint la case du bouton « Ajouter un repas »"
         },
         {
           "type": "assert",
@@ -719,17 +719,17 @@
         "en"
       ],
       "id": "meals-drop-zones",
-      "note": "aperçu statique des zones de dépôt (état « glisser en cours » simulé) : libellé + icône + teinte, zone active, contraste clair/sombre",
+      "note": "aperçu statique des zones de dépôt (état « glisser en cours » simulé) : pictogramme échange (carte) + bouton « Ajouter un repas » allumé (case), teinte, zone active, contraste clair/sombre",
       "actions": [
         {
           "type": "assert",
-          "expr": "(() => { const g = document.getElementById('meal-grid'); g.dataset.dragging = 'true'; const cards = g.querySelectorAll('[data-meal-day]:not(.hidden) [data-testid=meal-card]'); if (cards[0]) cards[0].dataset.dragSource = ''; const sw = g.querySelectorAll('[data-meal-day]:not(.hidden) [data-testid=meal-drop-swap]'); if (sw[1]) sw[1].dataset.active = ''; const ad = g.querySelector('[data-meal-day]:not(.hidden) [data-testid=meal-drop-add]'); if (ad) ad.dataset.active = ''; return g.querySelectorAll('.meal-drop').length > 0; })()",
+          "expr": "(() => { const g = document.getElementById('meal-grid'); g.dataset.dragging = 'true'; const cards = g.querySelectorAll('[data-meal-day]:not(.hidden) [data-testid=meal-card]'); if (cards[0]) cards[0].dataset.dragSource = ''; const sw = g.querySelectorAll('[data-meal-day]:not(.hidden) [data-testid=meal-drop-swap]'); if (sw[1]) sw[1].dataset.active = ''; const ad = g.querySelector('[data-meal-day]:not(.hidden) [data-meal-drop=add]'); if (ad) ad.dataset.active = ''; return g.querySelectorAll('.meal-drop').length > 0; })()",
           "message": "les zones de dépôt sont rendues pendant le glisser"
         },
         {
           "type": "assert",
-          "expr": "[...document.querySelectorAll('.meal-drop')].filter(e => e.offsetParent !== null).every(e => e.getBoundingClientRect().height >= 44)",
-          "message": "zones de dépôt visibles : au moins 44 px de haut"
+          "expr": "[...document.querySelectorAll('.meal-drop')].filter(e => e.offsetParent !== null).every(e => e.getBoundingClientRect().height >= 44) && [...document.querySelectorAll('[data-meal-drop=add]')].every(e => e.offsetParent !== null)",
+                     "message": "zones de dépôt visibles : swap ≥ 44 px, bouton d'ajout visible dans chaque case"
         },
         {
           "type": "assert",

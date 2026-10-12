@@ -1456,40 +1456,23 @@
 }
 
 /* ---- Repas : zones de dépôt pendant le glisser (B022c) ----
-   « Échanger » = teinte info, trait plein ; « Ajouter ici » = teinte succès, trait pointillé.
-   Libellé + icône portent le sens, la teinte et le trait ne font que renforcer. */
+   Pictogramme « échange » (teinte info) au centre d'une carte ; le bouton « Ajouter un repas »
+   est aussi la zone de dépôt de la case (teinte succès quand la case est la cible). */
 @layer components {
   .meal-drop {
     display: none;
     align-items: center;
     justify-content: center;
-    gap: 0.375rem;
-    min-height: 2.75rem;
-    box-sizing: border-box;
-    border-radius: var(--radius-md);
-    border-width: 2px;
-    color: var(--color-ink);
-    font-size: var(--text-caption);
-    font-weight: 600;
-    line-height: 1.2;
-    text-align: center;
     pointer-events: auto;
   }
-  .meal-drop__label {
+  .meal-drop__badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
-  }
-  @media (min-width: 1024px) {
-    .meal-drop {
-      font-size: var(--text-small);
-    }
-  }
-  @media (max-width: 1023.98px) {
-    .meal-drop--swap {
-      flex-direction: column;
-      gap: 0;
-    }
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 9999px;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.25);
   }
   #meal-grid[data-dragging] .meal-drop {
     display: flex;
@@ -1498,57 +1481,25 @@
     position: absolute;
     inset: 0;
     z-index: 1;
-    border-style: solid;
-    border-color: var(--color-info);
-    background: var(--color-info-soft);
+    justify-content: flex-end;
+    padding-right: 0.25rem;
   }
-  .meal-drop--add {
-    border-style: dashed;
-    border-color: var(--color-success);
-    background: var(--color-success-soft);
-  }
-  .meal-drop--swap {
-    padding: 0 0.75rem;
-  }
-  .meal-drop__title {
-    max-width: 100%;
-    min-width: 0;
-    overflow: hidden;
-    font-weight: 400;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .meal-drop--swap .ui-icon {
-    color: var(--color-info);
-  }
-  .meal-drop--add .ui-icon {
-    color: var(--color-success);
-  }
-  .meal-drop[data-active] {
-    border-style: solid;
-    box-shadow: 0 0 0 3px var(--color-ink);
-  }
-  .meal-drop--swap[data-active] {
+  .meal-drop--swap .meal-drop__badge {
     background: var(--color-info);
     color: var(--color-on-inverse);
   }
-  .meal-drop--add[data-active] {
-    background: var(--color-success);
-    color: var(--color-on-inverse);
+  .meal-drop--swap[data-active] .meal-drop__badge {
+    box-shadow: 0 0 0 3px var(--color-ink);
   }
-  .meal-drop--swap[data-active] .ui-icon,
-  .meal-drop--add[data-active] .ui-icon {
-    color: inherit;
+  /* Le bouton « Ajouter un repas » est la zone de dépôt de la case : il s'allume quand la case est la cible. */
+  #meal-grid[data-dragging] [data-meal-drop="add"][data-active] {
+    background: var(--color-success);
+    border-color: var(--color-success);
+    color: var(--color-on-inverse);
+    box-shadow: 0 0 0 3px var(--color-ink);
   }
   [data-drag-source] > .meal-drop {
     display: none !important;
-  }
-  .meal-drop [data-drop-label="here"],
-  [data-drop-origin] .meal-drop [data-drop-label="add"] {
-    display: none;
-  }
-  [data-drop-origin] .meal-drop [data-drop-label="here"] {
-    display: inline;
   }
   /* L'espace entre deux cartes reste libre pour l'insertion à cet endroit. */
   #meal-grid[data-dragging] [data-meal-list] {
@@ -1558,12 +1509,10 @@
     display: none;
   }
   @media (forced-colors: active) {
-    .meal-drop {
-      border-color: CanvasText;
-    }
-    .meal-drop[data-active] {
-      background: Highlight;
-      color: HighlightText;
+    .meal-drop__badge {
+      background: Canvas;
+      color: CanvasText;
+      box-shadow: 0 0 0 2px CanvasText;
     }
   }
 }

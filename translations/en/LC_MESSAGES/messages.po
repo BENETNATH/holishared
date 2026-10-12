@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-11 11:09+0000\n"
+"POT-Creation-Date: 2026-10-11 20:12+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -1608,6 +1608,10 @@ msgid "Fait"
 msgstr "Done"
 
 #: app/lists/xlsx.py
+msgid "Liste"
+msgstr "List"
+
+#: app/lists/xlsx.py
 msgid "Fichier non reconnu : seul le format .xlsx est accepté."
 msgstr "Unrecognized file: only the .xlsx format is accepted."
 
@@ -1885,16 +1889,6 @@ msgstr "Notifications"
 #: app/templates/apikeys/index.html
 msgid "Accès programmatique (agent) à cet événement"
 msgstr "Programmatic (agent) access to this event"
-
-#: app/templates/events/me.html
-msgid ""
-"Accès programmatique (agent) à cet événement. Chaque clé est personnelle "
-"et révocable."
-msgstr "Programmatic (agent) access to this event. Each key is personal and revocable."
-
-#: app/templates/events/me.html
-msgid "Gérer mes clés API"
-msgstr "Manage my API keys"
 
 #: app/templates/apikeys/index.html
 msgid "Nouvelle clé créée"
@@ -3151,10 +3145,12 @@ msgid ""
 "Accès programmatique (agent) à cet événement. Chaque clé est personnelle "
 "et révocable."
 msgstr ""
+"Programmatic (agent) access to this event. Each key is personal and "
+"revocable."
 
 #: app/templates/events/me.html
 msgid "Gérer mes clés API"
-msgstr ""
+msgstr "Manage my API keys"
 
 #: app/templates/_components/ui.html app/templates/events/members.html
 #, python-format
@@ -4016,22 +4012,6 @@ msgid "%(n)d repas"
 msgstr "%(n)d meals"
 
 #: app/templates/meals/_grid.html app/templates/meals/index.html
-msgid "Échanger"
-msgstr "Swap"
-
-#: app/templates/meals/_grid.html
-msgid "Déposer ici"
-msgstr "Drop here"
-
-#: app/templates/meals/_grid.html
-msgid "Ajouter ici"
-msgstr "Add here"
-
-#: app/templates/meals/_grid.html
-msgid "Placer ici"
-msgstr "Place here"
-
-#: app/templates/meals/_grid.html app/templates/meals/index.html
 msgid "Ajouter un repas"
 msgstr "Add a meal"
 
@@ -4060,10 +4040,6 @@ msgstr ""
 "organizer can change it."
 
 #: app/templates/meals/index.html
-msgid "Déplacer vers…"
-msgstr "Move to…"
-
-#: app/templates/meals/index.html
 msgid "Jour"
 msgstr "Day"
 
@@ -4072,24 +4048,20 @@ msgid "Créneau"
 msgstr "Slot"
 
 #: app/templates/meals/index.html
-msgid "Déplacer"
-msgstr "Move"
-
-#: app/templates/meals/index.html
-msgid "Échanger avec…"
-msgstr "Swap with…"
+msgid "Échanger avec un autre repas"
+msgstr "Swap with another meal"
 
 #: app/templates/meals/index.html
 msgid "Autre repas"
 msgstr "Other meal"
 
 #: app/templates/meals/index.html
-msgid "Aucun autre repas à échanger."
-msgstr "No other meal to swap with."
+msgid "Déplacer"
+msgstr "Move"
 
 #: app/templates/meals/index.html
-msgid "Ordre dans le créneau"
-msgstr "Order in the slot"
+msgid "Échanger"
+msgstr "Swap"
 
 #: app/templates/meals/index.html
 msgid "Monter"

@@ -59,10 +59,16 @@ export function toast(message, { tone = 'info', action = null, timeout } = {}) {
   if (action) {
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = 'ui-btn ui-btn--ghost ui-btn--sm';
     button.setAttribute('data-toast-action', '');
-    button.textContent = action.label;
-    button.addEventListener('click', () => action.onClick());
+    if (action.icon) {
+      button.className = 'ui-btn ui-btn--ghost ui-btn--icon';
+      button.setAttribute('aria-label', action.label);
+      button.innerHTML = action.icon;
+    } else {
+      button.className = 'ui-btn ui-btn--ghost ui-btn--sm';
+      button.textContent = action.label;
+    }
+    button.addEventListener('click', (event) => action.onClick(event));
     el.insertBefore(button, el.querySelector('[data-toast-close]'));
   }
   const target = zone();
