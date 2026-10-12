@@ -12,6 +12,7 @@ from flask import (
     abort,
     current_app,
     flash,
+    make_response,
     redirect,
     render_template,
     request,
@@ -549,6 +550,9 @@ def dashboard(code: str) -> str | Response:
         infos=ordered_infos(event.id, INFOS_ON_HOME),
         infos_total=infos_total,
         share_url=_join_url(event),
+        calendar_url=str(current_app.config["APP_URL"]).rstrip("/") + url_for(
+            "events.calendar_ics", code=event.code
+        ),
         push_invite=invite_notifications(ctx),
         **(home_items(ctx) if "lists" in modules else {}),
     )
@@ -558,6 +562,26 @@ def _join_url(event: Event) -> str:
     """Lien public de REJOINDRE (jamais l'URL du tableau de bord)."""
     base = str(current_app.config["APP_URL"]).rstrip("/")
     return base + url_for("events.guest_access", code=event.code)
+
+
+@events_bp.route("/<code>/calendar.ics")
+def calendar_ics(code: str) -> Response:
+    """Programme en lecture seule au format iCal (B037) : le code événement suffit."""
+    from app.ics import build_ics
+
+    ctx = load_event_context(code, require="none")
+    event = ctx.event
+    activities = (
+        Activity.query.filter(Activity.event_id == event.id, Activity.status != "dropped")
+        .order_by(Activity.date, Activity.start_time.asc().nulls_last(), Activity.created_at)
+        .all()
+    )
+    meals = Meal.query.filter_by(event_id=event.id).order_by(*Meal.ordering()).all()
+    response = make_response(build_ics(event, activities, meals), 200)
+    response.headers["Content-Type"] = "text/calendar; charset=utf-8"
+    response.headers["Content-Disposition"] = f'inline; filename="holishared-{event.code}.ics"'
+    response.headers["Cache-Control"] = "no-cache"
+    return response
 
 
 @events_bp.route("/<code>/me", methods=["GET", "POST"])

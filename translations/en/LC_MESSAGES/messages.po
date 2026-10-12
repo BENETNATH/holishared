@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 06:00+0000\n"
+"POT-Creation-Date: 2026-10-12 06:39+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -2640,6 +2640,10 @@ msgstr "Invite"
 #: app/templates/events/dashboard.html
 msgid "Partager"
 msgstr "Share"
+
+#: app/templates/events/dashboard.html
+msgid "Calendrier"
+msgstr "Calendar"
 
 #: app/templates/events/dashboard.html
 msgid ""

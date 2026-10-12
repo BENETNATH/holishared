@@ -37,6 +37,7 @@
       <a href="{{ url_for('events.members', code=event.code, _anchor='invite') }}" class="{{ action_class('invite') }}" data-testid="invite-action">{{ icon('user-plus') }}<span>{{ _("Inviter") }}</span></a>
       {% endif %}
       <button type="button" class="{{ action_class('share') }}" data-testid="share-action" data-copy="{{ share_url }}">{{ icon('share-2') }}<span>{{ _("Partager") }}</span></button>
+      <button type="button" class="ui-btn ui-btn--secondary" data-testid="calendar-action" data-copy="{{ calendar_url }}">{{ icon('calendar-days') }}<span>{{ _("Calendrier") }}</span></button>
     </div>
   </header>
 
