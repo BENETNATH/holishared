@@ -1,4 +1,4 @@
-{# Fragment HTMX de l'accueil : « Pour moi » + « À répartir » (B020a, 20.7). Rendu aussi par lists.toggle_item / lists.claim_item. #}
+{# Fragment HTMX de l'accueil : « Pour moi » (sections de listes repliables, B036) + « À répartir » (B020a, 20.7). Rendu aussi par lists.toggle_item / lists.claim_item. #}
 {%- macro toggle_form(item, lst, done) -%}
 <form class="min-w-0 flex-1" hx-post="{{ url_for('lists.toggle_item', code=event.code, list_id=lst.id, item_id=item.id) }}"
       hx-target="#my-items" hx-swap="outerHTML" hx-trigger="change">
@@ -17,27 +17,36 @@
       <h2 id="h-myitems" class="text-subheading font-semibold text-ink">{{ _("Pour moi") }}</h2>
       {% if total %}<span class="ui-badge ui-badge--neutral" data-testid="my-items-count">{{ taken }}/{{ total }} {{ _("pris") }}</span>{% endif %}
     </div>
-    {% if groups %}
-    {% for group in groups %}
-    <section class="mt-3 first:mt-0" data-testid="my-items-group" aria-labelledby="h-mylist-{{ group.list.id }}">
-      <h3 id="h-mylist-{{ group.list.id }}" class="text-small font-semibold text-ink-2">
-        <a class="ui-link" href="{{ url_for('lists.detail', code=event.code, list_id=group.list.id) }}">{{ group.list.title }}</a>
-      </h3>
-      <ul class="m-0 list-none p-0" data-testid="my-items-todo">
-        {% for item in group.open %}<li class="flex items-center">{{ toggle_form(item, group.list, False) }}</li>{% endfor %}
-      </ul>
-      {% if group.done %}
-      <details class="mt-1" data-testid="my-items-done">
-        <summary class="flex min-h-[44px] cursor-pointer items-center text-small text-ink-2">{{ _("Déjà pris") }} ({{ group.done|length }})</summary>
-        <ul class="m-0 list-none p-0">
-          {% for item in group.done %}<li class="flex items-center">{{ toggle_form(item, group.list, True) }}</li>{% endfor %}
+    {% if lists %}
+    {% for entry in lists %}
+    <details class="my-list mt-2 rounded-md border border-line first:mt-0" data-testid="my-list" data-list-id="{{ entry.list.id }}"{% if entry.open %} open{% endif %}>
+      <summary class="flex min-h-[44px] cursor-pointer items-center justify-between gap-2 px-2 py-1">
+        <a class="ui-link min-w-0 break-words" href="{{ url_for('lists.detail', code=event.code, list_id=entry.list.id) }}">{{ entry.list.title }}</a>
+        <span class="ui-badge ui-badge--neutral shrink-0" data-testid="my-list-progress">{{ entry.done }}/{{ entry.total }}</span>
+      </summary>
+      <div class="border-t border-line px-2 py-1">
+        {% if entry.open %}
+        <ul class="m-0 list-none p-0" data-testid="my-items-todo">
+          {% for item in entry.open %}<li class="flex items-center">{{ toggle_form(item, entry.list, False) }}</li>{% endfor %}
         </ul>
-      </details>
-      {% endif %}
-    </section>
+        {% elif entry.done_mine %}
+        <p class="m-0 text-small text-ink-2" data-testid="my-list-done-only">{{ _("Rien à faire — %(n)d déjà pris.", n=entry.done_mine|length) }}</p>
+        {% else %}
+        <p class="m-0 text-small text-ink-2" data-testid="my-list-none">{{ _("Aucun article à votre charge dans cette liste.") }}</p>
+        {% endif %}
+        {% if entry.done_mine %}
+        <details class="mt-1" data-testid="my-items-done">
+          <summary class="flex min-h-[44px] cursor-pointer items-center text-small text-ink-2">{{ _("Déjà pris") }} ({{ entry.done_mine|length }})</summary>
+          <ul class="m-0 list-none p-0">
+            {% for item in entry.done_mine %}<li class="flex items-center">{{ toggle_form(item, entry.list, True) }}</li>{% endfor %}
+          </ul>
+        </details>
+        {% endif %}
+      </div>
+    </details>
     {% endfor %}
     {% else %}
-    <p class="m-0 text-small text-ink-2" data-testid="my-items-empty">{{ _("Rien à votre charge pour l'instant. Prenez un article ci-dessous ou dans une liste.") }}</p>
+    <p class="m-0 text-small text-ink-2" data-testid="my-items-empty">{{ _("Aucune liste pour l'instant.") }}</p>
     {% endif %}
   </section>
 

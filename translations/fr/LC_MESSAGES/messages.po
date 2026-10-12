@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-11 20:12+0000\n"
+"POT-Creation-Date: 2026-10-12 06:00+0000\n"
 "PO-Revision-Date: 2026-10-04 11:18+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -2456,13 +2456,20 @@ msgid "pris"
 msgstr ""
 
 #: app/templates/events/_my_items.html
+#, python-format
+msgid "Rien à faire — %(n)d déjà pris."
+msgstr ""
+
+#: app/templates/events/_my_items.html
+msgid "Aucun article à votre charge dans cette liste."
+msgstr ""
+
+#: app/templates/events/_my_items.html
 msgid "Déjà pris"
 msgstr ""
 
 #: app/templates/events/_my_items.html
-msgid ""
-"Rien à votre charge pour l'instant. Prenez un article ci-dessous ou dans "
-"une liste."
+msgid "Aucune liste pour l'instant."
 msgstr ""
 
 #: app/templates/events/_my_items.html

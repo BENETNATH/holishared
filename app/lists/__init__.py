@@ -75,10 +75,11 @@ HOME_UNASSIGNED_LIMIT = 5
 
 
 def home_items(ctx: EventContext) -> dict[str, Any]:
-    """Données du bloc « Pour moi » / « À répartir » de l'accueil (B020a, 20.7)."""
+    """Données du bloc « Pour moi » / « À répartir » de l'accueil (B020a, 20.7 ; B036 : sections)."""
     lists = SharedList.query.filter_by(event_id=ctx.event.id).order_by(SharedList.created_at).all()
     by_id = {lst.id: lst for lst in lists}
-    groups: dict[str, dict[str, Any]] = {}
+    stats = _list_stats([lst.id for lst in lists])
+    mine_by_list: dict[str, dict[str, list[ListItem]]] = {}
     total = taken = 0
     if ctx.participant is not None:
         mine = (
@@ -89,9 +90,7 @@ def home_items(ctx: EventContext) -> dict[str, Any]:
             .all()
         )
         for item in mine:
-            group = groups.setdefault(
-                item.list_id, {"list": by_id[item.list_id], "open": [], "done": []}
-            )
+            group = mine_by_list.setdefault(item.list_id, {"open": [], "done": []})
             group["done" if item.is_done else "open"].append(item)
             taken += int(item.is_done)
         total = len(mine)
@@ -101,7 +100,16 @@ def home_items(ctx: EventContext) -> dict[str, Any]:
         or_(ListItem.assigned_to_id.is_(None), ListItem.assigned_to == ""),
     )
     return {
-        "groups": sorted(groups.values(), key=lambda g: g["list"].created_at),
+        "lists": [
+            {
+                "list": lst,
+                "done": stats.get(lst.id, (0, 0))[0],
+                "total": stats.get(lst.id, (0, 0))[1],
+                "open": mine_by_list.get(lst.id, {}).get("open", []),
+                "done_mine": mine_by_list.get(lst.id, {}).get("done", []),
+            }
+            for lst in lists
+        ],
         "total": total,
         "taken": taken,
         "unassigned": [

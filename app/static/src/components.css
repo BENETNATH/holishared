@@ -1455,6 +1455,16 @@
   }
 }
 
+/* ---- Accueil : sections de listes repliables « Pour moi » (B036) ---- */
+@layer components {
+  .my-list summary {
+    list-style: none;
+  }
+  .my-list summary::-webkit-details-marker {
+    display: none;
+  }
+}
+
 /* ---- Repas : zones de dépôt pendant le glisser (B022c) ----
    Pictogramme « échange » (teinte info) au centre d'une carte ; le bouton « Ajouter un repas »
    est aussi la zone de dépôt de la case (teinte succès quand la case est la cible). */

@@ -6,9 +6,27 @@ import { toast } from 'ui/toast';
 
 let initialized = false;
 
+// « Pour moi » (B036) : l'état ouvert/fermé des sections de listes survit au re-rendu HTMX.
+const myListOpen = new Map();
+function isMyItems(event) {
+  return event.detail?.target?.id === 'my-items';
+}
+
 export function initHtmx() {
   if (initialized) return;
   initialized = true;
+  document.addEventListener('htmx:beforeSwap', (event) => {
+    if (!isMyItems(event)) return;
+    document.querySelectorAll('#my-items details[data-list-id]').forEach((d) => {
+      myListOpen.set(d.dataset.listId, d.open);
+    });
+  });
+  document.addEventListener('htmx:afterSwap', (event) => {
+    if (!isMyItems(event)) return;
+    document.querySelectorAll('#my-items details[data-list-id]').forEach((d) => {
+      if (myListOpen.has(d.dataset.listId)) d.open = myListOpen.get(d.dataset.listId);
+    });
+  });
   // Une réponse d'erreur qui porte déjà son toast (HX-Trigger) n'en reçoit pas un second, générique.
   const fail = (event) => {
     const trigger = event.detail?.xhr?.getResponseHeader?.('HX-Trigger');

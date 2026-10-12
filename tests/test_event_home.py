@@ -162,7 +162,7 @@ def _my_list(db, event, owner, name="Pain"):
 
 def test_home_for_me_lists_my_assigned_items(db, guest_client, event, guest):
     _my_list(db, event, guest)
-    assert "Pain" in block(_home(guest_client, event), "my-items-group", "section")
+    assert "Pain" in block(_home(guest_client, event), "my-list", "details")
 
 
 def test_home_for_me_hides_items_of_other_guests(db, guest_client, event, other_guest_c):
@@ -180,7 +180,7 @@ def test_home_for_me_creator_sees_own_items_by_participant_id(
     db, creator_client, event, creator_guest
 ):
     _my_list(db, event, creator_guest, "Barbecue")
-    assert "Barbecue" in block(_home(creator_client, event), "my-items-group", "section")
+    assert "Barbecue" in block(_home(creator_client, event), "my-list", "details")
 
 
 def test_home_unassigned_block_offers_claim_button(db, guest_client, event):
@@ -192,8 +192,9 @@ def test_home_unassigned_block_offers_claim_button(db, guest_client, event):
     assert "claim-item" in testids(_home(guest_client, event), "claim-")
 
 
-def test_home_for_me_empty_state_when_nothing_assigned(guest_client, event):
+def test_home_for_me_empty_state_when_no_lists(guest_client, event):
     assert 'data-testid="my-items-empty"' in _home(guest_client, event)
+    assert "Aucune liste pour l'instant." in _home(guest_client, event)
 
 
 # --- Modules, sondages, chat, infos ---------------------------------------------
