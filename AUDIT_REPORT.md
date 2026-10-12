@@ -110,7 +110,12 @@
 - **Example:**
   ```python
   from itsdangerous import URLSafeTimedSerializer
-  s = URLSafeTimedSerializer("dev", salt="cookie-session", signer_kwargs={"key_derivation":"hmac-sha1","digest_method":"sha512"})
+
+  s = URLSafeTimedSerializer(
+      "dev",
+      salt="cookie-session",
+      signer_kwargs={"key_derivation": "hmac-sha1", "digest_method": "sha512"},
+  )
   print(s.dumps({"_user_id": "<creator-id>"}))
   ```
 - **Solution:** Fail fast at startup: `if not secret_key or secret_key in ("dev", ""): raise RuntimeError`. Generate a 64-hex key per deployment; never allow empty.

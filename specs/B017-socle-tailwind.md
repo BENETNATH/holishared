@@ -553,21 +553,28 @@ class NavItem:
     key: str
     label: str
     icon: str
-    href: str | None      # None pour les boutons (privacy)
+    href: str | None  # None pour les boutons (privacy)
     active: bool
+
 
 @dataclass(frozen=True)
 class Nav:
-    context: str                  # "event" | "global"
-    primary: list[NavItem]        # destinations de la barre du bas (sans « Plus »)
-    more_modules: list[NavItem]   # modules relégués dans « Plus »
-    event_items: list[NavItem]    # créateur : participants, invite, log ; invité : log
+    context: str  # "event" | "global"
+    primary: list[NavItem]  # destinations de la barre du bas (sans « Plus »)
+    more_modules: list[NavItem]  # modules relégués dans « Plus »
+    event_items: list[NavItem]  # créateur : participants, invite, log ; invité : log
     account_items: list[NavItem]  # events, logout (créateur, contexte event) ; [] sinon
-    more_active: bool             # une entrée de more_modules/event_items/account_items/privacy est active
+    more_active: bool  # une entrée de more_modules/event_items/account_items/privacy est active
+
 
 def nav_section(endpoint: str | None) -> str | None: ...
-def build_nav(endpoint: str | None, enabled_modules: Sequence[str], event_code: str | None,
-              role: str | None, authenticated: bool) -> Nav: ...
+def build_nav(
+    endpoint: str | None,
+    enabled_modules: Sequence[str],
+    event_code: str | None,
+    role: str | None,
+    authenticated: bool,
+) -> Nav: ...
 ```
 
 `nav_section` (fonction pure) :
@@ -894,15 +901,17 @@ Voir §4.7 (markup, tons, position) et §7.6 (comportement). Classes : `ui-toast
 1. **Registre (Python, `app/ui.py`)** — source unique, clé → msgid FR :
 
 ```python
-def N_(s: str) -> str:   # marqueur d'extraction (mot-clé pybabel par défaut), sans traduction
+def N_(s: str) -> str:  # marqueur d'extraction (mot-clé pybabel par défaut), sans traduction
     return s
+
 
 JS_STRINGS: Final[dict[str, str]] = {
     "copied": N_("Copié"),
     # … une entrée par ligne du tableau ci-dessous
 }
 
-def ui_strings() -> dict[str, str]:   # global Jinja ; traduit à la requête
+
+def ui_strings() -> dict[str, str]:  # global Jinja ; traduit à la requête
     return {key: gettext(msgid) for key, msgid in JS_STRINGS.items()}
 ```
 

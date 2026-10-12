@@ -88,9 +88,10 @@ Fichier : `app/utils.py`
 ```python
 from app.models import ActivityLog
 
+
 def log_action(db_session, event_id, actor_name, actor_type, action, target=None, details=None):
     """Créer un ActivityLog (sans commit).
-    
+
     Le caller fait db.session.commit() une seule fois après avoir
     ajouté l'entité principale + le log.
     """
@@ -486,6 +487,7 @@ Fichier : `tests/test_planning.py`
 def activity(db, event):
     from datetime import date, time
     from app.models import Activity
+
     a = Activity(
         title="Swimming",
         description="Pool party",
@@ -501,9 +503,11 @@ def activity(db, event):
     db.session.commit()
     return a
 
+
 @pytest.fixture
 def activity_rsvp(db, activity, guest):
     from app.models import ActivityRSVP
+
     r = ActivityRSVP(
         status="yes",
         activity_id=activity.id,

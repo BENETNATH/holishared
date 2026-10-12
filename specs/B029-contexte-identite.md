@@ -142,7 +142,7 @@ Role = Literal["creator", "guest", "visitor"]
 ActorType = Literal["creator", "guest", "system"]
 Requirement = Literal["participant", "creator", "none"]
 
-SYSTEM_ACTOR_NAME = "Système"      # B018 remplace la valeur par SYSTEM_PLACEHOLDER ("@system")
+SYSTEM_ACTOR_NAME = "Système"  # B018 remplace la valeur par SYSTEM_PLACEHOLDER ("@system")
 CREATOR_FALLBACK_NAME = "Créateur"  # B018 remplace la valeur par CREATOR_PLACEHOLDER ("@creator")
 
 
@@ -170,18 +170,18 @@ Ces deux constantes sont les **seules** occurrences des textes « Système » et
 class EventContext:
     event: Event
     participant: Guest | None
-    is_creator: bool          # True ⇔ créateur de CET événement, connecté (flask-login)
+    is_creator: bool  # True ⇔ créateur de CET événement, connecté (flask-login)
 
     @property
-    def role(self) -> Role: ...          # "creator" si is_creator, "guest" si participant, sinon "visitor"
+    def role(self) -> Role: ...  # "creator" si is_creator, "guest" si participant, sinon "visitor"
 
     @property
-    def actor(self) -> Actor: ...        # actor_for(self.participant)
+    def actor(self) -> Actor: ...  # actor_for(self.participant)
 
     def is_author(self, author_id: str | None) -> bool:
         """participant non nul et author_id == participant.id (False si author_id est None)."""
 
-    def can_edit(self, obj: object) -> bool: ...    # table §3.6
+    def can_edit(self, obj: object) -> bool: ...  # table §3.6
     def can_delete(self, obj: object) -> bool: ...  # table §3.6
 ```
 
@@ -216,9 +216,11 @@ Algorithme, dans cet ordre :
 def get_event_context() -> EventContext | None:
     """g.event_ctx s'il existe, sinon None. Aucune requête."""
 
+
 def reset_event_context() -> None:
     """g.pop("event_ctx", None) ET g.pop("code_attempt_failed", None) (le drapeau d'échec de code, §7, ne doit pas fuir
     entre deux requêtes d'un même test). Enregistrée par create_app : app.before_request(reset_event_context)."""
+
 
 def get_or_create_creator_participant(event: Event, creator: Creator) -> Guest:
     """Participant créateur canonique (I2). S'il est absent : ensure_creator_guest(event, creator,
@@ -233,8 +235,9 @@ Pourquoi une fonction et pas un décorateur : `abort()` accepte une `Response` (
 ### 3.4 Journal
 
 ```python
-def log_event(ctx: EventContext, action: str, target: str | None = None,
-              details: str | None = None) -> ActivityLog:
+def log_event(
+    ctx: EventContext, action: str, target: str | None = None, details: str | None = None
+) -> ActivityLog:
     """log_action(db.session, ctx.event.id, ctx.actor.name, ctx.actor.type, action, target, details). Sans commit."""
 ```
 
@@ -251,7 +254,7 @@ return {
     # clés existantes / B017 — noms et sémantique inchangés
     "app_name": "holishared",
     "enabled_modules": [m for m in app.config["ENABLED_MODULES"] if m in app.blueprints],
-    "current_lang": ...,                                   # inchangé
+    "current_lang": ...,  # inchangé
     "current_event": ctx.event if ctx else None,
     "current_guest": participant if (ctx and ctx.role == "guest") else None,
     "event_role": ctx.role if (ctx and ctx.role != "visitor") else None,
@@ -689,9 +692,11 @@ Plafond assumé : les codes invités restent choisis (4 à 8 caractères). Ils n
 Constantes dans `app/access.py` :
 
 ```python
-IP_FAILURE_LIMIT = "20 per 15 minutes;50 per day"                 # par IP, en tout (les 3 routes partagent le compteur)
+IP_FAILURE_LIMIT = (
+    "20 per 15 minutes;50 per day"  # par IP, en tout (les 3 routes partagent le compteur)
+)
 TARGET_FAILURE_LIMIT = "5 per minute;10 per 15 minutes;15 per hour;30 per day"  # par (IP, cible) : délai progressif par paliers
-TARGET_ALERT_THRESHOLD = "50 per hour"                           # alerte par cible, jamais de 429
+TARGET_ALERT_THRESHOLD = "50 per hour"  # alerte par cible, jamais de 429
 ```
 
 | Route (POST) | Cible | Limites (remplacent les décorateurs `limiter.limit(...)` actuels de ces vues) |
@@ -703,17 +708,31 @@ TARGET_ALERT_THRESHOLD = "50 per hour"                           # alerte par ci
 Les deux décorateurs sont créés **une seule fois** dans `app/access.py` et appliqués aux vues. Un `limiter.limit(...)` non partagé serait indexé par route (trois compteurs distincts) : c'est pourquoi les deux sont des `shared_limit`.
 
 ```python
-IP_FAILURES = limiter.shared_limit(IP_FAILURE_LIMIT, scope="ip-failures", key_func=get_remote_address,
-                                   methods=["POST"], deduct_when=attempt_failed)
-EVENT_TARGET_FAILURES = limiter.shared_limit(TARGET_FAILURE_LIMIT, scope="event-target", key_func=ip_event_key,
-                                             methods=["POST"], deduct_when=attempt_failed)
+IP_FAILURES = limiter.shared_limit(
+    IP_FAILURE_LIMIT,
+    scope="ip-failures",
+    key_func=get_remote_address,
+    methods=["POST"],
+    deduct_when=attempt_failed,
+)
+EVENT_TARGET_FAILURES = limiter.shared_limit(
+    TARGET_FAILURE_LIMIT,
+    scope="event-target",
+    key_func=ip_event_key,
+    methods=["POST"],
+    deduct_when=attempt_failed,
+)
 ```
 
 ```python
 def ip_event_key() -> str:
     return f"{get_remote_address()}:event:{(request.view_args or {}).get('code', '')}"
+
+
 def attempt_failed(response: Response) -> bool:
     return bool(g.get("code_attempt_failed", False))
+
+
 def mark_attempt_failed(scope: Literal["home", "event", "join"], event_code: str | None) -> None:
     """g.code_attempt_failed = True ; log WARNING (§7.7) ; alerte de cible (ci-dessous)."""
 ```
