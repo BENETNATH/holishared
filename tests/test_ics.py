@@ -46,7 +46,7 @@ def test_ics_unverified_event_is_404(client, unverified_event):
 def test_ics_content_type_and_disposition(client, event):
     resp = client.get(f"/e/{event.code}/{ICS}")
     assert resp.content_type.startswith("text/calendar")
-    assert f"filename=\"holishared-{event.code}.ics\"" in resp.headers["Content-Disposition"]
+    assert f'filename="holishared-{event.code}.ics"' in resp.headers["Content-Disposition"]
 
 
 # --- En-têtes -------------------------------------------------------------------
@@ -162,7 +162,8 @@ def test_ics_uids_are_stable_and_distinct(client, db, event):
 
 def test_ics_empty_event_has_no_vevent(client, event):
     text = _ics(client, event)
-    assert "BEGIN:VCALENDAR" in text and "END:VCALENDAR" in text
+    assert "BEGIN:VCALENDAR" in text
+    assert "END:VCALENDAR" in text
     assert "BEGIN:VEVENT" not in text
 
 

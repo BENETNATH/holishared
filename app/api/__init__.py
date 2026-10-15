@@ -9,9 +9,10 @@ du rôle de l'owner (``EventContext`` + table ``_RIGHTS``). Toute réponse est J
 
 import hashlib
 import threading
+from collections.abc import Callable
 from datetime import date, datetime, time
 from time import monotonic
-from typing import Any, cast
+from typing import Any, TypeVar, cast
 
 from flask import Blueprint, abort, current_app, g, jsonify, request
 from flask_babel import gettext as _
@@ -65,6 +66,8 @@ api_bp = Blueprint("api", __name__)
 
 APP_VERSION = "0.1.0"
 
+F = TypeVar("F", bound=Callable[..., Any])
+
 
 # === Authentification (clé Bearer) =====================================================
 
@@ -85,7 +88,7 @@ def _resolve_api_key() -> ApiKey | None:
     """
     cached = g.get("api_key")
     if cached is not None:
-        return cached
+        return cast("ApiKey | None", cached)
     header = request.headers.get("Authorization", "")
     if not header.startswith("Bearer "):
         return None
@@ -106,7 +109,7 @@ def _resolve_api_key() -> ApiKey | None:
         if guest is None or not guest.is_active:
             return None
     g.api_key = api_key
-    return api_key
+    return cast("ApiKey | None", api_key)
 
 
 def _build_ctx(api_key: ApiKey, event: Event) -> EventContext:
@@ -183,7 +186,7 @@ def _authenticate() -> None:
     if not event.is_active or event.verified_at is None:
         abort(404)
     # Isolation inter-événements : la clé ne sert que pour SON événement.
-    if request.view_args.get("code", "") != event.code:
+    if (request.view_args or {}).get("code", "") != event.code:
         abort(404)
     ctx = _build_ctx(api_key, event)
     g.api_key = api_key
@@ -202,11 +205,11 @@ def _ctx() -> EventContext:
 
 def api_endpoint(
     *, description: str, request: dict[str, str] | None, response: dict[str, str] | None
-) -> Any:
+) -> Callable[[F], F]:
     """Décorateur : métadonnées d'endpoint pour l'index (découvrabilité, §5)."""
 
-    def decorator(func: Any) -> Any:
-        func.api_meta = {
+    def decorator(func: F) -> F:
+        func.api_meta = {  # type: ignore[attr-defined]
             "description": description,
             "request": request,
             "response": response,
@@ -228,7 +231,7 @@ def _api_rules() -> list[tuple[str, str, dict[str, Any]]]:
         meta = getattr(view, "api_meta", None)
         if not isinstance(meta, dict):
             continue
-        for method in sorted(rule.methods - {"HEAD", "OPTIONS"}):
+        for method in sorted((rule.methods or set()) - {"HEAD", "OPTIONS"}):
             out.append((method, rule.rule, meta))
     out.sort(key=lambda item: (item[1], item[0]))
     return out
@@ -237,32 +240,32 @@ def _api_rules() -> list[tuple[str, str, dict[str, Any]]]:
 # === Erreurs JSON (le blueprint prime sur les handlers HTML de l'app) =================
 
 
-def _json_error(status: int, message: str) -> Response:
+def _json_error(status: int, message: str) -> tuple[Response, int]:
     return jsonify({"error": message}), status
 
 
 @api_bp.errorhandler(400)
-def _bad_request(e: Exception) -> Response:
+def _bad_request(e: Exception) -> tuple[Response, int]:
     return _json_error(400, getattr(e, "description", None) or _("Requête invalide."))
 
 
 @api_bp.errorhandler(401)
-def _unauthorized(e: Exception) -> Response:
+def _unauthorized(e: Exception) -> tuple[Response, int]:
     return _json_error(401, _("Authentification requise."))
 
 
 @api_bp.errorhandler(403)
-def _forbidden(e: Exception) -> Response:
+def _forbidden(e: Exception) -> tuple[Response, int]:
     return _json_error(403, _("Accès refusé."))
 
 
 @api_bp.errorhandler(404)
-def _not_found(e: Exception) -> Response:
+def _not_found(e: Exception) -> tuple[Response, int]:
     return _json_error(404, _("Introuvable."))
 
 
 @api_bp.errorhandler(429)
-def _too_many(e: Exception) -> Response:
+def _too_many(e: Exception) -> tuple[Response, int]:
     return _json_error(429, _("Trop de requêtes. Patientez un instant."))
 
 
@@ -306,7 +309,7 @@ def _first_error(errors: FormErrors) -> str | None:
     return next(iter(errors), None)
 
 
-def _error(status: int, message: str | None) -> Response:
+def _error(status: int, message: str | None) -> tuple[Response, int]:
     return _json_error(status, message or _("Requête invalide."))
 
 
@@ -601,7 +604,7 @@ def _validate_household(data: dict[str, Any]) -> tuple[FormErrors, dict[str, Any
         num_children = int(_num(data, "num_children") or "0")
     except (ValueError, TypeError):
         errors.add_global(_("Valeurs numériques invalides."))
-        return values, errors
+        return errors, values
     if num_adults < 1 or num_adults > 50:
         errors.add("num_adults", _("Adultes : entre 1 et 50."))
     if num_children < 0 or num_children > 50:
@@ -723,7 +726,9 @@ def _meal_json(meal: Meal) -> dict[str, Any]:
 
 
 def _list_items(shared_list: SharedList) -> list[ListItem]:
-    return list(shared_list.items.order_by(ListItem.created_at.asc()))
+    return list(
+        ListItem.query.filter_by(list_id=shared_list.id).order_by(ListItem.created_at.asc()).all()
+    )
 
 
 def _item_json(item: ListItem) -> dict[str, Any]:
@@ -944,7 +949,7 @@ def activities_list(code: str) -> Response:
     request={"title": "string, requis, 2-200", "date": "YYYY-MM-DD, requis"},
     response={"id": "string"},
 )
-def activities_create(code: str) -> Response:
+def activities_create(code: str) -> tuple[Response, int]:
     ctx = _ctx()
     data = _json_body()
     errors, values = _validate_activity(data, ctx.event)
@@ -975,7 +980,7 @@ def activities_create(code: str) -> Response:
     request={"status": "yes|no|maybe|none, requis"},
     response={"id": "string"},
 )
-def rsvp(code: str, activity_id: str) -> Response:
+def rsvp(code: str, activity_id: str) -> Response | tuple[Response, int]:
     ctx = _ctx()
     participant = ctx.participant
     if participant is None:
@@ -1036,7 +1041,7 @@ def meals_list(code: str) -> Response:
     },
     response={"id": "string"},
 )
-def meals_create(code: str) -> Response:
+def meals_create(code: str) -> tuple[Response, int]:
     ctx = _ctx()
     data = _json_body()
     errors, values = _validate_meal(data, ctx.event)
@@ -1098,7 +1103,7 @@ def lists_list(code: str) -> Response:
     request={"title": "string, requis, 2-200"},
     response={"id": "string"},
 )
-def lists_create(code: str) -> Response:
+def lists_create(code: str) -> tuple[Response, int]:
     ctx = _ctx()
     data = _json_body()
     errors, values = _validate_list(data)
@@ -1156,7 +1161,7 @@ def items_list(code: str, list_id: str) -> Response:
     request={"name": "string, requis, 1-300"},
     response={"id": "string"},
 )
-def items_create(code: str, list_id: str) -> Response:
+def items_create(code: str, list_id: str) -> tuple[Response, int]:
     ctx = _ctx()
     shared_list = SharedList.query.filter_by(id=list_id, event_id=ctx.event.id).first()
     if shared_list is None:
@@ -1194,7 +1199,7 @@ def logistics_list(code: str) -> Response:
     request={"title": "string, requis, 2-200", "content": "string, requis, max 5000"},
     response={"id": "string"},
 )
-def logistics_create(code: str) -> Response:
+def logistics_create(code: str) -> tuple[Response, int]:
     ctx = _ctx()
     data = _json_body()
     errors, values = _validate_logistics(data)
@@ -1237,7 +1242,7 @@ def polls_list(code: str) -> Response:
     },
     response={"id": "string"},
 )
-def polls_create(code: str) -> Response:
+def polls_create(code: str) -> tuple[Response, int]:
     ctx = _ctx()
     data = _json_body()
     errors, fields = _validate_poll(data, ctx)
@@ -1271,7 +1276,7 @@ def polls_create(code: str) -> Response:
     request={"option_id": "string, requis"},
     response={"id": "string"},
 )
-def vote(code: str, poll_id: str) -> Response:
+def vote(code: str, poll_id: str) -> Response | tuple[Response, int]:
     ctx = _ctx()
     participant = ctx.participant
     if participant is None:
@@ -1325,7 +1330,7 @@ def chat_list(code: str) -> Response:
     request={"content": "string, requis, 1-2000"},
     response={"id": "string"},
 )
-def chat_send(code: str) -> Response:
+def chat_send(code: str) -> tuple[Response, int]:
     ctx = _ctx()
     participant = ctx.participant
     if participant is None:
@@ -1397,7 +1402,7 @@ def costs_dashboard(code: str) -> Response:
     },
     response={"id": "string"},
 )
-def expenses_create(code: str) -> Response:
+def expenses_create(code: str) -> tuple[Response, int]:
     ctx = _ctx()
     data = _json_body()
     errors, values = _validate_expense(data, ctx)
@@ -1421,7 +1426,7 @@ def expenses_create(code: str) -> Response:
     request={"name": "string, requis, 2-100"},
     response={"id": "string"},
 )
-def households_create(code: str) -> Response:
+def households_create(code: str) -> tuple[Response, int]:
     ctx = _ctx()
     if not ctx.is_creator:
         abort(403)
@@ -1453,7 +1458,7 @@ def households_create(code: str) -> Response:
     },
     response={"id": "string"},
 )
-def transfers_create(code: str) -> Response:
+def transfers_create(code: str) -> tuple[Response, int]:
     ctx = _ctx()
     data = _json_body()
     errors, values = _validate_transfer(data, ctx)
@@ -1487,7 +1492,7 @@ def transfers_create(code: str) -> Response:
     },
     response={"id": "string"},
 )
-def payment_requests_create(code: str) -> Response:
+def payment_requests_create(code: str) -> tuple[Response, int]:
     ctx = _ctx()
     data = _json_body()
     errors, values = _validate_payment_request(data, ctx)

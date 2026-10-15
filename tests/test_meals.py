@@ -688,7 +688,9 @@ class TestDropZones:
     def test_grid_renders_drop_zones(self, creator_client, event, db, cell3):
         html = creator_client.get(f"/e/{event.code}/meals").data.decode()
         assert html.count('data-testid="meal-drop-swap"') == 3  # une par carte modifiable
-        assert html.count('data-meal-drop="add"') == 14  # le bouton d'ajout est la zone de dépôt de chaque case
+        assert (
+            html.count('data-meal-drop="add"') == 14
+        )  # le bouton d'ajout est la zone de dépôt de chaque case
 
     def test_non_editable_card_has_no_swap_zone(self, guest_client, event, db, cell3):
         html = guest_client.get(f"/e/{event.code}/meals").data.decode()

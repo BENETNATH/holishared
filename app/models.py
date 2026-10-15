@@ -276,8 +276,8 @@ class SharedList(db.Model):  # type: ignore[misc,name-defined]
     )  # shopping, packing, materials, buffet
     # Colonnes JSON historiques : ni lues ni écrites depuis B023 (remplacées par ListMealCoverage /
     # ListActivityCoverage, migrées par app.migrations) ; suppression physique prévue en B028.
-    covered_meals: Mapped[list] = db.Column(db.JSON, default=list)
-    covered_activities: Mapped[list] = db.Column(db.JSON, default=list)
+    covered_meals: Mapped[list[str]] = db.Column(db.JSON, default=list)
+    covered_activities: Mapped[list[str]] = db.Column(db.JSON, default=list)
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
 
     event_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False)

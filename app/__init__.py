@@ -116,7 +116,8 @@ def create_app() -> Flask:
     #   - Docker: app port is only `expose`d (not published), unreachable externally
     #   - Dev: manage.py run binds 127.0.0.1 only
     # If the app is ever directly reachable, add a trusted-proxy filter.
-    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+    # setattr : mypy considère wsgi_app comme une méthode (assignation interdite).
+    setattr(app, "wsgi_app", ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1))  # noqa: B010
 
     db.init_app(app)
     login_manager.init_app(app)
@@ -133,7 +134,7 @@ def create_app() -> Flask:
             from sqlalchemy import event as sa_event
 
             @sa_event.listens_for(db.engine, "connect")
-            def _set_sqlite_pragma(dbapi_conn, _record):
+            def _set_sqlite_pragma(dbapi_conn: Any, _record: Any) -> None:
                 cursor = dbapi_conn.cursor()
                 cursor.execute("PRAGMA journal_mode=WAL")
                 cursor.execute("PRAGMA busy_timeout=5000")
@@ -267,7 +268,7 @@ def create_app() -> Flask:
 
     # Error handlers
     @app.errorhandler(404)
-    def not_found(e: Exception) -> tuple[str, int]:
+    def not_found(e: Exception) -> tuple[str | Response, int]:
         from flask import jsonify, render_template, request
         from flask_babel import gettext
 
@@ -283,7 +284,7 @@ def create_app() -> Flask:
         return render_template("errors/403.html"), 403
 
     @app.errorhandler(500)
-    def server_error(e: Exception) -> tuple[str, int]:
+    def server_error(e: Exception) -> tuple[str | Response, int]:
         """Page propre, sans trace ; l'exception est déjà journalisée par Flask."""
         from flask import jsonify, render_template, request
         from flask_babel import gettext

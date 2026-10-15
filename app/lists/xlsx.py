@@ -18,6 +18,7 @@ from flask import flash, make_response, redirect, request, url_for
 from flask_babel import _
 from openpyxl import Workbook, load_workbook
 from openpyxl.worksheet.datavalidation import DataValidation
+from openpyxl.worksheet.worksheet import Worksheet
 from werkzeug.wrappers import Response
 
 from app.context import load_event_context
@@ -96,7 +97,7 @@ def _distinct(values: list[str]) -> list[str]:
     return seen
 
 
-def _make_refs_sheet(wb: Workbook, users: list[str]):
+def _make_refs_sheet(wb: Workbook, users: list[str]) -> Worksheet | None:
     """Feuille d'aide cachée (A=users) pour le dropdown Assigné à ; None si vide."""
     if not users:
         return None

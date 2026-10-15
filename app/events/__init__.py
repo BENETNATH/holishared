@@ -550,9 +550,8 @@ def dashboard(code: str) -> str | Response:
         infos=ordered_infos(event.id, INFOS_ON_HOME),
         infos_total=infos_total,
         share_url=_join_url(event),
-        calendar_url=str(current_app.config["APP_URL"]).rstrip("/") + url_for(
-            "events.calendar_ics", code=event.code
-        ),
+        calendar_url=str(current_app.config["APP_URL"]).rstrip("/")
+        + url_for("events.calendar_ics", code=event.code),
         push_invite=invite_notifications(ctx),
         **(home_items(ctx) if "lists" in modules else {}),
     )
@@ -1207,10 +1206,10 @@ def my_code(code: str) -> str | Response:
 # === Helpers ===
 
 
-def _rq_queue():
+def _rq_queue() -> Any:
     """Get the RQ queue (lazy import)."""
     from redis import Redis
-    from rq import Queue
+    from rq import Queue  # type: ignore[import-not-found,unused-ignore]
 
     return Queue(
         "default",

@@ -198,7 +198,9 @@ def test_fragment_section_progress_covers_whole_list(
     assert text_of(html, "my-list-progress", "span") == "2/3"
 
 
-def test_fragment_section_open_when_visitor_has_open_items(db, guest_client, event, guest, groceries):
+def test_fragment_section_open_when_visitor_has_open_items(
+    db, guest_client, event, guest, groceries
+):
     seed = _item(db, groceries, "Pain", guest)
     _item(db, groceries, "Lait", guest)
     html = _html(guest_client.post(_url(event, groceries, seed, "toggle"), headers=HX))

@@ -7,7 +7,7 @@ pour que les apps calendrier mettent à jour au lieu de dupliquer.
 
 from __future__ import annotations
 
-from datetime import date, datetime, time, timedelta, timezone
+from datetime import UTC, date, datetime, time, timedelta
 
 from app.i18n import label
 from app.models import Activity, Event, Meal
@@ -18,16 +18,11 @@ SLOT_TIME = {"lunch": time(12, 0), "dinner": time(20, 0)}
 
 def _esc(value: str) -> str:
     """Échappement des champs texte ICS (RFC 5545 §3.3.11)."""
-    return (
-        value.replace("\\", "\\\\")
-        .replace(";", "\\;")
-        .replace(",", "\\,")
-        .replace("\n", "\\n")
-    )
+    return value.replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,").replace("\n", "\\n")
 
 
 def _stamp() -> str:
-    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    return datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
 
 
 def _vevent(
@@ -74,7 +69,11 @@ def build_ics(event: Event, activities: list[Activity], meals: list[Meal]) -> st
             end: date | datetime = act.date + timedelta(days=1)
         else:
             start = datetime.combine(act.date, act.start_time)
-            end = datetime.combine(act.date, act.end_time) if act.end_time else start + timedelta(hours=1)
+            end = (
+                datetime.combine(act.date, act.end_time)
+                if act.end_time
+                else start + timedelta(hours=1)
+            )
         lines += _vevent(event, "act", act.id, start, end, act.title, act.location, act.description)
     for meal in meals:
         start = datetime.combine(meal.date, SLOT_TIME.get(meal.slot, time(12, 0)))
