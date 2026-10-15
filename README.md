@@ -20,12 +20,17 @@ personnel, sans compte ni mot de passe.
 Chaque module est activable via `ENABLED_MODULES` (freemium) :
 
 - `planning` — grille d'activités (déjeuner 12h, dîner 19h) + RSVP
-- `lists` — listes de courses partagées (3 états : non réclamé / réclamé / couvert)
+- `meals` — couverture des repas par liste
+- `lists` — listes de courses partagées (3 états : non réclamé / réclamé / couvert, import/export XLSX)
 - `logistics` — infos pratiques collaboratives
 - `voting` — sondages
 - `media` — partage de médias (quota par créateur)
 - `chat` — chat intégré par événement
 - `costs` — partage des frais par « groupe » (pondération adulte/enfant)
+
+Outre l'interface, chaque événement expose une **API REST** (`/api/v1`) en lecture + écriture
+limitée, authentifiée par clés par participant (`apikeys`, lot B034), et un **feed iCal** en
+lecture (`ics`, lot B037).
 
 ## Déploiement Docker (recommandé)
 
@@ -132,16 +137,20 @@ saas/
 ├── app/
 │   ├── __init__.py       # app factory + purge des événements expirés
 │   ├── extensions.py     # DB, Login, Limiter
-│   ├── models.py         # 17 modèles
+│   ├── models.py         # 24 modèles
 │   ├── freemium.py       # limites + quota médias
+│   ├── context.py        # contexte d'événement + droits centralisés
+│   ├── api/              # API REST v1 (clés par participant)
+│   ├── ics.py            # feed iCal en lecture
+│   ├── push.py           # Web Push (tâche RQ send_push)
 │   ├── auth/             # login superadmin
 │   ├── main/             # landing, dashboard
 │   ├── events/           # création, vérification, dashboard, join
-│   ├── planning/ lists/ logistics/ voting/ media/ chat/ costs/
+│   ├── planning/ meals/ lists/ logistics/ voting/ media/ chat/ costs/
 │   ├── templates/        # Jinja2 + HTMX + Alpine
 │   └── static/
 ├── nginx/saas.conf       # reverse proxy
 ├── systemd/saas.service  # unit (déploiement hors Docker)
 ├── translations/         # i18n FR/EN
-└── tests/                # 215 tests
+└── tests/                # 2201 tests
 ```

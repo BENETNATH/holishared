@@ -10,6 +10,26 @@ sous chaque lot.
 
 ## [Unreleased]
 
+### B034 — Clés API agentiques par utilisateur d'événement
+
+- `feat(apikeys)` : modèle `ApiKey` (`hs_` + `token_hex(24)`, seul le SHA-256 est stocké, révocation horodatée) ; routes de gestion UI par créateur (`/e/<code>/apikeys` : liste, création, révocation) ; limitation 60 req/min par clé.
+- `feat(api)` : blueprint REST `/api/v1` (lecture : événement, participants, listes, activités, repas, coûts, sondages, logistique, chat ; écriture limitée : `POST` activités/RSVP, repas, listes, articles, logistique, sondages, chat, dépenses, foyers, transferts, demandes de paiement) ; métadonnées d'endpoint (`api_endpoint`) pour l'index `GET /api/v1` ; isolement inter-événements (clé → 404 hors de son événement) ; événements inactifs/non vérifiés → 404 ; limitation en fenêtre glissante en mémoire pour les clés invalides (60/min/IP) ; rate limiting par clé.
+- `fix(api)` : correctifs d'audit de sécurité (F1, F2, FN1–FN3) : 404 sur événement inactif/non vérifié, limitation des clés invalides, ordres de validation homogènes.
+- `fix(i18n)` : catalogue B034 (labels de journal `api_key.created` / `api_key.revoked`, module « Clés API », 21 chaînes EN).
+- `test(api)` : `tests/test_apikeys.py` + `tests/test_api.py` (56 tests) : authentification, isolation, droits, validation, journal.
+
+### B036 — Accueil « Pour moi » : sections de listes repliables
+
+- `feat(events)` : le bloc « Pour moi » présente chaque liste de l'événement comme une section `<details>` : titre (lien vers la liste), progression de la liste entière (fait/total), puis les articles de l'utilisateur ; ouverte par défaut si des articles non cochés, repliée sinon ; état ouvert/fermé conservé au re-rendu HTMX (`htmx.js` `beforeSwap`/`afterSwap`) ; états vides localisés (« Aucune liste pour l'instant. », « Rien à faire — N déjà pris. »).
+- `refactor(lists)` : `home_items()` renvoie les listes (toutes les listes + statistiques) au lieu des groupes ; le compteur de la carte et le bloc « À répartir » sont inchangés.
+- `test(events)` : `tests/test_home_items.py` étendu ; i18n FR/EN (.mo recompilés).
+
+### B037 — Feed iCal en lecture partageable
+
+- `feat(events)` : `GET /e/<code>/calendar.ics` — programme en lecture seule, le code événement suffit (pas de code personnel), pour les non décideurs du groupe ; `app/ics.py` : VEVENT par activité (journée entière ou horaire, `end_time` honorée, activités abandonnées exclues) et par repas (créneaux 12h/19h, libellé de créneau localisé) ; UID stables par objet (mise à jour sans duplication), échappement RFC 5545, CRLF, `Cache-Control: no-cache`.
+- `feat(ui)` : bouton « Calendrier » dans les actions rapides de l'accueil (copie l'URL du feed).
+- `test(ics)` : `tests/test_ics.py` (20 tests) : contenu, UIDs stables, activité abandonnée exclue, événement vide sans VEVENT, droits de lecture, i18n FR/EN (.mo recompilés).
+
 ### B035 — Import/Export XLSX des listes
 
 - `feat(lists)` : export `GET /e/<code>/lists/export.xlsx` (une feuille par liste, nom de feuille = titre tronqué à 31 caractères, collisions suffixées `-2`/`-3`) et `GET /e/<code>/lists/<list_id>/export.xlsx` (1 feuille) ; en-têtes localisés `Section | Item | Quantité | Assigné à | Fait`, `Fait` → « Oui »/« Non » localisés, accents préservés, fichier en mémoire (BytesIO).

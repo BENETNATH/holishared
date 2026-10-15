@@ -70,12 +70,19 @@ saas/
 | Blueprint | Préfixe | Rôle |
 |-----------|---------|------|
 | `auth` | `/admin` | Login superadmin, gestion site |
-| `events` | `/e` | Création, dashboard, invites, guest join |
+| `main` | `/` | Landing, dashboard, health |
+| `events` | `/e` | Création, dashboard, invites, guest join, export ZIP/PDF, iCal |
 | `planning` | — | Activités + RSVP |
-| `lists` | — | Listes partagées (courses, packing…) |
+| `meals` | — | Repas (grille, glisser-déposer) |
+| `lists` | — | Listes partagées (courses, packing…) + import/export XLSX |
 | `logistics` | — | Infos pratiques (adresse, accès…) |
 | `voting` | — | Sondages / votes |
+| `media` | — | Partage médias + galerie + carte |
 | `chat` | — | Chat par événement |
+| `costs` | — | Frais partagés par foyer (pondération adulte/enfant) |
+| `apikeys` | — | Clés API par créateur (B034) |
+| `api` | `/api/v1` | API REST (clés par participant, B034) |
+| `push` | — | Web Push (abonnement/désabonnement, B027) |
 
 ---
 
@@ -83,20 +90,30 @@ saas/
 
 | Modèle | Table | Rôle |
 |--------|-------|------|
-| `Creator` | `creators` | Créateur validé par email |
-| `Event` | `events` | Événement (code 6 chars, dates, lieu) |
+| `Creator` | `creators` | Créateur validé par email (`tier` free/pro/unlimited, B016-Lot 5) |
+| `Event` | `events` | Événement (code 8 chars, dates, lieu) |
 | `Guest` | `guests` | Invité (code 8 chars, display_name, zéro PII) |
 | `Activity` | `activities` | Activité planifiée (date, heure, lieu, min_headcount) |
+| `Meal` | `meals` | Repas (jour, créneau, ordre dans la case) |
 | `ActivityRSVP` | `activity_rsvps` | RSVP (yes/no/maybe) |
+| `ActivityLog` | `activity_logs` | **Tracabilité** — chaque action, visible par tous |
 | `SharedList` | `shared_lists` | Liste partagée (type: shopping, packing…) |
-| `ListItem` | `list_items` | Item dans une liste (qty, assigned_to, is_done) |
+| `ListItem` | `list_items` | Item dans une liste (qty, assigned_to, is_done, created_by) |
+| `ListMealCoverage` | `list_meal_coverage` | Couverture repas par liste (FK, B023) |
+| `ListActivityCoverage` | `list_activity_coverage` | Couverture activités par liste (FK, B023) |
 | `Poll` | `polls` | Sondage (question, is_closed) |
 | `PollOption` | `poll_options` | Option de sondage |
 | `PollVote` | `poll_votes` | Vote (1 vote / invité / option) |
 | `LogisticsItem` | `logistics_items` | Info pratique (catégorie, ordre) |
 | `MediaItem` | `media_items` | Photo/vidéo + GPS + date prise |
-| `MediaQuota` | `media_quotas` | Quota stockage par créateur (tier) |
-| `ActivityLog` | `activity_logs` | **Tracabilité** — chaque action, visible par tous |
+| `ChatMessage` | `chat_messages` | Message de chat par événement |
+| `MediaQuota` | `media_quotas` | Quota stockage par créateur (tier free/basic/premium) |
+| `Household` | `households` | Foyer (adultes/enfants, pondération frais) |
+| `Expense` | `expenses` | Dépense (personnelle ou partagée, catégorie) |
+| `Transfer` | `transfers` | Remboursement entre foyers |
+| `PaymentRequest` | `payment_requests` | Demande de paiement (foyer → foyer) |
+| `PushSubscription` | `push_subscriptions` | Abonnement Web Push (B027) |
+| `ApiKey` | `api_keys` | Clé API par participant (SHA-256, B034) |
 
 ### ActivityLog (tracabilité)
 
@@ -112,24 +129,26 @@ saas/
 
 ## 5. Freemium
 
+Deux axes distincts (à unifier en B030) :
+- **Tier de fonctionnalités** (`Creator.tier`) : `free` < `pro` < `unlimited` — déclaratif dans `app/freemium.py` (`TIER_ORDER`, `FEATURES` : `pdf_export`, `unlimited_guests`, `hd_video`), API `get_tier` / `tier_at_least` / `has_feature` / `require_tier` (paywall doux : teaser `freemium/paywall.html` au lieu d'un 400/403 brut, les invités ne sont jamais redirigés).
+- **Quota média** (`MediaQuota.tier`) : `free` / `basic` / `premium` — stockage par créateur.
+
+Limites (env vars) :
+
 | Paramètre | Défaut | Env var |
 |-----------|--------|---------|
 | Max invités / événement | 10 | `MAX_GUESTS_PER_EVENT` |
 | Max durée (jours) | 30 | `MAX_DURATION_DAYS` |
 | Max événements / créateur | 3 | `MAX_EVENTS_PER_CREATOR` |
-| Modules activés | planning,lists,logistics,voting | `ENABLED_MODULES` |
+| Modules activés | planning,meals,lists,logistics,voting,media,chat,costs | `ENABLED_MODULES` |
+| Quota média free | 500 MB | `MEDIA_QUOTA_FREE_MB` |
 
 Fonctions dans `app/freemium.py` :
-- `can_add_guest(event)`
-- `can_create_event(creator)`
-- `max_duration_days()`
-- `is_module_enabled(name)`
-- `get_limits()`
-- `get_media_quota(creator)` — get/create quota
-- `can_upload_media(creator, size_bytes)` — check quota
-- `consume_media_quota(creator, size_bytes)` — incrément
-- `release_media_quota(creator, size_bytes)` — décrément
-- `set_media_tier(creator, tier)` — changement de tier
+- `get_tier(creator)`, `tier_at_least(creator, min_tier)`, `has_feature(creator, name)`
+- `require_tier(min_tier)` — décorateur paywall doux (ex. `export_pdf` pro)
+- `can_add_guest(event)`, `guest_gauge(event)` (jauge n/max + état illimité)
+- `can_create_event(creator)`, `max_duration_days()`, `is_module_enabled(name)`, `get_limits()`
+- `get_media_quota(creator)`, `can_upload_media(creator, size_bytes)`, `consume_media_quota(...)`, `release_media_quota(...)`, `set_media_tier(creator, tier)`
 
 ### Quota media par tier
 
@@ -326,25 +345,48 @@ Audit B017/B029 : constats 1 à 6 corrigés (variables `INSTANCE_PATH` et `SKIP_
 - Le `.env` de développement fournit des clés VAPID aux tests : les tests push neutralisent la config.
 - Limites : parcours iOS (PWA installée) et réception réelle non testables en CI ; invitation de l'accueil non couverte par une scène de garde (le rendu serveur est testé).
 
+### 2026-10-07 — B031 Finitions (retours du test utilisateur) & B032 Panneau « Repas & activités »
+
+- B031 : section « Mon foyer » sur `/e/<code>/me` (logique partagée avec `costs` : `parse_household`, `save_my_household`) ; liens « Modifier mon foyer » depuis Frais et Participants ; correction du formulaire de `/lists` (héritage legacy `flex-direction: column`) ; test de chat déterministe (lecture du texte des messages, pas du HTML brut).
+- B032 : poignée tactile réelle du panneau compact (capture du pointeur, `touch-action: none`) : glissé vers le bas = réduit puis fermé, vers le haut = ouvert, appui = alterne ; trois états mobiles mémorisés en `sessionStorage` ; chevron « Réduire / Agrandir » (`aria-expanded`/`aria-controls`) ; en-tête 48 px, lignes sur une seule ligne.
+
+### 2026-10-10 — B034 Clés API agentiques & B035 XLSX des listes
+
+- B034 : modèle `ApiKey` (`hs_…`, SHA-256 seul en base, révocation) ; gestion UI par créateur sous `/e/<code>/apikeys` ; API REST `/api/v1` (lecture + écriture limitée) avec isolement inter-événements, événements inactifs/non vérifiés → 404, limitation 60 req/min/clé + fenêtre glissante en mémoire pour les clés invalides (60/min/IP) ; métadonnées d'endpoint découvrables (`GET /api/v1`) ; 56 tests.
+- B035 : export/import XLSX des listes (openpyxl) : une feuille par liste à l'export, une feuille = une liste à l'import (en-têtes FR/EN insensibles casse/accents, rapport de lignes ignorées, limites 500 lignes / 20 feuilles / 2 Mo, transaction) ; 25 tests.
+
+### 2026-10-12 — B036 Accueil « Pour moi » & B037 Feed iCal
+
+- B036 : le bloc « Pour moi » affiche chaque liste comme section `<details>` (titre + progression fait/total + mes articles), ouverte par défaut s'il reste des articles à cocher, état conservé au re-rendu HTMX, états vides localisés.
+- B037 : `GET /e/<code>/calendar.ics` en lecture (le code événement suffit, pas de code personnel) : VEVENT par activité et par repas, UID stables, échappement RFC 5545, CRLF, `Cache-Control: no-cache` ; bouton « Calendrier » sur l'accueil ; 20 tests.
+
+### 2026-10-15 — Gate : ruff, mypy, README/TASKS
+
+- La gate locale était rouge après le merge de B037 : 2 erreurs ruff (UP017, PT018), 5 fichiers non formatés, 56 erreurs mypy (le fichier API de B034 n'avait pas de type-check : décorateur `api_endpoint` non typé en cascade, annotations de retour `Response` inexactes — les vues renvoient des 2-tuples, `_json_error`/`_error` inclus).
+- Corrections : `datetime.UTC` dans `app/ics.py`, assertions fractionnées dans `tests/test_ics.py`, `api_endpoint` typé avec `TypeVar` borné (les vues gardent leur signature), annotations `tuple[Response, int]` / `Response | tuple[Response, int]` exactes sur les vues et handlers de l'API, `_rq_queue()` → `Any` (pattern de `app/push.py`), `_set_sqlite_pragma` annoté, `wsgi_app` via `setattr` (mypy : assignation de méthode interdite), colonnes JSON historiques `Mapped[list[str]]` (ni lues ni écrites depuis B023, suppression physique en B028), `_make_refs_sheet` → `Worksheet | None`, `_list_items` via `ListItem.query.filter_by(list_id=…)` (le `RelationshipProperty` non annoté n'est pas ordonnable par mypy ; la requête est équivalente, indexé sur `list_id`).
+- Bug latent corrigé dans `_validate_household` : le chemin d'erreur renvoyait `(values, errors)` au lieu de `(errors, values)` — les appelants dépaquettent `errors, values`, un nombre adulte/enfant invalide aurait produit une 500 au lieu d'une 400 propre.
+- Documentation : README (24 modèles, 2201 tests, modules `meals`, API v1, feed iCal, `context.py`, `push.py`), TASKS.md (B002–B015 remis ✅/⛔ selon l'historique, B033–B037 ajoutés), sections CHANGELOG B034/B036/B037.
+- mypy de la venv (2.4.0) : le projet était développé avec mypy 1.10.0 (`.pre-commit-config.yaml` et CI `pip install mypy` sans version pin) ; les versions produisent des ensembles d'erreurs différents (stubs `flask-limiter`, résolution des `RelationshipProperty`). Penser à pinner la version de mypy (`.pre-commit-config.yaml` déjà à 1.10.0, CI non pinnée).
+
 ### À faire (backlog)
 
 | Priorité | Tâche | Statut |
 |----------|-------|--------|
 | P0 | Blueprint `planning/` (activités + RSVP) | ✅ B003 |
-| P0 | Blueprint `lists/` (listes partagées) | ⬜ |
-| P0 | Blueprint `logistics/` (infos pratiques) | ⬜ |
-| P0 | Blueprint `voting/` (sondages) | ⬜ |
-| P0 | Blueprint `chat/` (chat par événement) | ⬜ |
-| P0 | Templates événements (dashboard, create, join, invite, mycode) | ⬜ |
-| P0 | Intégrer ActivityLog dans chaque blueprint (log à chaque action) | ⬜ |
-| P0 | Route `/e/<code>/log` — affichage du log de tracabilité | ⬜ |
-| P1 | PWA : manifest.json + service worker | ⬜ |
-| P1 | i18n : fichiers JSON fr/en | ⬜ |
-| P1 | CSS responsive + WCAG 2.1 AA | ⬜ |
-| P1 | Web Push hooks (notification quand activité créée) | ⬜ |
-| P2 | Tests (pytest) | ⬜ |
-| P2 | CI/CD | ⬜ |
-| P2 | Migration SQLite → PostgreSQL (si scale) | ⬜ |
+| P0 | Blueprint `lists/` (listes partagées) | ✅ B004 |
+| P0 | Blueprint `logistics/` (infos pratiques) | ✅ B005 |
+| P0 | Blueprint `voting/` (sondages) | ✅ B006 |
+| P0 | Blueprint `chat/` (chat par événement) | ✅ B008 |
+| P0 | Templates événements (dashboard, create, join, invite, mycode) | ✅ B009 |
+| P0 | Intégrer ActivityLog dans chaque blueprint (log à chaque action) | ✅ B002 + B029 |
+| P0 | Route `/e/<code>/log` — affichage du log de tracabilité | ✅ B002 |
+| P1 | PWA : manifest.json + service worker | ✅ B010 + B017 |
+| P1 | i18n : fichiers fr/en | ✅ B011 + B018 |
+| P1 | CSS responsive + WCAG 2.1 AA | ✅ B012 + B017 |
+| P1 | Web Push hooks (notification quand activité créée) | ✅ B027 |
+| P2 | Tests (pytest) | ✅ B013 (2201 tests) |
+| P2 | CI/CD | ✅ B013 (CI manuelle, `workflow_dispatch`) |
+| P2 | Migration SQLite → PostgreSQL (si scale) | ⬜ à l'échelle |
 
 ### 2026-10-07 — B020 (partie B) Participants, limite d'invités, Journal et identité
 
@@ -426,10 +468,7 @@ PERMANENT_SESSION_LIFETIME=86400
 
 ## 11. Prochaines étapes immédiates
 
-1. Écrire les 5 blueprints manquants (planning, lists, logistics, voting, chat)
-2. Intégrer `ActivityLog` dans chaque blueprint (helper `log_action()`)
-3. Route `/e/<code>/log` pour afficher le log de tracabilité
-4. Templates événements (dashboard, create, join, invite, mycode, log)
-5. PWA manifest + service worker
-6. i18n fichiers
-7. CSS responsive + accessibilité
+1. **B030 — Modèle freemium relationnel** (Plan / Abonnement) : `plans`/`plan_features`/`subscriptions`, unification de `Creator.tier` et `MediaQuota.tier`, API `freemium.py` inchangée.
+2. **B028 — Clôture** : suppression du CSS historique (`main.css` → `src/legacy.css`), honnêteté freemium (F19), accessibilité final, recette FR/EN, merge unique de `ui/tailwind-refonte`.
+3. **B033 — Module Cartes** : Leaflet auto-hébergé, géocodage via proxy Nominatim (spec dans `specs/prompt-lots-B033-B035.md`).
+4. Pinner mypy dans la CI (1.10.0, comme `.pre-commit-config.yaml`) pour éviter la dérive des versions.

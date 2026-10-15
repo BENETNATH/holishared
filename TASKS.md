@@ -33,7 +33,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B002 — Tracabilité (ActivityLog)
 
-**Statut** : 🔄
+**Statut** : ✅ (2026-10-04)
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
@@ -79,7 +79,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B004 — Blueprint Lists (listes partagées)
 
-**Statut** : ⬜
+**Statut** : ✅ (2026-10-04)
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
@@ -95,7 +95,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B005 — Blueprint Logistics (infos pratiques)
 
-**Statut** : ⬜
+**Statut** : ✅ (2026-10-04)
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
@@ -110,7 +110,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B006 — Blueprint Voting (sondages)
 
-**Statut** : ⬜
+**Statut** : ✅ (2026-10-04)
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
@@ -125,7 +125,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B007 — Blueprint Media (partage photos/vidéos + geo + datation)
 
-**Statut** : ⬜
+**Statut** : ✅ (2026-10-04)
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
@@ -152,7 +152,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B008 — Blueprint Chat
 
-**Statut** : ⬜
+**Statut** : ✅ (2026-10-04)
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
@@ -166,7 +166,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B009 — Templates & UI
 
-**Statut** : ⬜
+**Statut** : ✅ (2026-10-04)
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
@@ -184,7 +184,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B010 — PWA
 
-**Statut** : ⬜
+**Statut** : ✅ (2026-10-04)
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
@@ -198,7 +198,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B011 — i18n
 
-**Statut** : ⬜
+**Statut** : ✅ (2026-10-04)
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
@@ -212,7 +212,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B012 — CSS & Responsive
 
-**Statut** : ⬜
+**Statut** : ✅ (2026-10-04)
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
@@ -226,7 +226,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B013 — Tests & CI
 
-**Statut** : ⬜
+**Statut** : ✅ (2026-10-04)
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
@@ -245,7 +245,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B014 — Web Push (hooks) — remplacé par B027
 
-**Statut** : ⬜
+**Statut** : ⛔ remplacé par B027 (2026-10-04)
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
@@ -259,7 +259,7 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 ## B015 — Hardening & Production
 
-**Statut** : ⬜
+**Statut** : ✅ (2026-10-04)
 
 | # | Tâche | Critère d'acceptation |
 |---|-------|----------------------|
@@ -478,6 +478,22 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 ## B035 — Import/Export XLSX des listes
 
 **Statut** : ✅ (2026-10-10) · **Réf.** `specs/b035-xlsx-spec.md` — export une feuille par liste (noms tronqués à 31, collisions suffixées), import une feuille = une liste (README ignorée, en-têtes FR/EN insensibles casse/accents, rapport de lignes ignorées, limites 500 lignes / 20 feuilles / 2 Mo, transaction), `openpyxl` en dépendance, CSRF + rate limiting, i18n FR/EN, 25 tests
+
+## B034 — Clés API agentiques par utilisateur d'événement
+
+**Statut** : ✅ (2026-10-10) · **Réf.** `specs/b034-api-spec.md` — clés `hs_…` par participant (créateur ou invité, SHA-256 seul en base, révocation, 60 req/min/clé), API REST `/api/v1` en lecture + écriture limitée (activités/RSVP, repas, listes, sondages, frais, logistique, chat), métadonnées d'endpoint découvrables, 56 tests
+
+## B036 — Accueil « Pour moi » : sections de listes repliables
+
+**Statut** : ✅ (2026-10-12) · **Réf.** `specs/b036-dashboard-lists-spec.md` — chaque liste devient une section `<details>` dans « Pour moi » (titre + progression fait/total + mes articles), ouverte par défaut s'il reste des articles à cocher, état conservé au re-rendu HTMX, états vides localisés
+
+## B037 — Feed iCal en lecture partageable
+
+**Statut** : ✅ (2026-10-12) · **Réf.** `specs/b037-ics-spec.md` — `GET /e/<code>/calendar.ics` en lecture (le code événement suffit), VEVENT par activité et par repas, UID stables, échappement RFC 5545, bouton « Calendrier » sur l'accueil
+
+## B033 — Module Cartes (maps)
+
+**Statut** : ⬜ prévu · **Réf.** `specs/prompt-lots-B033-B035.md` §LOT B033 — carte Leaflet auto-hébergée, lieu de l'événement + activités, recherche et géocodage via proxy serveur Nominatim (cache `Place`, rate limiting, pas de clé API)
 
 ## B032 — Listes : poignée fonctionnelle et panneau compact
 
