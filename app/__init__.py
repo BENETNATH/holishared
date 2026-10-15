@@ -116,7 +116,7 @@ def create_app() -> Flask:
     #   - Docker: app port is only `expose`d (not published), unreachable externally
     #   - Dev: manage.py run binds 127.0.0.1 only
     # If the app is ever directly reachable, add a trusted-proxy filter.
-    # setattr : mypy considère wsgi_app comme une méthode (assignation interdite).
+    # setattr: mypy treats wsgi_app as a method (assignment forbidden).
     setattr(app, "wsgi_app", ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1))  # noqa: B010
 
     db.init_app(app)
