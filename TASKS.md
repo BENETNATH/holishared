@@ -487,6 +487,10 @@ Un lot est terminé quand tous ses critères d'acceptation sont vérifiés.
 
 **Statut** : ✅ (2026-10-12) · **Réf.** `specs/b036-dashboard-lists-spec.md` — chaque liste devient une section `<details>` dans « Pour moi » (titre + progression fait/total + mes articles), ouverte par défaut s'il reste des articles à cocher, état conservé au re-rendu HTMX, états vides localisés
 
+## B038 — Identité, récupération & réattribution des comptes
+
+**Statut** : ✅ (2026-10-16, révisé post-audit 2026-10-19) · **Réf.** `specs/b038-identity-recovery-spec.md` — L1 : email conservé par défaut (opt-out), lien magique de récupération créateur + invité (tokens hachés 24 h usage unique, F16), section « Accès & récupération » sur le profil, correction d'email + renvoi de lien par le créateur ; L2 : suppression d'un membre avec réattribution (articles/couvertures → cible ou désassignés, foyer transféré ou détaché « Participant retiré », jamais fusionné, votes/RSVP jamais transférés) ; L3 : unicité de l'email par événement (index unique partiel, join neutre sans fuite, ajout, invitation), réinvitation par le créateur seule, fusion de profils (`merged_into_id`), badge « email dupliqué » ; 157 tests (`test_identity_b038` 83 + `test_delete_b038` 37 + `test_duplicate_b038` 37)
+
 ## B037 — Feed iCal en lecture partageable
 
 **Statut** : ✅ (2026-10-12) · **Réf.** `specs/b037-ics-spec.md` — `GET /e/<code>/calendar.ics` en lecture (le code événement suffit), VEVENT par activité et par repas, UID stables, échappement RFC 5545, bouton « Calendrier » sur l'accueil
