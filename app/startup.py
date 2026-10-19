@@ -61,7 +61,9 @@ def default_steps() -> list[Step]:
         log_foreign_key_orphans,
         run_api_keys_migration,
         run_costs_migration,
+        run_guest_email_unique_migration,
         run_identity_migration,
+        run_identity_recovery_migration,
         run_lists_migration,
         run_meals_migration,
         run_polls_migration,
@@ -75,6 +77,8 @@ def default_steps() -> list[Step]:
         ("polls", run_polls_migration),
         ("push", run_push_migration),
         ("api_keys", run_api_keys_migration),
+        ("identity_recovery", run_identity_recovery_migration),
+        ("guest_email_unique", run_guest_email_unique_migration),
         ("purge", purge_expired_events),
         ("identity", run_identity_migration),
         ("fk-check", log_foreign_key_orphans),  # lecture seule

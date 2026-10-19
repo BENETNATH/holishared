@@ -163,25 +163,26 @@ def send_guest_invite_email(
     )
 
 
-def send_recovery_email(
+def send_recovery_link_email(
     smtp_host: str,
     smtp_port: int,
     smtp_user: str,
     smtp_password: str,
     smtp_from: str,
     to_addr: str,
-    personal_code: str,
-    display_name: str,
+    link: str,
     lang: str = "fr",
 ) -> None:
-    """Send recovery email with the personal code."""
+    """Send the creator magic-link recovery e-mail (B038-L1, replaces the clear-text code)."""
     _ = _translations(lang).gettext
     body = _(
         "Bonjour,\n\n"
-        "Votre code personnel holishared est : %(code)s\n\n"
-        "Pseudo : %(name)s\n\n"
+        "Pour reprendre l'accès à votre compte holishared, suivez ce lien :\n\n"
+        "%(link)s\n\n"
+        "Le lien est valable 24 heures et ne peut être utilisé qu'une fois.\n"
+        "Si vous n'avez pas demandé ce lien, vous pouvez ignorer cet e-mail.\n\n"
         "— holishared\n"
-    ) % {"code": personal_code, "name": display_name}
+    ) % {"link": link}
     _smtp_send(
         smtp_host,
         smtp_port,
@@ -189,7 +190,40 @@ def send_recovery_email(
         smtp_password,
         smtp_from,
         to_addr,
-        _("Votre code holishared"),
+        _("Reprenez l'accès à holishared"),
+        body,
+    )
+
+
+def send_guest_recovery_link_email(
+    smtp_host: str,
+    smtp_port: int,
+    smtp_user: str,
+    smtp_password: str,
+    smtp_from: str,
+    to_addr: str,
+    event_title: str,
+    link: str,
+    lang: str = "fr",
+) -> None:
+    """Send the guest magic-link recovery e-mail for an event (B038-L1)."""
+    _ = _translations(lang).gettext
+    body = _(
+        "Bonjour,\n\n"
+        "Pour retrouver votre accès à « %(title)s » sur holishared, suivez ce lien :\n\n"
+        "%(link)s\n\n"
+        "Le lien est valable 24 heures et ne peut être utilisé qu'une fois.\n"
+        "Si vous n'avez pas demandé ce lien, vous pouvez ignorer cet e-mail.\n\n"
+        "— holishared\n"
+    ) % {"title": event_title, "link": link}
+    _smtp_send(
+        smtp_host,
+        smtp_port,
+        smtp_user,
+        smtp_password,
+        smtp_from,
+        to_addr,
+        _("Votre accès à « %(title)s » - holishared") % {"title": event_title},
         body,
     )
 

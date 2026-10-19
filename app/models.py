@@ -44,6 +44,9 @@ class Creator(UserMixin, db.Model):  # type: ignore[misc,name-defined]
     verification_sent_at: Mapped[datetime | None] = db.Column(db.DateTime, nullable=True)
     display_name: Mapped[str] = db.Column(db.String(100), default="")
     personal_code: Mapped[str] = db.Column(db.String(8), unique=True, nullable=True, default=None)
+    # Magic-link recovery (B038-L1): sha256 of a single-use token (the raw one only lives in the e-mail link).
+    recovery_token: Mapped[str | None] = db.Column(db.String(64), nullable=True)
+    recovery_token_expires: Mapped[datetime | None] = db.Column(db.DateTime, nullable=True)
     # Freemium feature tier: "free", "pro", "unlimited".
     # (Distinct from MediaQuota.tier, which is the storage-storage tier.)
     tier: Mapped[str] = db.Column(
@@ -113,6 +116,9 @@ class Event(db.Model):  # type: ignore[misc,name-defined]
         return cast("int", self.guests.filter_by(is_active=True).count())
 
 
+_GUEST_EMAIL_UNIQUE_WHERE = "email IS NOT NULL AND merged_into_id IS NULL AND creator_id IS NULL"
+
+
 class Guest(db.Model):  # type: ignore[misc,name-defined]
     """A guest with a personal code (no personal data stored)."""
 
@@ -128,6 +134,13 @@ class Guest(db.Model):  # type: ignore[misc,name-defined]
     email: Mapped[str | None] = db.Column(db.String(255), nullable=True)
     is_active: Mapped[bool] = db.Column(db.Boolean, default=True)
     joined_at: Mapped[datetime] = db.Column(db.DateTime, default=datetime.utcnow)
+    # Magic-link recovery (B038-L1): sha256 of a single-use token (the raw one only lives in the e-mail link).
+    recovery_token: Mapped[str | None] = db.Column(db.String(64), nullable=True)
+    recovery_token_expires: Mapped[datetime | None] = db.Column(db.DateTime, nullable=True)
+    # B038-L3 : profil absorbé dans un autre (fusion de doublons) ; None sinon.
+    merged_into_id: Mapped[str | None] = db.Column(
+        db.String(32), db.ForeignKey("guests.id", ondelete="SET NULL"), nullable=True
+    )
 
     event_id: Mapped[str] = db.Column(db.String(32), db.ForeignKey("events.id"), nullable=False)
     # Set when this Guest is the event creator's own participant identity
@@ -137,8 +150,19 @@ class Guest(db.Model):  # type: ignore[misc,name-defined]
         db.String(32), db.ForeignKey("creators.id"), nullable=True
     )
 
-    # Unique constraint: one code per event
-    __table_args__ = (db.UniqueConstraint("event_id", "code", name="uq_guest_event_code"),)
+    # One code per event; one profile per e-mail (retired ones included, merged profiles and
+    # the creator's own participant excluded, B038).
+    __table_args__ = (
+        db.UniqueConstraint("event_id", "code", name="uq_guest_event_code"),
+        db.Index(
+            "uq_guest_event_email_active",
+            "event_id",
+            "email",
+            unique=True,
+            sqlite_where=db.text(_GUEST_EMAIL_UNIQUE_WHERE),
+            postgresql_where=db.text(_GUEST_EMAIL_UNIQUE_WHERE),
+        ),
+    )
 
     activity_rsvps = db.relationship(
         "ActivityRSVP", backref="guest", lazy="dynamic", cascade="all, delete-orphan"

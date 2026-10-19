@@ -12,6 +12,40 @@ from app.extensions import limiter
 from app.models import Creator, Event, Guest, generate_event_code, generate_guest_code
 
 
+class RecoveryQueue:
+    """Simulated RQ queue recording the enqueued recovery-link e-mail jobs (B038)."""
+
+    def __init__(self):
+        self.jobs = []
+
+    def enqueue(self, *args, **kwargs):
+        self.jobs.append((args, kwargs))
+
+    def _args_for(self, task_name):
+        from app import tasks
+
+        fn = getattr(tasks, task_name)
+        return [args for args, _kw in self.jobs if args and args[0] is fn]
+
+    def creator_recovery(self):
+        """(email, link) tuples for the creator magic-link e-mail
+        (fn, host, port, user, pw, frm, email, link)."""
+        return [(a[6], a[7]) for a in self._args_for("send_recovery_link_email")]
+
+    def guest_recovery(self):
+        """(email, event_title, link) tuples for the guest magic-link e-mail
+        (fn, host, port, user, pw, frm, email, title, link)."""
+        return [(a[6], a[7], a[8]) for a in self._args_for("send_guest_recovery_link_email")]
+
+
+@pytest.fixture
+def queue(app, monkeypatch):
+    q = RecoveryQueue()
+    app.config["SMTP_HOST"] = "smtp.test"
+    monkeypatch.setattr("app.events._rq_queue", lambda: q)
+    return q
+
+
 @pytest.fixture
 def app(monkeypatch, tmp_path):
     """Create a test app with in-memory SQLite.
@@ -97,6 +131,24 @@ def unverified_event(db, creator, event):
         location="Strasbourg",
         creator_id=creator.id,
         verified_at=None,
+    )
+    db.session.add(e)
+    db.session.commit()
+    return e
+
+
+@pytest.fixture
+def other_event(db, creator, event):
+    """A second active, verified event of the same creator (B038 cross-event checks)."""
+    e = Event(
+        code=generate_event_code(),
+        title="Other Vacation",
+        start_date=date(2026, 12, 10),
+        end_date=date(2026, 12, 12),
+        location="X",
+        creator_id=creator.id,
+        verified_at=datetime.utcnow(),
+        is_active=True,
     )
     db.session.add(e)
     db.session.commit()

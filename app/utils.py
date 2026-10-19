@@ -7,7 +7,17 @@ from sqlalchemy.orm import Session, scoped_session
 
 from app.extensions import db
 from app.i18n import household_default_name
-from app.models import ActivityLog, Creator, Event, Guest, Household
+from app.models import (
+    ActivityLog,
+    Creator,
+    Event,
+    Guest,
+    Household,
+    ListActivityCoverage,
+    ListItem,
+    ListMealCoverage,
+    SharedList,
+)
 
 
 def log_action(
@@ -84,3 +94,28 @@ def ensure_creator_guest(
         )
         db.session.flush()
     return guest
+
+
+def reassign_work(event: Event, source: Guest, target: Guest | None) -> int:
+    """Articles et couvertures de listes de ``source`` passent à ``target`` (``None`` : désassignés).
+
+    Retourne le nombre d'articles déplacés. Votes, RSVP et historique ne bougent jamais (D4).
+    """
+    new_id = target.id if target is not None else None
+    list_ids = [sl.id for sl in SharedList.query.filter_by(event_id=event.id)]
+    items = ListItem.query.filter(
+        ListItem.assigned_to_id == source.id, ListItem.list_id.in_(list_ids)
+    ).all()
+    for item in items:
+        item.assigned_to_id = new_id
+    for coverage in (
+        ListMealCoverage.query.filter(
+            ListMealCoverage.covered_by == source.id, ListMealCoverage.list_id.in_(list_ids)
+        ).all()
+        + ListActivityCoverage.query.filter(
+            ListActivityCoverage.covered_by == source.id,
+            ListActivityCoverage.list_id.in_(list_ids),
+        ).all()
+    ):
+        coverage.covered_by = new_id
+    return len(items)

@@ -98,19 +98,35 @@ def test_send_guest_invite_email_no_name(smtp_config):
         mock_smtp.assert_called_once()
 
 
-def test_send_recovery_email(smtp_config):
+def test_send_recovery_link_email(smtp_config):
     with patch("app.tasks.smtplib.SMTP") as mock_smtp:
         mock_conn = MagicMock()
         mock_smtp.return_value.__enter__.return_value = mock_conn
-        tasks.send_recovery_email(
+        tasks.send_recovery_link_email(
             smtp_config["host"],
             smtp_config["port"],
             smtp_config["user"],
             smtp_config["password"],
             smtp_config["from"],
             "to@test.com",
-            "abc123",
-            "Alice",
+            "http://t/e/recover/link/abc",
+        )
+        mock_smtp.assert_called_once()
+
+
+def test_send_guest_recovery_link_email(smtp_config):
+    with patch("app.tasks.smtplib.SMTP") as mock_smtp:
+        mock_conn = MagicMock()
+        mock_smtp.return_value.__enter__.return_value = mock_conn
+        tasks.send_guest_recovery_link_email(
+            smtp_config["host"],
+            smtp_config["port"],
+            smtp_config["user"],
+            smtp_config["password"],
+            smtp_config["from"],
+            "to@test.com",
+            "Fête",
+            "http://t/e/abc/guest-recover/abc",
         )
         mock_smtp.assert_called_once()
 
@@ -135,7 +151,12 @@ def _sent(call_name, lang=None, **extra):
             "http://t/join",
             "Alice",
         ),
-        "send_recovery_email": ("to@test.com", "abc12345", "Alice"),
+        "send_recovery_link_email": ("to@test.com", "http://t/e/recover/link/abc"),
+        "send_guest_recovery_link_email": (
+            "to@test.com",
+            "Fête",
+            "http://t/e/abc/guest-recover/abc",
+        ),
     }[call_name]
     kwargs = dict(extra)
     if lang:
@@ -154,7 +175,8 @@ def _sent(call_name, lang=None, **extra):
         "send_verification_email",
         "send_invite_email",
         "send_guest_invite_email",
-        "send_recovery_email",
+        "send_recovery_link_email",
+        "send_guest_recovery_link_email",
     ],
 )
 def test_emails_default_to_formal_french(name):
@@ -170,7 +192,8 @@ def test_emails_default_to_formal_french(name):
         "send_verification_email",
         "send_invite_email",
         "send_guest_invite_email",
-        "send_recovery_email",
+        "send_recovery_link_email",
+        "send_guest_recovery_link_email",
     ],
 )
 def test_emails_are_sent_in_the_requested_language(name):
@@ -189,8 +212,8 @@ def test_guest_invite_email_keeps_event_title_and_dates_verbatim():
 
 
 def test_unknown_language_falls_back_to_french():
-    subject, _body = _sent("send_recovery_email", lang="xx")
-    assert "code" in subject.lower()
+    subject, _body = _sent("send_recovery_link_email", lang="xx")
+    assert subject == "Reprenez l'accès à holishared"  # sujet propre à la récupération, en français
     assert "Your" not in subject
 
 

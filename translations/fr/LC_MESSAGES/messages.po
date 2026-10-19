@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: holishared 1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 06:39+0000\n"
+"POT-Creation-Date: 2026-10-19 18:28+0200\n"
 "PO-Revision-Date: 2026-10-04 11:18+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -339,12 +339,48 @@ msgstr ""
 msgid "Participant ajouté"
 msgstr ""
 
-#: app/i18n.py
+#: app/i18n.py app/templates/costs/_balance.html
 msgid "Participant retiré"
 msgstr ""
 
 #: app/i18n.py
+msgid "Participant supprimé"
+msgstr ""
+
+#: app/i18n.py
+msgid "Profils fusionnés"
+msgstr ""
+
+#: app/i18n.py
+msgid "Foyers fusionnés"
+msgstr ""
+
+#: app/i18n.py
 msgid "Nom d'affichage modifié"
+msgstr ""
+
+#: app/i18n.py
+msgid "E-mail corrigé"
+msgstr ""
+
+#: app/i18n.py
+msgid "Lien de récupération envoyé"
+msgstr ""
+
+#: app/i18n.py
+msgid "Accès récupéré"
+msgstr ""
+
+#: app/i18n.py
+msgid "Participant réinvité"
+msgstr ""
+
+#: app/i18n.py
+msgid "E-mail effacé"
+msgstr ""
+
+#: app/i18n.py
+msgid "Code personnel modifié"
 msgstr ""
 
 #: app/i18n.py
@@ -607,7 +643,52 @@ msgstr ""
 
 #: app/i18n.py
 #, python-format
+msgid "%(actor)s a supprimé un participant"
+msgstr ""
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a fusionné deux profils"
+msgstr ""
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a fusionné deux foyers"
+msgstr ""
+
+#: app/i18n.py
+#, python-format
 msgid "%(actor)s a changé de nom d'affichage"
+msgstr ""
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a corrigé l'email d'un participant"
+msgstr ""
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a envoyé un lien de récupération"
+msgstr ""
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a récupéré son accès"
+msgstr ""
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a réinvité un participant"
+msgstr ""
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a effacé son email"
+msgstr ""
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a modifié son code personnel"
 msgstr ""
 
 #: app/i18n.py
@@ -816,15 +897,39 @@ msgstr ""
 msgid ""
 "Bonjour,\n"
 "\n"
-"Votre code personnel holishared est : %(code)s\n"
+"Pour reprendre l'accès à votre compte holishared, suivez ce lien :\n"
 "\n"
-"Pseudo : %(name)s\n"
+"%(link)s\n"
+"\n"
+"Le lien est valable 24 heures et ne peut être utilisé qu'une fois.\n"
+"Si vous n'avez pas demandé ce lien, vous pouvez ignorer cet e-mail.\n"
 "\n"
 "— holishared\n"
 msgstr ""
 
 #: app/tasks.py
-msgid "Votre code holishared"
+msgid "Reprenez l'accès à holishared"
+msgstr ""
+
+#: app/tasks.py
+#, python-format
+msgid ""
+"Bonjour,\n"
+"\n"
+"Pour retrouver votre accès à « %(title)s » sur holishared, suivez ce lien"
+" :\n"
+"\n"
+"%(link)s\n"
+"\n"
+"Le lien est valable 24 heures et ne peut être utilisé qu'une fois.\n"
+"Si vous n'avez pas demandé ce lien, vous pouvez ignorer cet e-mail.\n"
+"\n"
+"— holishared\n"
+msgstr ""
+
+#: app/tasks.py
+#, python-format
+msgid "Votre accès à « %(title)s » - holishared"
 msgstr ""
 
 #: app/ui.py
@@ -1273,6 +1378,37 @@ msgstr ""
 msgid "Foyer supprimé."
 msgstr ""
 
+#: app/costs/__init__.py app/events/__init__.py
+#, python-format
+msgid "%(name)s absorbé"
+msgstr ""
+
+#: app/costs/__init__.py
+#, python-format
+msgid "%(n)d dépense"
+msgid_plural "%(n)d dépenses"
+msgstr[0] ""
+msgstr[1] ""
+
+#: app/costs/__init__.py
+#, python-format
+msgid "%(n)d transfert ou demande"
+msgid_plural "%(n)d transferts ou demandes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: app/costs/__init__.py
+#, python-format
+msgid "%(n)d article"
+msgid_plural "%(n)d articles"
+msgstr[0] ""
+msgstr[1] ""
+
+#: app/costs/__init__.py
+#, python-format
+msgid "Foyer « %(source)s » réaffecté à %(target)s (%(details)s)."
+msgstr ""
+
 #: app/costs/__init__.py
 msgid "Transfert enregistré."
 msgstr ""
@@ -1421,7 +1557,29 @@ msgid "Nom d'affichage enregistré."
 msgstr ""
 
 #: app/events/__init__.py
+msgid "Aucun e-mail enregistré : renseignez-le d'abord pour la récupération."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "L'envoi d'emails n'est pas configuré sur ce serveur."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Lien de récupération envoyé à votre adresse."
+msgstr ""
+
+#: app/events/__init__.py
+msgid ""
+"E-mail effacé. Sans e-mail, la récupération de l'accès n'est plus "
+"possible."
+msgstr ""
+
+#: app/events/__init__.py
 msgid "Foyer enregistré."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Cette adresse a déjà un profil dans cet événement."
 msgstr ""
 
 #: app/events/__init__.py
@@ -1431,6 +1589,84 @@ msgstr ""
 #: app/events/__init__.py
 #, python-format
 msgid "%(name)s ajouté·e (code : %(code)s)"
+msgstr ""
+
+#: app/events/__init__.py
+#, python-format
+msgid "Email enregistré pour %(name)s."
+msgstr ""
+
+#: app/events/__init__.py
+#, python-format
+msgid "Aucun email pour %(name)s : corrigez son email d'abord."
+msgstr ""
+
+#: app/events/__init__.py
+#, python-format
+msgid "Lien de récupération envoyé à %(name)s."
+msgstr ""
+
+#: app/events/__init__.py
+#, python-format
+msgid "réattribué à %(name)s"
+msgstr ""
+
+#: app/events/__init__.py
+msgid "sans réattribution"
+msgstr ""
+
+#: app/events/__init__.py
+#, python-format
+msgid "%(name)s supprimé·e de l'événement."
+msgstr ""
+
+#: app/events/__init__.py
+#, python-format
+msgid "%(n)d article transféré à %(name)s."
+msgid_plural "%(n)d articles transférés à %(name)s."
+msgstr[0] ""
+msgstr[1] ""
+
+#: app/events/__init__.py
+#, python-format
+msgid "%(n)d article désassigné."
+msgid_plural "%(n)d articles désassignés."
+msgstr[0] ""
+msgstr[1] ""
+
+#: app/events/__init__.py
+#, python-format
+msgid "Son foyer a été transféré à %(name)s."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Son foyer reste dans les Frais (participant retiré)."
+msgstr ""
+
+#: app/events/__init__.py
+#, python-format
+msgid "%(name)s a été réinvité·e."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Le profil du créateur ne peut pas être fusionné."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Un de ces profils a déjà été fusionné."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Ces profils n'ont pas le même email."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Un profil actif ne peut pas être fusionné dans un profil retiré."
+msgstr ""
+
+#: app/events/__init__.py
+#, python-format
+msgid "Profil %(source)s fusionné dans %(target)s."
 msgstr ""
 
 #: app/events/__init__.py
@@ -1455,7 +1691,14 @@ msgid ""
 msgstr ""
 
 #: app/events/__init__.py
-msgid "L'envoi d'emails n'est pas configuré sur ce serveur."
+#, python-format
+msgid "%(name)s participe déjà à cet événement."
+msgstr ""
+
+#: app/events/__init__.py
+msgid ""
+"Un profil retiré existe pour cette adresse : utilisez « Réinviter » dans "
+"les participants retirés."
 msgstr ""
 
 #: app/events/__init__.py
@@ -1470,6 +1713,10 @@ msgstr ""
 #: app/events/__init__.py
 #, python-format
 msgid "Invitation renvoyée à %(name)s."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Si cette adresse est connue, un lien de connexion vient d'être envoyé."
 msgstr ""
 
 #: app/events/__init__.py
@@ -1504,13 +1751,32 @@ msgstr ""
 
 #: app/events/__init__.py
 msgid ""
-"Si un code est associé à cette adresse, il vient de vous être envoyé par "
-"e-mail. Pensez à vérifier vos courriers indésirables."
+"Si un code est associé à cette adresse, un lien de récupération vient de "
+"vous être envoyé par e-mail. Pensez à vérifier vos courriers "
+"indésirables."
 msgstr ""
 
 #: app/events/__init__.py
 #, python-format
-msgid "Votre code : %(code)s"
+msgid "Lien de récupération (démo) : %(link)s"
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Lien invalide ou expiré. Demandez un nouveau lien de récupération."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Le code doit faire 8 caractères (a-z, 0-9)."
+msgstr ""
+
+#: app/events/__init__.py
+msgid ""
+"Si une adresse est associée à cet événement, un lien de récupération "
+"vient de vous être envoyé par e-mail."
+msgstr ""
+
+#: app/events/__init__.py
+msgid "Le code doit faire 4 à 8 caractères (a-z, 0-9)."
 msgstr ""
 
 #: app/lists/__init__.py
@@ -1897,6 +2163,7 @@ msgid ""
 msgstr ""
 
 #: app/templates/auth/login.html app/templates/events/members.html
+#: app/templates/events/recover_link.html
 msgid "E-mail"
 msgstr ""
 
@@ -1924,11 +2191,11 @@ msgstr ""
 
 #: app/templates/chat/_messages.html app/templates/costs/_balance.html
 #: app/templates/costs/_expenses.html app/templates/costs/_requests.html
-#: app/templates/costs/index.html app/templates/lists/_items.html
-#: app/templates/lists/detail.html app/templates/logistics/_list.html
-#: app/templates/main/ui_catalog.html app/templates/meals/index.html
-#: app/templates/media/detail.html app/templates/planning/_card.html
-#: app/templates/voting/detail.html
+#: app/templates/costs/index.html app/templates/events/members.html
+#: app/templates/lists/_items.html app/templates/lists/detail.html
+#: app/templates/logistics/_list.html app/templates/main/ui_catalog.html
+#: app/templates/meals/index.html app/templates/media/detail.html
+#: app/templates/planning/_card.html app/templates/voting/detail.html
 msgid "Supprimer"
 msgstr ""
 
@@ -2180,9 +2447,10 @@ msgid ""
 msgstr ""
 
 #: app/templates/costs/_forms.html app/templates/events/me.html
-#: app/templates/logistics/_sheet_form.html app/templates/logistics/form.html
-#: app/templates/meals/index.html app/templates/media/detail.html
-#: app/templates/planning/form.html app/templates/planning/index.html
+#: app/templates/events/members.html app/templates/logistics/_sheet_form.html
+#: app/templates/logistics/form.html app/templates/meals/index.html
+#: app/templates/media/detail.html app/templates/planning/form.html
+#: app/templates/planning/index.html
 msgid "Enregistrer"
 msgstr ""
 
@@ -2394,6 +2662,20 @@ msgid "Supprimer ce foyer ?"
 msgstr ""
 
 #: app/templates/costs/index.html
+msgid "Réaffecter à"
+msgstr ""
+
+#: app/templates/costs/index.html
+msgid "Ne pas réaffecter (supprimer seulement)"
+msgstr ""
+
+#: app/templates/costs/index.html
+msgid ""
+"Dépenses, transferts, demandes et articles sont repris par le foyer "
+"choisi ; les parts sont ensuite recalculées sur les foyers restants."
+msgstr ""
+
+#: app/templates/costs/index.html
 msgid "Supprimer ce foyer"
 msgstr ""
 
@@ -2541,12 +2823,13 @@ msgid ""
 " que si vous le demandez ensuite."
 msgstr ""
 
-#: app/templates/events/create.html app/templates/events/join.html
-#: app/templates/events/recover.html
+#: app/templates/events/create.html app/templates/events/guest_recover.html
+#: app/templates/events/join.html app/templates/events/recover.html
 msgid "Votre e-mail"
 msgstr ""
 
-#: app/templates/events/create.html app/templates/events/recover.html
+#: app/templates/events/create.html app/templates/events/guest_recover.html
+#: app/templates/events/recover.html
 msgid "Ex : alice@mail.com"
 msgstr ""
 
@@ -2689,6 +2972,66 @@ msgstr ""
 msgid "Adresse du gîte, code d'accès, horaires… chacun peut compléter."
 msgstr ""
 
+#: app/templates/events/guest_recover.html app/templates/events/join.html
+msgid "Retrouver mon accès"
+msgstr ""
+
+#: app/templates/events/guest_recover.html
+msgid ""
+"Indiquez l'adresse e-mail enregistrée pour cet événement : si un profil y"
+" est associé, nous vous enverrons un lien de récupération."
+msgstr ""
+
+#: app/templates/events/guest_recover.html app/templates/events/recover.html
+msgid "M'envoyer le lien de récupération"
+msgstr ""
+
+#: app/templates/events/guest_recover_link.html
+#: app/templates/events/recover_link.html
+msgid "Reprendre l'accès"
+msgstr ""
+
+#: app/templates/events/guest_recover_link.html
+#: app/templates/events/recover_link.html
+msgid ""
+"Ce lien est valable 24 heures et ne peut être utilisé qu'une fois. "
+"Conservez votre code actuel ou choisissez-en un nouveau."
+msgstr ""
+
+#: app/templates/events/guest_recover_link.html
+msgid "Votre profil"
+msgstr ""
+
+#: app/templates/events/guest_recover_link.html
+#: app/templates/events/recover_link.html
+msgid "Pseudo"
+msgstr ""
+
+#: app/templates/events/guest_recover_link.html app/templates/events/me.html
+#: app/templates/events/members.html app/templates/events/mycode.html
+msgid "Code personnel"
+msgstr ""
+
+#: app/templates/events/guest_recover_link.html
+msgid "Conserver mon code et accéder"
+msgstr ""
+
+#: app/templates/events/guest_recover_link.html
+#: app/templates/events/recover_link.html
+msgid "Choisir un nouveau code"
+msgstr ""
+
+#: app/templates/events/guest_recover_link.html
+msgid ""
+"4 à 8 lettres minuscules ou chiffres. Votre ancien code ne fonctionnera "
+"plus."
+msgstr ""
+
+#: app/templates/events/guest_recover_link.html
+#: app/templates/events/recover_link.html
+msgid "Utiliser ce nouveau code"
+msgstr ""
+
 #: app/templates/events/index.html
 msgid "Retrouvez vos événements et leurs participants."
 msgstr ""
@@ -2828,11 +3171,13 @@ msgid "Votre foyer sert à répartir les frais. Vous pourrez le modifier plus ta
 msgstr ""
 
 #: app/templates/events/join.html
-msgid "Vous avez déjà un code ?"
+msgid ""
+"Conservé pour la récupération de votre accès (vous pourrez l'effacer "
+"depuis « Mon profil »)."
 msgstr ""
 
 #: app/templates/events/join.html
-msgid "Retrouver mon accès"
+msgid "Vous avez déjà un code ?"
 msgstr ""
 
 #: app/templates/events/log.html
@@ -2952,7 +3297,7 @@ msgid ""
 "action est irréversible."
 msgstr ""
 
-#: app/templates/events/manage.html
+#: app/templates/events/manage.html app/templates/events/members.html
 msgid "Supprimer définitivement"
 msgstr ""
 
@@ -3044,14 +3389,41 @@ msgid "Tout désactiver"
 msgstr ""
 
 #: app/templates/events/me.html
+msgid "Accès & récupération"
+msgstr ""
+
+#: app/templates/events/me.html
+msgid ""
+"Votre e-mail est conservé pour vous renvoyer un lien de récupération si "
+"vous perdez votre code. Vous pouvez l'effacer à tout moment."
+msgstr ""
+
+#: app/templates/events/me.html
+msgid "Non renseigné"
+msgstr ""
+
+#: app/templates/events/me.html
+msgid "Renvoyer le lien de récupération"
+msgstr ""
+
+#: app/templates/events/me.html
+msgid "Sans e-mail, vous ne pourrez plus récupérer votre accès. Confirmer ?"
+msgstr ""
+
+#: app/templates/events/me.html
+msgid "Effacer mon e-mail"
+msgstr ""
+
+#: app/templates/events/me.html
+msgid ""
+"Aucun e-mail enregistré : sans e-mail, la récupération de l'accès n'est "
+"plus possible."
+msgstr ""
+
+#: app/templates/events/me.html
 msgid ""
 "Il vous permet de revenir sur l'événement depuis un autre appareil. Ne le"
 " partagez pas."
-msgstr ""
-
-#: app/templates/events/me.html app/templates/events/members.html
-#: app/templates/events/mycode.html
-msgid "Code personnel"
 msgstr ""
 
 #: app/templates/events/me.html
@@ -3162,7 +3534,28 @@ msgid "Liste des participants"
 msgstr ""
 
 #: app/templates/events/members.html
+msgid "Email dupliqué"
+msgstr ""
+
+#: app/templates/events/members.html
+msgid "Aucun e-mail"
+msgstr ""
+
+#: app/templates/events/members.html
 msgid "Renvoyer l'invitation"
+msgstr ""
+
+#: app/templates/events/members.html
+msgid "Lien de récupération"
+msgstr ""
+
+#: app/templates/events/members.html
+msgid "Corriger l'email"
+msgstr ""
+
+#: app/templates/events/members.html
+#, python-format
+msgid "E-mail de %(name)s"
 msgstr ""
 
 #: app/templates/events/members.html
@@ -3171,7 +3564,85 @@ msgid "Retirer %(name)s de l'événement ?"
 msgstr ""
 
 #: app/templates/events/members.html
+#, python-format
+msgid ""
+"Supprime définitivement %(name)s de l'événement. Ses articles, "
+"couvertures et son foyer sont transférés selon votre choix. Cette action "
+"est irréversible."
+msgstr ""
+
+#: app/templates/events/members.html
+#, python-format
+msgid "Réattribuer le travail de %(name)s à :"
+msgstr ""
+
+#: app/templates/events/members.html
+msgid "Ne pas réattribuer (désassigner)"
+msgstr ""
+
+#: app/templates/events/members.html
+msgid "créateur"
+msgstr ""
+
+#: app/templates/events/members.html
+msgid "Aucun autre participant : le travail sera désassigné."
+msgstr ""
+
+#: app/templates/events/members.html
+#, python-format
+msgid "Confirmer la suppression de %(name)s ?"
+msgstr ""
+
+#: app/templates/events/members.html
+msgid "Fusionner les profils"
+msgstr ""
+
+#: app/templates/events/members.html
+#, python-format
+msgid ""
+"Deux profils partagent l'adresse %(email)s. Le profil absorbé devient "
+"inactif ; ses articles, couvertures et son foyer basculent sur le profil "
+"conservé."
+msgstr ""
+
+#: app/templates/events/members.html
+msgid "Profil absorbé"
+msgstr ""
+
+#: app/templates/events/members.html
+msgid "retiré"
+msgstr ""
+
+#: app/templates/events/members.html
+msgid "Profil conservé"
+msgstr ""
+
+#: app/templates/events/members.html
+msgid "Confirmer la fusion ?"
+msgstr ""
+
+#: app/templates/events/members.html
+msgid "Fusionner"
+msgstr ""
+
+#: app/templates/events/members.html
 msgid "Aucun participant pour l'instant"
+msgstr ""
+
+#: app/templates/events/members.html
+msgid "Participants retirés"
+msgstr ""
+
+#: app/templates/events/members.html
+msgid ""
+"Un participant retiré ne peut pas revenir seul. Réinvitez-le : son profil"
+" redevient actif et un lien de reconnexion lui est envoyé s'il a un "
+"e-mail. Son ancien foyer reste dans les Frais sous « Participant retiré »"
+" ; un nouveau foyer est créé à son premier enregistrement."
+msgstr ""
+
+#: app/templates/events/members.html
+msgid "Réinviter"
 msgstr ""
 
 #: app/templates/events/mycode.html app/templates/main/landing.html
@@ -3201,11 +3672,7 @@ msgstr ""
 #: app/templates/events/recover.html
 msgid ""
 "Indiquez l'adresse e-mail de votre événement : si un code y est associé, "
-"nous vous l'enverrons."
-msgstr ""
-
-#: app/templates/events/recover.html
-msgid "Envoyer mon code"
+"nous vous enverrons un lien de récupération."
 msgstr ""
 
 #: app/templates/events/recover.html
@@ -3214,9 +3681,21 @@ msgstr ""
 
 #: app/templates/events/recover.html
 msgid ""
-"Votre e-mail n'est conservé que si vous avez coché « Conserver mon e-mail"
-" » à la validation. Sinon, le code ne peut pas être renvoyé : vous pouvez"
-" créer un nouvel événement."
+"Votre e-mail est conservé par défaut pour la récupération de votre code. "
+"S'il a été effacé, il ne peut pas être renvoyé : vous pouvez créer un "
+"nouvel événement."
+msgstr ""
+
+#: app/templates/events/recover_link.html
+msgid "Votre compte"
+msgstr ""
+
+#: app/templates/events/recover_link.html
+msgid "Conserver mon code et continuer"
+msgstr ""
+
+#: app/templates/events/recover_link.html
+msgid "8 lettres minuscules ou chiffres. Votre ancien code ne fonctionnera plus."
 msgstr ""
 
 #: app/templates/events/verify.html
@@ -3249,14 +3728,15 @@ msgid "Conservation de votre e-mail"
 msgstr ""
 
 #: app/templates/events/verify.html
-msgid "Conserver mon e-mail pour retrouver mon code"
+msgid "Conserver mon e-mail pour la récupération de mon code"
 msgstr ""
 
 #: app/templates/events/verify.html
 msgid ""
-"Case cochée : votre e-mail est gardé uniquement pour vous renvoyer votre "
-"code si vous le perdez. Case décochée (par défaut) : il est effacé dès la"
-" confirmation et votre code ne pourra pas être renvoyé."
+"Cochée par défaut : votre e-mail est gardé pour vous renvoyer un lien de "
+"récupération si vous perdez votre code. Décochez pour l'effacer "
+"définitivement — votre code ne pourra plus être renvoyé. Vous pourrez "
+"aussi l'effacer plus tard depuis « Mon profil »."
 msgstr ""
 
 #: app/templates/events/verify.html

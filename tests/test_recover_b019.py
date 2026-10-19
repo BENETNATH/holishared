@@ -47,9 +47,13 @@ def test_recover_without_smtp_never_shows_personal_code(client, keeper):
     assert CODE not in _recover(client, "keeper@test.com").get_data(as_text=True)
 
 
-def test_recover_with_dev_show_secrets_shows_personal_code(app, client, keeper):
+def test_recover_with_dev_show_secrets_never_shows_link_on_the_public_path(app, client, keeper):
+    """B038 : /recover est anonyme, même DEV_SHOW_SECRETS + debug n'y affiche ni code ni lien."""
     app.config["DEV_SHOW_SECRETS"] = True
-    assert CODE in _recover(client, "keeper@test.com").get_data(as_text=True)
+    app.debug = True
+    html = _recover(client, "keeper@test.com").get_data(as_text=True)
+    assert CODE not in html
+    assert "/e/recover/link/" not in html
 
 
 def test_recover_with_smtp_never_shows_code_even_with_dev_flag(app, client, keeper, smtp_queue):

@@ -72,6 +72,16 @@
 <form method="post" action="{{ url_for('costs.delete_household', code=event.code, h_id=edit_household.id) }}" class="mt-4"
       data-confirm="{{ _('Supprimer ce foyer ?') }}" data-confirm-label="{{ _('Supprimer') }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="tab" value="balance">
+  {%- if households|length > 1 %}
+  <label class="block text-small text-ink-2" for="reassign-to">{{ _("Réaffecter à") }}</label>
+  <select id="reassign-to" name="reassign_to" class="mb-1 mt-1 w-full rounded-md border border-line bg-surface px-3 py-2 text-small" data-testid="household-reassign">
+    <option value="">{{ _("Ne pas réaffecter (supprimer seulement)") }}</option>
+    {%- for other in households if other.id != edit_household.id %}
+    <option value="{{ other.id }}">{{ other.name }}</option>
+    {%- endfor %}
+  </select>
+  <p class="m-0 mb-2 text-small text-ink-2">{{ _("Dépenses, transferts, demandes et articles sont repris par le foyer choisi ; les parts sont ensuite recalculées sur les foyers restants.") }}</p>
+  {%- endif %}
   <button type="submit" class="ui-btn ui-btn--ghost ui-btn--block text-danger" data-testid="household-delete">{{ icon('trash-2', size=16) }}<span>{{ _("Supprimer ce foyer") }}</span></button>
 </form>
 {%- endif %}

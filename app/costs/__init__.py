@@ -1,19 +1,22 @@
 """Costs blueprint - cost sharing by household with weighted settlement."""
 
+import json
 import math
 from datetime import UTC, date, datetime, timedelta
 from typing import Any
 
 from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_babel import gettext as _
+from flask_babel import ngettext
 from werkzeug.wrappers import Response
 
 from app.context import EventContext, load_event_context, log_event
 from app.extensions import db, limiter
 from app.forms import FormErrors
 from app.i18n import BASE_CURRENCY, CURRENCIES, currency_label, is_valid
-from app.models import Event, Expense, Household, PaymentRequest, Transfer
+from app.models import Event, Expense, Guest, Household, PaymentRequest, Transfer
 from app.push import notify
+from app.utils import reassign_work
 
 costs_bp = Blueprint("costs", __name__)
 
@@ -642,13 +645,17 @@ def delete_expense(code: str, exp_id: str) -> Response | tuple[str, int]:
 
 @costs_bp.route("/e/<code>/costs/households/<h_id>/delete", methods=["POST"])
 def delete_household(code: str, h_id: str) -> Response | tuple[str, int]:
-    """Delete a household (creator only), unless expenses or transfers refer to it."""
+    """Delete a household (creator only). Without ``reassign_to``: refused if expenses or
+    transfers refer to it; with it, everything moves to that household first (B038 §4.6)."""
     ctx = load_event_context(code)
     h = Household.query.filter_by(id=h_id, event_id=ctx.event.id).first()
     if not h:
         abort(404)
     if not ctx.can_delete(h):
         abort(403)
+    reassign_to = request.form.get("reassign_to", "").strip()
+    if reassign_to:
+        return _merge_household(ctx, h, reassign_to)
     used = (
         Expense.query.filter_by(paid_by_household_id=h.id).first()
         or Transfer.query.filter(
@@ -669,6 +676,73 @@ def delete_household(code: str, h_id: str) -> Response | tuple[str, int]:
     db.session.commit()
     flash(_("Foyer supprimé."), "success")
     return _back(code, "balance")
+
+
+def _merge_household(ctx: EventContext, source: Household, target_id: str) -> Response:
+    """Réaffecte tout ce qui touche ``source`` au foyer ``target`` puis supprime ``source``.
+
+    Les parts sont ensuite recalculées sur les foyers restants, avec leurs propres poids.
+    """
+    event = ctx.event
+    target = Household.query.filter_by(id=target_id, event_id=event.id).first()
+    if target is None or target.id == source.id:
+        abort(404)
+    expenses = Expense.query.filter_by(paid_by_household_id=source.id).all()
+    for exp in expenses:
+        exp.paid_by_household_id = target.id
+    for exp in Expense.query.filter(
+        Expense.event_id == event.id, Expense.custom_split.isnot(None)
+    ).all():
+        try:
+            weights = json.loads(exp.custom_split)
+        except (json.JSONDecodeError, TypeError):
+            continue  # get_split_weights ignores an unreadable split too
+        if isinstance(weights, dict) and source.id in weights:
+            weights[target.id] = weights.get(target.id, 0) + weights.pop(source.id)
+            exp.custom_split = json.dumps(weights)
+    links = 0
+    for model in (Transfer, PaymentRequest):
+        for row in model.query.filter(
+            db.or_(model.from_household_id == source.id, model.to_household_id == source.id)
+        ).all():
+            if row.from_household_id == source.id:
+                row.from_household_id = target.id
+            if row.to_household_id == source.id:
+                row.to_household_id = target.id
+            if row.from_household_id == row.to_household_id:
+                db.session.delete(row)  # X -> X : nets to zero
+            else:
+                links += 1
+    items = 0
+    if source.guest_id is not None:
+        source_owner = db.session.get(Guest, source.guest_id)
+        target_owner = db.session.get(Guest, target.guest_id) if target.guest_id else None
+        if source_owner is not None:
+            items = reassign_work(event, source_owner, target_owner)
+    source_name, target_name = source.name, target.name
+    db.session.flush()
+    db.session.delete(source)
+    log_event(
+        ctx, "household.merged", target=target_name, details=_("%(name)s absorbé", name=source_name)
+    )
+    db.session.commit()
+    details = ", ".join(
+        [
+            ngettext("%(n)d dépense", "%(n)d dépenses", len(expenses), n=len(expenses)),
+            ngettext("%(n)d transfert ou demande", "%(n)d transferts ou demandes", links, n=links),
+            ngettext("%(n)d article", "%(n)d articles", items, n=items),
+        ]
+    )
+    flash(
+        _(
+            "Foyer « %(source)s » réaffecté à %(target)s (%(details)s).",
+            source=source_name,
+            target=target_name,
+            details=details,
+        ),
+        "success",
+    )
+    return _back(event.code, "balance")
 
 
 def _parse_transfer_households(

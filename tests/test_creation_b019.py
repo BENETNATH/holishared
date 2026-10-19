@@ -213,7 +213,11 @@ def test_verify_page_prefills_a_server_suggested_code(client, pending):
 
 def test_verify_page_explains_keeping_the_email_honestly(client, pending):
     html = client.get(f"/e/verify/{pending.verification_token}").get_data(as_text=True)
-    assert "votre code ne pourra pas être renvoyé" in html
+    # B038-L1 (D1) : l'email est conservé par défaut pour la récupération ; si on le
+    # décoche, le code ne pourra plus être renvoyé (la page l'explique honnêtement).
+    assert "votre code ne pourra plus être renvoyé" in html
+    # Le lien de récupération est le mécanisme (plus le code en clair).
+    assert "lien de récupération" in html
 
 
 def test_verify_page_household_is_collapsed_optional(client, pending):

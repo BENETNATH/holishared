@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "_components/ui.html" import field %}
+{% block title %}{{ _("Retrouver mon accès") }} — {{ event.title }}{% endblock %}
+{% block content %}
+<div class="mx-auto flex max-w-xl flex-col gap-4" data-testid="guest-recover-page">
+  <div class="ui-page-header">
+    <div>
+      <h1>{{ _("Retrouver mon accès") }}</h1>
+      <p class="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <strong class="font-semibold text-ink" translate="no">{{ event.title }}</strong>
+        <span class="inline-flex items-center gap-1">{{ icon('calendar-days', size=16) }}{{ event.start_date | format_date('medium') }} → {{ event.end_date | format_date('medium') }}</span>
+      </p>
+    </div>
+  </div>
+  <form method="post" action="{{ url_for('events.guest_recover', code=event.code) }}" class="ui-card ui-form" data-testid="guest-recover-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <p class="m-0 text-small text-ink-2">{{ _("Indiquez l'adresse e-mail enregistrée pour cet événement : si un profil y est associé, nous vous enverrons un lien de récupération.") }}</p>
+    {{ field('email', _("Votre e-mail"), type='email', value=email or '', required=True, autocomplete='email', placeholder=_('Ex : alice@mail.com'), error=errors.text('email')) }}
+    <button type="submit" class="ui-btn ui-btn--primary ui-btn--lg" data-testid="guest-recover-submit">{{ _("M'envoyer le lien de récupération") }}</button>
+  </form>
+</div>
+{% endblock %}

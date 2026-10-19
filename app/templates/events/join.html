@@ -31,7 +31,7 @@
           {{ field('num_adults', _("Adultes"), type='number', value=num_adults or 1, required=True, attrs={'min': 1, 'max': 20, 'inputmode': 'numeric'}) }}
           {{ field('num_children', _("Enfants"), type='number', value=num_children or 0, required=True, attrs={'min': 0, 'max': 20, 'inputmode': 'numeric'}) }}
         </div>
-        {{ field('email', _("Votre e-mail"), type='email', value=email or '', autocomplete='email', error=errors.text('email')) }}
+        {{ field('email', _("Votre e-mail"), type='email', value=email or '', autocomplete='email', help=_("Conservé pour la récupération de votre accès (vous pourrez l'effacer depuis « Mon profil »)."), error=errors.text('email')) }}
       </div>
     </details>
 

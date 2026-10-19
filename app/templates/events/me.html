@@ -58,6 +58,32 @@
     </div>
     {% endif %}
   </section>
+  <section class="ui-card" aria-labelledby="h-access" data-testid="access-card">
+    <h2 id="h-access" class="mt-0 text-subheading font-semibold text-ink">{{ _("Accès & récupération") }}</h2>
+    <p class="text-small text-ink-2">{{ _("Votre e-mail est conservé pour vous renvoyer un lien de récupération si vous perdez votre code. Vous pouvez l'effacer à tout moment.") }}</p>
+    <div class="flex items-center justify-between gap-3">
+      <span class="text-small font-semibold text-ink" translate="no" data-testid="access-email">{{ access_email_masked or _("Non renseigné") }}</span>
+      <div class="flex flex-wrap gap-2">
+        {% if access_email %}
+        <form method="post" action="{{ url_for('events.me', code=event.code) }}" class="m-0" data-testid="access-recovery-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="action" value="recovery_link">
+          <button type="submit" class="ui-btn ui-btn--secondary" data-testid="access-recovery-btn">{{ icon('mail') }}<span>{{ _("Renvoyer le lien de récupération") }}</span></button>
+        </form>
+        {% endif %}
+        {% if access_email %}
+        <form method="post" action="{{ url_for('events.me', code=event.code) }}" class="m-0" data-confirm="{{ _("Sans e-mail, vous ne pourrez plus récupérer votre accès. Confirmer ?") }}" data-testid="access-erase-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="action" value="erase_email">
+          <button type="submit" class="ui-btn ui-btn--danger" data-testid="access-erase-btn">{{ icon('trash-2') }}<span>{{ _("Effacer mon e-mail") }}</span></button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+    {% if not access_email %}
+    <p class="ui-help m-0 mt-2" data-testid="access-email-missing">{{ _("Aucun e-mail enregistré : sans e-mail, la récupération de l'accès n'est plus possible.") }}</p>
+    {% endif %}
+  </section>
   <section class="ui-card" aria-labelledby="h-code">
     <h2 id="h-code" class="mt-0 text-subheading font-semibold text-ink">{{ _("Votre code personnel") }}</h2>
     {% if personal_code %}

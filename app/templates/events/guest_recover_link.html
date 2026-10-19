@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "_components/ui.html" import field, form_errors %}
+{% block title %}{{ _("Reprendre l'accès") }} — {{ event.title }}{% endblock %}
+{% block content %}
+<div class="mx-auto flex max-w-xl flex-col gap-4" data-testid="guest-recover-link-page">
+  <div class="ui-page-header">
+    <div>
+      <h1>{{ _("Reprendre l'accès") }}</h1>
+      <p class="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <strong class="font-semibold text-ink" translate="no">{{ event.title }}</strong>
+      </p>
+      <p class="m-0 text-small text-ink-2">{{ _("Ce lien est valable 24 heures et ne peut être utilisé qu'une fois. Conservez votre code actuel ou choisissez-en un nouveau.") }}</p>
+    </div>
+  </div>
+
+  <section class="ui-card" aria-labelledby="h-identity" data-testid="guest-recover-identity">
+    <h2 id="h-identity" class="mt-0 text-subheading font-semibold text-ink">{{ _("Votre profil") }}</h2>
+    <dl class="m-0 grid grid-cols-2 gap-3 text-small">
+      <div>
+        <dt class="text-ink-2">{{ _("Pseudo") }}</dt>
+        <dd class="m-0 font-semibold text-ink" translate="no">{{ participant.display_name }}</dd>
+      </div>
+      <div>
+        <dt class="text-ink-2">{{ _("Code personnel") }}</dt>
+        <dd class="m-0 font-semibold text-ink" translate="no">{{ participant.code[:1] }}{{ "*" * (participant.code | length - 1) }}</dd>
+      </div>
+    </dl>
+  </section>
+
+  {{ form_errors(errors, 'code') }}
+  <form method="post" action="{{ url_for('events.guest_recover_link', code=event.code, token=token) }}" class="ui-card ui-form" data-testid="guest-recover-link-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <button type="submit" name="action" value="keep" class="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" data-testid="guest-keep-btn">{{ _("Conserver mon code et accéder") }}</button>
+
+    <hr class="my-4 border-line">
+
+    {{ field('code', _("Choisir un nouveau code"), value=(form_data or {}).get('code', ''), help=_("4 à 8 lettres minuscules ou chiffres. Votre ancien code ne fonctionnera plus."), error=errors.text('code'), autocomplete='off', attrs={'minlength': 4, 'maxlength': 8, 'pattern': '[a-z0-9]{4,8}', 'autocapitalize': 'none', 'spellcheck': 'false'}) }}
+    <button type="submit" name="action" value="recode" class="ui-btn ui-btn--lg ui-btn--block" data-testid="guest-recode-btn">{{ _("Utiliser ce nouveau code") }}</button>
+  </form>
+</div>
+{% endblock %}

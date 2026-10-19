@@ -1,9 +1,12 @@
 """Codes d'accès : suggestion, résolution, limitation des échecs (B029)."""
 
+import hashlib
 import logging
 import re
+import secrets
 from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from typing import Literal
 
 from flask import Response, g, request, session
@@ -170,3 +173,62 @@ def forget_device() -> None:
 def has_guest_session() -> bool:
     """Vrai si l'appareil porte au moins un accès invité (sans requête)."""
     return any(k.startswith("guest_") for k in session)
+
+
+# --- Liens magiques de récupération (B038-L1) --------------------------------------
+
+RECOVERY_TOKEN_TTL = timedelta(hours=24)
+# Anti mail-bomb du seul parcours public « join » : un lien par profil et par fenêtre.
+RECOVERY_LINK_COOLDOWN = timedelta(minutes=5)
+
+
+def hash_recovery_token(raw: str) -> str:
+    """sha256 hex du token brut : seule valeur stockée en base (R1)."""
+    return hashlib.sha256(raw.encode()).hexdigest()
+
+
+def issue_recovery_token(row: Creator | Guest) -> str:
+    """Set a fresh single-use token on ``row`` (expires in 24h); store only its sha256.
+
+    Returns the RAW token, which belongs in the e-mailed link only. A new link overwrites
+    any previous one. The CALLER must commit before enqueuing the e-mail (R2).
+    """
+    raw = secrets.token_urlsafe(32)
+    row.recovery_token = hash_recovery_token(raw)
+    row.recovery_token_expires = datetime.utcnow() + RECOVERY_TOKEN_TTL
+    return raw
+
+
+def valid_recovery_token(row: Creator | Guest) -> bool:
+    """True if ``row`` carries an unexpired, single-use recovery token."""
+    return (
+        row.recovery_token is not None
+        and row.recovery_token_expires is not None
+        and row.recovery_token_expires > datetime.utcnow()
+    )
+
+
+def recovery_token_recent(row: Creator | Guest) -> bool:
+    """True if a still-valid token was issued less than ``RECOVERY_LINK_COOLDOWN`` ago."""
+    return (
+        valid_recovery_token(row)
+        and row.recovery_token_expires is not None
+        and row.recovery_token_expires - RECOVERY_TOKEN_TTL
+        > datetime.utcnow() - RECOVERY_LINK_COOLDOWN
+    )
+
+
+def clear_recovery_token(row: Creator | Guest) -> None:
+    """Consume a recovery token (single use)."""
+    row.recovery_token = None
+    row.recovery_token_expires = None
+
+
+def recovery_action_allowed(scope: str, limit: str) -> bool:
+    """Compte un envoi de lien de récupération pour l'IP ; faux au-delà de ``limit``.
+
+    Compteur propre à ``scope`` : les autres actions de la même route ne sont pas comptées.
+    """
+    if not limiter.enabled:
+        return True
+    return bool(limiter.limiter.hit(parse(limit), scope, get_remote_address()))

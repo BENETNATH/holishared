@@ -713,3 +713,73 @@ def run_api_keys_migration(app: Flask) -> dict[str, int]:
     """Étape de démarrage B034 (la table est aussi créée par ``create_all``)."""
     created = migrate_api_keys(db.engine)
     return {"api_keys_table_created": int(created)}
+
+
+IDENTITY_RECOVERY_COLUMNS = (
+    ("guests", "recovery_token", "VARCHAR(64)"),
+    ("guests", "recovery_token_expires", "DATETIME"),
+    ("guests", "merged_into_id", "VARCHAR(32) REFERENCES guests (id) ON DELETE SET NULL"),
+    ("creators", "recovery_token", "VARCHAR(64)"),
+    ("creators", "recovery_token_expires", "DATETIME"),
+)
+
+
+def _identity_recovery_state(conn: Any) -> list[tuple[str, str, str]]:
+    """Colonnes de récupération B038 manquantes (table absente : ``create_all`` la créera)."""
+    missing = []
+    for table, column, ddl in IDENTITY_RECOVERY_COLUMNS:
+        columns = {row[1] for row in conn.exec_driver_sql(f"PRAGMA table_info({table})")}
+        if columns and column not in columns:
+            missing.append((table, column, ddl))
+    return missing
+
+
+def migrate_identity_recovery(engine: Any) -> int:
+    """Colonnes B038 : ``recovery_token``/``recovery_token_expires`` (guests+creators) et
+    ``merged_into_id`` (guests, B038-L3). Une seule transaction ; idempotente."""
+    with engine.begin() as conn:
+        missing = _identity_recovery_state(conn)
+        for table, column, ddl in missing:
+            conn.exec_driver_sql(f"ALTER TABLE {table} ADD COLUMN {column} {ddl}")
+    return len(missing)
+
+
+def plan_identity_recovery_migration(engine: Any) -> dict[str, int]:
+    """Calcul à blanc B038 (aucune écriture)."""
+    with engine.connect() as conn:
+        return {"recovery_columns_missing": len(_identity_recovery_state(conn))}
+
+
+def run_identity_recovery_migration(app: Flask) -> dict[str, int]:
+    """Étape de démarrage B038 (les colonnes sont aussi créées par ``create_all``)."""
+    added = migrate_identity_recovery(db.engine)
+    return {"identity_recovery_columns_added": added}
+
+
+def migrate_guest_email_unique(engine: Any) -> int:
+    """Index unique partiel ``uq_guest_event_email_active`` (B038) : 1 si créé, 0 sinon.
+
+    Idempotent. Si des doublons existent déjà, la création échoue : avertissement, retour 0
+    (le créateur les résout via « Fusionner les profils »), jamais de crash au démarrage.
+    """
+    from sqlalchemy import inspect
+    from sqlalchemy.exc import IntegrityError
+
+    from app.models import Guest
+
+    name = "uq_guest_event_email_active"
+    index = next(ix for ix in Guest.__table__.indexes if ix.name == name)
+    try:
+        with engine.begin() as conn:
+            if any(ix["name"] == name for ix in inspect(conn).get_indexes("guests")):
+                return 0
+            index.create(conn)
+    except IntegrityError:
+        logger.warning("guest_email_unique: duplicate e-mails exist, merge the profiles first")
+        return 0
+    return 1
+
+
+def run_guest_email_unique_migration(app: Flask) -> dict[str, int]:
+    """Étape de démarrage B038 (l'index est aussi créé par ``create_all``)."""
+    return {"guest_email_unique_created": migrate_guest_email_unique(db.engine)}

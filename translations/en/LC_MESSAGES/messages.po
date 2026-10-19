@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 06:39+0000\n"
+"POT-Creation-Date: 2026-10-19 18:28+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -339,13 +339,49 @@ msgstr "Split ratio updated"
 msgid "Participant ajouté"
 msgstr "Participant added"
 
-#: app/i18n.py
+#: app/i18n.py app/templates/costs/_balance.html
 msgid "Participant retiré"
 msgstr "Participant removed"
 
 #: app/i18n.py
+msgid "Participant supprimé"
+msgstr "Participant deleted"
+
+#: app/i18n.py
+msgid "Profils fusionnés"
+msgstr "Profiles merged"
+
+#: app/i18n.py
+msgid "Foyers fusionnés"
+msgstr "Households merged"
+
+#: app/i18n.py
 msgid "Nom d'affichage modifié"
 msgstr "Display name changed"
+
+#: app/i18n.py
+msgid "E-mail corrigé"
+msgstr "Email fixed"
+
+#: app/i18n.py
+msgid "Lien de récupération envoyé"
+msgstr "Recovery link sent"
+
+#: app/i18n.py
+msgid "Accès récupéré"
+msgstr "Access recovered"
+
+#: app/i18n.py
+msgid "Participant réinvité"
+msgstr "Participant re-invited"
+
+#: app/i18n.py
+msgid "E-mail effacé"
+msgstr "Email erased"
+
+#: app/i18n.py
+msgid "Code personnel modifié"
+msgstr "Personal code changed"
 
 #: app/i18n.py
 msgid "Clé API créée"
@@ -607,8 +643,53 @@ msgstr "%(actor)s removed a participant"
 
 #: app/i18n.py
 #, python-format
+msgid "%(actor)s a supprimé un participant"
+msgstr "%(actor)s deleted a participant"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a fusionné deux profils"
+msgstr "%(actor)s merged two profiles"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a fusionné deux foyers"
+msgstr "%(actor)s merged two households"
+
+#: app/i18n.py
+#, python-format
 msgid "%(actor)s a changé de nom d'affichage"
 msgstr "%(actor)s changed their display name"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a corrigé l'email d'un participant"
+msgstr "%(actor)s fixed a participant's email"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a envoyé un lien de récupération"
+msgstr "%(actor)s sent a recovery link"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a récupéré son accès"
+msgstr "%(actor)s recovered their access"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a réinvité un participant"
+msgstr "%(actor)s re-invited a participant"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a effacé son email"
+msgstr "%(actor)s erased their email"
+
+#: app/i18n.py
+#, python-format
+msgid "%(actor)s a modifié son code personnel"
+msgstr "%(actor)s changed their personal code"
 
 #: app/i18n.py
 #, python-format
@@ -851,23 +932,60 @@ msgstr "Invitation: %(title)s - holishared"
 msgid ""
 "Bonjour,\n"
 "\n"
-"Votre code personnel holishared est : %(code)s\n"
+"Pour reprendre l'accès à votre compte holishared, suivez ce lien :\n"
 "\n"
-"Pseudo : %(name)s\n"
+"%(link)s\n"
+"\n"
+"Le lien est valable 24 heures et ne peut être utilisé qu'une fois.\n"
+"Si vous n'avez pas demandé ce lien, vous pouvez ignorer cet e-mail.\n"
 "\n"
 "— holishared\n"
 msgstr ""
 "Hello,\n"
 "\n"
-"Your holishared personal code is: %(code)s\n"
+"To regain access to your holishared account, follow this link:\n"
 "\n"
-"Nickname: %(name)s\n"
+"%(link)s\n"
+"\n"
+"This link is valid for 24 hours and can be used only once.\n"
+"If you did not request this link, you can ignore this email.\n"
 "\n"
 "— holishared\n"
 
 #: app/tasks.py
-msgid "Votre code holishared"
-msgstr "Your holishared code"
+msgid "Reprenez l'accès à holishared"
+msgstr "Regain access to holishared"
+
+#: app/tasks.py
+#, python-format
+msgid ""
+"Bonjour,\n"
+"\n"
+"Pour retrouver votre accès à « %(title)s » sur holishared, suivez ce lien"
+" :\n"
+"\n"
+"%(link)s\n"
+"\n"
+"Le lien est valable 24 heures et ne peut être utilisé qu'une fois.\n"
+"Si vous n'avez pas demandé ce lien, vous pouvez ignorer cet e-mail.\n"
+"\n"
+"— holishared\n"
+msgstr ""
+"Hello,\n"
+"\n"
+"To get back to “%(title)s” on holishared, follow this link:\n"
+"\n"
+"%(link)s\n"
+"\n"
+"This link is valid for 24 hours and can be used only once.\n"
+"If you did not request this link, you can ignore this email.\n"
+"\n"
+"— holishared\n"
+
+#: app/tasks.py
+#, python-format
+msgid "Votre accès à « %(title)s » - holishared"
+msgstr "Your access to “%(title)s” - holishared"
 
 #: app/ui.py
 msgid "Copié"
@@ -1315,6 +1433,37 @@ msgstr "This household has expenses, transfers or requests: delete them first."
 msgid "Foyer supprimé."
 msgstr "Household deleted."
 
+#: app/costs/__init__.py app/events/__init__.py
+#, python-format
+msgid "%(name)s absorbé"
+msgstr "%(name)s absorbed"
+
+#: app/costs/__init__.py
+#, python-format
+msgid "%(n)d dépense"
+msgid_plural "%(n)d dépenses"
+msgstr[0] "%(n)d expense"
+msgstr[1] "%(n)d expenses"
+
+#: app/costs/__init__.py
+#, python-format
+msgid "%(n)d transfert ou demande"
+msgid_plural "%(n)d transferts ou demandes"
+msgstr[0] "%(n)d transfer or request"
+msgstr[1] "%(n)d transfers or requests"
+
+#: app/costs/__init__.py
+#, python-format
+msgid "%(n)d article"
+msgid_plural "%(n)d articles"
+msgstr[0] "%(n)d item"
+msgstr[1] "%(n)d items"
+
+#: app/costs/__init__.py
+#, python-format
+msgid "Foyer « %(source)s » réaffecté à %(target)s (%(details)s)."
+msgstr "Household \"%(source)s\" reassigned to %(target)s (%(details)s)."
+
 #: app/costs/__init__.py
 msgid "Transfert enregistré."
 msgstr "Transfer recorded."
@@ -1465,8 +1614,30 @@ msgid "Nom d'affichage enregistré."
 msgstr "Display name saved."
 
 #: app/events/__init__.py
+msgid "Aucun e-mail enregistré : renseignez-le d'abord pour la récupération."
+msgstr "No email on file: add one first for recovery."
+
+#: app/events/__init__.py
+msgid "L'envoi d'emails n'est pas configuré sur ce serveur."
+msgstr "Email sending is not configured on this server."
+
+#: app/events/__init__.py
+msgid "Lien de récupération envoyé à votre adresse."
+msgstr "Recovery link sent to your address."
+
+#: app/events/__init__.py
+msgid ""
+"E-mail effacé. Sans e-mail, la récupération de l'accès n'est plus "
+"possible."
+msgstr "Email erased. Without an email, access recovery is no longer possible."
+
+#: app/events/__init__.py
 msgid "Foyer enregistré."
 msgstr "Household saved."
+
+#: app/events/__init__.py
+msgid "Cette adresse a déjà un profil dans cet événement."
+msgstr "This address already has a profile in this event."
 
 #: app/events/__init__.py
 msgid "Limite d'invités atteinte."
@@ -1476,6 +1647,84 @@ msgstr "Guest limit reached."
 #, python-format
 msgid "%(name)s ajouté·e (code : %(code)s)"
 msgstr "%(name)s added (code: %(code)s)"
+
+#: app/events/__init__.py
+#, python-format
+msgid "Email enregistré pour %(name)s."
+msgstr "Email saved for %(name)s."
+
+#: app/events/__init__.py
+#, python-format
+msgid "Aucun email pour %(name)s : corrigez son email d'abord."
+msgstr "No email for %(name)s: fix their email first."
+
+#: app/events/__init__.py
+#, python-format
+msgid "Lien de récupération envoyé à %(name)s."
+msgstr "Recovery link sent to %(name)s."
+
+#: app/events/__init__.py
+#, python-format
+msgid "réattribué à %(name)s"
+msgstr "reassigned to %(name)s"
+
+#: app/events/__init__.py
+msgid "sans réattribution"
+msgstr "no reassignment"
+
+#: app/events/__init__.py
+#, python-format
+msgid "%(name)s supprimé·e de l'événement."
+msgstr "%(name)s was removed from the event."
+
+#: app/events/__init__.py
+#, python-format
+msgid "%(n)d article transféré à %(name)s."
+msgid_plural "%(n)d articles transférés à %(name)s."
+msgstr[0] "%(n)d item handed over to %(name)s."
+msgstr[1] "%(n)d items handed over to %(name)s."
+
+#: app/events/__init__.py
+#, python-format
+msgid "%(n)d article désassigné."
+msgid_plural "%(n)d articles désassignés."
+msgstr[0] "%(n)d item unassigned."
+msgstr[1] "%(n)d items unassigned."
+
+#: app/events/__init__.py
+#, python-format
+msgid "Son foyer a été transféré à %(name)s."
+msgstr "Their household was handed over to %(name)s."
+
+#: app/events/__init__.py
+msgid "Son foyer reste dans les Frais (participant retiré)."
+msgstr "Their household stays in Costs (removed participant)."
+
+#: app/events/__init__.py
+#, python-format
+msgid "%(name)s a été réinvité·e."
+msgstr "%(name)s has been re-invited."
+
+#: app/events/__init__.py
+msgid "Le profil du créateur ne peut pas être fusionné."
+msgstr "The creator's profile cannot be merged."
+
+#: app/events/__init__.py
+msgid "Un de ces profils a déjà été fusionné."
+msgstr "One of these profiles has already been merged."
+
+#: app/events/__init__.py
+msgid "Ces profils n'ont pas le même email."
+msgstr "These profiles do not share the same email address."
+
+#: app/events/__init__.py
+msgid "Un profil actif ne peut pas être fusionné dans un profil retiré."
+msgstr "An active profile cannot be merged into a removed profile."
+
+#: app/events/__init__.py
+#, python-format
+msgid "Profil %(source)s fusionné dans %(target)s."
+msgstr "Profile %(source)s merged into %(target)s."
 
 #: app/events/__init__.py
 #, python-format
@@ -1499,8 +1748,17 @@ msgid ""
 msgstr "Event “%(title)s” and all its data have been permanently deleted."
 
 #: app/events/__init__.py
-msgid "L'envoi d'emails n'est pas configuré sur ce serveur."
-msgstr "Email sending is not configured on this server."
+#, python-format
+msgid "%(name)s participe déjà à cet événement."
+msgstr "%(name)s is already participating in this event."
+
+#: app/events/__init__.py
+msgid ""
+"Un profil retiré existe pour cette adresse : utilisez « Réinviter » dans "
+"les participants retirés."
+msgstr ""
+"A removed profile exists for this address: use \"Re-invite\" in the "
+"removed participants."
 
 #: app/events/__init__.py
 #, python-format
@@ -1515,6 +1773,10 @@ msgstr "No email on file for this guest."
 #, python-format
 msgid "Invitation renvoyée à %(name)s."
 msgstr "Invitation resent to %(name)s."
+
+#: app/events/__init__.py
+msgid "Si cette adresse est connue, un lien de connexion vient d'être envoyé."
+msgstr "If this address is known, a sign-in link has just been sent."
 
 #: app/events/__init__.py
 msgid "Code perso requis (4 à 8 caractères)."
@@ -1548,16 +1810,37 @@ msgstr "Invalid e-mail format."
 
 #: app/events/__init__.py
 msgid ""
-"Si un code est associé à cette adresse, il vient de vous être envoyé par "
-"e-mail. Pensez à vérifier vos courriers indésirables."
+"Si un code est associé à cette adresse, un lien de récupération vient de "
+"vous être envoyé par e-mail. Pensez à vérifier vos courriers "
+"indésirables."
 msgstr ""
-"If a code is linked to this address, it has just been sent to you by "
-"e-mail. Remember to check your spam folder."
+"If a code is linked to this address, a recovery link has just been sent "
+"to you by email. Check your spam folder."
 
 #: app/events/__init__.py
 #, python-format
-msgid "Votre code : %(code)s"
-msgstr "Your code: %(code)s"
+msgid "Lien de récupération (démo) : %(link)s"
+msgstr "Recovery link (demo): %(link)s"
+
+#: app/events/__init__.py
+msgid "Lien invalide ou expiré. Demandez un nouveau lien de récupération."
+msgstr "Invalid or expired link. Request a new recovery link."
+
+#: app/events/__init__.py
+msgid "Le code doit faire 8 caractères (a-z, 0-9)."
+msgstr "The code must be 8 characters (a-z, 0-9)."
+
+#: app/events/__init__.py
+msgid ""
+"Si une adresse est associée à cet événement, un lien de récupération "
+"vient de vous être envoyé par e-mail."
+msgstr ""
+"If an address is linked to this event, a recovery link has just been sent"
+" to you by email."
+
+#: app/events/__init__.py
+msgid "Le code doit faire 4 à 8 caractères (a-z, 0-9)."
+msgstr "The code must be 4 to 8 characters (a-z, 0-9)."
 
 #: app/lists/__init__.py
 msgid "Liste créée."
@@ -1953,6 +2236,7 @@ msgid ""
 msgstr "For site administration only. To open your event, use your code instead."
 
 #: app/templates/auth/login.html app/templates/events/members.html
+#: app/templates/events/recover_link.html
 msgid "E-mail"
 msgstr "E-mail"
 
@@ -1980,11 +2264,11 @@ msgstr "Delete this message?"
 
 #: app/templates/chat/_messages.html app/templates/costs/_balance.html
 #: app/templates/costs/_expenses.html app/templates/costs/_requests.html
-#: app/templates/costs/index.html app/templates/lists/_items.html
-#: app/templates/lists/detail.html app/templates/logistics/_list.html
-#: app/templates/main/ui_catalog.html app/templates/meals/index.html
-#: app/templates/media/detail.html app/templates/planning/_card.html
-#: app/templates/voting/detail.html
+#: app/templates/costs/index.html app/templates/events/members.html
+#: app/templates/lists/_items.html app/templates/lists/detail.html
+#: app/templates/logistics/_list.html app/templates/main/ui_catalog.html
+#: app/templates/meals/index.html app/templates/media/detail.html
+#: app/templates/planning/_card.html app/templates/voting/detail.html
 msgid "Supprimer"
 msgstr "Delete"
 
@@ -2240,9 +2524,10 @@ msgstr ""
 "it counts in no shared total."
 
 #: app/templates/costs/_forms.html app/templates/events/me.html
-#: app/templates/logistics/_sheet_form.html app/templates/logistics/form.html
-#: app/templates/meals/index.html app/templates/media/detail.html
-#: app/templates/planning/form.html app/templates/planning/index.html
+#: app/templates/events/members.html app/templates/logistics/_sheet_form.html
+#: app/templates/logistics/form.html app/templates/meals/index.html
+#: app/templates/media/detail.html app/templates/planning/form.html
+#: app/templates/planning/index.html
 msgid "Enregistrer"
 msgstr "Save"
 
@@ -2456,6 +2741,22 @@ msgid "Supprimer ce foyer ?"
 msgstr "Delete this household?"
 
 #: app/templates/costs/index.html
+msgid "Réaffecter à"
+msgstr "Reassign to"
+
+#: app/templates/costs/index.html
+msgid "Ne pas réaffecter (supprimer seulement)"
+msgstr "Do not reassign (just delete)"
+
+#: app/templates/costs/index.html
+msgid ""
+"Dépenses, transferts, demandes et articles sont repris par le foyer "
+"choisi ; les parts sont ensuite recalculées sur les foyers restants."
+msgstr ""
+"Expenses, transfers, requests and items are taken over by the chosen "
+"household; shares are then recomputed over the remaining households."
+
+#: app/templates/costs/index.html
 msgid "Supprimer ce foyer"
 msgstr "Delete this household"
 
@@ -2612,12 +2913,13 @@ msgstr ""
 "It is valid for 3 days. Your e-mail is only kept if you ask for it "
 "afterwards."
 
-#: app/templates/events/create.html app/templates/events/join.html
-#: app/templates/events/recover.html
+#: app/templates/events/create.html app/templates/events/guest_recover.html
+#: app/templates/events/join.html app/templates/events/recover.html
 msgid "Votre e-mail"
 msgstr "Your e-mail"
 
-#: app/templates/events/create.html app/templates/events/recover.html
+#: app/templates/events/create.html app/templates/events/guest_recover.html
+#: app/templates/events/recover.html
 msgid "Ex : alice@mail.com"
 msgstr "E.g. alice@mail.com"
 
@@ -2761,6 +3063,70 @@ msgstr "No info yet"
 #: app/templates/events/dashboard.html
 msgid "Adresse du gîte, code d'accès, horaires… chacun peut compléter."
 msgstr "Lodging address, access code, schedules… anyone can add to it."
+
+#: app/templates/events/guest_recover.html app/templates/events/join.html
+msgid "Retrouver mon accès"
+msgstr "Recover my access"
+
+#: app/templates/events/guest_recover.html
+msgid ""
+"Indiquez l'adresse e-mail enregistrée pour cet événement : si un profil y"
+" est associé, nous vous enverrons un lien de récupération."
+msgstr ""
+"Enter the email address registered for this event: if a profile is linked"
+" to it, we will send you a recovery link."
+
+#: app/templates/events/guest_recover.html app/templates/events/recover.html
+msgid "M'envoyer le lien de récupération"
+msgstr "Send me the recovery link"
+
+#: app/templates/events/guest_recover_link.html
+#: app/templates/events/recover_link.html
+msgid "Reprendre l'accès"
+msgstr "Regain access"
+
+#: app/templates/events/guest_recover_link.html
+#: app/templates/events/recover_link.html
+msgid ""
+"Ce lien est valable 24 heures et ne peut être utilisé qu'une fois. "
+"Conservez votre code actuel ou choisissez-en un nouveau."
+msgstr ""
+"This link is valid for 24 hours and can only be used once. Keep your "
+"current code or choose a new one."
+
+#: app/templates/events/guest_recover_link.html
+msgid "Votre profil"
+msgstr "Your profile"
+
+#: app/templates/events/guest_recover_link.html
+#: app/templates/events/recover_link.html
+msgid "Pseudo"
+msgstr "Nickname"
+
+#: app/templates/events/guest_recover_link.html app/templates/events/me.html
+#: app/templates/events/members.html app/templates/events/mycode.html
+msgid "Code personnel"
+msgstr "Personal code"
+
+#: app/templates/events/guest_recover_link.html
+msgid "Conserver mon code et accéder"
+msgstr "Keep my code and access"
+
+#: app/templates/events/guest_recover_link.html
+#: app/templates/events/recover_link.html
+msgid "Choisir un nouveau code"
+msgstr "Choose a new code"
+
+#: app/templates/events/guest_recover_link.html
+msgid ""
+"4 à 8 lettres minuscules ou chiffres. Votre ancien code ne fonctionnera "
+"plus."
+msgstr "4 to 8 lowercase letters or digits. Your old code will stop working."
+
+#: app/templates/events/guest_recover_link.html
+#: app/templates/events/recover_link.html
+msgid "Utiliser ce nouveau code"
+msgstr "Use this new code"
 
 #: app/templates/events/index.html
 msgid "Retrouvez vos événements et leurs participants."
@@ -2909,12 +3275,16 @@ msgid "Votre foyer sert à répartir les frais. Vous pourrez le modifier plus ta
 msgstr "Your household is used to split expenses. You can change it later."
 
 #: app/templates/events/join.html
-msgid "Vous avez déjà un code ?"
-msgstr "Already have a code?"
+msgid ""
+"Conservé pour la récupération de votre accès (vous pourrez l'effacer "
+"depuis « Mon profil »)."
+msgstr ""
+"Kept so you can recover your access (you can erase it later from “My "
+"profile”)."
 
 #: app/templates/events/join.html
-msgid "Retrouver mon accès"
-msgstr "Recover my access"
+msgid "Vous avez déjà un code ?"
+msgstr "Already have a code?"
 
 #: app/templates/events/log.html
 msgid "Ce qui s'est passé dans l'événement"
@@ -3035,7 +3405,7 @@ msgid ""
 "action est irréversible."
 msgstr "Permanently delete “%(title)s” and all its data? This cannot be undone."
 
-#: app/templates/events/manage.html
+#: app/templates/events/manage.html app/templates/events/members.html
 msgid "Supprimer définitivement"
 msgstr "Delete permanently"
 
@@ -3137,15 +3507,46 @@ msgid "Tout désactiver"
 msgstr "Turn everything off"
 
 #: app/templates/events/me.html
+msgid "Accès & récupération"
+msgstr "Access & recovery"
+
+#: app/templates/events/me.html
+msgid ""
+"Votre e-mail est conservé pour vous renvoyer un lien de récupération si "
+"vous perdez votre code. Vous pouvez l'effacer à tout moment."
+msgstr ""
+"Your email is kept so we can send you a recovery link if you lose your "
+"code. You can erase it at any time."
+
+#: app/templates/events/me.html
+msgid "Non renseigné"
+msgstr "Not set"
+
+#: app/templates/events/me.html
+msgid "Renvoyer le lien de récupération"
+msgstr "Resend the recovery link"
+
+#: app/templates/events/me.html
+msgid "Sans e-mail, vous ne pourrez plus récupérer votre accès. Confirmer ?"
+msgstr ""
+"Without an email you will no longer be able to recover your access. "
+"Confirm?"
+
+#: app/templates/events/me.html
+msgid "Effacer mon e-mail"
+msgstr "Erase my email"
+
+#: app/templates/events/me.html
+msgid ""
+"Aucun e-mail enregistré : sans e-mail, la récupération de l'accès n'est "
+"plus possible."
+msgstr "No email on file: without an email, access recovery is no longer possible."
+
+#: app/templates/events/me.html
 msgid ""
 "Il vous permet de revenir sur l'événement depuis un autre appareil. Ne le"
 " partagez pas."
 msgstr "It lets you come back to the event from another device. Do not share it."
-
-#: app/templates/events/me.html app/templates/events/members.html
-#: app/templates/events/mycode.html
-msgid "Code personnel"
-msgstr "Personal code"
 
 #: app/templates/events/me.html
 msgid "Vous n'avez pas encore de code personnel. Vous vous connectez par e-mail."
@@ -3261,8 +3662,29 @@ msgid "Liste des participants"
 msgstr "Participant list"
 
 #: app/templates/events/members.html
+msgid "Email dupliqué"
+msgstr "Duplicate email"
+
+#: app/templates/events/members.html
+msgid "Aucun e-mail"
+msgstr "No email"
+
+#: app/templates/events/members.html
 msgid "Renvoyer l'invitation"
 msgstr "Resend the invitation"
+
+#: app/templates/events/members.html
+msgid "Lien de récupération"
+msgstr "Recovery link"
+
+#: app/templates/events/members.html
+msgid "Corriger l'email"
+msgstr "Fix the email"
+
+#: app/templates/events/members.html
+#, python-format
+msgid "E-mail de %(name)s"
+msgstr "%(name)s's email"
 
 #: app/templates/events/members.html
 #, python-format
@@ -3270,8 +3692,95 @@ msgid "Retirer %(name)s de l'événement ?"
 msgstr "Remove %(name)s from the event?"
 
 #: app/templates/events/members.html
+#, python-format
+msgid ""
+"Supprime définitivement %(name)s de l'événement. Ses articles, "
+"couvertures et son foyer sont transférés selon votre choix. Cette action "
+"est irréversible."
+msgstr ""
+"Permanently remove %(name)s from the event. Their items, coverages and "
+"household are transferred according to your choice. This action cannot be"
+" undone."
+
+#: app/templates/events/members.html
+#, python-format
+msgid "Réattribuer le travail de %(name)s à :"
+msgstr "Reassign %(name)s's work to:"
+
+#: app/templates/events/members.html
+msgid "Ne pas réattribuer (désassigner)"
+msgstr "Do not reassign (leave unassigned)"
+
+#: app/templates/events/members.html
+msgid "créateur"
+msgstr "creator"
+
+#: app/templates/events/members.html
+msgid "Aucun autre participant : le travail sera désassigné."
+msgstr "No other participant: the work will be left unassigned."
+
+#: app/templates/events/members.html
+#, python-format
+msgid "Confirmer la suppression de %(name)s ?"
+msgstr "Confirm deletion of %(name)s?"
+
+#: app/templates/events/members.html
+msgid "Fusionner les profils"
+msgstr "Merge profiles"
+
+#: app/templates/events/members.html
+#, python-format
+msgid ""
+"Deux profils partagent l'adresse %(email)s. Le profil absorbé devient "
+"inactif ; ses articles, couvertures et son foyer basculent sur le profil "
+"conservé."
+msgstr ""
+"Two profiles share the address %(email)s. The absorbed profile becomes "
+"inactive; its items, coverages and household move to the kept profile."
+
+#: app/templates/events/members.html
+msgid "Profil absorbé"
+msgstr "Profile to remove"
+
+#: app/templates/events/members.html
+msgid "retiré"
+msgstr "removed"
+
+#: app/templates/events/members.html
+msgid "Profil conservé"
+msgstr "Profile to keep"
+
+#: app/templates/events/members.html
+msgid "Confirmer la fusion ?"
+msgstr "Confirm the merge?"
+
+#: app/templates/events/members.html
+msgid "Fusionner"
+msgstr "Merge"
+
+#: app/templates/events/members.html
 msgid "Aucun participant pour l'instant"
 msgstr "No participants yet"
+
+#: app/templates/events/members.html
+msgid "Participants retirés"
+msgstr "Removed participants"
+
+#: app/templates/events/members.html
+msgid ""
+"Un participant retiré ne peut pas revenir seul. Réinvitez-le : son profil"
+" redevient actif et un lien de reconnexion lui est envoyé s'il a un "
+"e-mail. Son ancien foyer reste dans les Frais sous « Participant retiré »"
+" ; un nouveau foyer est créé à son premier enregistrement."
+msgstr ""
+"A removed participant cannot come back on their own. Re-invite them: "
+"their profile becomes active again and a sign-in link is sent if they "
+"have an e-mail. Their former household stays in Costs under \"Participant"
+" removed\"; a new household is created when they first save it."
+
+#: app/templates/events/members.html
+msgid "Réinviter"
+msgstr "Re-invite"
 
 #: app/templates/events/mycode.html app/templates/main/landing.html
 msgid "Votre code"
@@ -3300,14 +3809,10 @@ msgstr "Find my code"
 #: app/templates/events/recover.html
 msgid ""
 "Indiquez l'adresse e-mail de votre événement : si un code y est associé, "
-"nous vous l'enverrons."
+"nous vous enverrons un lien de récupération."
 msgstr ""
-"Enter the e-mail address of your event: if a code is linked to it, we "
-"will send it to you."
-
-#: app/templates/events/recover.html
-msgid "Envoyer mon code"
-msgstr "Send my code"
+"Enter your event's email address: if a code is linked to it, we will send"
+" you a recovery link."
 
 #: app/templates/events/recover.html
 msgid "Pas d'e-mail enregistré ?"
@@ -3315,13 +3820,24 @@ msgstr "No e-mail on file?"
 
 #: app/templates/events/recover.html
 msgid ""
-"Votre e-mail n'est conservé que si vous avez coché « Conserver mon e-mail"
-" » à la validation. Sinon, le code ne peut pas être renvoyé : vous pouvez"
-" créer un nouvel événement."
+"Votre e-mail est conservé par défaut pour la récupération de votre code. "
+"S'il a été effacé, il ne peut pas être renvoyé : vous pouvez créer un "
+"nouvel événement."
 msgstr ""
-"Your e-mail is only kept if you ticked \"Keep my e-mail\" at "
-"confirmation. Otherwise the code cannot be sent again: you can create a "
-"new event."
+"Your email is kept by default for code recovery. If it has been erased, "
+"it cannot be resent: you can create a new event."
+
+#: app/templates/events/recover_link.html
+msgid "Votre compte"
+msgstr "Your account"
+
+#: app/templates/events/recover_link.html
+msgid "Conserver mon code et continuer"
+msgstr "Keep my code and continue"
+
+#: app/templates/events/recover_link.html
+msgid "8 lettres minuscules ou chiffres. Votre ancien code ne fonctionnera plus."
+msgstr "8 lowercase letters or digits. Your old code will stop working."
 
 #: app/templates/events/verify.html
 msgid "Confirmer l'événement"
@@ -3357,18 +3873,20 @@ msgid "Conservation de votre e-mail"
 msgstr "Keeping your e-mail"
 
 #: app/templates/events/verify.html
-msgid "Conserver mon e-mail pour retrouver mon code"
+msgid "Conserver mon e-mail pour la récupération de mon code"
 msgstr "Keep my e-mail to recover my code"
 
 #: app/templates/events/verify.html
 msgid ""
-"Case cochée : votre e-mail est gardé uniquement pour vous renvoyer votre "
-"code si vous le perdez. Case décochée (par défaut) : il est effacé dès la"
-" confirmation et votre code ne pourra pas être renvoyé."
+"Cochée par défaut : votre e-mail est gardé pour vous renvoyer un lien de "
+"récupération si vous perdez votre code. Décochez pour l'effacer "
+"définitivement — votre code ne pourra plus être renvoyé. Vous pourrez "
+"aussi l'effacer plus tard depuis « Mon profil »."
 msgstr ""
-"Ticked: your e-mail is kept only to send you your code if you lose it. "
-"Unticked (default): it is erased as soon as you confirm and your code "
-"cannot be sent again."
+"Checked by default: your e-mail is kept so we can send you a recovery "
+"link if you lose your code. Uncheck it to erase it for good — your code "
+"can then no longer be sent to you. You can also erase it later from \"My "
+"profile\"."
 
 #: app/templates/events/verify.html
 msgid "Composition de mon foyer (facultatif)"

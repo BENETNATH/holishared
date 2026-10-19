@@ -70,7 +70,7 @@
       {%- set hh = entry['household'] %}{% set bal = entry['balance'] %}
       <li data-testid="household-row" data-household-id="{{ hh.id }}" class="flex flex-col gap-1 border-t border-line px-3 py-3 first:border-t-0">
         <div class="flex items-start justify-between gap-2">
-          <p class="m-0 min-w-0 break-words font-medium text-ink">{{ hh.name }}{% if my_household and my_household.id == hh.id %} <span class="ui-badge ui-badge--primary">{{ _("Mon foyer") }}</span>{% endif %}</p>
+          <p class="m-0 min-w-0 break-words font-medium text-ink">{{ hh.name }}{% if hh.guest_id is none %} <span class="ui-badge ui-badge--neutral" data-testid="household-removed">{{ _("Participant retiré") }}</span>{% endif %}{% if my_household and my_household.id == hh.id %} <span class="ui-badge ui-badge--primary">{{ _("Mon foyer") }}</span>{% endif %}</p>
           <p class="m-0 shrink-0 font-semibold {{ 'text-success' if bal > 0.01 else ('text-danger' if bal < -0.01 else 'text-ink-2') }}" data-testid="household-balance">
             {%- if bal > 0.01 %}{{ _("reçoit") }} {{ bal|money }}{% elif bal < -0.01 %}{{ _("doit") }} {{ (-bal)|money }}{% else %}{{ _("réglé") }}{% endif -%}
           </p>

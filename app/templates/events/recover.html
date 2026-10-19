@@ -6,17 +6,17 @@
   <div class="ui-page-header">
     <div>
       <h1>{{ _("Retrouver mon code") }}</h1>
-      <p>{{ _("Indiquez l'adresse e-mail de votre événement : si un code y est associé, nous vous l'enverrons.") }}</p>
+      <p>{{ _("Indiquez l'adresse e-mail de votre événement : si un code y est associé, nous vous enverrons un lien de récupération.") }}</p>
     </div>
   </div>
   <form method="post" action="{{ url_for('events.recover_code') }}" class="ui-card ui-form" data-testid="recover-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     {{ field('email', _("Votre e-mail"), type='email', value=email or '', required=True, autocomplete='email', placeholder=_('Ex : alice@mail.com'), error=errors.text('email')) }}
-    <button type="submit" class="ui-btn ui-btn--primary ui-btn--lg" data-testid="recover-submit">{{ _("Envoyer mon code") }}</button>
+    <button type="submit" class="ui-btn ui-btn--primary ui-btn--lg" data-testid="recover-submit">{{ _("M'envoyer le lien de récupération") }}</button>
   </form>
   <section class="ui-card" aria-labelledby="h-nomail">
     <h2 id="h-nomail" class="mt-0 text-subheading font-semibold text-ink">{{ _("Pas d'e-mail enregistré ?") }}</h2>
-    <p class="m-0 text-small text-ink-2">{{ _("Votre e-mail n'est conservé que si vous avez coché « Conserver mon e-mail » à la validation. Sinon, le code ne peut pas être renvoyé : vous pouvez créer un nouvel événement.") }}</p>
+    <p class="m-0 text-small text-ink-2">{{ _("Votre e-mail est conservé par défaut pour la récupération de votre code. S'il a été effacé, il ne peut pas être renvoyé : vous pouvez créer un nouvel événement.") }}</p>
     <a href="{{ url_for('events.create') }}" class="ui-link inline-flex min-h-11 items-center text-small">{{ _("Créer un événement") }}</a>
   </section>
 </div>

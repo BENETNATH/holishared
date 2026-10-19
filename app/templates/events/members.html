@@ -11,6 +11,8 @@
     </div>
   </div>
 
+  {% if creator %}{{ form_errors(errors, 'display_name', 'email', 'invite_email') }}{% endif %}
+
   {% if creator %}
   {# La jauge compte les participants actifs, créateur compris : même base que can_add_guest. #}
   <section class="ui-card" aria-labelledby="h-gauge" data-testid="guest-gauge" data-at-limit="{{ 'true' if gauge.at_limit else 'false' }}">
@@ -72,12 +74,11 @@
   <section class="ui-card" aria-labelledby="h-add" data-testid="add-block">
     <h2 id="h-add" class="mt-0 text-subheading font-semibold text-ink">{{ _("Ajouter un participant") }}</h2>
     <p class="text-small text-ink-2">{{ _("Pour quelqu'un qui n'utilise pas son téléphone : un code personnel et un foyer pour les frais sont créés.") }}</p>
-    {{ form_errors(errors, 'display_name', 'email', 'invite_email') }}
-    <form method="post" action="{{ url_for('events.members', code=event.code) }}" class="ui-form" data-testid="add-participant-form">
+        <form method="post" action="{{ url_for('events.members', code=event.code) }}" class="ui-form" data-testid="add-participant-form">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <input type="hidden" name="action" value="add">
-      {{ field('display_name', _("Nom"), value=form.display_name or '', id='f-display_name', required=True, placeholder=_('Ex : Alice Martin'), error=errors.text('display_name'), attrs={'minlength': 2, 'maxlength': 50}) }}
-      {{ field('email', _("E-mail"), type='email', value=form.email or '', id='f-add-email', error=errors.text('email'), autocomplete='off', attrs={'maxlength': 255}) }}
+      {{ field('display_name', _("Nom"), value=(form.display_name if not form.guest_id else '') or '', id='f-display_name', required=True, placeholder=_('Ex : Alice Martin'), error=errors.text('display_name'), attrs={'minlength': 2, 'maxlength': 50}) }}
+      {{ field('email', _("E-mail"), type='email', value=(form.email if not form.guest_id else '') or '', id='f-add-email', error=(errors.text('email') if not form.guest_id else none), autocomplete='off', attrs={'maxlength': 255}) }}
       <div><button type="submit" class="ui-btn ui-btn--secondary" data-testid="add-participant-submit">{{ icon('user-plus') }}<span>{{ _("Ajouter") }}</span></button></div>
     </form>
   </section>
@@ -105,12 +106,16 @@
               <span class="break-words" translate="no" data-testid="participant-name">{{ g.display_name }}</span>
               {% if is_creator_guest %}<span class="ui-badge ui-badge--primary" data-testid="badge-creator">{{ _("Créateur") }}</span>{% endif %}
               {% if is_me %}<span class="ui-badge ui-badge--neutral" data-testid="badge-me">{{ _("Vous") }}</span>{% endif %}
+              {% if creator and dup_partners.get(g.id) and not is_creator_guest %}
+              <span class="ui-badge ui-badge--warning" title="{{ dup_partners[g.id][0].display_name }}" data-testid="duplicate-email-badge">{{ _("Email dupliqué") }}</span>
+              {% endif %}
             </p>
             {% if home %}
             <p class="m-0 text-small text-ink-2" data-testid="participant-household"><span translate="no">{{ home.name }}</span> · {{ ngettext("%(n)d adulte", "%(n)d adultes", home.num_adults, n=home.num_adults) }}{% if home.num_children %}, {{ ngettext("%(n)d enfant", "%(n)d enfants", home.num_children, n=home.num_children) }}{% endif %}</p>
             {% endif %}
             {% if is_me %}<p class="m-0 mt-1"><a class="text-small" href="{{ url_for('events.me', code=event.code) }}#h-household" data-testid="my-household-link">{{ _("Modifier mon foyer") if home else _("Créer mon foyer") }}</a></p>{% endif %}
-            {% if g.email and (creator or is_me) %}<p class="m-0 break-all text-small text-ink-2" data-testid="participant-email">{{ g.email }}</p>{% endif %}
+            {% if g.email and (creator or is_me) %}<p class="m-0 break-all text-small text-ink-2" data-testid="participant-email">{% if is_me %}{{ g.email }}{% else %}{{ g.email | masked_email }}{% endif %}</p>{% endif %}
+            {% if not g.email and (creator or is_me) %}<p class="m-0 text-small text-ink-2" data-testid="participant-email-none">{{ _("Aucun e-mail") }}</p>{% endif %}
           </div>
         </div>
         {% if creator and not is_creator_guest %}
@@ -125,13 +130,72 @@
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="ui-btn ui-btn--secondary" data-testid="resend-invite">{{ icon('send') }}<span>{{ _("Renvoyer l'invitation") }}</span></button>
           </form>
+          <form method="post" action="{{ url_for('events.members', code=event.code) }}" class="contents">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="action" value="recovery_link">
+            <input type="hidden" name="guest_id" value="{{ g.id }}">
+            <button type="submit" class="ui-btn ui-btn--secondary" data-testid="send-recovery-link">{{ icon('mail') }}<span>{{ _("Lien de récupération") }}</span></button>
+          </form>
           {% endif %}
+          {% set fix_failed = form.guest_id == g.id and errors.has('email') %}
+          <details class="rounded-md border border-line px-3" data-testid="fix-email-details"{% if fix_failed %} open{% endif %}>
+            <summary class="flex min-h-11 cursor-pointer items-center gap-2 text-small font-semibold text-ink">{{ icon('mail') }}{{ _("Corriger l'email") }}</summary>
+            <form method="post" action="{{ url_for('events.members', code=event.code) }}" class="ui-form mt-2" data-testid="fix-email-form">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="fix_email">
+              <input type="hidden" name="guest_id" value="{{ g.id }}">
+              {{ field('email', _("E-mail de %(name)s", name=g.display_name), type='email', id='fix-email-' ~ g.id, value=(form.email if fix_failed else g.email) or '', error=(errors.text('email') if fix_failed else none), autocomplete='off', attrs={'maxlength': 255}) }}
+              <div><button type="submit" class="ui-btn ui-btn--secondary" data-testid="fix-email-submit">{{ _("Enregistrer") }}</button></div>
+            </form>
+          </details>
           <form method="post" action="{{ url_for('events.members', code=event.code) }}" class="contents">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="action" value="remove">
             <input type="hidden" name="guest_id" value="{{ g.id }}">
             <button type="submit" class="ui-btn ui-btn--danger" data-confirm="{{ _("Retirer %(name)s de l'événement ?", name=g.display_name) }}" data-testid="remove-participant">{{ icon('user-minus') }}<span>{{ _("Retirer") }}</span></button>
           </form>
+          <details class="rounded-md border border-danger/40 px-3" data-testid="delete-details">
+            <summary class="flex min-h-11 cursor-pointer items-center gap-2 text-small font-semibold text-danger">{{ icon('trash-2') }}{{ _("Supprimer") }}</summary>
+            <p class="m-0 mt-2 text-small text-ink-2">{{ _("Supprime définitivement %(name)s de l'événement. Ses articles, couvertures et son foyer sont transférés selon votre choix. Cette action est irréversible.", name=g.display_name) }}</p>
+            <form method="post" action="{{ url_for('events.members', code=event.code) }}" class="mt-2" data-testid="delete-participant-form">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="delete">
+              <input type="hidden" name="guest_id" value="{{ g.id }}">
+              {% if delete_targets|length > 1 %}
+              <label class="block text-small text-ink-2" for="reassign-to-{{ g.id }}">{{ _("Réattribuer le travail de %(name)s à :", name=g.display_name) }}</label>
+              <select id="reassign-to-{{ g.id }}" name="reassign_to" class="mt-1 w-full rounded-md border border-line bg-surface px-3 py-2 text-small">
+                <option value="">{{ _("Ne pas réattribuer (désassigner)") }}</option>
+                {%- for t in delete_targets %}
+                {% if t.id != g.id %}<option value="{{ t.id }}">{{ t.display_name }}{% if t.creator_id %} · {{ _("créateur") }}{% endif %}</option>{% endif %}
+                {%- endfor %}
+              </select>
+              {% else %}
+              <p class="m-0 text-small text-ink-2" data-testid="no-reassign-target">{{ _("Aucun autre participant : le travail sera désassigné.") }}</p>
+              {% endif %}
+              <div class="mt-2"><button type="submit" class="ui-btn ui-btn--danger" data-confirm="{{ _("Confirmer la suppression de %(name)s ?", name=g.display_name) }}" data-testid="delete-participant">{{ _("Supprimer définitivement") }}</button></div>
+            </form>
+          </details>
+          {% if dup_partners.get(g.id) and not is_creator_guest %}
+          <details class="rounded-md border border-warning/40 px-3" data-testid="merge-details">
+            <summary class="flex min-h-11 cursor-pointer items-center gap-2 text-small font-semibold text-warning">{{ icon('users') }}{{ _("Fusionner les profils") }}</summary>
+            <p class="m-0 mt-2 text-small text-ink-2">{{ _("Deux profils partagent l'adresse %(email)s. Le profil absorbé devient inactif ; ses articles, couvertures et son foyer basculent sur le profil conservé.", email=(g.email | masked_email) or "—") }}</p>
+            <form method="post" action="{{ url_for('events.members', code=event.code) }}" class="mt-2" data-testid="merge-profiles-form">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="merge_profiles">
+              <label class="block text-small text-ink-2" for="merge-source-{{ g.id }}">{{ _("Profil absorbé") }}</label>
+              <select id="merge-source-{{ g.id }}" name="source_id" class="mt-1 w-full rounded-md border border-line bg-surface px-3 py-2 text-small">
+                <option value="{{ g.id }}" data-testid="merge-source-this">{{ g.display_name }}</option>
+                {% for p in dup_partners[g.id] %}<option value="{{ p.id }}" data-testid="merge-source-other">{{ p.display_name }}{% if not p.is_active %} · {{ _("retiré") }}{% endif %}</option>{% endfor %}
+              </select>
+              <label class="mt-2 block text-small text-ink-2" for="merge-target-{{ g.id }}">{{ _("Profil conservé") }}</label>
+              <select id="merge-target-{{ g.id }}" name="target_id" class="mt-1 w-full rounded-md border border-line bg-surface px-3 py-2 text-small">
+                {% for p in dup_partners[g.id] if p.is_active %}<option value="{{ p.id }}">{{ p.display_name }}</option>{% endfor %}
+                <option value="{{ g.id }}">{{ g.display_name }}</option>
+              </select>
+              <div class="mt-2"><button type="submit" class="ui-btn ui-btn--secondary" data-confirm="{{ _("Confirmer la fusion ?") }}" data-testid="merge-participants">{{ _("Fusionner") }}</button></div>
+            </form>
+          </details>
+          {% endif %}
         </div>
         {% endif %}
       </li>
@@ -141,5 +205,43 @@
     {{ empty_state('users', _("Aucun participant pour l'instant")) }}
     {% endif %}
   </section>
+
+  {% if creator and retired %}
+  <section class="ui-card" aria-labelledby="h-retired" data-testid="retired-list">
+    <h2 id="h-retired" class="mt-0 text-subheading font-semibold text-ink">{{ _("Participants retirés") }}</h2>
+    <p class="text-small text-ink-2">{{ _("Un participant retiré ne peut pas revenir seul. Réinvitez-le : son profil redevient actif et un lien de reconnexion lui est envoyé s'il a un e-mail. Son ancien foyer reste dans les Frais sous « Participant retiré » ; un nouveau foyer est créé à son premier enregistrement.") }}</p>
+    <ul class="m-0 flex list-none flex-col gap-2 p-0">
+      {% for r in retired %}
+      <li data-testid="retired-row" data-guest-id="{{ r.id }}">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+        <span class="min-w-0 break-words"><span class="font-semibold text-ink" translate="no">{{ r.display_name }}</span>{% if dup_partners.get(r.id) %} <span class="ui-badge ui-badge--warning" data-testid="duplicate-email-badge">{{ _("Email dupliqué") }}</span>{% endif %}{% if r.email %} <span class="text-small text-ink-2" translate="no">{{ r.email | masked_email }}</span>{% endif %}</span>
+        <form method="post" action="{{ url_for('events.members', code=event.code) }}" class="m-0">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="action" value="reinvite">
+          <input type="hidden" name="guest_id" value="{{ r.id }}">
+          <button type="submit" class="ui-btn ui-btn--secondary" data-testid="reinvite-participant">{{ icon('user-plus') }}<span>{{ _("Réinviter") }}</span></button>
+        </form>
+        </div>
+        {% if dup_partners.get(r.id) %}
+        <details class="mt-2 rounded-md border border-warning/40 px-3" data-testid="retired-merge-details">
+          <summary class="flex min-h-11 cursor-pointer items-center gap-2 text-small font-semibold text-warning">{{ icon('users') }}{{ _("Fusionner les profils") }}</summary>
+          <p class="m-0 mt-2 text-small text-ink-2">{{ _("Deux profils partagent l'adresse %(email)s. Le profil absorbé devient inactif ; ses articles, couvertures et son foyer basculent sur le profil conservé.", email=(r.email | masked_email) or "—") }}</p>
+          <form method="post" action="{{ url_for('events.members', code=event.code) }}" class="mt-2" data-testid="retired-merge-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="action" value="merge_profiles">
+            <input type="hidden" name="source_id" value="{{ r.id }}">
+            <label class="block text-small text-ink-2" for="retired-merge-target-{{ r.id }}">{{ _("Profil conservé") }}</label>
+            <select id="retired-merge-target-{{ r.id }}" name="target_id" class="mt-1 w-full rounded-md border border-line bg-surface px-3 py-2 text-small">
+              {% for p in dup_partners[r.id] %}<option value="{{ p.id }}">{{ p.display_name }}{% if not p.is_active %} · {{ _("retiré") }}{% endif %}</option>{% endfor %}
+            </select>
+            <div class="mt-2"><button type="submit" class="ui-btn ui-btn--secondary" data-confirm="{{ _("Confirmer la fusion ?") }}" data-testid="retired-merge-participants">{{ _("Fusionner") }}</button></div>
+          </form>
+        </details>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
 </div>
 {% endblock %}

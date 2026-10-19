@@ -26,10 +26,10 @@
     <section class="flex flex-col gap-2" aria-labelledby="h-keep-email" data-testid="keep-email">
       <h2 id="h-keep-email" class="sr-only">{{ _("Conservation de votre e-mail") }}</h2>
       <label class="ui-check">
-        <input type="checkbox" name="store_creator_email" value="1">
-        <span>{{ _("Conserver mon e-mail pour retrouver mon code") }}</span>
+        <input type="checkbox" name="store_creator_email" value="1" checked>
+        <span>{{ _("Conserver mon e-mail pour la récupération de mon code") }}</span>
       </label>
-      <p class="ui-help m-0">{{ _("Case cochée : votre e-mail est gardé uniquement pour vous renvoyer votre code si vous le perdez. Case décochée (par défaut) : il est effacé dès la confirmation et votre code ne pourra pas être renvoyé.") }}</p>
+      <p class="ui-help m-0">{{ _("Cochée par défaut : votre e-mail est gardé pour vous renvoyer un lien de récupération si vous perdez votre code. Décochez pour l'effacer définitivement — votre code ne pourra plus être renvoyé. Vous pourrez aussi l'effacer plus tard depuis « Mon profil ».") }}</p>
     </section>
 
     <details class="rounded-md border border-line px-3" data-testid="verify-household">
