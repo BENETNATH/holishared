@@ -46,7 +46,7 @@
       {{ field('date', _('Jour'), type='select', id='meal-move-date', options=day_options, required=True) }}
       {{ field('slot', _('Créneau'), type='select', id='meal-move-slot', options=choices('meal_slot'), required=True) }}
     </div>
-    <label class="flex items-center gap-2 text-small text-ink">
+    <label class="ui-check" for="meal-swap-toggle">
       <input type="checkbox" name="swap" id="meal-swap-toggle">
       <span>{{ _("Échanger avec un autre repas") }}</span>
     </label>

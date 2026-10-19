@@ -474,7 +474,7 @@
         },
         {
           "type": "assert",
-          "expr": "!!document.querySelector('[data-testid=meal-move-form]') && !!document.querySelector('[data-testid=meal-swap-form]')",
+          "expr": "!!document.querySelector('[data-testid=meal-move-swap-form]') && !!document.querySelector('#meal-swap-toggle')",
           "message": "déplacer et échanger sont proposés"
         }
       ]
@@ -637,7 +637,7 @@
         {
           "type": "drag",
           "from": "expr:(() => { const h = document.querySelector('[data-meal-handle]'); h.scrollIntoView({ block: 'start' }); window.scrollBy(0, -150); return h; })()",
-          "to": "expr:(() => { const src = document.querySelector('[data-drag-source]'); const home = src.closest('[data-testid=meal-cell]'); const y0 = src.getBoundingClientRect().top; return [...document.querySelectorAll('[data-meal-drop=add]')].filter(z => z.closest('[data-testid=meal-cell]') !== home && z.getBoundingClientRect().height > 0).sort((a, b) => Math.abs(a.getBoundingClientRect().top - y0) - Math.abs(b.getBoundingClientRect().top - y0))[0]; })()"
+          "to": "expr:(() => { const src = document.querySelector('[data-drag-source]'); const home = src.closest('[data-testid=meal-cell]'); const y0 = src.getBoundingClientRect().top; return [...document.querySelectorAll('[data-meal-drop=add]')].filter(z => { const c = z.closest('[data-testid=meal-cell]'); return c !== home && z.getBoundingClientRect().height > 0 && c.querySelectorAll('[data-testid=meal-card]').length > 0; }).sort((a, b) => Math.abs(a.getBoundingClientRect().top - y0) - Math.abs(b.getBoundingClientRect().top - y0))[0]; })()"
         },
         {
           "type": "waitFor",
