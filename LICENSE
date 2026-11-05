@@ -1,0 +1,173 @@
+Business Source License 1.1
+
+Versions of the License for each version of the Initial Work are
+archived in the License directory.
+
+The License for version 1.1 is as follows:
+
+Business Source License 1.1
+
+Terms and Conditions
+
+1. Definitions.
+
+"Business Source License" means the license terms described in this
+file.
+
+"Changes" means any of the following:
+(a) any addendum to, modification of or deletion from the substance
+    or form of the Initial Work; or
+(b) any application of the Initial Work to a new domain.
+
+"Commercial Use" means the sale, commercial lease, or other commercial
+distribution of the Initial Work or any derivative works of the Initial
+Work, or the provision of the Initial Work or any derivative works
+thereof as an integral part of a product or service, in each case
+whether for a fee, or for no charge.
+
+"Company" means [Benoît Petit-Demoulière], with a registered
+address at [Illkirch-Graffenstaden, France], or, if the Initial Work
+is provided by an individual, such individual.
+
+"Compiled" means any Compiled Closure or any object code version of
+the Initial Work or any derivative works of the Initial Work.
+
+"Compile" means to firm up any expression of the Initial Work in
+compiler source code into object code.
+
+"Compiled Closure" means a set of Compiled program files distributed
+together in a standard software distribution format (e.g. .jar, .egg,
+.whl, etc.).
+
+"Consumer Product" means(a) any individual or households' product, or
+(b) any product for use in education, recreational, or gaming
+activities.
+
+"Contributor" means each person or legal entity that creates or
+contributes to the Changes.
+
+"Contributor Version" means the Initial Work or any derivative work of
+the Initial Work that is contributed to the Initial Work by a
+Contributor.
+
+"Copyright" means copyright and/or similar rights including
+performances, and "Copyright License" means a license to
+exercise the right to reproduce, prepare derivative works of, perform,
+display and distribute.
+
+"Effective Date" means 5 November 2026.
+
+"Initial Work" means the software distributed by Company under this
+Business Source License, as described in the associated LICENSE.txt
+file or other notice provided by the Company.
+
+"License" means this Business Source License Terms.
+
+"Licensor" means, the Company.
+
+"Licensed Patent" means any patent claims or patents owned or
+controlled by Licensor that are or become essential to the use of the
+Licensed Work, as of the date such Licensed Work was made available
+under this License.
+
+"Licensed Work" means the Initial Work and any derivative works of the
+Initial Work.
+
+"Object Code" means a compiled form of the Initial Work.
+
+"Patent" means any patent, patent application, or other IP right
+related to a patent.
+
+"Source Code" means the human readable form of the Initial Work,
+including all comments, documentation, and supporting files.
+
+"Source Form" means the form of the Initial Work other than Object
+Code, including Source Code.
+
+2. Source Code License.
+
+(a) The licenses granted in Sections 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+and 12 of the Apache License, Version 2.0, are hereby granted to the
+Initial Work, provided that this Section 2 shall apply only for the
+term of this License.
+
+(b) Recipient may use Initial Work at no charge and for any purpose,
+except that Commercial Use is not licensed under this License and is
+prohibited except as set forth in Section 3.
+
+3. Grant of Commercial Use Rights.
+
+(a) Company grants Recipient a non-exclusive, non-transferable
+right to commercially use the Initial Work, provided that Recipient
+pays the fee set forth in the Commercial License Agreement between
+Company and Recipient.
+
+(b) Commercial Use rights do not include the right to sublicense
+such rights to third parties.
+
+4. Version Control.
+
+The Initial Work will be maintained in a public source code
+repository. The terms of this License will apply to all changes,
+extensions, or modifications made by Company to the Initial Work.
+
+5. General.
+
+This License is the entire agreement between the parties with respect
+to the Initial Work, and supersedes all prior or contemporaneous
+agreements, communications and understandings, whether written or
+oral, concerning such subject matter.
+
+6. Non-Reliance.
+
+Each party represents and warrants that they have not relied on any
+statements, representations, or warranties of the other party in
+entering into this License, and that they have entered into this
+License solely in reliance on its own evaluation of the Initial Work.
+
+7. Disclaimer of Warranties.
+
+EXCEPT AS EXPRESSLY PROVIDED IN THIS LICENSE, THE INITIAL WORK IS
+PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE AND
+NON-INFRINGEMENT.
+
+8. Limitation of Liability.
+
+IN NO EVENT SHALL ANY PARTY BE LIABLE FOR ANY INDIRECT, INCIDENTAL,
+SPECIAL, PUNITIVE, OR CONSEQUENTIAL DAMAGES, OR ANY DAMAGES WHATSOEVER
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+IN ANY WAY OUT OF THE USE OF THE INITIAL WORK, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+9. Open Source License.
+
+Effective as of 5 November 2030 (the "Change Date"), this License
+automatically converts to the Apache License, Version 2.0 (the
+"Change License"), and the Initial Work will be licensed under the
+terms of the Change License.
+
+Change License: Apache License, Version 2.0
+
+10. Notice.
+
+If you use or distribute the Initial Work (or any derivative work
+thereof), you agree to this License. Your use of the Initial Work
+means you accept this License. If you do not agree to abide by the
+terms of this License, then you may not use or redistribute the
+Initial Work.
+
+11. Commercial License.
+
+If you wish to use the Initial Work for Commercial Use, you must
+obtain a Commercial License from the Company. Contact:
+benetnath@gmail.com
+
+12. Trademark.
+
+This license does not grant any rights to use any trademarks, trade
+names, logos, or other branding of the Company.

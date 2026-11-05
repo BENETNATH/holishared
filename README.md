@@ -4,6 +4,18 @@ Planification de vacances / événements en groupe. Chaque événement est total
 isolé : le créateur invite des proches qui rejoignent via un lien + un code
 personnel, sans compte ni mot de passe.
 
+https://github.com/user-attachments/assets/holishared-demo.mp4
+
+## Licence
+
+**BUSL 1.1** (Business Source License) — usage libre, mais le **Commercial Use**
+(produire un progiciel, un SaaS, ou un service payant basé sur Holishared)
+requiert une licence commerciale auprès de l'auteur.
+
+- Contact : benetnath@gmail.com
+- Date de conversion en Apache 2.0 : **5 novembre 2030**
+- Voir [LICENSE](LICENSE)
+
 ## Stack
 
 - **Flask 3.x** — WSGI app
