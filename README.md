@@ -9,7 +9,7 @@ personnel, sans compte ni mot de passe.
 > sécurité** complet (recherche de CVE sur les dépendances, revue du code,
 > configuration TLS, durcissement).
 
-📹 [Voir la démo](https://github.com/BENETNATH/holishared/blob/main/holishared-demo.mp4)
+<img src="https://github.com/BENETNATH/holishared/releases/download/v0.1.0/holishared-demo.mp4" alt="Demo Holishared">
 
 ## Licence
 
