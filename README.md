@@ -4,7 +4,7 @@ Planification de vacances / événements en groupe. Chaque événement est total
 isolé : le créateur invite des proches qui rejoignent via un lien + un code
 personnel, sans compte ni mot de passe.
 
-https://github.com/user-attachments/assets/holishared-demo.mp4
+<video controls src="https://raw.githubusercontent.com/BENETNATH/holishared/main/holishared-demo.mp4" style="max-width:100%; border-radius:8px;"></video>
 
 ## Licence
 
