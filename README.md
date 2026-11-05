@@ -4,6 +4,11 @@ Planification de vacances / événements en groupe. Chaque événement est total
 isolé : le créateur invite des proches qui rejoignent via un lien + un code
 personnel, sans compte ni mot de passe.
 
+> ⚠️ **Ce dépôt n'est plus maintenu activement.**
+> Avant tout déploiement en production, il convient de réaliser un **audit de
+> sécurité** complet (recherche de CVE sur les dépendances, revue du code,
+> configuration TLS, durcissement).
+
 <img src="holishared-demo.mp4" alt="Demo Holishared">
 
 ## Licence
