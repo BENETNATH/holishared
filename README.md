@@ -12,7 +12,7 @@ https://github.com/user-attachments/assets/holishared-demo.mp4
 (produire un progiciel, un SaaS, ou un service payant basé sur Holishared)
 requiert une licence commerciale auprès de l'auteur.
 
-- Contact : benetnath@gmail.com
+- Contact : ouvrir un [GitHub Issue](https://github.com/BENETNATH/holishared/issues)
 - Date de conversion en Apache 2.0 : **5 novembre 2030**
 - Voir [LICENSE](LICENSE)
 
